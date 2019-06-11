@@ -1,6 +1,6 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
-data class Category(
+data class CategoryConfig(
     val name: String,
     val includedTagNames: List<String> = emptyList(),
     val excludedTagNames: List<String> = emptyList(),

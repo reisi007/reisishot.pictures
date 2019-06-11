@@ -1,12 +1,19 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
-open class SimpleImageInformation(
-    open val filename: String,
-    open val title: String
-)
 
-data class ExtendedImageInformation(
+interface ImageInformation {
+    val filename: String
+    val title: String
+    val tags: List<String>
+    val exifInformation: Map<String, String>
+}
+
+data class InternalImageInformation(
     override val filename: String,
     override val title: String,
-    val exifInformation: Map<String, String> = emptyMap()
-) : SimpleImageInformation(filename, title)
+    override val tags: List<String>,
+    val categories: MutableList<CategoryName>,
+    override val exifInformation: Map<String, String> = emptyMap()
+) : ImageInformation
+
+typealias CategoryName = List<String>

@@ -3,10 +3,13 @@ package pictures.reisishot.mise.backend
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.*
 
 data class WebsiteConfiguration(
     val title: String,
     val inFolder: Path = Paths.get("./src/main/resources"),
+    val outFolder: Path = Paths.get("./generated"),
+    val locale: Locale = Locale.getDefault(),
     val generators: Array<WebsiteGenerator> = emptyArray()
 ) {
     override fun equals(other: Any?): Boolean {

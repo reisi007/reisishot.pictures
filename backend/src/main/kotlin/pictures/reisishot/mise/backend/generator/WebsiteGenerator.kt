@@ -1,5 +1,8 @@
 package pictures.reisishot.mise.backend.generator
 
+import pictures.reisishot.mise.backend.WebsiteConfiguration
+import java.nio.file.Path
+
 interface WebsiteGenerator {
     /**
      * The higher the priority, the sooner the execution.
@@ -12,15 +15,24 @@ interface WebsiteGenerator {
     /**
     Should return *true* if this plugin needs to regenerate some files
      */
-    fun isGenerationNeeded(filename: String): Boolean
+    fun isGenerationNeeded(p: Path, extension: String): Boolean
 
-    fun generate(filename: String, cache: BuildingCache)
+    fun generate(
+        filename: List<Path>,
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        alreadyRunGenerators: List<WebsiteGenerator>
+    )
 
-    fun setup()
+    fun setup() {
+        println("Setup")
+    }
 
-    fun teardown()
+    fun teardown() {
+        println("Teardown")
+    }
 
     fun println(a: Any?) {
-        kotlin.io.println("[$generatorName] $a")
+        kotlin.io.println("[GENERATOR] [$generatorName] $a")
     }
 }

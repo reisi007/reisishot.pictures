@@ -16,8 +16,9 @@ object BuildingCache {
     fun getFileChangedDateFor(p: Path): Instant? = timestampMap.get(p.normalize().toAbsolutePath().toString())
 
     fun setFileChangedDateFor(p: Path, time: Instant?) = p.normalize().toAbsolutePath().toString().let { key ->
-        time?.let {
-            timestampMap.put(key, it)
-        } ?: timestampMap.remove(key)
+        if (time != null)
+            timestampMap.put(key, time)
+        else
+            timestampMap.remove(key)
     }
 }
