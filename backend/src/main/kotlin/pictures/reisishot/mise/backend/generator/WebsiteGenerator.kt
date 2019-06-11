@@ -14,5 +14,13 @@ interface WebsiteGenerator {
      */
     fun isGenerationNeeded(filename: String): Boolean
 
-    fun generate()
+    fun generate(filename: String, cache: BuildingCache)
+
+    fun setup()
+
+    fun teardown()
+
+    fun println(a: Any?) {
+        kotlin.io.println("[$generatorName] $a")
+    }
 }
