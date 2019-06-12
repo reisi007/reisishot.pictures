@@ -36,4 +36,7 @@ dependencies {
     implementation 'io.github.config4k:config4k:0.4.1'
     // https://mvnrepository.com/artifact/org.apache.velocity/velocity-engine-core
     implementation group: 'org.apache.velocity', name: 'velocity-engine-core', version: '2.1'
+    // https://mvnrepository.com/artifact/com.drewnoakes/metadata-extractor
+    implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.11.0'
+
 }
