@@ -5,6 +5,8 @@ import com.drew.metadata.exif.ExifIFD0Directory
 import com.drew.metadata.exif.ExifSubIFDDirectory
 import com.drew.metadata.file.FileSystemDirectory
 import com.drew.metadata.jpeg.JpegDirectory
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 enum class ExifdataKey(val displayName: String, val getValue: (ExifInformation) -> String?) {
     CAMERA_MAKE("Camera Make", { it.exifD0Directory?.getString(ExifIFD0Directory.TAG_MAKE) }),
@@ -13,6 +15,14 @@ enum class ExifdataKey(val displayName: String, val getValue: (ExifInformation) 
     APERTURE("Aperture", { it.exifSubIFDDirectory?.getString(ExifSubIFDDirectory.TAG_APERTURE) }),
     SHUTTER_SPEED("Shutter speed", { it.exifSubIFDDirectory?.getString(ExifSubIFDDirectory.TAG_SHUTTER_SPEED) }),
     FOCAL_LENGTH("Focal length", { it.exifSubIFDDirectory?.getString(ExifSubIFDDirectory.TAG_FOCAL_LENGTH) }),
+    CREATION_TIME("Creation Time", {
+        it.exifSubIFDDirectory?.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL)?.let { date ->
+            LocalDateTime.ofInstant(
+                date.toInstant(),
+                ZoneId.systemDefault()
+            ).toString()
+        }
+    }),
     LENS_MODEL("Lens model", {
         it.exifSubIFDDirectory?.getString(ExifSubIFDDirectory.TAG_LENS_MODEL).let { lensName ->
             if (lensName.isNullOrBlank()) {

@@ -3,6 +3,7 @@ package pictures.reisishot.mise.backend.generator.gallery.categories
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.gallery.CategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.CategoryName
+import pictures.reisishot.mise.backend.generator.gallery.ExifdataKey
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformationRepository
 import java.time.LocalDateTime
 import java.time.format.TextStyle
@@ -16,8 +17,7 @@ class DateCategoryBuilder(val rootCategoryName: String = "Kalendarisch") : Categ
     ): Sequence<CategoryName> =
         imageInformationRepository.allImageInformationData.asSequence()
             .flatMap {
-                //TODO pseudo code
-                val captureDate = LocalDateTime.parse(it.exifInformation["date"])
+                val captureDate = LocalDateTime.parse(it.exifInformation[ExifdataKey.CREATION_TIME])
                 listOf<String>(
                     rootCategoryName,
                     captureDate.year.toString(),

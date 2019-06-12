@@ -3,6 +3,7 @@ package pictures.reisishot.mise.backend
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
+import java.nio.file.Files
 import java.util.*
 
 @ObsoleteCoroutinesApi
@@ -36,7 +37,7 @@ object Mise {
         println("Start generation of Website...")
         println()
         System.currentTimeMillis().let { startTime ->
-
+            Files.createDirectories(outFolder)
             val generatorMap = TreeMap<Int, MutableList<WebsiteGenerator>>()
 
             generators.forEach { generator ->

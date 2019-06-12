@@ -5,7 +5,10 @@ import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import java.nio.file.Path
 
-class GalleryGenerator(private vararg val categoryBuilders: CategoryBuilder) : WebsiteGenerator,
+class GalleryGenerator(
+    private vararg val categoryBuilders: CategoryBuilder,
+    private val exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }
+) : WebsiteGenerator,
     ImageInformationRepository {
 
     override val generatorName: String = "Reisishot Gallery"
