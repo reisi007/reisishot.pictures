@@ -26,22 +26,20 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
         do {
             uncomputableSizeBefore = uncomputableCategories.size
             categoriesToCompute.forEach { curCategory ->
-                val categoryImages = mutableSetOf<ImageFilename>()
-                val subcategoryImages: Sequence<ImageFilename> =
+                val categoryImages: Sequence<ImageFilename> =
                     if (curCategory.includeSubcategories) {
                         val subalbumNames = getSubalbumNames(curCategory.name)
                         val canCompute = subalbumNames.all { computedCategories.containsKey(it) }
                         if (!canCompute) {
                             uncomputableCategories.add(curCategory)
-                            emptySequence()
+                            return@forEach
                         } else
                             subalbumNames.asSequence().flatMap { computedCategories.getValue(it).asSequence() }
-
                     } else emptySequence()
 
-                categoryImages += subcategoryImages.toList()
+
                 // Add images by Tag
-                categoryImages += imageInformationRepository.allImageInformationData.asSequence()
+                categoryImages + imageInformationRepository.allImageInformationData.asSequence()
                     .filter { imageInformationEntry ->
                         curCategory.includedTagNames.any { tagName ->
                             imageInformationEntry.tags.any {
@@ -62,9 +60,8 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
                         }
                     }
                     .map { it.filename }
-                    .toList()
 
-                computedCategories.put(curCategory.name, categoryImages)
+                computedCategories.put(curCategory.name, categoryImages.toSet())
             }
 
             categoriesToCompute = uncomputableCategories
