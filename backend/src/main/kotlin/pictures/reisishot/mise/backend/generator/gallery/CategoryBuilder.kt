@@ -1,6 +1,7 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
 import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.generator.BuildingCache
 
 interface CategoryBuilder {
 
@@ -9,13 +10,19 @@ interface CategoryBuilder {
     fun generateCategories(
         imageInformationRepository: ImageInformationRepository,
         websiteConfiguration: WebsiteConfiguration
-    ): Sequence<CategoryName>
+    ): Sequence<Pair<ImageFilename, CategoryName>>
 
-    fun setup() {
+    fun setup(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache
+    ) {
         println("Setup")
     }
 
-    fun teardown() {
+    fun teardown(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache
+    ) {
         println("Teardown")
     }
 
@@ -23,3 +30,6 @@ interface CategoryBuilder {
         kotlin.io.println("[CATEGORY BUILDER] [$builderName] $a")
     }
 }
+
+typealias ImageFilename = String
+typealias CategoryName = String

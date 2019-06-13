@@ -2,6 +2,7 @@ package pictures.reisishot.mise.backend
 
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import java.nio.file.Files
 import java.util.*
@@ -45,7 +46,7 @@ object Mise {
             }
             println("Started plugin setup")
             println()
-            generatorMap.forEachLimitedParallel { it.setup() }
+            generatorMap.forEachLimitedParallel { it.setup(this, BuildingCache) }
             println()
             println("Finished plugin setup")
             println()
@@ -71,7 +72,7 @@ object Mise {
             println()
             println("Started plugin teardown")
             println()
-            generatorMap.forEachParallel { it.teardown() }
+            generatorMap.forEachParallel { it.teardown(this, BuildingCache) }
             println()
             println("Finished plugin teardown")
         }

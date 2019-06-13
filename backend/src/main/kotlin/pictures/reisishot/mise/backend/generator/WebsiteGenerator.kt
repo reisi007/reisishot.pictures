@@ -24,11 +24,17 @@ interface WebsiteGenerator {
         alreadyRunGenerators: List<WebsiteGenerator>
     )
 
-    fun setup() {
+    fun setup(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache
+    ) {
         println("Setup")
     }
 
-    fun teardown() {
+    fun teardown(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache
+    ) {
         println("Teardown")
     }
 

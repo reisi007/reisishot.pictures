@@ -20,7 +20,7 @@ class GalleryGenerator(
 
     override fun isGenerationNeeded(p: Path, extension: String): Boolean = false
 
-    override fun generate(
+    suspend override fun generate(
         filename: List<Path>,
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
@@ -35,4 +35,13 @@ class GalleryGenerator(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    suspend override fun setup(configuration: WebsiteConfiguration, cache: BuildingCache) {
+        super.setup(configuration, cache)
+        categoryBuilders.forEach { it.setup(configuration, cache) }
+    }
+
+    suspend override fun teardown(configuration: WebsiteConfiguration, cache: BuildingCache) {
+        super.teardown(configuration, cache)
+        categoryBuilders.forEach { it.teardown(configuration, cache) }
+    }
 }

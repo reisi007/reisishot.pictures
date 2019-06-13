@@ -1,10 +1,7 @@
 package pictures.reisishot.mise.backend.generator.gallery.categories
 
 import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.generator.gallery.CategoryBuilder
-import pictures.reisishot.mise.backend.generator.gallery.CategoryName
-import pictures.reisishot.mise.backend.generator.gallery.ExifdataKey
-import pictures.reisishot.mise.backend.generator.gallery.ImageInformationRepository
+import pictures.reisishot.mise.backend.generator.gallery.*
 import java.time.LocalDateTime
 import java.time.format.TextStyle
 
@@ -14,22 +11,23 @@ class DateCategoryBuilder(val rootCategoryName: String = "Kalendarisch") : Categ
     override fun generateCategories(
         imageInformationRepository: ImageInformationRepository,
         websiteConfiguration: WebsiteConfiguration
-    ): Sequence<CategoryName> =
+    ): Sequence<Pair<ImageFilename, CategoryName>> =
         imageInformationRepository.allImageInformationData.asSequence()
             .flatMap {
                 val captureDate = LocalDateTime.parse(it.exifInformation[ExifdataKey.CREATION_TIME])
-                listOf<String>(
+                (it.filename to listOf<String>(
                     rootCategoryName,
                     captureDate.year.toString(),
                     captureDate.month.getDisplayName(TextStyle.FULL, websiteConfiguration.locale),
                     captureDate.dayOfMonth.toString()
-                ).allPossibleSublists()
+                )).allPossibleSublists()
             }
 
-    private fun <T> List<T>.allPossibleSublists(): Sequence<List<T>> {
-        val tmp = mutableListOf<List<T>>()
-        for (i in 1..size)
-            tmp += this.subList(0, i)
+    private fun Pair<ImageFilename, List<String>>.allPossibleSublists(): Sequence<Pair<ImageFilename, CategoryName>> {
+        val tmp = mutableListOf<Pair<ImageFilename, String>>()
+
+        for (i in 1..second.size)
+            tmp += first to arrayOf(first, *this.second.subList(0, i).toTypedArray()).joinToString("/")
         return tmp.asSequence()
     }
 }

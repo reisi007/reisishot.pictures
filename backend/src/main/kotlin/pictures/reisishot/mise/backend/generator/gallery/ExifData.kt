@@ -1,30 +1,27 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
 import com.drew.metadata.Metadata
+import com.drew.metadata.exif.ExifIFD0Descriptor
 import com.drew.metadata.exif.ExifIFD0Directory
+import com.drew.metadata.exif.ExifSubIFDDescriptor
 import com.drew.metadata.exif.ExifSubIFDDirectory
+import com.drew.metadata.file.FileSystemDescriptor
 import com.drew.metadata.file.FileSystemDirectory
+import com.drew.metadata.jpeg.JpegDescriptor
 import com.drew.metadata.jpeg.JpegDirectory
-import java.time.LocalDateTime
-import java.time.ZoneId
 
 enum class ExifdataKey(val displayName: String, val getValue: (ExifInformation) -> String?) {
-    CAMERA_MAKE("Camera Make", { it.exifD0Directory?.getString(ExifIFD0Directory.TAG_MAKE) }),
-    CAMERA_MODEL("Camera model", { it.exifD0Directory?.getString(ExifIFD0Directory.TAG_MODEL) }),
-    ISO("ISO", { it.exifSubIFDDirectory?.getString(ExifSubIFDDirectory.TAG_ISO_EQUIVALENT) }),
-    APERTURE("Aperture", { it.exifSubIFDDirectory?.getString(ExifSubIFDDirectory.TAG_APERTURE) }),
-    SHUTTER_SPEED("Shutter speed", { it.exifSubIFDDirectory?.getString(ExifSubIFDDirectory.TAG_SHUTTER_SPEED) }),
-    FOCAL_LENGTH("Focal length", { it.exifSubIFDDirectory?.getString(ExifSubIFDDirectory.TAG_FOCAL_LENGTH) }),
+    CAMERA_MAKE("Camera Make", { it.exifD0Descriptor?.cameraMakeDescription }),
+    CAMERA_MODEL("Camera model", { it.exifD0Descriptor?.cameraModelDescription }),
+    ISO("ISO", { it.exifSubIFDDescriptor?.isoEquivalentDescription }),
+    APERTURE("Aperture", { it.exifSubIFDDescriptor?.apertureValueDescription }),
+    SHUTTER_SPEED("Shutter speed", { it.exifSubIFDDescriptor?.shutterSpeedDescription }),
+    FOCAL_LENGTH("Focal length", { it.exifSubIFDDescriptor?.focalLengthDescription }),
     CREATION_TIME("Creation Time", {
-        it.exifSubIFDDirectory?.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL)?.let { date ->
-            LocalDateTime.ofInstant(
-                date.toInstant(),
-                ZoneId.systemDefault()
-            ).toString()
-        }
+        it.exifSubIFDDescriptor?.creationTimeDescription
     }),
     LENS_MODEL("Lens model", {
-        it.exifSubIFDDirectory?.getString(ExifSubIFDDirectory.TAG_LENS_MODEL).let { lensName ->
+        it.exifSubIFDDescriptor?.lensModelDescription.let { lensName ->
             if (lensName.isNullOrBlank()) {
                 val focalLength = FOCAL_LENGTH.getValue(it)
                 if (!focalLength.isNullOrBlank())
@@ -37,17 +34,25 @@ enum class ExifdataKey(val displayName: String, val getValue: (ExifInformation) 
     override fun toString(): String = displayName
 }
 
+val ExifIFD0Descriptor.cameraMakeDescription: String? get() = getDescription(ExifIFD0Directory.TAG_MAKE)
+val ExifIFD0Descriptor.cameraModelDescription: String? get() = getDescription(ExifIFD0Directory.TAG_MODEL)
+val ExifSubIFDDescriptor.creationTimeDescription: String? get() = getDescription(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL)
+val ExifSubIFDDescriptor.lensModelDescription: String? get() = getDescription(ExifSubIFDDirectory.TAG_LENS_MODEL)
+
 class ExifInformation(metadata: Metadata) {
-    val jpegDirectory: JpegDirectory?
-    val exifD0Directory: ExifIFD0Directory?
-    val exifSubIFDDirectory: ExifSubIFDDirectory?
-    val fileSystemDirectory: FileSystemDirectory?
+    val jpegDescriptor: JpegDescriptor?
+    val exifD0Descriptor: ExifIFD0Descriptor?
+    val exifSubIFDDescriptor: ExifSubIFDDescriptor?
+    val fileSystemDescriptor: FileSystemDescriptor?
 
     init {
-        jpegDirectory = metadata.getFirstDirectoryOfType(JpegDirectory::class.java)
-        exifD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory::class.java)
-        exifSubIFDDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory::class.java)
-        fileSystemDirectory = metadata.getFirstDirectoryOfType(FileSystemDirectory::class.java)
+        jpegDescriptor = metadata.getFirstDirectoryOfType(JpegDirectory::class.java)?.let { JpegDescriptor(it) }
+        exifD0Descriptor =
+            metadata.getFirstDirectoryOfType(ExifIFD0Directory::class.java)?.let { ExifIFD0Descriptor(it) }
+        exifSubIFDDescriptor =
+            metadata.getFirstDirectoryOfType(ExifSubIFDDirectory::class.java)?.let { ExifSubIFDDescriptor(it) }
+        fileSystemDescriptor =
+            metadata.getFirstDirectoryOfType(FileSystemDirectory::class.java)?.let { FileSystemDescriptor(it) }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -56,24 +61,24 @@ class ExifInformation(metadata: Metadata) {
 
         other as ExifInformation
 
-        if (jpegDirectory != other.jpegDirectory) return false
-        if (exifD0Directory != other.exifD0Directory) return false
-        if (exifSubIFDDirectory != other.exifSubIFDDirectory) return false
-        if (fileSystemDirectory != other.fileSystemDirectory) return false
+        if (jpegDescriptor != other.jpegDescriptor) return false
+        if (exifD0Descriptor != other.exifD0Descriptor) return false
+        if (exifSubIFDDescriptor != other.exifSubIFDDescriptor) return false
+        if (fileSystemDescriptor != other.fileSystemDescriptor) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = jpegDirectory?.hashCode() ?: 0
-        result = 31 * result + (exifD0Directory?.hashCode() ?: 0)
-        result = 31 * result + (exifSubIFDDirectory?.hashCode() ?: 0)
-        result = 31 * result + (fileSystemDirectory?.hashCode() ?: 0)
+        var result = jpegDescriptor?.hashCode() ?: 0
+        result = 31 * result + (exifD0Descriptor?.hashCode() ?: 0)
+        result = 31 * result + (exifSubIFDDescriptor?.hashCode() ?: 0)
+        result = 31 * result + (fileSystemDescriptor?.hashCode() ?: 0)
         return result
     }
 
     override fun toString(): String {
-        return "ExifInformation(jpegDirectory=$jpegDirectory, exifD0Directory=$exifD0Directory, exifSubIFDDirectory=$exifSubIFDDirectory, fileSystemDirectory=$fileSystemDirectory)"
+        return "ExifInformation(jpegDescriptor=$jpegDescriptor, exifD0Descriptor=$exifD0Descriptor, exifSubIFDDescriptor=$exifSubIFDDescriptor, fileSystemDescriptor=$fileSystemDescriptor)"
     }
 
 }

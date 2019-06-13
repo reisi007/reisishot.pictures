@@ -5,6 +5,7 @@ import pictures.reisishot.mise.backend.generator.blog.BlogGenerator
 import pictures.reisishot.mise.backend.generator.gallery.ExifdataKey
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.ThumbnailGenerator
+import pictures.reisishot.mise.backend.generator.gallery.categories.ConfigurableCategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategoryBuilder
 import java.nio.file.Paths
 
@@ -21,8 +22,10 @@ object MyWebsite {
                 generators = arrayOf(
                     BlogGenerator(),
                     GalleryGenerator(
-                        categoryBuilders = *arrayOf(DateCategoryBuilder()),
-                        exifReplaceFunction = { cur ->
+                        categoryBuilders = *arrayOf(
+                            DateCategoryBuilder(),
+                            ConfigurableCategoryBuilder()
+                        ), exifReplaceFunction = { cur ->
                             when (cur.first) {
                                 ExifdataKey.LENS_MODEL -> when (cur.second) {
                                     "105 mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM"
