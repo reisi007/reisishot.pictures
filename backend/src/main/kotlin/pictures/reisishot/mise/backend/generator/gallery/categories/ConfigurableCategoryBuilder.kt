@@ -42,7 +42,25 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
                 categoryImages += subcategoryImages.toList()
                 // Add images by Tag
                 categoryImages += imageInformationRepository.allImageInformationData.asSequence()
-                    .filter { TODO("Check the includeTag and excludeTag properties") }
+                    .filter { imageInformationEntry ->
+                        curCategory.includedTagNames.any { tagName ->
+                            imageInformationEntry.tags.any {
+                                tagName.equals(
+                                    it,
+                                    true
+                                )
+                            }
+                        }
+                    }.filter { imageInformationEntry ->
+                        imageInformationEntry.tags.none { tagName ->
+                            curCategory.excludedTagNames.any {
+                                tagName.equals(
+                                    it,
+                                    true
+                                )
+                            }
+                        }
+                    }
                     .map { it.filename }
                     .toList()
 
