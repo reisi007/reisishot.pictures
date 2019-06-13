@@ -52,8 +52,8 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
                             }
                         }
                     }.filter { imageInformationEntry ->
-                        imageInformationEntry.tags.none { tagName ->
-                            curCategory.excludedTagNames.any {
+                        curCategory.excludedTagNames.none { tagName ->
+                            imageInformationEntry.tags.any {
                                 tagName.equals(
                                     it,
                                     true
