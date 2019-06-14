@@ -7,19 +7,19 @@ interface CategoryBuilder {
 
     val builderName: String
 
-    fun generateCategories(
+    suspend fun generateCategories(
         imageInformationRepository: ImageInformationRepository,
         websiteConfiguration: WebsiteConfiguration
     ): Sequence<Pair<ImageFilename, CategoryName>>
 
-    fun setup(
+    suspend fun setup(
         configuration: WebsiteConfiguration,
         cache: BuildingCache
     ) {
         println("Setup")
     }
 
-    fun teardown(
+    suspend fun teardown(
         configuration: WebsiteConfiguration,
         cache: BuildingCache
     ) {
@@ -33,3 +33,4 @@ interface CategoryBuilder {
 
 typealias ImageFilename = String
 typealias CategoryName = String
+typealias TagName = String

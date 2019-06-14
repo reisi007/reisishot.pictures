@@ -1,10 +1,12 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import java.nio.file.Path
 
+@ObsoleteCoroutinesApi
 class GalleryGenerator(
     private vararg val categoryBuilders: CategoryBuilder,
     private val exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }
@@ -17,30 +19,26 @@ class GalleryGenerator(
     private val imageInformationCache: Map<Path, InternalImageInformation> = mutableMapOf()
     override val allImageInformationData: Collection<ImageInformation> = imageInformationCache.values
 
+    private val computedTagsInternal: MutableMap<TagName, MutableSet<ImageInformation>> = mutableMapOf()
+    override val computedTags: Map<TagName, Set<ImageInformation>> = computedTagsInternal
 
-    override fun isGenerationNeeded(p: Path, extension: String): Boolean = false
-
-    suspend override fun generate(
-        filename: List<Path>,
+    override suspend fun generate(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
     ) {
         val thumbnailGenerator = alreadyRunGenerators.find { it is ThumbnailGenerator } as? ThumbnailGenerator
             ?: throw IllegalStateException("Thumbnail generator has bot run yet, however this is needed for this generator")
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        //TODO not implemented
     }
 
-    override fun getImageInformation(path: Path): ImageInformation {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 
-    suspend override fun setup(configuration: WebsiteConfiguration, cache: BuildingCache) {
+    override suspend fun setup(configuration: WebsiteConfiguration, cache: BuildingCache) {
         super.setup(configuration, cache)
         categoryBuilders.forEach { it.setup(configuration, cache) }
     }
 
-    suspend override fun teardown(configuration: WebsiteConfiguration, cache: BuildingCache) {
+    override suspend fun teardown(configuration: WebsiteConfiguration, cache: BuildingCache) {
         super.teardown(configuration, cache)
         categoryBuilders.forEach { it.teardown(configuration, cache) }
     }

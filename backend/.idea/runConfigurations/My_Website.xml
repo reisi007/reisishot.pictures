@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Build my Website" type="JetRunConfigurationType" factoryName="Kotlin">
+  <configuration default="false" name="My Website" type="JetRunConfigurationType" factoryName="Kotlin">
     <module name="mise-backend.main" />
     <option name="VM_PARAMETERS" value="" />
     <option name="PROGRAM_PARAMETERS" value="" />
@@ -9,7 +9,7 @@
     <option name="MAIN_CLASS_NAME" value="pictures.reisishot.mise.backend.MyWebsite" />
     <option name="WORKING_DIRECTORY" value="" />
     <method v="2">
-      <option name="MakeProject" enabled="true" />
+      <option name="Make" enabled="true" />
     </method>
   </configuration>
 </component>

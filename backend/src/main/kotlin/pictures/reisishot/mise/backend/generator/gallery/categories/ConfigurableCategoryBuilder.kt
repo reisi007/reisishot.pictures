@@ -11,7 +11,7 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
 
     private lateinit var categoryConfig: List<CategoryConfig>
 
-    override fun generateCategories(
+    override suspend fun generateCategories(
         imageInformationRepository: ImageInformationRepository,
         websiteConfiguration: WebsiteConfiguration
     ): Sequence<Pair<String, String>> {
@@ -20,13 +20,13 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
 
         var categoriesToCompute: Collection<CategoryConfig> = categoryConfig
         var uncomputableCategories: MutableCollection<CategoryConfig> = mutableListOf()
-        var uncomputableSizeBefore: Int//Must start with an negative value for correct computation
+        var uncomputableSizeBefore: Int
 
 
         do {
             uncomputableSizeBefore = uncomputableCategories.size
             categoriesToCompute.forEach { curCategory ->
-                val categoryImages: Sequence<ImageFilename> =
+                val categoryImages: MutableSet<ImageFilename> =
                     if (curCategory.includeSubcategories) {
                         val subalbumNames = getSubalbumNames(curCategory.name)
                         val canCompute = subalbumNames.all { computedCategories.containsKey(it) }
@@ -34,34 +34,24 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
                             uncomputableCategories.add(curCategory)
                             return@forEach
                         } else
-                            subalbumNames.asSequence().flatMap { computedCategories.getValue(it).asSequence() }
-                    } else emptySequence()
+                            subalbumNames.asSequence().flatMap { categoryName ->
+                                computedCategories.getValue(categoryName).asSequence()
+                            }.toMutableSet()
+                    } else mutableSetOf()
 
 
                 // Add images by Tag
-                categoryImages + imageInformationRepository.allImageInformationData.asSequence()
-                    .filter { imageInformationEntry ->
-                        curCategory.includedTagNames.any { tagName ->
-                            imageInformationEntry.tags.any {
-                                tagName.equals(
-                                    it,
-                                    true
-                                )
-                            }
-                        }
-                    }.filter { imageInformationEntry ->
-                        curCategory.excludedTagNames.none { tagName ->
-                            imageInformationEntry.tags.any {
-                                tagName.equals(
-                                    it,
-                                    true
-                                )
-                            }
-                        }
+                categoryImages += curCategory.includedTagNames.asSequence()
+                    .flatMap { tagName ->
+                        imageInformationRepository.computedTags.getValue(tagName).asSequence().map { it.filename }
                     }
-                    .map { it.filename }
 
-                computedCategories.put(curCategory.name, categoryImages.toSet())
+                categoryImages -= curCategory.excludedTagNames.asSequence()
+                    .flatMap { tagName ->
+                        imageInformationRepository.computedTags.getValue(tagName).asSequence().map { it.filename }
+                    }
+
+                computedCategories.put(curCategory.name, categoryImages)
             }
 
             categoriesToCompute = uncomputableCategories
@@ -86,15 +76,17 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
         .filter { it.startsWith(categoryName, true) }
         .toList()
 
-    override fun setup(
+    override suspend fun setup(
         configuration: WebsiteConfiguration,
         cache: BuildingCache
     ) {
         super.setup(configuration, cache)
-        categoryConfig = configuration.inFolder.withChild("categories.conf").parseConfig("categories")
+        categoryConfig = configuration.inPath.withChild("categories.conf").let {
+            it.parseConfig("categories") ?: throw IllegalStateException("Could not find config file \"$it\"!")
+        }
     }
 
-    override fun teardown(
+    override suspend fun teardown(
         configuration: WebsiteConfiguration,
         cache: BuildingCache
     ) {

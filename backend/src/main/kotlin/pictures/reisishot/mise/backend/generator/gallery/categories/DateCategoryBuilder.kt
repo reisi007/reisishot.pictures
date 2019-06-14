@@ -8,7 +8,7 @@ import java.time.format.TextStyle
 class DateCategoryBuilder(val rootCategoryName: String = "Kalendarisch") : CategoryBuilder {
     override val builderName: String = "Reisishot Kalender Category Builder"
 
-    override fun generateCategories(
+    override suspend fun generateCategories(
         imageInformationRepository: ImageInformationRepository,
         websiteConfiguration: WebsiteConfiguration
     ): Sequence<Pair<ImageFilename, CategoryName>> =

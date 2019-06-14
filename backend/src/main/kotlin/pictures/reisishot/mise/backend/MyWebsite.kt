@@ -17,8 +17,8 @@ object MyWebsite {
         Mise.build(
             WebsiteConfiguration(
                 title = "Reisishot - Hobbyfotograf Florian Reisinger",
-                inFolder = Paths.get("src/main/resources"),
-                outFolder = Paths.get("../frontend/generated"),
+                inPath = Paths.get("src/main/resources"),
+                outPath = Paths.get("../frontend/generated"),
                 generators = arrayOf(
                     BlogGenerator(),
                     GalleryGenerator(

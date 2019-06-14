@@ -1,28 +1,106 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.withContext
+import net.coobird.thumbnailator.Thumbnails
 import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.forEachLimitedParallel
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
+import pictures.reisishot.mise.backend.readImage
+import pictures.reisishot.mise.backend.withChild
+import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardOpenOption
+import javax.imageio.IIOImage
+import javax.imageio.ImageIO
+import javax.imageio.ImageWriteParam
+import javax.imageio.metadata.IIOMetadata
+import javax.imageio.plugins.jpeg.JPEGImageWriteParam
+import kotlin.streams.asSequence
 
-class ThumbnailGenerator : WebsiteGenerator {
 
-    enum class ImageSize(val longestSidePx: Int) {
-        SMALL(300), MEDIUM(1000), LARGE(2500)
+@ObsoleteCoroutinesApi
+class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegeneration()) : WebsiteGenerator {
+
+    enum class ImageSize(private val prefix: String, val longestSidePx: Int, val quality: Float) {
+        SMALL("icon", 300, 0.5f), MEDIUM("embed", 1000, 0.75f), LARGE("large", 2500, 0.85f);
+
+        fun decoratePath(p: Path): Path = with(p) {
+            parent withChild prefix + '_' + fileName
+        }
+
     }
+
+    data class ForceRegeneration(val thumbnails: Boolean = false)
 
     override val executionPriority: Int = 1_000
     override val generatorName: String = "Reisishot JPG Thumbnail generator"
-    private val extensionSuffix = Regex("(jpg|jpeg)", RegexOption.IGNORE_CASE)
 
-    override fun isGenerationNeeded(p: Path, extension: String): Boolean = extension.matches(extensionSuffix)
-
-    override fun generate(
-        filename: List<Path>,
+    suspend override fun generate(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
     ) {
-        //TODO Add logic
+        val outPath = configuration.outPath withChild "images"
+        withContext(Dispatchers.IO) {
+            Files.createDirectories(outPath)
+        }
+        val jpegWriter = ImageIO.getImageWritersByFormatName("jpeg").next()
+            ?: throw IllegalStateException("Could not find a writer for JPEG!")
+        ImageSize.values().let { imageSizes ->
+            configuration.inPath.withChild("images").list().filter { it.isJpeg }
+                .filter { inFile ->
+                    if (forceRegeneration.thumbnails)
+                        true
+                    else
+                        cache.hasFileChanged(inFile, false)
+                }.asIterable().forEachLimitedParallel { inFile ->
+                    val baseOutFile = outPath withChild inFile.fileName
+                    if (!Files.exists(inFile)) {
+                        // Cleanup
+                        imageSizes.forEach {
+                            val decoratedPath = it.decoratePath(baseOutFile)
+                            Files.deleteIfExists(decoratedPath)
+                            cache.hasFileChanged(decoratedPath, true)
+                        }
+                    } else {
+                        // Generate
+                        val image = inFile.readImage()
+
+                        imageSizes.forEach { imageSize ->
+                            with(
+                                Thumbnails.of(image)
+                                    .size(imageSize.longestSidePx, imageSize.longestSidePx)
+                                    .asBufferedImage()
+                            ) {
+                                imageSize.decoratePath(baseOutFile).let { realOutPath ->
+                                    ImageIO.createImageOutputStream(
+                                        Files.newOutputStream(
+                                            realOutPath,
+                                            StandardOpenOption.CREATE,
+                                            StandardOpenOption.TRUNCATE_EXISTING
+                                        )
+                                    ).use { imageOs ->
+                                        val param = JPEGImageWriteParam(configuration.locale)
+                                        param.compressionMode = ImageWriteParam.MODE_EXPLICIT
+                                        param.compressionQuality = imageSize.quality
+                                        param.progressiveMode = ImageWriteParam.MODE_DEFAULT
+                                        val streamData: IIOMetadata? = jpegWriter.getDefaultStreamMetadata(param)
+                                        jpegWriter.output = imageOs
+
+                                        jpegWriter.write(streamData, IIOImage(this, null, null), param)
+                                        cache.hasFileChanged(realOutPath)
+                                        cache.hasFileChanged(inFile)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+        }
     }
+
+    private fun Path.list(): Sequence<Path> = Files.list(this).asSequence()
 }

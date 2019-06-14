@@ -12,26 +12,21 @@ interface WebsiteGenerator {
 
     val generatorName: String
 
-    /**
-    Should return *true* if this plugin needs to regenerate some files
-     */
-    fun isGenerationNeeded(p: Path, extension: String): Boolean
 
-    fun generate(
-        filename: List<Path>,
+    suspend fun generate(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
     )
 
-    fun setup(
+    suspend fun setup(
         configuration: WebsiteConfiguration,
         cache: BuildingCache
     ) {
         println("Setup")
     }
 
-    fun teardown(
+    suspend fun teardown(
         configuration: WebsiteConfiguration,
         cache: BuildingCache
     ) {
@@ -41,4 +36,19 @@ interface WebsiteGenerator {
     fun println(a: Any?) {
         kotlin.io.println("[GENERATOR] [$generatorName] $a")
     }
+
+    val Path.isJpeg
+        get() = toString().let { filename ->
+            filename.endsWith("jpg", true) || filename.endsWith("jpeg", true)
+        }
+
+    val Path.isMarkdown
+        get() = toString().let { filename ->
+            filename.endsWith("mk", true)
+        }
+
+    val Path.isConf
+        get() = toString().let { filename ->
+            filename.endsWith("conf", true)
+        }
 }

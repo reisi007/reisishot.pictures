@@ -1,7 +1,6 @@
 package pictures.reisishot.mise.backend
 
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import java.nio.file.Files
@@ -10,37 +9,39 @@ import java.util.*
 @ObsoleteCoroutinesApi
 object Mise {
 
-    fun build(configuration: WebsiteConfiguration) = configuration.execute();
+    fun build(configuration: WebsiteConfiguration) = runBlocking { configuration.execute() }
 
 
-    private fun Map<Int, List<WebsiteGenerator>>.forEachLimitedParallel(callable: (WebsiteGenerator) -> Unit) {
+    private suspend fun Map<Int, List<WebsiteGenerator>>.forEachLimitedParallel(callable: suspend (WebsiteGenerator) -> Unit) {
         keys.forEach { priority ->
             get(priority)?.let {
-                runBlocking {
-                    it.forEachLimitedParallel(callable)
+                coroutineScope {
+                    it.forEachLimitedParallel { callable(it) }
                 }
             } ?: throw IllegalStateException("No list found for priority $priority")
         }
     }
 
-    private fun Map<Int, List<WebsiteGenerator>>.forEachParallel(callable: (WebsiteGenerator) -> Unit) {
+    private suspend fun Map<Int, List<WebsiteGenerator>>.forEachParallel(callable: suspend (WebsiteGenerator) -> Unit) {
         keys.forEach { priority ->
             get(priority)?.let {
-                runBlocking {
-                    it.forEachParallel(callable)
+                coroutineScope {
+                    it.forEachParallel { callable(it) }
                 }
             } ?: throw IllegalStateException("No list found for priority $priority")
         }
     }
 
-
-    private fun WebsiteConfiguration.execute() {
+    private suspend fun WebsiteConfiguration.execute() {
         println("Start generation of Website...")
         println()
         System.currentTimeMillis().let { startTime ->
-            Files.createDirectories(outFolder)
-            val generatorMap = TreeMap<Int, MutableList<WebsiteGenerator>>()
+            withContext(Dispatchers.IO) {
+                Files.createDirectories(outPath)
+            }
 
+            val generatorMap = TreeMap<Int, MutableList<WebsiteGenerator>>()
+            BuildingCache.setup(this)
             generators.forEach { generator ->
                 generatorMap.computeIfAbsent(generator.executionPriority) { mutableListOf() } += generator
             }
@@ -62,10 +63,10 @@ object Mise {
                 )
                 runBlocking {
                     generators.forEachLimitedParallel { generator ->
-                        //TODO call the individual generators
+                        generator.generate(this@execute, BuildingCache, runGenerators)
                     }
                 }
-
+                runGenerators += generators
             }
             println()
             println("Website generation finished in ${System.currentTimeMillis() - startTime} ms...")
@@ -73,6 +74,7 @@ object Mise {
             println("Started plugin teardown")
             println()
             generatorMap.forEachParallel { it.teardown(this, BuildingCache) }
+            BuildingCache.teardown(this)
             println()
             println("Finished plugin teardown")
         }
