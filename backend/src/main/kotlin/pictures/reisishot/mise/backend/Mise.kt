@@ -14,9 +14,9 @@ object Mise {
 
     private suspend fun Map<Int, List<WebsiteGenerator>>.forEachLimitedParallel(callable: suspend (WebsiteGenerator) -> Unit) {
         keys.forEach { priority ->
-            get(priority)?.let {
+            get(priority)?.let { generators ->
                 coroutineScope {
-                    it.forEachLimitedParallel { callable(it) }
+                    generators.forEachLimitedParallel(generators.size) { callable(it) }
                 }
             } ?: throw IllegalStateException("No list found for priority $priority")
         }
@@ -62,7 +62,7 @@ object Mise {
                     ) { it.generatorName } + ")"
                 )
                 runBlocking {
-                    generators.forEachLimitedParallel { generator ->
+                    generators.forEachLimitedParallel(generators.size) { generator ->
                         generator.generate(this@execute, BuildingCache, runGenerators)
                     }
                 }

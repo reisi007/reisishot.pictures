@@ -1,14 +1,10 @@
 package pictures.reisishot.mise.backend.generator
 
 import io.github.config4k.toConfig
-import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.parseConfig
-import pictures.reisishot.mise.backend.withChild
-import pictures.reisishot.mise.backend.writeTo
+import pictures.reisishot.mise.backend.*
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -34,12 +30,10 @@ object BuildingCache {
     fun getAsString(p: Path): String =
         stringCacheMap.computeIfAbsent(p) { Files.newBufferedReader(it).use { reader -> reader.readLine() } }
 
-    fun hasFileChanged(p: Path, updateTime: Boolean = true): Boolean {
-        val cachedValue: ZonedDateTime? = oldtimestampMap.get(p.normalize().toAbsolutePath())
+    fun hasFileChanged(p: Path): Boolean = with(p.toAbsolutePath().normalize()) {
+        val cachedValue: ZonedDateTime? = oldtimestampMap.get(this)
 
-        val actualValue = if (Files.exists(p) && Files.isRegularFile(p))
-            Files.getLastModifiedTime(p).toInstant().atZone(ZoneId.systemDefault())
-        else null
+        val actualValue = fileModifiedDateTime
 
         val hasChanged = when {
             cachedValue == null && actualValue != null -> {
@@ -56,13 +50,10 @@ object BuildingCache {
             }
             else -> false
         }
-        if (hasChanged && updateTime) {
-            setFileChangedDateFor(p, actualValue)
-        }
         return hasChanged
     }
 
-    private fun setFileChangedDateFor(p: Path, time: ZonedDateTime?) =
+    fun setFileChanged(p: Path, time: ZonedDateTime?): Unit =
         p.normalize().toAbsolutePath().let { key ->
             if (time != null)
                 timestampMap.put(key, time)

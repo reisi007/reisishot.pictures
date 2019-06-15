@@ -12,19 +12,19 @@ import java.nio.file.Files
 import java.nio.file.OpenOption
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import javax.swing.ImageIcon
 
 @ObsoleteCoroutinesApi
 suspend fun <E> Iterable<E>.forEachLimitedParallel(
-    dispatcher: CoroutineDispatcher = newFixedThreadPoolContext(
-        2 * Runtime.getRuntime().availableProcessors(),
+    maxThreadCount: Int, callable: suspend (E) -> Unit
+) = forEachParallel(
+    newFixedThreadPoolContext(
+        Math.min(maxThreadCount, 2 * Runtime.getRuntime().availableProcessors()),
         "Foreach"
-    ), callable: suspend (E) -> Unit
-) = coroutineScope {
-    map {
-        launch(dispatcher) { callable(it) }
-    }
-}
+    ), callable
+)
 
 @ObsoleteCoroutinesApi
 suspend fun <E> Iterable<E>.forEachParallel(
@@ -88,3 +88,8 @@ fun Path.readImage(): BufferedImage =
             it.paintIcon(null, createGraphics(), 0, 0)
         }
     }
+
+val Path.fileModifiedDateTime: ZonedDateTime?
+    get() = if (Files.exists(this) && Files.isRegularFile(this))
+        Files.getLastModifiedTime(this).toInstant().atZone(ZoneId.systemDefault())
+    else null

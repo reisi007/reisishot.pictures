@@ -13,6 +13,7 @@ import pictures.reisishot.mise.backend.withChild
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
+import java.time.ZonedDateTime
 import javax.imageio.IIOImage
 import javax.imageio.ImageIO
 import javax.imageio.ImageWriteParam
@@ -55,15 +56,24 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
                     if (forceRegeneration.thumbnails)
                         true
                     else
-                        cache.hasFileChanged(inFile, false)
-                }.asIterable().forEachLimitedParallel { inFile ->
+                        cache.hasFileChanged(inFile)
+                }.asIterable().forEachLimitedParallel(10) { inFile ->
                     val baseOutFile = outPath withChild inFile.fileName
+                    if (!forceRegeneration.thumbnails) {
+                        sequenceOf(inFile).plus(
+                            imageSizes.asSequence().map { it.decoratePath(baseOutFile) }
+                        ).all { cache.hasFileChanged(it) }.let { changed ->
+                            if (!changed)
+                                return@forEachLimitedParallel
+                        }
+                    }
+
                     if (!Files.exists(inFile)) {
                         // Cleanup
                         imageSizes.forEach {
                             val decoratedPath = it.decoratePath(baseOutFile)
                             Files.deleteIfExists(decoratedPath)
-                            cache.hasFileChanged(decoratedPath, true)
+                            cache.setFileChanged(decoratedPath, null)
                         }
                     } else {
                         // Generate
@@ -91,8 +101,10 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
                                         jpegWriter.output = imageOs
 
                                         jpegWriter.write(streamData, IIOImage(this, null, null), param)
-                                        cache.hasFileChanged(realOutPath)
-                                        cache.hasFileChanged(inFile)
+                                        ZonedDateTime.now().let { fileTime ->
+                                            cache.setFileChanged(realOutPath, fileTime)
+                                            cache.setFileChanged(inFile, fileTime)
+                                        }
                                     }
                                 }
                             }
