@@ -14,8 +14,8 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
     override suspend fun generateCategories(
         imageInformationRepository: ImageInformationRepository,
         websiteConfiguration: WebsiteConfiguration
-    ): Sequence<Pair<String, String>> {
-        val computedCategories: MutableMap<String, Set<String>> = mutableMapOf()
+    ): Sequence<Pair<FilenameWithoutExtension, CategoryName>> {
+        val computedCategories: MutableMap<CategoryName, Set<FilenameWithoutExtension>> = mutableMapOf()
 
 
         var categoriesToCompute: Collection<CategoryConfig> = categoryConfig
@@ -26,7 +26,7 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
         do {
             uncomputableSizeBefore = uncomputableCategories.size
             categoriesToCompute.forEach { curCategory ->
-                val categoryImages: MutableSet<ImageFilename> =
+                val categoryImages =
                     if (curCategory.includeSubcategories) {
                         val subalbumNames = getSubalbumNames(curCategory.name)
                         val canCompute = subalbumNames.all { computedCategories.containsKey(it) }
@@ -39,16 +39,17 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
                             }.toMutableSet()
                     } else mutableSetOf()
 
-
                 // Add images by Tag
                 categoryImages += curCategory.includedTagNames.asSequence()
                     .flatMap { tagName ->
-                        imageInformationRepository.computedTags.getValue(tagName).asSequence().map { it.filename }
+                        imageInformationRepository.computedTags.getValue(tagName).asSequence()
+                            .map { it.filenameWithoutExtension }
                     }
 
                 categoryImages -= curCategory.excludedTagNames.asSequence()
                     .flatMap { tagName ->
-                        imageInformationRepository.computedTags.getValue(tagName).asSequence().map { it.filename }
+                        imageInformationRepository.computedTags.getValue(tagName).asSequence()
+                            .map { it.filenameWithoutExtension }
                     }
 
                 computedCategories.put(curCategory.name, categoryImages)
@@ -73,7 +74,7 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
 
     private fun getSubalbumNames(categoryName: CategoryName): Collection<CategoryName> = categoryConfig.asSequence()
         .map { it.name }
-        .filter { it.startsWith(categoryName, true) }
+        .filter { it.startsWith(categoryName, true) && categoryName != it }
         .toList()
 
     override suspend fun setup(

@@ -2,6 +2,7 @@ package pictures.reisishot.mise.backend.generator.gallery
 
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
+import java.nio.file.Path
 
 interface CategoryBuilder {
 
@@ -10,7 +11,7 @@ interface CategoryBuilder {
     suspend fun generateCategories(
         imageInformationRepository: ImageInformationRepository,
         websiteConfiguration: WebsiteConfiguration
-    ): Sequence<Pair<ImageFilename, CategoryName>>
+    ): Sequence<Pair<FilenameWithoutExtension, CategoryName>>
 
     suspend fun setup(
         configuration: WebsiteConfiguration,
@@ -31,6 +32,7 @@ interface CategoryBuilder {
     }
 }
 
-typealias ImageFilename = String
+typealias ImageFilename = Path
 typealias CategoryName = String
 typealias TagName = String
+typealias FilenameWithoutExtension = String

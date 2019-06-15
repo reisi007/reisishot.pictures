@@ -5,6 +5,8 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
 import io.github.config4k.extract
 import kotlinx.coroutines.*
+import pictures.reisishot.mise.backend.generator.gallery.ExifdataKey
+import pictures.reisishot.mise.backend.generator.gallery.FilenameWithoutExtension
 import java.awt.image.BufferedImage
 import java.io.BufferedReader
 import java.io.InputStream
@@ -12,9 +14,12 @@ import java.nio.file.Files
 import java.nio.file.OpenOption
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import javax.swing.ImageIcon
+import kotlin.streams.asSequence
 
 @ObsoleteCoroutinesApi
 suspend fun <E> Iterable<E>.forEachLimitedParallel(
@@ -93,3 +98,26 @@ val Path.fileModifiedDateTime: ZonedDateTime?
     get() = if (Files.exists(this) && Files.isRegularFile(this))
         Files.getLastModifiedTime(this).toInstant().atZone(ZoneId.systemDefault())
     else null
+
+val Path.filenameWithoutExtension: FilenameWithoutExtension
+    get() = with(fileName.toString()) {
+        substring(0, lastIndexOf('.'))
+    }
+
+val Path.filenameExtension: String
+    get() = with(fileName.toString()) {
+        substring(lastIndexOf('.') + 1)
+    }
+
+fun Path.list(): Sequence<Path> = Files.list(this).asSequence()
+
+fun Path.exists() = Files.exists(this)
+
+private val exifDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
+fun Map<ExifdataKey, String>.getAsZonedDateTime(exifdataKey: ExifdataKey): ZonedDateTime? =
+    get(exifdataKey)?.let {
+        ZonedDateTime.of(
+            LocalDateTime.from(exifDateTimeFormatter.parse(it)),
+            ZoneId.systemDefault()
+        )
+    }

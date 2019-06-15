@@ -4,12 +4,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.withContext
 import net.coobird.thumbnailator.Thumbnails
-import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.forEachLimitedParallel
+import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
-import pictures.reisishot.mise.backend.readImage
-import pictures.reisishot.mise.backend.withChild
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -19,7 +16,6 @@ import javax.imageio.ImageIO
 import javax.imageio.ImageWriteParam
 import javax.imageio.metadata.IIOMetadata
 import javax.imageio.plugins.jpeg.JPEGImageWriteParam
-import kotlin.streams.asSequence
 
 
 @ObsoleteCoroutinesApi
@@ -31,13 +27,14 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
         fun decoratePath(p: Path): Path = with(p) {
             parent withChild prefix + '_' + fileName
         }
-
     }
 
     data class ForceRegeneration(val thumbnails: Boolean = false)
 
     override val executionPriority: Int = 1_000
     override val generatorName: String = "Reisishot JPG Thumbnail generator"
+
+    lateinit var imageFolder: Path
 
     suspend override fun generate(
         configuration: WebsiteConfiguration,
@@ -51,7 +48,8 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
         val jpegWriter = ImageIO.getImageWritersByFormatName("jpeg").next()
             ?: throw IllegalStateException("Could not find a writer for JPEG!")
         ImageSize.values().let { imageSizes ->
-            configuration.inPath.withChild("images").list().filter { it.isJpeg }
+            imageFolder = configuration.inPath.withChild("images")
+            imageFolder.list().filter { it.isJpeg }
                 .filter { inFile ->
                     if (forceRegeneration.thumbnails)
                         true
@@ -113,6 +111,4 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
                 }
         }
     }
-
-    private fun Path.list(): Sequence<Path> = Files.list(this).asSequence()
 }
