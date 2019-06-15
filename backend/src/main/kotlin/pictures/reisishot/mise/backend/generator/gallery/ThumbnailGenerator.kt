@@ -21,6 +21,10 @@ import javax.imageio.plugins.jpeg.JPEGImageWriteParam
 @ObsoleteCoroutinesApi
 class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegeneration()) : WebsiteGenerator {
 
+    companion object {
+        const val NAME_SUBFOLDER = "images"
+    }
+
     enum class ImageSize(private val prefix: String, val longestSidePx: Int, val quality: Float) {
         SMALL("icon", 300, 0.5f), MEDIUM("embed", 1000, 0.75f), LARGE("large", 2500, 0.85f);
 
@@ -34,22 +38,19 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
     override val executionPriority: Int = 1_000
     override val generatorName: String = "Reisishot JPG Thumbnail generator"
 
-    lateinit var imageFolder: Path
-
     suspend override fun generate(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
     ) {
-        val outPath = configuration.outPath withChild "images"
+        val outPath = configuration.outPath withChild NAME_SUBFOLDER
         withContext(Dispatchers.IO) {
             Files.createDirectories(outPath)
         }
         val jpegWriter = ImageIO.getImageWritersByFormatName("jpeg").next()
             ?: throw IllegalStateException("Could not find a writer for JPEG!")
         ImageSize.values().let { imageSizes ->
-            imageFolder = configuration.inPath.withChild("images")
-            imageFolder.list().filter { it.isJpeg }
+            configuration.inPath.withChild(NAME_SUBFOLDER).list().filter { it.isJpeg }
                 .filter { inFile ->
                     if (forceRegeneration.thumbnails)
                         true

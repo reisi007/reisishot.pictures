@@ -9,6 +9,10 @@ import com.drew.metadata.file.FileSystemDescriptor
 import com.drew.metadata.file.FileSystemDirectory
 import com.drew.metadata.jpeg.JpegDescriptor
 import com.drew.metadata.jpeg.JpegDirectory
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 enum class ExifdataKey(val displayName: String, val getValue: (ExifInformation) -> String?) {
     CAMERA_MAKE("Camera Make", { it.exifD0Descriptor?.cameraMakeDescription }),
@@ -18,7 +22,9 @@ enum class ExifdataKey(val displayName: String, val getValue: (ExifInformation) 
     SHUTTER_SPEED("Shutter speed", { it.exifSubIFDDescriptor?.shutterSpeedDescription }),
     FOCAL_LENGTH("Focal length", { it.exifSubIFDDescriptor?.focalLengthDescription }),
     CREATION_TIME("Creation Time", {
-        it.exifSubIFDDescriptor?.creationTimeDescription
+        it.exifSubIFDDescriptor?.creationTimeDescription?.let {
+            ZonedDateTime.of(LocalDateTime.from(exifDateTimeFormatter.parse(it)), ZoneId.systemDefault()).toString()
+        }
     }),
     LENS_MODEL("Lens model", {
         it.exifSubIFDDescriptor?.lensModelDescription.let { lensName ->
@@ -30,9 +36,9 @@ enum class ExifdataKey(val displayName: String, val getValue: (ExifInformation) 
             return@let lensName
         }
     });
-
-    override fun toString(): String = displayName
 }
+
+private val exifDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
 
 val ExifIFD0Descriptor.cameraMakeDescription: String? get() = getDescription(ExifIFD0Directory.TAG_MAKE)
 val ExifIFD0Descriptor.cameraModelDescription: String? get() = getDescription(ExifIFD0Directory.TAG_MODEL)

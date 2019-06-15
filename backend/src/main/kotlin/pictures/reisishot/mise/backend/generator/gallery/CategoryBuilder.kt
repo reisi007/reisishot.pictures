@@ -32,7 +32,7 @@ interface CategoryBuilder {
     }
 }
 
-typealias ImageFilename = Path
+typealias ImagePath = Path
 typealias CategoryName = String
 typealias TagName = String
 typealias FilenameWithoutExtension = String

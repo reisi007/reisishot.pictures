@@ -5,6 +5,8 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
+import pictures.reisishot.mise.backend.html.PageGenerator
+import pictures.reisishot.mise.backend.html.PageGenerator.singleImageGallery
 import java.nio.file.Path
 
 @ObsoleteCoroutinesApi
@@ -17,7 +19,8 @@ class GalleryGenerator(
     override val generatorName: String = "Reisishot Gallery"
     override val executionPriority: Int = 20_000
 
-    private val cache = Cache()
+    private var cache = Cache()
+    private lateinit var cachePath: Path
 
     data class Cache(
         val imageInformationData: MutableMap<FilenameWithoutExtension, InternalImageInformation> =
@@ -39,33 +42,54 @@ class GalleryGenerator(
     ) {
         val thumbnailGenerator = alreadyRunGenerators.find { it is ThumbnailGenerator } as? ThumbnailGenerator
             ?: throw IllegalStateException("Thumbnail generator has bot run yet, however this is needed for this generator")
-        buildImageInformation(thumbnailGenerator)
-        buildTags()
-        buildCategories(configuration)
+        buildCache(configuration)
 
-        generateWebpages()
+        generateWebpages(configuration)
     }
 
-    private suspend fun buildImageInformation(thumbnailGenerator: ThumbnailGenerator) {
-        thumbnailGenerator.imageFolder.list().filter { it.isJpeg }.asIterable().forEachLimitedParallel(20) { jpegPath ->
-            val filenameWithoutExtension = jpegPath.filenameWithoutExtension
-            val configPath = jpegPath.parent withChild filenameWithoutExtension + ".conf"
-            if (configPath.exists() && jpegPath.exists()) {
-                val imageConfig: ImageConfig = configPath.parseConfig()
-                    ?: throw IllegalStateException("Could not load config file $configPath. Please check if the format is valid!")
-                val exifData = jpegPath.readExif()
+    private suspend fun buildCache(configuration: WebsiteConfiguration) {
+        val newestFile = configuration.inPath.withChild(ThumbnailGenerator.NAME_SUBFOLDER).list()
+            .map {
+                it.fileModifiedDateTime
+                    ?: throw IllegalStateException("File $it is listed but no file modified time...")
+            }.max() ?: return  // No file to detect
 
-                InternalImageInformation(
-                    jpegPath,
-                    filenameWithoutExtension,
-                    imageConfig.title,
-                    imageConfig.tags,
-                    exifData
-                ).apply {
-                    cache.imageInformationData.put(filenameWithoutExtension, this)
-                }
+        cachePath.fileModifiedDateTime?.let { cacheTime ->
+            if (cacheTime > newestFile) {
+                cache = cachePath.fromJson()
+                    ?: throw IllegalStateException("Cache has a modifed date, but cannot be parsed!")
+                return
             }
         }
+
+        buildImageInformation(configuration)
+        buildTags()
+        buildCategories(configuration)
+    }
+
+    // TODO Write cache files and use them instead of computing...
+    private suspend fun buildImageInformation(configuration: WebsiteConfiguration) {
+        (configuration.inPath withChild ThumbnailGenerator.NAME_SUBFOLDER).list().filter { it.isJpeg }.asIterable()
+            .forEachLimitedParallel(20) { jpegPath ->
+                val filenameWithoutExtension = jpegPath.filenameWithoutExtension
+                val configPath = jpegPath.parent withChild filenameWithoutExtension + ".conf"
+                if (configPath.exists() && jpegPath.exists()) {
+                    val imageConfig: ImageConfig = configPath.parseConfig()
+                        ?: throw IllegalStateException("Could not load config file $configPath. Please check if the format is valid!")
+                    val exifData = jpegPath.readExif()
+
+                    InternalImageInformation(
+                        jpegPath,
+                        filenameWithoutExtension,
+                        imageConfig.url,
+                        imageConfig.title,
+                        imageConfig.tags,
+                        exifData
+                    ).apply {
+                        cache.imageInformationData.put(filenameWithoutExtension, this)
+                    }
+                }
+            }
     }
 
     private fun buildTags() = with(cache) {
@@ -107,8 +131,20 @@ class GalleryGenerator(
         }
     }
 
-    fun generateWebpages() {
-        // TODO implement
+    private suspend fun generateWebpages(configuration: WebsiteConfiguration) {
+        val generatedImagesPath = configuration.outPath withChild ThumbnailGenerator.NAME_SUBFOLDER
+        (configuration.outPath withChild "gallery/images").let { baseHtmlPath ->
+            cache.imageInformationData.values.forEachLimitedParallel(50) { (_, imageName, url, title, tags, exifInformation, categories) ->
+                PageGenerator.generatePage(
+                    target = baseHtmlPath withChild url withChild "index.html",
+                    title = title,
+                    pageContent = {
+                        singleImageGallery(generatedImagesPath, imageName)
+                    }
+                )
+            }
+        }
+        //TODO implement other and extract to other functions for betetr readability
     }
 
     private fun Path.readExif(): Map<ExifdataKey, String> = mutableMapOf<ExifdataKey, String>().apply {
@@ -127,11 +163,13 @@ class GalleryGenerator(
 
     override suspend fun setup(configuration: WebsiteConfiguration, cache: BuildingCache) {
         super.setup(configuration, cache)
+        cachePath = configuration.inPath withChild "gallery.cache.json"
         categoryBuilders.forEach { it.setup(configuration, cache) }
     }
 
-    override suspend fun teardown(configuration: WebsiteConfiguration, cache: BuildingCache) {
-        super.teardown(configuration, cache)
-        categoryBuilders.forEach { it.teardown(configuration, cache) }
+    override suspend fun teardown(configuration: WebsiteConfiguration, buildingCache: BuildingCache) {
+        super.teardown(configuration, buildingCache)
+        cache.toJson(cachePath)
+        categoryBuilders.forEach { it.teardown(configuration, buildingCache) }
     }
 }

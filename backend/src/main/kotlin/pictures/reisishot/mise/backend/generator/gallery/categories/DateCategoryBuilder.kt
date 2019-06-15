@@ -2,7 +2,7 @@ package pictures.reisishot.mise.backend.generator.gallery.categories
 
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.gallery.*
-import pictures.reisishot.mise.backend.getAsZonedDateTime
+import java.time.ZonedDateTime
 import java.time.format.TextStyle
 
 class DateCategoryBuilder(val rootCategoryName: String = "Kalendarisch") : CategoryBuilder {
@@ -14,7 +14,7 @@ class DateCategoryBuilder(val rootCategoryName: String = "Kalendarisch") : Categ
     ): Sequence<Pair<FilenameWithoutExtension, CategoryName>> =
         imageInformationRepository.imageInformationData.asSequence()
             .flatMap {
-                val captureDate = it.exifInformation.getAsZonedDateTime(ExifdataKey.CREATION_TIME)
+                val captureDate = it.exifInformation.get(ExifdataKey.CREATION_TIME)?.let { ZonedDateTime.parse(it) }
                 if (captureDate == null)
                     emptySequence()
                 else

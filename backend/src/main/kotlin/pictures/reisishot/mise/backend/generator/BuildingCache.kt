@@ -1,10 +1,9 @@
 package pictures.reisishot.mise.backend.generator
 
-import io.github.config4k.toConfig
+import com.google.gson.reflect.TypeToken
 import pictures.reisishot.mise.backend.*
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -14,8 +13,10 @@ object BuildingCache {
     private lateinit var timestampMapPath: Path
     private val stringCacheMap: MutableMap<Path, String> = mutableMapOf()
 
-    private lateinit var oldtimestampMap: MutableMap<Path, ZonedDateTime>
-    private lateinit var timestampMap: MutableMap<Path, ZonedDateTime>
+    // Used for querying (all plugins should have the same cache
+    private lateinit var oldtimestampMap: MutableMap<String, ZonedDateTime>
+    // Used for updating the cache for the next run
+    private lateinit var timestampMap: MutableMap<String, ZonedDateTime>
     private lateinit var linkCahce: MutableMap<String, MutableMap<String, String>>
 
     private val dateTimeFormatter = DateTimeFormatter.ISO_ZONED_DATE_TIME
@@ -30,10 +31,10 @@ object BuildingCache {
     fun getAsString(p: Path): String =
         stringCacheMap.computeIfAbsent(p) { Files.newBufferedReader(it).use { reader -> reader.readLine() } }
 
-    fun hasFileChanged(p: Path): Boolean = with(p.toAbsolutePath().normalize()) {
-        val cachedValue: ZonedDateTime? = oldtimestampMap.get(this)
+    fun hasFileChanged(p: Path): Boolean {
+        val cachedValue: ZonedDateTime? = oldtimestampMap.get(p.toNormalizedString())
 
-        val actualValue = fileModifiedDateTime
+        val actualValue = p.fileModifiedDateTime
 
         val hasChanged = when {
             cachedValue == null && actualValue != null -> {
@@ -53,36 +54,21 @@ object BuildingCache {
         return hasChanged
     }
 
-    fun setFileChanged(p: Path, time: ZonedDateTime?): Unit =
-        p.normalize().toAbsolutePath().let { key ->
-            if (time != null)
-                timestampMap.put(key, time)
-            else
-                timestampMap.remove(key)
-        }
+    fun setFileChanged(p: Path, time: ZonedDateTime?) = with(p.toNormalizedString()) {
+        if (time != null)
+            timestampMap.put(this, time)
+        else
+            timestampMap.remove(this)
+    }
 
     internal fun setup(config: WebsiteConfiguration) {
-        timestampMapPath = config.inPath withChild "timestamp.cache"
-        val timestampList: List<Pair<String, String>> = timestampMapPath.parseConfig(TIMESTAMPS_KEY) ?: emptyList()
-        oldtimestampMap = mutableMapOf()
-        oldtimestampMap.putAll(
-            timestampList.asSequence().map { (path, date) ->
-                Paths.get(path) to ZonedDateTime.from(
-                    dateTimeFormatter.parse(date)
-                )
-            }.asIterable()
-        )
+        timestampMapPath = config.inPath withChild "timestamp.cache.json"
+        oldtimestampMap =
+            timestampMapPath.fromJson(object : TypeToken<HashMap<String, ZonedDateTime>>() {}) ?: mutableMapOf()
         timestampMap = HashMap(oldtimestampMap)
-
     }
 
     internal fun teardown(config: WebsiteConfiguration) {
-        timestampMap.asSequence()
-            .map { (path, date) -> path.toString() to date.format(dateTimeFormatter) }
-            .toList()
-            .toConfig(TIMESTAMPS_KEY)
-            .root()
-            .render()
-            .writeTo(timestampMapPath)
+        timestampMap.toJson(timestampMapPath)
     }
 }
