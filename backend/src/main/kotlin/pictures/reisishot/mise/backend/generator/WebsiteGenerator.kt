@@ -13,24 +13,31 @@ interface WebsiteGenerator {
     val generatorName: String
 
 
-    suspend fun generate(
+    suspend fun fetchInformation(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
-    )
-
-    suspend fun setup(
-        configuration: WebsiteConfiguration,
-        cache: BuildingCache
     ) {
-        println("Setup")
+
     }
 
-    suspend fun teardown(
+    suspend fun buildArtifacts(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache
+    )
+
+    suspend fun loadCache(
         configuration: WebsiteConfiguration,
         cache: BuildingCache
     ) {
-        println("Teardown")
+        println("Load cache")
+    }
+
+    suspend fun saveCache(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache
+    ) {
+        println("Save cache")
     }
 
     fun println(a: Any?) {

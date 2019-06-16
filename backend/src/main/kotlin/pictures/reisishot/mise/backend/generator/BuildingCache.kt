@@ -61,14 +61,14 @@ object BuildingCache {
             timestampMap.remove(this)
     }
 
-    internal fun setup(config: WebsiteConfiguration) {
+    internal fun loadCache(config: WebsiteConfiguration) {
         timestampMapPath = config.inPath withChild "timestamp.cache.json"
         oldtimestampMap =
             timestampMapPath.fromJson(object : TypeToken<HashMap<String, ZonedDateTime>>() {}) ?: mutableMapOf()
         timestampMap = HashMap(oldtimestampMap)
     }
 
-    internal fun teardown(config: WebsiteConfiguration) {
+    internal fun saveCache(config: WebsiteConfiguration) {
         timestampMap.toJson(timestampMapPath)
     }
 }

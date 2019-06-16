@@ -41,17 +41,19 @@ object Mise {
             }
 
             val generatorMap = TreeMap<Int, MutableList<WebsiteGenerator>>()
-            BuildingCache.setup(this)
+            BuildingCache.loadCache(this)
             generators.forEach { generator ->
                 generatorMap.computeIfAbsent(generator.executionPriority) { mutableListOf() } += generator
             }
-            println("Started plugin setup")
+            println("Reading / generating cahce...")
             println()
-            generatorMap.forEachLimitedParallel { it.setup(this, BuildingCache) }
+            with(generatorMap.values) {
+                flatMap { it }.forEachLimitedParallel(size) { it.loadCache(this@execute, BuildingCache) }
+            }
             println()
-            println("Finished plugin setup")
+            println("Reading / generating cahce...")
             println()
-            println("Building website using the following generator configuration... ")
+            println("Preparing website build using the following generator configuration... ")
             println()
             val runGenerators = mutableListOf<WebsiteGenerator>()
             generatorMap.forEach { priority, generators ->
@@ -63,7 +65,30 @@ object Mise {
                 )
                 runBlocking {
                     generators.forEachLimitedParallel(generators.size) { generator ->
-                        generator.generate(this@execute, BuildingCache, runGenerators)
+                        generator.fetchInformation(this@execute, BuildingCache, runGenerators)
+                    }
+                }
+                runGenerators += generators
+            }
+            println()
+            println("Writing cahce...")
+            println()
+            println()
+            println("Building website using the following generator configuration... ")
+            println()
+            with(generatorMap.values) {
+                flatMap { it }.forEachLimitedParallel(size) { it.saveCache(this@execute, BuildingCache) }
+            }
+            generatorMap.forEach { priority, generators ->
+                println(
+                    "Executing priority $priority (the following generators " + generators.joinToString(
+                        prefix = "[",
+                        postfix = "]"
+                    ) { it.generatorName } + ")"
+                )
+                runBlocking {
+                    generators.forEachLimitedParallel(generators.size) { generator ->
+                        generator.buildArtifacts(this@execute, BuildingCache)
                     }
                 }
                 runGenerators += generators
@@ -71,12 +96,14 @@ object Mise {
             println()
             println("Website generation finished in ${System.currentTimeMillis() - startTime} ms...")
             println()
-            println("Started plugin teardown")
+            println("Writing cahce...")
             println()
-            generatorMap.forEachParallel { it.teardown(this, BuildingCache) }
-            BuildingCache.teardown(this)
+            with(generatorMap.values) {
+                flatMap { it }.forEachLimitedParallel(size) { it.saveCache(this@execute, BuildingCache) }
+            }
+            BuildingCache.saveCache(this)
             println()
-            println("Finished plugin teardown")
+            println("Writing cahce...")
         }
     }
 }

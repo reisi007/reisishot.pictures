@@ -1,6 +1,7 @@
 var
     gulp = require('gulp'),
     browserSync = require('browser-sync'),
+    sourcemaps = require('gulp-sourcemaps'),
     $ = require('gulp-load-plugins')({lazy: true});
 
 gulp.task('styles', function () {
@@ -14,6 +15,12 @@ gulp.task('styles', function () {
         .pipe(browserSync.reload({stream: true}));
 });
 
+gulp.task('copyStatic', function () {
+    return gulp
+        .src('./src/static/**/*')
+        .pipe(gulp.dest('generated'))
+});
+
 gulp.task('vendorStyles', function () {
     gulp.src('./src/css/**/*.css')
         .pipe($.concat('vendor.css'))
@@ -22,7 +29,12 @@ gulp.task('vendorStyles', function () {
 
 gulp.task('vendorScripts', function () {
     gulp.src('./src/js/vendor/**/*.js')
-        .pipe(gulp.dest('generated/js/vendor'));
+        .pipe($.concat('vendor.js'))
+        .pipe(sourcemaps.init())
+        .pipe($.babel())
+        .pipe($.uglify())
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest('generated/js'));
 });
 
 gulp.task('scripts', function () {
@@ -32,9 +44,11 @@ gulp.task('scripts', function () {
             './src/js/!(app)*.js'
         ])
         .pipe($.plumber())
-        .pipe($.babel())
         .pipe($.concat('app.js'))
-        //.pipe( $.uglify() )
+        .pipe(sourcemaps.init())
+        .pipe($.babel())
+        .pipe($.uglify())
+        .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('generated/js'))
         .pipe(browserSync.reload({stream: true}));
 });
@@ -68,6 +82,7 @@ gulp.task('watch', function () {
 
 gulp.task('default', function () {
     gulp.start(
+        'copyStatic',
         'vendorStyles',
         'styles',
         'vendorScripts',

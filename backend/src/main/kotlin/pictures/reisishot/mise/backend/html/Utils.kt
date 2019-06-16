@@ -14,9 +14,8 @@ fun HTMLTag.raw(content: String): Unit = consumer.onTagContentUnsafe {
 }
 
 @HtmlTagMarker
-fun FlowContent.div(id: String, classes: String? = null, block: DIV.() -> Unit = {}): Unit =
-    DIV(attributesMapOf("class", classes).apply {
-        with(attributes) {
-            put("id", id)
-        }
-    }, consumer).visit(block)
+fun FlowContent.div(divId: String, classes: String? = null, block: DIV.() -> Unit = {}): Unit =
+    DIV(attributesMapOf("class", classes), consumer).visit {
+        id = divId
+        block(this)
+    }

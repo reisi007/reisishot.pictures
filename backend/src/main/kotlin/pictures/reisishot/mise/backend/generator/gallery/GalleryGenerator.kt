@@ -35,17 +35,15 @@ class GalleryGenerator(
     override val computedTags: Map<TagName, Set<ImageInformation>> = cache.computedTags
 
 
-    override suspend fun generate(
+    override suspend fun fetchInformation(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
-    ) {
-        val thumbnailGenerator = alreadyRunGenerators.find { it is ThumbnailGenerator } as? ThumbnailGenerator
-            ?: throw IllegalStateException("Thumbnail generator has bot run yet, however this is needed for this generator")
-        buildCache(configuration)
+    ) = buildCache(configuration)
 
+    override suspend fun buildArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) =
         generateWebpages(configuration)
-    }
+
 
     private suspend fun buildCache(configuration: WebsiteConfiguration) {
         val newestFile = configuration.inPath.withChild(ThumbnailGenerator.NAME_SUBFOLDER).list()
@@ -161,14 +159,14 @@ class GalleryGenerator(
             }
     }
 
-    override suspend fun setup(configuration: WebsiteConfiguration, cache: BuildingCache) {
-        super.setup(configuration, cache)
+    override suspend fun loadCache(configuration: WebsiteConfiguration, cache: BuildingCache) {
+        super.loadCache(configuration, cache)
         cachePath = configuration.inPath withChild "gallery.cache.json"
         categoryBuilders.forEach { it.setup(configuration, cache) }
     }
 
-    override suspend fun teardown(configuration: WebsiteConfiguration, buildingCache: BuildingCache) {
-        super.teardown(configuration, buildingCache)
+    override suspend fun saveCache(configuration: WebsiteConfiguration, buildingCache: BuildingCache) {
+        super.saveCache(configuration, buildingCache)
         cache.toJson(cachePath)
         categoryBuilders.forEach { it.teardown(configuration, buildingCache) }
     }

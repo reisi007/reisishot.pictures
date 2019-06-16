@@ -1,3 +1,5 @@
+//'use strict';
 (function () {
-    console.log("JS working!")
+    const observer = window.lozad();
+    observer.observe();
 })();

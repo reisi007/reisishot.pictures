@@ -36,11 +36,11 @@ object PageGenerator {
 
                         title(title)
 
-                        bootstrapCss()
+                        vendorCss()
                         appCss()
 
-                        jqueryJs()
-                        bootstrapJs()
+                        polyfills()
+                        vendorJs()
                         appJs()
 
                         additionalHeadContent(this)
@@ -64,22 +64,16 @@ object PageGenerator {
         }
     }
 
-    private fun HEAD.bootstrapCss() =
-        styleLink("https://stackpath.bootstrapcdn.com/bootstrap/$VERSION_BOOTSTRAP/css/bootstrap.min.css")
-
     private fun HEAD.script(src: String) = script(src = src) {}
 
-    private fun HEAD.jqueryJs() =
-        script("https://code.jquery.com/jquery-$VERSION_JQUERY.slim.min.js")
-
-    private fun HEAD.bootstrapJs() {
-        script("https://cdnjs.cloudflare.com/ajax/libs/popper.js/$VERSION_POPPER/umd/popper.min.js")
-        script("https://stackpath.bootstrapcdn.com/bootstrap/$VERSION_BOOTSTRAP/js/bootstrap.min.js")
-    }
-
     private fun HEAD.appCss() = styleLink("/css/app.css")
+    private fun HEAD.vendorCss() = styleLink("/css/vendor.css")
 
     private fun HEAD.appJs() = script("/js/app.js")
+    private fun HEAD.vendorJs() = script("/js/vendor.js")
+    private fun HEAD.polyfills() {
+        script("https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver")
+    }
 
     private fun HEAD.metaUTF8() = meta(charset = "UTF8")
 

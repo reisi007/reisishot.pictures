@@ -38,11 +38,7 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
     override val executionPriority: Int = 1_000
     override val generatorName: String = "Reisishot JPG Thumbnail generator"
 
-    suspend override fun generate(
-        configuration: WebsiteConfiguration,
-        cache: BuildingCache,
-        alreadyRunGenerators: List<WebsiteGenerator>
-    ) {
+    override suspend fun buildArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
         val outPath = configuration.outPath withChild NAME_SUBFOLDER
         withContext(Dispatchers.IO) {
             Files.createDirectories(outPath)
