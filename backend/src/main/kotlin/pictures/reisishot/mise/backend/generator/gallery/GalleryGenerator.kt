@@ -1,15 +1,14 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
 import com.drew.imaging.ImageMetadataReader
-import kotlinx.coroutines.ObsoleteCoroutinesApi
+import com.google.gson.reflect.TypeToken
 import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.html.PageGenerator
-import pictures.reisishot.mise.backend.html.PageGenerator.singleImageGallery
 import java.nio.file.Path
 
-@ObsoleteCoroutinesApi
+
 class GalleryGenerator(
     private vararg val categoryBuilders: CategoryBuilder,
     private val exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }
@@ -46,7 +45,7 @@ class GalleryGenerator(
 
 
     private suspend fun buildCache(configuration: WebsiteConfiguration) {
-        val newestFile = configuration.inPath.withChild(ThumbnailGenerator.NAME_SUBFOLDER).list()
+        val newestFile = configuration.inPath.withChild(ThumbnailGenerator.NAME_IMAGE_SUBFOLDER).list()
             .map {
                 it.fileModifiedDateTime
                     ?: throw IllegalStateException("File $it is listed but no file modified time...")
@@ -67,22 +66,29 @@ class GalleryGenerator(
 
     // TODO Write cache files and use them instead of computing...
     private suspend fun buildImageInformation(configuration: WebsiteConfiguration) {
-        (configuration.inPath withChild ThumbnailGenerator.NAME_SUBFOLDER).list().filter { it.isJpeg }.asIterable()
+        (configuration.inPath withChild ThumbnailGenerator.NAME_IMAGE_SUBFOLDER).list().filter { it.isJpeg }
+            .asIterable()
             .forEachLimitedParallel(20) { jpegPath ->
                 val filenameWithoutExtension = jpegPath.filenameWithoutExtension
-                val configPath = jpegPath.parent withChild filenameWithoutExtension + ".conf"
-                if (configPath.exists() && jpegPath.exists()) {
+                val configPath = jpegPath.parent withChild "$filenameWithoutExtension.conf"
+                val thumbnailInfoPath =
+                    configuration.inPath withChild ThumbnailGenerator.NAME_THUMBINFO_SUBFOLDER withChild "$filenameWithoutExtension.json"
+                if (configPath.exists() && jpegPath.exists() && thumbnailInfoPath.exists()) {
                     val imageConfig: ImageConfig = configPath.parseConfig()
                         ?: throw IllegalStateException("Could not load config file $configPath. Please check if the format is valid!")
                     val exifData = jpegPath.readExif()
+                    val thumbnailConfig: Map<ThumbnailGenerator.ImageSize, ThumbnailGenerator.ThumbnailInformation> =
+                        thumbnailInfoPath.fromJson(object :
+                            TypeToken<HashMap<ThumbnailGenerator.ImageSize, ThumbnailGenerator.ThumbnailInformation>>() {})
+                            ?: throw IllegalStateException("Thumbnail info not found...")
 
                     InternalImageInformation(
-                        jpegPath,
                         filenameWithoutExtension,
                         imageConfig.url,
                         imageConfig.title,
                         imageConfig.tags,
-                        exifData
+                        exifData,
+                        thumbnailConfig
                     ).apply {
                         cache.imageInformationData.put(filenameWithoutExtension, this)
                     }
@@ -130,14 +136,13 @@ class GalleryGenerator(
     }
 
     private suspend fun generateWebpages(configuration: WebsiteConfiguration) {
-        val generatedImagesPath = configuration.outPath withChild ThumbnailGenerator.NAME_SUBFOLDER
         (configuration.outPath withChild "gallery/images").let { baseHtmlPath ->
-            cache.imageInformationData.values.forEachLimitedParallel(50) { (_, imageName, url, title, tags, exifInformation, categories) ->
+            cache.imageInformationData.values.forEachLimitedParallel(50) { curImageInformation ->
                 PageGenerator.generatePage(
-                    target = baseHtmlPath withChild url withChild "index.html",
-                    title = title,
+                    target = baseHtmlPath withChild curImageInformation.url withChild "index.html",
+                    title = curImageInformation.title,
                     pageContent = {
-                        singleImageGallery(generatedImagesPath, imageName)
+                        insertImageGallery("1", curImageInformation)
                     }
                 )
             }

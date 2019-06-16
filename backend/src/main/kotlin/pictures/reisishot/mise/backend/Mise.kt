@@ -1,12 +1,14 @@
 package pictures.reisishot.mise.backend
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import java.nio.file.Files
 import java.util.*
 
-@ObsoleteCoroutinesApi
 object Mise {
 
     fun build(configuration: WebsiteConfiguration) = runBlocking { configuration.execute() }
@@ -104,6 +106,9 @@ object Mise {
             BuildingCache.saveCache(this)
             println()
             println("Writing cahce...")
+            println()
+            println()
+            println("Done!")
         }
     }
 }

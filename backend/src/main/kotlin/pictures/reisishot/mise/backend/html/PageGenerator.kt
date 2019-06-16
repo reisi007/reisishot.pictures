@@ -2,7 +2,6 @@ package pictures.reisishot.mise.backend.html
 
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
-import pictures.reisishot.mise.backend.generator.gallery.FilenameWithoutExtension
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -10,9 +9,7 @@ import java.util.*
 
 object PageGenerator {
 
-    private const val VERSION_BOOTSTRAP = "4.3.1"
-    private const val VERSION_JQUERY = "3.3.1"
-    private const val VERSION_POPPER = "1.14.7"
+    const val LAZYLOADER_CLASSNAME = "lozad"
 
     fun generatePage(
         target: Path,
@@ -55,12 +52,6 @@ object PageGenerator {
                         //TODO add footer
                     }
                 }
-        }
-    }
-
-    fun HtmlBlockTag.singleImageGallery(imageFolder: Path, imageName: FilenameWithoutExtension) {
-        h1 {
-            text("Here should be an awesome image! ($imageName)")
         }
     }
 

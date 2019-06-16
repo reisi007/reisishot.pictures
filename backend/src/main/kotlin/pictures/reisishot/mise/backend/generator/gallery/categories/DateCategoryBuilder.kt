@@ -5,7 +5,7 @@ import pictures.reisishot.mise.backend.generator.gallery.*
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
 
-class DateCategoryBuilder(val rootCategoryName: String = "Kalendarisch") : CategoryBuilder {
+class DateCategoryBuilder(val rootCategoryName: String ) : CategoryBuilder {
     override val builderName: String = "Reisishot Kalender Category Builder"
 
     override suspend fun generateCategories(

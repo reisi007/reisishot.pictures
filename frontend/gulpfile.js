@@ -30,10 +30,6 @@ gulp.task('vendorStyles', function () {
 gulp.task('vendorScripts', function () {
     gulp.src('./src/js/vendor/**/*.js')
         .pipe($.concat('vendor.js'))
-        .pipe(sourcemaps.init())
-        .pipe($.babel())
-        .pipe($.uglify())
-        .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('generated/js'));
 });
 

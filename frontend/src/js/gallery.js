@@ -1,5 +1,7 @@
 //'use strict';
 (function () {
-    const observer = window.lozad();
-    observer.observe();
+    document.addEventListener('DOMContentLoaded', function () {
+        const observer = window.lozad();
+        observer.observe();
+    });
 })();

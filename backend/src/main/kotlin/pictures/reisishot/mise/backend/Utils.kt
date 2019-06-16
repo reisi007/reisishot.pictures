@@ -9,7 +9,10 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
 import io.github.config4k.extract
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newFixedThreadPoolContext
 import pictures.reisishot.mise.backend.generator.gallery.FilenameWithoutExtension
 import java.awt.image.BufferedImage
 import java.io.BufferedReader
@@ -21,7 +24,6 @@ import java.time.ZonedDateTime
 import javax.swing.ImageIcon
 import kotlin.streams.asSequence
 
-@ObsoleteCoroutinesApi
 suspend fun <E> Iterable<E>.forEachLimitedParallel(
     maxThreadCount: Int, callable: suspend (E) -> Unit
 ) = forEachParallel(
@@ -31,7 +33,6 @@ suspend fun <E> Iterable<E>.forEachLimitedParallel(
     ), callable
 )
 
-@ObsoleteCoroutinesApi
 suspend fun <E> Iterable<E>.forEachParallel(
     dispatcher: CoroutineDispatcher = newFixedThreadPoolContext(
         2 * Runtime.getRuntime().availableProcessors(),
@@ -51,7 +52,7 @@ fun <T> Path.useBufferedReader(callable: (BufferedReader) -> T): T =
     Files.newBufferedReader(this, Charsets.UTF_8).use(callable)
 
 fun Path.getConfig(configParseOptions: ConfigParseOptions = ConfigParseOptions.defaults()): Config? =
-    if (Files.exists(this))
+    if (exists())
         useBufferedReader { ConfigFactory.parseReader(it, configParseOptions) }
     else null
 

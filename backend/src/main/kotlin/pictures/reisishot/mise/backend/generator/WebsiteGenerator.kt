@@ -17,9 +17,7 @@ interface WebsiteGenerator {
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
-    ) {
-
-    }
+    )
 
     suspend fun buildArtifacts(
         configuration: WebsiteConfiguration,
@@ -50,12 +48,11 @@ interface WebsiteGenerator {
         }
 
     val Path.isMarkdown
-        get() = toString().let { filename ->
-            filename.endsWith("mk", true)
-        }
+        get() = toString().endsWith("mk", true)
 
     val Path.isConf
-        get() = toString().let { filename ->
-            filename.endsWith("conf", true)
-        }
+        get() = toString().endsWith("conf", true)
+
+    val Path.isJson
+        get() = toString().endsWith("json", true)
 }

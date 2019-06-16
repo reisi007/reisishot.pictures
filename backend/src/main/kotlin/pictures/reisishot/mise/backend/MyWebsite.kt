@@ -1,6 +1,5 @@
 package pictures.reisishot.mise.backend
 
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import pictures.reisishot.mise.backend.generator.blog.BlogGenerator
 import pictures.reisishot.mise.backend.generator.gallery.ExifdataKey
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
@@ -11,7 +10,6 @@ import java.nio.file.Paths
 
 object MyWebsite {
 
-    @ObsoleteCoroutinesApi
     @JvmStatic
     fun main(args: Array<String>) {
         Mise.build(
@@ -23,7 +21,7 @@ object MyWebsite {
                     BlogGenerator(),
                     GalleryGenerator(
                         categoryBuilders = *arrayOf(
-                            DateCategoryBuilder(),
+                            DateCategoryBuilder("Chronologisch"),
                             ConfigurableCategoryBuilder()
                         ), exifReplaceFunction = { cur ->
                             when (cur.first) {
@@ -36,7 +34,11 @@ object MyWebsite {
                             }
                         }
                     ),
-                    ThumbnailGenerator()
+                    ThumbnailGenerator(
+                        ThumbnailGenerator.ForceRegeneration(
+                            thumbnails = false
+                        )
+                    )
                 )
             )
         )
