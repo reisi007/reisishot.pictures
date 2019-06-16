@@ -30,12 +30,18 @@ object PageGenerator {
                 .html(namespace = "http://www.w3.org/1999/xhtml") {
                     head {
                         lang = locale.toLanguageTag()
+
                         metaUTF8()
                         metaViewport()
+
                         title(title)
+
                         bootstrapCss()
+                        appCss()
+
                         jqueryJs()
                         bootstrapJs()
+                        appJs()
 
                         additionalHeadContent(this)
                     }
@@ -70,6 +76,10 @@ object PageGenerator {
         script("https://cdnjs.cloudflare.com/ajax/libs/popper.js/$VERSION_POPPER/umd/popper.min.js")
         script("https://stackpath.bootstrapcdn.com/bootstrap/$VERSION_BOOTSTRAP/js/bootstrap.min.js")
     }
+
+    private fun HEAD.appCss() = styleLink("/css/app.css")
+
+    private fun HEAD.appJs() = script("/js/app.js")
 
     private fun HEAD.metaUTF8() = meta(charset = "UTF8")
 
