@@ -40,6 +40,7 @@ object Mise {
         System.currentTimeMillis().let { startTime ->
             withContext(Dispatchers.IO) {
                 Files.createDirectories(outPath)
+                Files.createDirectories(tmpPath)
             }
 
             val generatorMap = TreeMap<Int, MutableList<WebsiteGenerator>>()

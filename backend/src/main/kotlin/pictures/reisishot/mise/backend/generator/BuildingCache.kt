@@ -1,35 +1,40 @@
 package pictures.reisishot.mise.backend.generator
 
-import com.google.gson.reflect.TypeToken
 import pictures.reisishot.mise.backend.*
-import java.nio.file.Files
 import java.nio.file.Path
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
+import java.util.function.Function
 
 object BuildingCache {
 
-    private const val TIMESTAMPS_KEY = "timestamps"
     private lateinit var timestampMapPath: Path
-    private val stringCacheMap: MutableMap<Path, String> = mutableMapOf()
+    private lateinit var menuLinkPath: Path
+    private lateinit var linkPath: Path
+
+    private val linkCahce: MutableMap<String, MutableMap<String, Link>> = mutableMapOf()
+
+
+    private val internalMenuLinks: SortedSet<MenuLink> =
+        TreeSet<MenuLink>(Comparator.comparing(Function<MenuLink, Int> { it.uniqueIndex }))
+
+    val menuLinks: SortedSet<MenuLink> get() = internalMenuLinks
 
     // Used for querying (all plugins should have the same cache
-    private lateinit var oldtimestampMap: MutableMap<String, ZonedDateTime>
+    private val oldtimestampMap: MutableMap<String, ZonedDateTime> = mutableMapOf()
     // Used for updating the cache for the next run
-    private lateinit var timestampMap: MutableMap<String, ZonedDateTime>
-    private lateinit var linkCahce: MutableMap<String, MutableMap<String, String>>
+    private val timestampMap: MutableMap<String, ZonedDateTime> = mutableMapOf()
+
 
     private val dateTimeFormatter = DateTimeFormatter.ISO_ZONED_DATE_TIME
 
     fun resetLinkcacheFor(linkType: String) = linkCahce.computeIfAbsent(linkType) { mutableMapOf() }.clear()
 
 
-    fun addLinkcacheEntryFor(linkType: String, linkKey: String, link: String) =
+    fun addLinkcacheEntryFor(linkType: String, linkKey: String, link: Link) = synchronized(linkCahce) {
         linkCahce.computeIfAbsent(linkType) { mutableMapOf() }.put(linkKey, link)
-
-
-    fun getAsString(p: Path): String =
-        stringCacheMap.computeIfAbsent(p) { Files.newBufferedReader(it).use { reader -> reader.readLine() } }
+    }
 
     fun hasFileChanged(p: Path): Boolean {
         val cachedValue: ZonedDateTime? = oldtimestampMap.get(p.toNormalizedString())
@@ -55,20 +60,38 @@ object BuildingCache {
     }
 
     fun setFileChanged(p: Path, time: ZonedDateTime?) = with(p.toNormalizedString()) {
-        if (time != null)
-            timestampMap.put(this, time)
-        else
-            timestampMap.remove(this)
+        synchronized(timestampMap) {
+            if (time != null)
+                timestampMap.put(this, time)
+            else
+                timestampMap.remove(this)
+        }
     }
 
     internal fun loadCache(config: WebsiteConfiguration) {
-        timestampMapPath = config.inPath withChild "timestamp.cache.json"
-        oldtimestampMap =
-            timestampMapPath.fromJson(object : TypeToken<HashMap<String, ZonedDateTime>>() {}) ?: mutableMapOf()
-        timestampMap = HashMap(oldtimestampMap)
+        with(config.tmpPath) {
+            timestampMapPath = withChild("timestamp.cache.xml")
+            menuLinkPath = withChild("menueItems.cache.xml")
+            linkPath = withChild("links.cache.xml")
+        }
+
+        timestampMapPath.fromXml<MutableMap<String, ZonedDateTime>>()?.let {
+            oldtimestampMap += it
+            timestampMap += it
+        }
+
+        menuLinkPath.fromXml<Set<MenuLink>>()?.let {
+            internalMenuLinks += it
+        }
+
+        linkPath.fromXml<Map<String, MutableMap<String, String>>>()?.let {
+            linkCahce += it
+        }
     }
 
     internal fun saveCache(config: WebsiteConfiguration) {
-        timestampMap.toJson(timestampMapPath)
+        timestampMap.toXml(timestampMapPath)
+        internalMenuLinks.toXml(menuLinkPath)
+        linkCahce.toXml(linkPath)
     }
 }

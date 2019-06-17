@@ -11,3 +11,7 @@ $mainColor: rgb(28, 197, 86);
     max-height: 100%;
   }
 }
+
+.bg-dark {
+  background-color: $mainColor !important;
+}

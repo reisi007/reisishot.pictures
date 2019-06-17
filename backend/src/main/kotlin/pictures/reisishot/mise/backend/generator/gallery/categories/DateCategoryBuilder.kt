@@ -5,13 +5,13 @@ import pictures.reisishot.mise.backend.generator.gallery.*
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
 
-class DateCategoryBuilder(val rootCategoryName: String ) : CategoryBuilder {
+class DateCategoryBuilder(val rootCategoryName: String) : CategoryBuilder {
     override val builderName: String = "Reisishot Kalender Category Builder"
 
     override suspend fun generateCategories(
         imageInformationRepository: ImageInformationRepository,
         websiteConfiguration: WebsiteConfiguration
-    ): Sequence<Pair<FilenameWithoutExtension, CategoryName>> =
+    ): Sequence<Pair<FilenameWithoutExtension, CategoryInformation>> =
         imageInformationRepository.imageInformationData.asSequence()
             .flatMap {
                 val captureDate = it.exifInformation.get(ExifdataKey.CREATION_TIME)?.let { ZonedDateTime.parse(it) }
@@ -27,11 +27,17 @@ class DateCategoryBuilder(val rootCategoryName: String ) : CategoryBuilder {
             }
 
 
-    private fun <A> Pair<A, List<CategoryName>>.allPossibleSublists(): Sequence<Pair<A, CategoryName>> {
-        val tmp = mutableListOf<Pair<A, CategoryName>>()
+    private fun <A> Pair<A, List<String>>.allPossibleSublists(): Sequence<Pair<A, CategoryInformation>> {
+        val tmp = mutableListOf<Pair<A, CategoryInformation>>()
 
-        for (i in 1..second.size)
-            tmp += first to arrayOf(*this.second.subList(0, i).toTypedArray()).joinToString("/")
+        for (i in 1..second.size) {
+            val urlFragments = this.second.subList(0, i)
+            tmp += first to CategoryInformation(
+                complexName = arrayOf(*urlFragments.toTypedArray()).joinToString("/"),
+                urlFragment = urlFragments.last(),
+                visible = i != 1
+            )
+        }
         return tmp.asSequence()
     }
 }

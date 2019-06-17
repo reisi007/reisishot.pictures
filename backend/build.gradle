@@ -38,6 +38,7 @@ dependencies {
     implementation group: 'org.apache.velocity', name: 'velocity-engine-core', version: '2.1'
     // https://mvnrepository.com/artifact/com.drewnoakes/metadata-extractor
     implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.11.0'
-    // https://mvnrepository.com/artifact/com.google.code.gson/gson
-    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
+    // https://mvnrepository.com/artifact/com.thoughtworks.xstream/xstream
+    compile group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.+'
+
 }

@@ -119,8 +119,8 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
                                 }
                             }
                         }
-                        with(configuration.inPath withChild NAME_THUMBINFO_SUBFOLDER withChild "${baseOutFile.filenameWithoutExtension}.json") {
-                            thumbnailInfoMap.toJson(this)
+                        with(configuration.inPath withChild NAME_THUMBINFO_SUBFOLDER withChild "${baseOutFile.filenameWithoutExtension}.xml") {
+                            thumbnailInfoMap.toXml(this)
                         }
                     }
                 }

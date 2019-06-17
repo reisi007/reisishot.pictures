@@ -8,6 +8,7 @@ import java.util.*
 data class WebsiteConfiguration(
     val title: String,
     val inPath: Path = Paths.get("./src/main/resources"),
+    val tmpPath: Path = Paths.get("./src/main/resources/cache"),
     val outPath: Path = Paths.get("./generated"),
     val locale: Locale = Locale.getDefault(),
     val generators: Array<WebsiteGenerator> = emptyArray()

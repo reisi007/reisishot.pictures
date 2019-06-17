@@ -1,10 +1,6 @@
 package pictures.reisishot.mise.backend
 
-import com.google.gson.GsonBuilder
-import com.google.gson.TypeAdapter
-import com.google.gson.reflect.TypeToken
-import com.google.gson.stream.JsonReader
-import com.google.gson.stream.JsonWriter
+import com.thoughtworks.xstream.XStream
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
@@ -17,8 +13,10 @@ import pictures.reisishot.mise.backend.generator.gallery.FilenameWithoutExtensio
 import java.awt.image.BufferedImage
 import java.io.BufferedReader
 import java.io.InputStream
-import java.io.PrintStream
-import java.nio.file.*
+import java.nio.file.Files
+import java.nio.file.OpenOption
+import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import javax.swing.ImageIcon
@@ -116,57 +114,22 @@ fun Path.exists() = Files.exists(this)
 
 fun Path.isRegularFile() = Files.isRegularFile(this)
 
-val gson by lazy {
-    GsonBuilder()
-        .registerTypeHierarchyAdapter(Path::class.java, object : TypeAdapter<Path>() {
-            override fun write(writer: JsonWriter?, value: Path?) {
-                if (value != null) {
-                    writer?.value(value.toNormalizedString())
-                }
+val xStrem by lazy { XStream() }
 
-            }
-
-            override fun read(`in`: JsonReader?): Path? = `in`?.let { reader ->
-                reader.nextString()?.let { Paths.get(it) }
-            }
-
-
-        })
-        .registerTypeAdapter(ZonedDateTime::class.java, object : TypeAdapter<ZonedDateTime>() {
-
-            override fun write(writer: JsonWriter?, value: ZonedDateTime?) {
-                if (value != null)
-                    writer?.value(value.toString())
-            }
-
-            override fun read(`in`: JsonReader?): ZonedDateTime? = `in`?.let { reader ->
-                reader.nextString()?.let { ZonedDateTime.parse(it) }
-            }
-
-
-        })
-        .create()
-}
-
-fun Any.toJson(path: Path): Unit = with(path) {
-    parent?.let {
+inline fun <reified T> T.toXml(path: Path) {
+    path.parent?.let {
         Files.createDirectories(it)
-        PrintStream(Files.newOutputStream(this), false, Charsets.UTF_8.toString()).use {
-            gson.toJson(this@toJson, it)
-        }
+        Files.newBufferedWriter(path, Charsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+            .use { writer ->
+                xStrem.toXML(this, writer)
+            }
     }
 }
 
-inline fun <reified T> Path.fromJson(): T? =
-    if (!(exists() && isRegularFile())) null else gson.fromJson(
-        Files.newBufferedReader(this, Charsets.UTF_8),
-        T::class.java
-    )
-
-fun <T> Path.fromJson(typeToken: TypeToken<T>): T? =
-    if (!(exists() && isRegularFile())) null else gson.fromJson(
-        Files.newBufferedReader(this, Charsets.UTF_8),
-        typeToken.type
-    )
+inline fun <reified T> Path.fromXml(): T? =
+    if (!(exists() && isRegularFile())) null else
+        Files.newBufferedReader(this, Charsets.UTF_8).use { reader ->
+            xStrem.fromXML(reader) as? T
+        }
 
 fun Path.toNormalizedString() = toAbsolutePath().normalize().toString()

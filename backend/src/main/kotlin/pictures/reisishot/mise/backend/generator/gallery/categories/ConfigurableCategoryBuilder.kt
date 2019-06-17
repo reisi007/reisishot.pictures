@@ -9,16 +9,16 @@ import pictures.reisishot.mise.backend.withChild
 class ConfigurableCategoryBuilder() : CategoryBuilder {
     override val builderName: String = "Configurable Categorybuilder"
 
-    private lateinit var categoryConfig: List<CategoryConfig>
+    private lateinit var categoryConfigs: List<CategoryConfig>
 
     override suspend fun generateCategories(
         imageInformationRepository: ImageInformationRepository,
         websiteConfiguration: WebsiteConfiguration
-    ): Sequence<Pair<FilenameWithoutExtension, CategoryName>> {
-        val computedCategories: MutableMap<CategoryName, Set<FilenameWithoutExtension>> = mutableMapOf()
+    ): Sequence<Pair<FilenameWithoutExtension, CategoryInformation>> {
+        val computedCategories: MutableMap<CategoryConfig, Set<FilenameWithoutExtension>> = mutableMapOf()
 
 
-        var categoriesToCompute: Collection<CategoryConfig> = categoryConfig
+        var categoriesToCompute: Collection<CategoryConfig> = categoryConfigs
         var uncomputableCategories: MutableCollection<CategoryConfig> = mutableListOf()
         var uncomputableSizeBefore: Int
 
@@ -28,7 +28,7 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
             categoriesToCompute.forEach { curCategory ->
                 val categoryImages =
                     if (curCategory.includeSubcategories) {
-                        val subalbumNames = getSubalbumNames(curCategory.name)
+                        val subalbumNames = getSubalbumNames(curCategory)
                         val canCompute = subalbumNames.all { computedCategories.containsKey(it) }
                         if (!canCompute) {
                             uncomputableCategories.add(curCategory)
@@ -52,7 +52,7 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
                             .map { it.filenameWithoutExtension }
                     }
 
-                computedCategories.put(curCategory.name, categoryImages)
+                computedCategories.put(curCategory, categoryImages)
             }
 
             categoriesToCompute = uncomputableCategories
@@ -65,24 +65,26 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
                 )
             )
 
-        return computedCategories.asSequence().flatMap { (categoryName, filesInCategory) ->
-            filesInCategory.asSequence().map { filename ->
-                filename to categoryName
+        return computedCategories.asSequence().flatMap { (categoryConfig, filesInCategory) ->
+            categoryConfig.toCategoryInfotmation().let { categoryInformation ->
+                filesInCategory.asSequence().map { filename ->
+                    filename to categoryInformation
+                }
             }
         }
     }
 
-    private fun getSubalbumNames(categoryName: CategoryName): Collection<CategoryName> = categoryConfig.asSequence()
-        .map { it.name }
-        .filter { it.startsWith(categoryName, true) && categoryName != it }
-        .toList()
+    private fun getSubalbumNames(categoryConfig: CategoryConfig): Collection<CategoryConfig> =
+        categoryConfigs.asSequence()
+            .filter { it.name.startsWith(categoryConfig.name, true) && categoryConfig.name != it.name }
+            .toList()
 
     override suspend fun setup(
         configuration: WebsiteConfiguration,
         cache: BuildingCache
     ) {
         super.setup(configuration, cache)
-        categoryConfig = configuration.inPath.withChild("categories.conf").let {
+        categoryConfigs = configuration.inPath.withChild("categories.conf").let {
             it.parseConfig("categories") ?: throw IllegalStateException("Could not find config file \"$it\"!")
         }
     }

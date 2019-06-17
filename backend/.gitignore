@@ -126,3 +126,4 @@ hs_err_pid*
 
 build/**
 **.cache.json
+**.cache.xml

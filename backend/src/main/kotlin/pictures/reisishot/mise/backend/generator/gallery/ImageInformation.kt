@@ -22,7 +22,7 @@ data class InternalImageInformation(
     override val tags: Set<TagName>,
     override val exifInformation: Map<ExifdataKey, String>,
     override val thumbnailSizes: Map<ThumbnailGenerator.ImageSize, ThumbnailGenerator.ThumbnailInformation>,
-    val categories: MutableSet<CategoryName> = mutableSetOf()
+    val categories: MutableSet<CategoryInformation> = mutableSetOf()
 ) : ImageInformation
 
 fun HtmlBlockTag.insertImageGallery(
@@ -33,7 +33,7 @@ fun HtmlBlockTag.insertImageGallery(
         return@with
     div("gallery") {
         classes = classes + if (imageInformation.size == 1) "single" else "overview"
-        attributes["name"] = galleryName
+        attributes["data-name"] = galleryName
         imageInformation.forEach { curImageInfo ->
             picture(PageGenerator.LAZYLOADER_CLASSNAME) {
                 val largeImageUrl = curImageInfo.thumbnailSizes.getHtmlUrl(LARGE)
@@ -69,8 +69,8 @@ private fun PICTURE.generateSourceTag(
             thumbnailInformation2?.let { (_, width2, height2) ->
                 attributes["media"] = "(min-width: ${width2 + 1}px),(min-height: ${height2 + 1}px)"
             }
-            attributes["w"] = width1.toString()
-            attributes["h"] = height1.toString()
+            attributes["data-w"] = width1.toString()
+            attributes["data-h"] = height1.toString()
         }
 
         noScript {
