@@ -1,17 +1,47 @@
 $mainColor: rgb(28, 197, 86);
+$accentWhite: #f5f5f5;
+
 
 .lozad {
   min-height: 1rem;
+  display: block;
 
   img {
-    position: absolute;
-    top: 0;
-    left: 0;
     max-width: 100%;
     max-height: 100%;
+    object-fit: contain;
   }
 }
 
 .bg-dark {
   background-color: $mainColor !important;
+}
+
+nav {
+  a {
+    color: $accentWhite;
+
+    &:hover {
+      color: white;
+    }
+  }
+}
+
+main {
+  padding-top: 65px;
+
+  .container {
+
+  }
+}
+
+
+.footer {
+  background-color: $accentWhite;
+
+
+  .container {
+    padding-right: 15px;
+    padding-left: 15px;
+  }
 }

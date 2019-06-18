@@ -19,3 +19,9 @@ fun FlowContent.div(divId: String, classes: String? = null, block: DIV.() -> Uni
         id = divId
         block(this)
     }
+
+@HtmlTagMarker
+fun FlowContent.container(block: DIV.() -> Unit = {}) = div("container", block)
+
+@HtmlTagMarker
+fun FlowContent.fluidContainer(block: DIV.() -> Unit = {}) = div("container-fluid", block)

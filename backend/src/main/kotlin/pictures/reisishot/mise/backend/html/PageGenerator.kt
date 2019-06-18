@@ -30,6 +30,7 @@ object PageGenerator {
             it.write("<!doctype html>")
             it.appendHTML(prettyPrint = true, xhtmlCompatible = true)
                 .html(namespace = "http://www.w3.org/1999/xhtml") {
+                    classes = classes + "h-100"
                     head {
                         lang = locale.toLanguageTag()
 
@@ -79,13 +80,23 @@ object PageGenerator {
                                 }
                             }
                         }
-                        //TODO Add menus and so on
 
-                        div("content") {
-                            pageContent(this)
+                        main("flex-shrink-0") {
+                            attributes["role"] = "main"
+                            fluidContainer {
+                                div("content") {
+                                    pageContent(this)
+                                }
+                            }
                         }
 
-                        //TODO add footer
+                        footer("footer mt-auto py-3") {
+                            container {
+                                span("text-muted") {
+                                    text("© Reisishot (Florian Reisinger)")
+                                }
+                            }
+                        }
                     }
                 }
         }
