@@ -14,7 +14,7 @@ object MyWebsite {
     fun main(args: Array<String>) {
         Mise.build(
             WebsiteConfiguration(
-                title = "Reisishot - Hobbyfotograf Florian Reisinger",
+                title = "Reisishot",
                 inPath = Paths.get("src/main/resources"),
                 outPath = Paths.get("../frontend/generated"),
                 generators = arrayOf(

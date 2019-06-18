@@ -1,15 +1,48 @@
-$mainColor: rgb(28, 197, 86);
+$mainColor: #27ae60; // Material Nephritis
+$accentColor: #2ecc71; // Material Emerald
 $accentWhite: #f5f5f5;
 
+h1 {
+  font-size: 2rem;
+}
 
-.lozad {
+.lazy {
   min-height: 1rem;
-  display: block;
+  display: inline-block;
+  max-width: 100%;
 
   img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
+  }
+}
+
+.gallery {
+  &.single {
+    display: flex;
+    align-content: center;
+
+    picture {
+      margin: 0 auto;
+
+      img {
+        height: 65vh;
+
+        @media (max-height: 370px) {
+          height: 50vh;
+        }
+        @media (max-height: 400px) {
+          height: 55vh;
+        }
+        @media (max-height: 435px) {
+          height: 60vh;
+        }
+        @media (min-height: 500px) {
+          height: 70vh;
+        }
+      }
+    }
   }
 }
 
@@ -35,10 +68,8 @@ main {
   }
 }
 
-
 .footer {
   background-color: $accentWhite;
-
 
   .container {
     padding-right: 15px;

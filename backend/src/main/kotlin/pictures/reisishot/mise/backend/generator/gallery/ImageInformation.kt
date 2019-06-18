@@ -2,7 +2,6 @@ package pictures.reisishot.mise.backend.generator.gallery
 
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.generator.gallery.ThumbnailGenerator.ImageSize.LARGE
-import pictures.reisishot.mise.backend.generator.gallery.ThumbnailGenerator.ImageSize.MEDIUM
 import pictures.reisishot.mise.backend.html.PageGenerator
 
 
@@ -41,12 +40,8 @@ fun HtmlBlockTag.insertImageGallery(
                 attributes["data-iesrc"] = largeImageUrl
                 attributes["data-alt"] = curImageInfo.title
 
-                sequenceOf(
-                    LARGE to MEDIUM,
-                    MEDIUM to ThumbnailGenerator.ImageSize.SMALL,
-                    ThumbnailGenerator.ImageSize.SMALL to null
-                ).forEach { curSize ->
-                    generateSourceTag(curImageInfo, curSize.first, curSize.second, largeImageUrl)
+                ThumbnailGenerator.ImageSize.ORDERED.forEach { curSize ->
+                    generateSourceTag(curImageInfo, curSize, largeImageUrl)
                 }
             }
         }
@@ -56,17 +51,16 @@ fun HtmlBlockTag.insertImageGallery(
 private fun PICTURE.generateSourceTag(
     curImageInformation: InternalImageInformation,
     curSize: ThumbnailGenerator.ImageSize,
-    smallerSize: ThumbnailGenerator.ImageSize?,
     largeImageUrl: String
 ) {
-    val thumbnailInformation1 = curImageInformation.thumbnailSizes[curSize] ?: return
-    val thumbnailInformation2 = smallerSize?.let { curImageInformation.thumbnailSizes[it] }
-    thumbnailInformation1.let { (location1, width1, height1) ->
+    val curSizeInfo = curImageInformation.thumbnailSizes[curSize] ?: return
+    val smallerSizeInfo = curSize.smallerSize?.let { curImageInformation.thumbnailSizes[it] }
+    curSizeInfo.let { (location1, width1, height1) ->
 
         source(
             srcset = getThumbnailUrlFromFilename(location1)
         ) {
-            thumbnailInformation2?.let { (_, width2, height2) ->
+            smallerSizeInfo?.let { (_, width2, height2) ->
                 attributes["media"] = "(min-width: ${width2 + 1}px),(min-height: ${height2 + 1}px)"
             }
             attributes["data-w"] = width1.toString()

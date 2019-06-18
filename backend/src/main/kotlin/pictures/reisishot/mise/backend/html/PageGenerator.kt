@@ -13,7 +13,7 @@ import java.util.*
 
 object PageGenerator {
 
-    const val LAZYLOADER_CLASSNAME = "lozad"
+    const val LAZYLOADER_CLASSNAME = "lazy"
 
     fun generatePage(
         target: Path,
@@ -93,7 +93,7 @@ object PageGenerator {
                         footer("footer mt-auto py-3") {
                             container {
                                 span("text-muted") {
-                                    text("© Reisishot (Florian Reisinger)")
+                                    text("© Reisishot - Hobbyfotograf Florian Reisinger")
                                 }
                             }
                         }

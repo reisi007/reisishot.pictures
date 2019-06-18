@@ -1,6 +1,7 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
 import com.drew.imaging.ImageMetadataReader
+import kotlinx.html.h1
 import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
@@ -174,6 +175,9 @@ class GalleryGenerator(
                     target = baseHtmlPath withChild curImageInformation.url withChild "index.html",
                     title = curImageInformation.title,
                     pageContent = {
+                        h1("text-center") {
+                            text(curImageInformation.title)
+                        }
                         insertImageGallery("1", curImageInformation)
                     }
                 )

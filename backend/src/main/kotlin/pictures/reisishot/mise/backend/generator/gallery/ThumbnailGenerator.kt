@@ -26,9 +26,29 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
     enum class ImageSize(private val identifier: String, val longestSidePx: Int, val quality: Float) {
         SMALL("icon", 300, 0.5f), MEDIUM("embed", 1000, 0.75f), LARGE("large", 2500, 0.85f);
 
+        companion object {
+            val ORDERED = arrayOf(LARGE, MEDIUM, SMALL)
+            val SMALLEST = ORDERED.last()
+            val LARGEST = ORDERED.first()
+        }
+
         fun decoratePath(p: Path): Path = with(p) {
             parent withChild fileName.filenameWithoutExtension + '_' + identifier + ".jpg"
         }
+
+        val smallerSize: ImageSize?
+            get() = when (this) {
+                SMALL -> null
+                MEDIUM -> SMALL
+                LARGE -> MEDIUM
+            }
+
+        val biggerSize: ImageSize?
+            get() = when (this) {
+                SMALL -> MEDIUM
+                MEDIUM -> LARGE
+                LARGE -> null
+            }
     }
 
     data class ForceRegeneration(val thumbnails: Boolean = false)
