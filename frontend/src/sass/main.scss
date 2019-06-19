@@ -6,6 +6,10 @@ h1 {
   font-size: 2rem;
 }
 
+main {
+  padding-top: 1.5rem;
+}
+
 .lazy {
   min-height: 1rem;
   display: inline-block;
@@ -27,20 +31,7 @@ h1 {
       margin: 0 auto;
 
       img {
-        height: 65vh;
-
-        @media (max-height: 370px) {
-          height: 50vh;
-        }
-        @media (max-height: 400px) {
-          height: 55vh;
-        }
-        @media (max-height: 435px) {
-          height: 60vh;
-        }
-        @media (min-height: 500px) {
-          height: 70vh;
-        }
+        max-height: calc(100vh - 7rem);
       }
     }
   }
