@@ -70,8 +70,6 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
         withContext(Dispatchers.IO) {
             Files.createDirectories(outPath)
         }
-        val jpegWriter = ImageIO.getImageWritersByFormatName("jpeg").next()
-            ?: throw IllegalStateException("Could not find a writer for JPEG!")
         ImageSize.values().let { imageSizes ->
             configuration.inPath.withChild(NAME_IMAGE_SUBFOLDER).list().filter { it.isJpeg }
                 .filter { inFile ->
@@ -84,7 +82,7 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
                     if (!forceRegeneration.thumbnails) {
                         sequenceOf(inFile).plus(
                             imageSizes.asSequence().map { it.decoratePath(baseOutFile) }
-                        ).all { cache.hasFileChanged(it) }.let { changed ->
+                        ).all { !it.exists() || cache.hasFileChanged(it) }.let { changed ->
                             if (!changed)
                                 return@forEachLimitedParallel
                         }
@@ -100,6 +98,8 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
                     } else {
                         // Generate
                         val image = inFile.readImage()
+                        val jpegWriter = ImageIO.getImageWritersByFormatName("jpeg").next()
+                            ?: throw IllegalStateException("Could not find a writer for JPEG!")
 
                         val thumbnailInfoMap = mutableMapOf<ImageSize, ThumbnailInformation>()
                         imageSizes.forEach { imageSize ->

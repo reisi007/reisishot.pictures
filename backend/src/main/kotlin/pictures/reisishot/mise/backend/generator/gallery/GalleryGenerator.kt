@@ -2,8 +2,10 @@ package pictures.reisishot.mise.backend.generator.gallery
 
 import com.drew.imaging.ImageMetadataReader
 import kotlinx.html.h1
+import kotlinx.html.i
 import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.BuildingCache
+import pictures.reisishot.mise.backend.generator.MenuLinkContainer
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.html.PageGenerator
 import java.nio.file.Path
@@ -46,7 +48,7 @@ class GalleryGenerator(
     ) = buildCache(configuration, cache)
 
     override suspend fun buildArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) =
-        generateWebpages(configuration)
+        generateWebpages(configuration, cache)
 
 
     private suspend fun buildCache(
@@ -117,7 +119,7 @@ class GalleryGenerator(
         cache: BuildingCache
     ) = with(this.cache) {
         val categoryLevelMap: MutableMap<Int, MutableSet<CategoryInformation>> = mutableMapOf()
-
+        cache.clearMenuItems { it is MenuLinkContainer && LINKTYPE_CATEGORIES == it.containerId }
         categoryBuilders.forEach { categoryBuilder ->
             categoryBuilder.generateCategories(this@GalleryGenerator, websiteConfiguration)
                 .forEach { (filename, categoryInformation) ->
@@ -125,7 +127,18 @@ class GalleryGenerator(
                         categoryName.count { it == '/' }.let { subcategoryLevel ->
                             categoryLevelMap.computeIfAbsent(subcategoryLevel) { mutableSetOf() } += categoryInformation
                         }
-                        computedCategories.computeIfAbsent(categoryInformation) { mutableSetOf() } += filename
+                        computedCategories.computeIfAbsent(categoryInformation) {
+                            if (categoryInformation.visible) {
+                                cache.addMenuItem(
+                                    LINKTYPE_CATEGORIES, "Kategorien", 2, categoryInformation.complexName.simpleName,
+                                    "/gallery/categories/${categoryInformation.urlFragment}"
+                                )
+                            }
+                            mutableSetOf()
+                        } += filename
+
+
+
                         imageInformationData[filename]?.categories?.add(categoryInformation)
                             ?: throw IllegalStateException(
                                 "Could not add $categoryName to Image with filename $filename!"
@@ -167,11 +180,23 @@ class GalleryGenerator(
             }
         }
 
-    private suspend fun generateWebpages(configuration: WebsiteConfiguration) {
+    private suspend fun generateWebpages(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache
+    ) {
+        generateImagePages(configuration, cache)
+        generateCategoryPages(configuration, cache)
+    }
+
+    private suspend fun generateImagePages(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache
+    ) {
         (configuration.outPath withChild "gallery/images").let { baseHtmlPath ->
-            cache.imageInformationData.values.forEachLimitedParallel(50) { curImageInformation ->
+            this.cache.imageInformationData.values.forEachLimitedParallel(50) { curImageInformation ->
                 PageGenerator.generatePage(
                     websiteConfiguration = configuration,
+                    buildingCache = cache,
                     target = baseHtmlPath withChild curImageInformation.url withChild "index.html",
                     title = curImageInformation.title,
                     pageContent = {
@@ -183,7 +208,37 @@ class GalleryGenerator(
                 )
             }
         }
-        //TODO implement other and extract to other functions for betetr readability
+    }
+
+    private fun generateCategoryPages(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache
+    ) = with(this.cache) {
+        (configuration.outPath withChild "gallery/categories").let { baseHtmlPath ->
+            computedCategories.forEach { (categoryMetaInformation, categoryImages) ->
+                val targetFile = baseHtmlPath withChild categoryMetaInformation.urlFragment withChild "index.html"
+                PageGenerator.generatePage(
+                    websiteConfiguration = configuration,
+                    buildingCache = cache,
+                    target = targetFile,
+                    title = categoryMetaInformation.complexName.simpleName,
+                    pageContent = {
+                        h1("text-center") {
+                            text("Kategorie - ")
+                            i {
+                                text(("\"${categoryMetaInformation.complexName.simpleName}\""))
+                            }
+                        }
+
+                        val imageInformations = categoryImages.asSequence()
+                            .map { imageInformationData.getValue(it) }
+                            .toArray(categoryImages.size)
+
+                        insertImageGallery("1", *imageInformations)
+                    }
+                )
+            }
+        }
     }
 
     private fun Path.readExif(): Map<ExifdataKey, String> = mutableMapOf<ExifdataKey, String>().apply {

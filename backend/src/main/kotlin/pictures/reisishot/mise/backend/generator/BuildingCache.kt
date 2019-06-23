@@ -17,9 +17,9 @@ object BuildingCache {
 
 
     private val internalMenuLinks: SortedSet<MenuLink> =
-        TreeSet<MenuLink>(Comparator.comparing(Function<MenuLink, Int> { it.uniqueIndex }))
+        Collections.synchronizedSortedSet(TreeSet<MenuLink>(Comparator.comparing(Function<MenuLink, Int> { it.uniqueIndex })))
 
-    val menuLinks: SortedSet<MenuLink> get() = internalMenuLinks
+    val menuLinks: Set<MenuLink> get() = internalMenuLinks
 
     // Used for querying (all plugins should have the same cache
     private val oldtimestampMap: MutableMap<String, ZonedDateTime> = mutableMapOf()
@@ -36,6 +36,7 @@ object BuildingCache {
         linkCahce.computeIfAbsent(linkType) { mutableMapOf() }.put(linkKey, link)
     }
 
+    // TODO Will be moved to Thuimbnails plugin in the future
     fun hasFileChanged(p: Path): Boolean {
         val cachedValue: ZonedDateTime? = oldtimestampMap.get(p.toNormalizedString())
 
@@ -65,6 +66,43 @@ object BuildingCache {
                 timestampMap.put(this, time)
             else
                 timestampMap.remove(this)
+        }
+    }
+
+    fun clearMenuItems(removePredicate: (MenuLink) -> Boolean) {
+        internalMenuLinks.removeAll(removePredicate)
+    }
+
+    fun addMenuItem(
+        containerType: String? = null,
+        containerText: String? = null,
+        index: Int,
+        text: LinkText,
+        link: Link
+    ) {
+        if (containerType != null && containerText != null) {
+            val menuLinkContainer = internalMenuLinks.find {
+                it is MenuLinkContainer && containerType == it.containerId
+            } as? MenuLinkContainer ?: kotlin.run {
+                val newContainer = MenuLinkContainer(
+                    containerType,
+                    index,
+                    containerText
+                )
+                newContainer
+            }
+            menuLinkContainer += MenuLinkContainerItem(menuLinkContainer.children.size, link, text)
+            internalMenuLinks.add(menuLinkContainer)
+        } else {
+            sequenceOf(containerType, containerText)
+                .filter { it != null }
+                .any()
+                .let { containerNeeded -> if (containerNeeded) throw IllegalStateException("Container needed, either all or no variables must be null!") }
+            val item = MenuLinkContainerItem(index, link, text)
+
+
+            internalMenuLinks.add(item)
+
         }
     }
 

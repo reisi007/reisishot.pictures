@@ -35,7 +35,7 @@ class DateCategoryBuilder(val rootCategoryName: String) : CategoryBuilder {
             tmp += first to CategoryInformation(
                 complexName = arrayOf(*urlFragments.toTypedArray()).joinToString("/"),
                 urlFragment = urlFragments.last(),
-                visible = i != 1
+                visible = false
             )
         }
         return tmp.asSequence()

@@ -31,8 +31,34 @@ main {
       margin: 0 auto;
 
       img {
-        max-height: calc(100vh - 7rem);
+        max-height: calc(100vh - 8.7rem);
       }
+    }
+  }
+
+  &.overview {
+    display: flex;
+    justify-content: space-evenly;
+
+    picture {
+      margin: 1rem;
+      max-height: 300px;
+
+      img {
+        //TODO make responsive
+        max-height: 300px;
+      }
+    }
+  }
+}
+
+.navbar {
+  @extend .bg-dark;
+
+  a {
+    &.nav-link.dropdown-toggle {
+      color: white;
+      padding-top: 0.7rem;
     }
   }
 }
@@ -52,7 +78,7 @@ nav {
 }
 
 main {
-  padding-top: 4rem;
+  padding-top: 1.5rem;
 }
 
 .footer {

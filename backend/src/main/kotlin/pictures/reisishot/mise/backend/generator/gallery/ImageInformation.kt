@@ -36,7 +36,7 @@ fun HtmlBlockTag.insertImageGallery(
         imageInformation.forEach { curImageInfo ->
             picture(PageGenerator.LAZYLOADER_CLASSNAME) {
                 val largeImageUrl = curImageInfo.thumbnailSizes.getHtmlUrl(LARGE)
-
+                attributes["style"] = "width: ${ThumbnailGenerator.ImageSize.LARGEST.longestSidePx}px"
                 attributes["data-iesrc"] = largeImageUrl
                 attributes["data-alt"] = curImageInfo.title
 

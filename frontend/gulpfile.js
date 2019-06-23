@@ -2,7 +2,8 @@ var
     gulp = require('gulp'),
     browserSync = require('browser-sync'),
     sourcemaps = require('gulp-sourcemaps'),
-    $ = require('gulp-load-plugins')({lazy: true});
+    $ = require('gulp-load-plugins')({lazy: true}),
+    serveStatic = require('serve-static');
 
 gulp.task('styles', function () {
     return gulp
@@ -52,8 +53,9 @@ gulp.task('scripts', function () {
 gulp.task('browser-sync', ['styles', 'scripts'], function () {
     browserSync({
         server: {
-            baseDir: "./generated/",
-            directory: false,
+            middleware: [
+                serveStatic("./generated/")
+            ],
             injectChanges: true
         }
     });

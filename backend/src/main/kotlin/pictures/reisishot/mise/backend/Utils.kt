@@ -133,3 +133,8 @@ inline fun <reified T> Path.fromXml(): T? =
         }
 
 fun Path.toNormalizedString() = toAbsolutePath().normalize().toString()
+
+inline fun <reified T> Sequence<T>.toArray(size: Int): Array<T> {
+    val iter = iterator()
+    return Array(size) { iter.next() }
+}

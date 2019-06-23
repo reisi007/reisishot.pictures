@@ -4,8 +4,8 @@ import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
+import pictures.reisishot.mise.backend.generator.MenuLink
 import pictures.reisishot.mise.backend.generator.MenuLinkContainer
-import pictures.reisishot.mise.backend.generator.SimpleMenuLink
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -20,6 +20,7 @@ object PageGenerator {
         title: String,
         locale: Locale = Locale.getDefault(),
         websiteConfiguration: WebsiteConfiguration,
+        buildingCache: BuildingCache,
         additionalHeadContent: HEAD.() -> Unit = {},
         pageContent: DIV.() -> Unit
     ) = with(target) {
@@ -50,35 +51,7 @@ object PageGenerator {
                     }
                     body("d-flex flex-column h-100") {
                         header {
-                            nav("navbar navbar-expand-md fixed-top bg-dark") {
-                                a(classes = "navbar-brand", href = "/") {
-                                    text(websiteConfiguration.title)
-                                }
-                                button(classes = "navbar-toggler collapsed") {
-                                    attributes["type"] = "button"
-                                    attributes["data-toggle"] = "collapse"
-                                    attributes["data-target"] = "#navbarCollapse"
-                                    attributes["aria-controls"] = "navbarCollapse"
-                                    attributes["aria-label"] = "Toggle navigation"
-                                }
-                                div("navbarCollapse", "navbar-collapse collapse") {
-                                    ul("navbar-nav mr-auto") {
-                                        BuildingCache.menuLinks.forEach { curItem ->
-                                            li("nav-item") {
-                                                if (curItem is MenuLinkContainer) {
-                                                    classes = classes + "dropDown"
-                                                    recursivlyBuildMenu(curItem)
-                                                } else {
-                                                    a(classes = "nav-link", href = curItem.href) {
-                                                        text(curItem.text)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                }
-                            }
+                            buildMenu(websiteConfiguration, buildingCache.menuLinks)
                         }
 
                         main("flex-shrink-0") {
@@ -102,39 +75,58 @@ object PageGenerator {
         }
     }
 
-    private fun FlowOrInteractiveOrPhrasingContent.recursivlyBuildMenu(menuLinkContainer: MenuLinkContainer) =
-        recursivlyBuildMenu(menuLinkContainer, 1)
+    private fun HEADER.buildMenu(websiteConfiguration: WebsiteConfiguration, items: Set<MenuLink>) {
+        nav("navbar navbar-expand-md") {
+            val navId = "navbarCollapse"
+            a(classes = "navbar-brand", href = "/") {
+                text(websiteConfiguration.title)
+            }
+            button(classes = "navbar-toggler") {
+                attributes["type"] = "button"
+                attributes["data-toggle"] = "collapse"
+                attributes["data-target"] = "#$navId"
+                attributes["aria-controls"] = navId
+                attributes["aria-expanded"] = "false"
+                attributes["aria-label"] = "Toggle navigation"
+                span("navbar-toggler-icon")
+            }
 
-    private fun FlowOrInteractiveOrPhrasingContent.recursivlyBuildMenu(
-        menuLinkContainer: MenuLinkContainer,
-        beginningDropdownId: Int
-    ): Int {
-        var curDropdownId = beginningDropdownId
-        val curIdString = "dropdown$curDropdownId"
-        curDropdownId++
-        a(classes = "nav-link dropdown-toggle", href = "#") {
-            attributes["id"] = curIdString
-            attributes["data-toggle"] = "dropdown"
-            attributes["aria-haspopup"] = "true"
-            text(menuLinkContainer.text)
-            val clickable = SimpleMenuLink(-1, menuLinkContainer.href, "Übersicht")
-            div("dropdown-menu") {
-                attributes["aria-labelledby"] = curIdString
-                (sequenceOf(clickable) + menuLinkContainer.children.asSequence()).forEach { menuLink ->
-                    when (menuLink) {
-                        is SimpleMenuLink -> {
-                            a(classes = "dropdown-item", href = menuLink.href) {
-                                text(menuLink.text)
+            var dropdownCount = 0;
+            div("navbarCollapse", "navbar-collapse collapse") {
+                ul("navbar-nav mr-auto") {
+                    items.forEach { curItem ->
+                        li("nav-item") {
+                            if (curItem is MenuLinkContainer) {
+                                classes = classes + " dropdown"
+                                val dropDownId = "dropDown$dropdownCount"
+                                dropdownCount++
+                                a(classes = "nav-link dropdown-toggle", href = curItem.href ?: "#") {
+                                    attributes["id"] = dropDownId
+                                    attributes["role"] = "button"
+                                    attributes["data-toggle"] = "dropdown"
+                                    attributes["aria-haspopup"] = "true"
+                                    attributes["aria-expanded"] = "false"
+                                    text(curItem.text)
+                                }
+                                div(classes = "dropdown-menu") {
+                                    attributes["aria-labelledby"] = dropDownId
+                                    curItem.children.forEach { entry ->
+                                        a(classes = "dropdown-item", href = entry.href) {
+                                            text(entry.text)
+                                        }
+                                    }
+                                }
+
+                            } else {
+                                a(classes = "nav-link", href = curItem.href) {
+                                    text(curItem.text)
+                                }
                             }
-                        }
-                        is MenuLinkContainer -> {
-                            curDropdownId = recursivlyBuildMenu(menuLink, curDropdownId)
                         }
                     }
                 }
             }
         }
-        return curDropdownId + 1
     }
 
 
