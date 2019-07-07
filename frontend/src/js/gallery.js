@@ -16,7 +16,7 @@
 
     function initGallery() {
         // Save all galleries to the window
-        document.querySelectorAll("div.gallery").forEach(gallery => {
+        document.querySelectorAll("div#gallery").forEach(gallery => {
             let i = 0;
             gallery.querySelectorAll("picture").forEach(pictureElement => {
                 const galleryName = gallery.getAttribute("data-name");
@@ -101,7 +101,6 @@
         const gid = params["gid"];
         const gallery = galleries[gid];
         const pid = parseInt(params["pid"]);
-        console.log("gid", gid, gallery, pid);
         if (gallery)
             openGallery(gid, gallery.length - pid);
     }

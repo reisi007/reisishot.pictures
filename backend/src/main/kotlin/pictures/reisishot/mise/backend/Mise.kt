@@ -48,13 +48,13 @@ object Mise {
             generators.forEach { generator ->
                 generatorMap.computeIfAbsent(generator.executionPriority) { mutableListOf() } += generator
             }
-            println("Reading / generating cahce...")
+            println("Reading / generating cache...")
             println()
             with(generatorMap.values) {
                 flatMap { it }.forEachLimitedParallel(size) { it.loadCache(this@execute, BuildingCache) }
             }
             println()
-            println("Reading / generating cahce...")
+            println("Reading / generating cache...")
             println()
             println("Preparing website build using the following generator configuration... ")
             println()
@@ -74,7 +74,7 @@ object Mise {
                 runGenerators += generators
             }
             println()
-            println("Writing cahce...")
+            println("Writing cache...")
             println()
             println()
             println("Building website using the following generator configuration... ")
@@ -99,14 +99,14 @@ object Mise {
             println()
             println("Website generation finished in ${System.currentTimeMillis() - startTime} ms...")
             println()
-            println("Writing cahce...")
+            println("Writing cache...")
             println()
             with(generatorMap.values) {
                 flatMap { it }.forEachLimitedParallel(size) { it.saveCache(this@execute, BuildingCache) }
             }
             BuildingCache.saveCache(this)
             println()
-            println("Writing cahce...")
+            println("Writing cache...")
             println()
             println()
             println("Done!")

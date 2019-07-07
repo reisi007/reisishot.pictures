@@ -1,6 +1,8 @@
 package pictures.reisishot.mise.backend.html
 
 import kotlinx.html.*
+import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
+import pictures.reisishot.mise.backend.generator.gallery.ThumbnailGenerator
 
 
 @HtmlTagMarker
@@ -78,3 +80,81 @@ fun FlowContent.photoSwipeHtml() = div(classes = "pswp") {
         }
     }
 }
+
+fun HtmlBlockTag.insertImageGallery(
+    galleryName: String,
+    vararg imageInformation: InternalImageInformation
+) = with(imageInformation) {
+    if (isEmpty())
+        return@with
+    div("gallery") {
+        classes = classes + if (imageInformation.size == 1) "single" else "overview"
+        attributes["data-name"] = galleryName
+        imageInformation.forEach { curImageInfo ->
+            picture(PageGenerator.LAZYLOADER_CLASSNAME) {
+                val largeImageUrl = curImageInfo.thumbnailSizes.getHtmlUrl(ThumbnailGenerator.ImageSize.LARGE)
+                attributes["style"] = "width: ${ThumbnailGenerator.ImageSize.LARGEST.longestSidePx}px"
+                attributes["data-iesrc"] = largeImageUrl
+                attributes["data-alt"] = curImageInfo.title
+                attributes["data-url"] = curImageInfo.url
+
+                ThumbnailGenerator.ImageSize.ORDERED.forEach { curSize ->
+                    generateSourceTag(curImageInfo, curSize, largeImageUrl)
+                }
+            }
+        }
+    }
+}
+
+class PICTURE(classes: String? = null, consumer: TagConsumer<*>) :
+    HTMLTag("picture", consumer, attributesMapOf("class", classes), inlineTag = false, emptyTag = false), HtmlBlockTag
+
+@HtmlTagMarker
+fun HtmlBlockTag.picture(classes: String? = null, block: PICTURE.() -> Unit = {}) =
+    PICTURE(classes, consumer).visit(block)
+
+
+@HtmlTagMarker
+fun PICTURE.source(srcset: String, mediaQuery: String? = null, classes: String? = null, block: SOURCE.() -> Unit = {}) =
+    SOURCE(
+        attributesMapOf(
+            "srcset", srcset,
+            "media", mediaQuery,
+            "classes", classes
+        ), consumer
+    ).visit(block)
+
+private fun PICTURE.generateSourceTag(
+    curImageInformation: InternalImageInformation,
+    curSize: ThumbnailGenerator.ImageSize,
+    largeImageUrl: String
+) {
+    val curSizeInfo = curImageInformation.thumbnailSizes[curSize] ?: return
+    val smallerSizeInfo = curSize.smallerSize?.let { curImageInformation.thumbnailSizes[it] }
+    curSizeInfo.let { (location1, width1, height1) ->
+
+        source(
+            srcset = getThumbnailUrlFromFilename(location1)
+        ) {
+            smallerSizeInfo?.let { (_, width2, height2) ->
+                attributes["media"] = "(min-width: ${width2 + 1}px),(min-height: ${height2 + 1}px)"
+            }
+            attributes["data-w"] = width1.toString()
+            attributes["data-h"] = height1.toString()
+        }
+
+        noScript {
+            img(alt = curImageInformation.title, src = largeImageUrl)
+        }
+    }
+}
+
+private fun Map<ThumbnailGenerator.ImageSize, ThumbnailGenerator.ThumbnailInformation>.getHtmlUrl(imageSize: ThumbnailGenerator.ImageSize): String =
+    with(this.get(imageSize)?.filename) {
+        if (this == null)
+            throw IllegalStateException("Cannot get Url for this Thumbnail!")
+        getThumbnailUrlFromFilename(this)
+    }
+
+private fun getThumbnailUrlFromFilename(filename: String): String =
+    "/${ThumbnailGenerator.NAME_IMAGE_SUBFOLDER}/$filename"

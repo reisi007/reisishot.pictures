@@ -8,6 +8,7 @@ import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.MenuLinkContainer
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.html.PageGenerator
+import pictures.reisishot.mise.backend.html.insertImageGallery
 import java.nio.file.Path
 
 
@@ -82,24 +83,31 @@ class GalleryGenerator(
                 val filenameWithoutExtension = jpegPath.filenameWithoutExtension
                 val configPath = jpegPath.parent withChild "$filenameWithoutExtension.conf"
                 val thumbnailInfoPath =
-                    configuration.inPath withChild ThumbnailGenerator.NAME_THUMBINFO_SUBFOLDER withChild "$filenameWithoutExtension.xml"
-                if (configPath.exists() && jpegPath.exists() && thumbnailInfoPath.exists()) {
-                    val imageConfig: ImageConfig = configPath.parseConfig()
-                        ?: throw IllegalStateException("Could not load config file $configPath. Please check if the format is valid!")
-                    val exifData = jpegPath.readExif()
-                    val thumbnailConfig: HashMap<ThumbnailGenerator.ImageSize, ThumbnailGenerator.ThumbnailInformation> =
-                        thumbnailInfoPath.fromXml() ?: throw IllegalStateException("Thumbnail info not found...")
+                    configuration.tmpPath withChild ThumbnailGenerator.NAME_THUMBINFO_SUBFOLDER withChild "$filenameWithoutExtension.xml"
+                if (!configPath.exists())
+                    throw IllegalStateException("Config path does not exist for $jpegPath!")
+                if (!jpegPath.exists())
+                    throw IllegalStateException("Image path does not exist for $jpegPath!")
+                if (!thumbnailInfoPath.exists())
+                    throw IllegalStateException("Thumbnail Info path does not exist for $jpegPath!")
 
-                    InternalImageInformation(
-                        filenameWithoutExtension,
-                        imageConfig.url,
-                        imageConfig.title,
-                        imageConfig.tags,
-                        exifData,
-                        thumbnailConfig
-                    ).apply {
-                        cache.imageInformationData.put(filenameWithoutExtension, this)
-                    }
+
+                val imageConfig: ImageConfig = configPath.parseConfig()
+                    ?: throw IllegalStateException("Could not load config file $configPath. Please check if the format is valid!")
+                val exifData = jpegPath.readExif()
+                val thumbnailConfig: HashMap<ThumbnailGenerator.ImageSize, ThumbnailGenerator.ThumbnailInformation> =
+                    thumbnailInfoPath.fromXml() ?: throw IllegalStateException("Thumbnail info not found...")
+
+                InternalImageInformation(
+                    filenameWithoutExtension,
+                    imageConfig.url,
+                    imageConfig.title,
+                    imageConfig.tags,
+                    exifData,
+                    imageConfig.categoryThumbnail,
+                    thumbnailConfig
+                ).apply {
+                    cache.imageInformationData.put(filenameWithoutExtension, this)
                 }
             }
     }
@@ -109,7 +117,10 @@ class GalleryGenerator(
             imageInformation.tags.forEach { tag ->
                 computedTags.computeIfAbsent(tag) { mutableSetOf() } += imageInformation
                 // Add tag URLs to global cache
-                cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag, "/gallery/tags/$tag")
+                "/gallery/tags/$tag".let { link ->
+                    cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag, link)
+                    cache.addMenuItem(LINKTYPE_TAGS, "Tags", 3, tag, link)
+                }
             }
         }
     }
@@ -181,6 +192,7 @@ class GalleryGenerator(
     ) {
         generateImagePages(configuration, cache)
         generateCategoryPages(configuration, cache)
+        generateTagPages(configuration, cache)
     }
 
     private suspend fun generateImagePages(
@@ -232,6 +244,33 @@ class GalleryGenerator(
                         insertImageGallery("1", *imageInformations)
                     }
                 )
+            }
+        }
+    }
+
+    private fun generateTagPages(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache
+    ) = with(this.cache) {
+        (configuration.outPath withChild "gallery/tags").let { baseHtmlPath ->
+            computedTags.forEach { (tagName, tagImages) ->
+                val targetFile = baseHtmlPath withChild tagName withChild "index.html"
+
+                PageGenerator.generatePage(
+                    websiteConfiguration = configuration,
+                    buildingCache = cache,
+                    target = targetFile,
+                    title = tagName,
+                    pageContent = {
+                        h1("text-center") {
+                            text("Tag - ")
+                            i {
+                                text(("\"$tagName\""))
+                            }
+                        }
+
+                        insertImageGallery(tagName, *tagImages.toTypedArray())
+                    })
             }
         }
     }

@@ -29,9 +29,11 @@ main {
   background-position: -44px -44px;
 }
 
-.gallery {
+
+#gallery {
+  display: flex;
+
   &.single {
-    display: flex;
     align-content: center;
 
     picture {
@@ -44,8 +46,8 @@ main {
   }
 
   &.overview {
-    display: flex;
     justify-content: space-evenly;
+    flex-wrap: wrap;
 
     picture {
       margin: 1rem;
@@ -56,6 +58,10 @@ main {
         max-height: 300px;
       }
     }
+  }
+
+  picture {
+    cursor: pointer;
   }
 }
 

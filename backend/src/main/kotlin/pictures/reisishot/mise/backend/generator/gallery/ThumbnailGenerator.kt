@@ -9,7 +9,6 @@ import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
-import java.time.ZonedDateTime
 import javax.imageio.IIOImage
 import javax.imageio.ImageIO
 import javax.imageio.ImageWriteParam
@@ -61,6 +60,10 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
     override suspend fun buildArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
     }
 
+    private fun Path.isNewerThan(other: Path): Boolean =
+        Files.getLastModifiedTime(this) > Files.getLastModifiedTime(other)
+
+
     override suspend fun fetchInformation(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
@@ -71,18 +74,13 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
             Files.createDirectories(outPath)
         }
         ImageSize.values().let { imageSizes ->
-            configuration.inPath.withChild(NAME_IMAGE_SUBFOLDER).list().filter { it.isJpeg }
-                .filter { inFile ->
-                    if (forceRegeneration.thumbnails)
-                        true
-                    else
-                        cache.hasFileChanged(inFile)
-                }.asIterable().forEachLimitedParallel(10) { inFile ->
+            configuration.inPath.withChild(NAME_IMAGE_SUBFOLDER).list().filter { it.isJpeg }.asIterable()
+                .forEachLimitedParallel(10) { inFile ->
                     val baseOutFile = outPath withChild inFile.fileName
                     if (!forceRegeneration.thumbnails) {
                         sequenceOf(inFile).plus(
                             imageSizes.asSequence().map { it.decoratePath(baseOutFile) }
-                        ).all { !it.exists() || cache.hasFileChanged(it) }.let { changed ->
+                        ).all { it.isNewerThan(inFile) }.let { changed ->
                             if (!changed)
                                 return@forEachLimitedParallel
                         }
@@ -93,7 +91,6 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
                         imageSizes.forEach {
                             val decoratedPath = it.decoratePath(baseOutFile)
                             Files.deleteIfExists(decoratedPath)
-                            cache.setFileChanged(decoratedPath, null)
                         }
                     } else {
                         // Generate
@@ -124,10 +121,6 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
                                         jpegWriter.output = imageOs
 
                                         jpegWriter.write(streamData, IIOImage(this, null, null), param)
-                                        ZonedDateTime.now().let { fileTime ->
-                                            cache.setFileChanged(realOutPath, fileTime)
-                                            cache.setFileChanged(inFile, fileTime)
-                                        }
                                         thumbnailInfoMap.put(
                                             imageSize, ThumbnailInformation(
                                                 realOutPath.fileName.toString(),
@@ -139,7 +132,7 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
                                 }
                             }
                         }
-                        with(configuration.inPath withChild NAME_THUMBINFO_SUBFOLDER withChild "${baseOutFile.filenameWithoutExtension}.xml") {
+                        with(configuration.tmpPath withChild NAME_THUMBINFO_SUBFOLDER withChild "${baseOutFile.filenameWithoutExtension}.xml") {
                             thumbnailInfoMap.toXml(this)
                         }
                     }
