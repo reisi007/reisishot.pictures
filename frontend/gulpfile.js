@@ -42,10 +42,10 @@ gulp.task('scripts', function () {
         ])
         .pipe($.plumber())
         .pipe($.concat('app.js'))
-        .pipe(sourcemaps.init())
-        .pipe($.babel())
-        .pipe($.uglify())
-        .pipe(sourcemaps.write('.'))
+        /*  .pipe(sourcemaps.init())
+          .pipe($.babel())
+          .pipe($.uglify())
+          .pipe(sourcemaps.write('.'))*/
         .pipe(gulp.dest('generated/js'))
         .pipe(browserSync.reload({stream: true}));
 });
@@ -71,11 +71,15 @@ gulp.task('watch', function () {
     // Watch .html files
     gulp.watch("generated/**/*.html").on('change', browserSync.reload);
     // Watch .sass files
-    gulp.watch('src/sass/**/*.scss', ['styles', browserSync.reload]);
+    gulp.watch(['src/sass/**/*.scss', 'src/sass/**/*.css'], ['styles', browserSync.reload]);
+    // Watch .css files
+    gulp.watch('src/css/**/*.css', ['vendorStyles', browserSync.reload]);
     // Watch .js files
-    gulp.watch('src/js/*.js', ['scripts', browserSync.reload]);
+    gulp.watch('src/js/**/*.js', ['scripts', browserSync.reload]);
     // Watch .js files
-    gulp.watch('src/js/vendor/*', ['vendorScripts', browserSync.reload]);
+    gulp.watch('src/js/vendor/**/*.js', ['vendorScripts', browserSync.reload]);
+    // Watch static files
+    gulp.watch('src/static/**/*.*', ['copyStatic', browserSync.reload]);
 });
 
 gulp.task('default', function () {

@@ -137,12 +137,7 @@ class GalleryGenerator(
                             mutableSetOf()
                         } += filename
 
-
-
-                        imageInformationData[filename]?.categories?.add(categoryInformation)
-                            ?: throw IllegalStateException(
-                                "Could not add $categoryName to Image with filename $filename!"
-                            )
+                        imageInformationData[filename]?.categories?.add(categoryInformation) //TODO check for eleted images
                     }
                 }
         }

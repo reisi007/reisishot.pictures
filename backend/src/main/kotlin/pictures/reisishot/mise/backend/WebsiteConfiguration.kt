@@ -6,7 +6,8 @@ import java.nio.file.Paths
 import java.util.*
 
 data class WebsiteConfiguration(
-    val title: String,
+    val shortTitle: String,
+    val longTitle: String,
     val inPath: Path = Paths.get("./src/main/resources"),
     val tmpPath: Path = Paths.get("./src/main/resources/cache"),
     val outPath: Path = Paths.get("./generated"),
@@ -19,14 +20,24 @@ data class WebsiteConfiguration(
 
         other as WebsiteConfiguration
 
-        if (title != other.title) return false
+        if (shortTitle != other.shortTitle) return false
+        if (longTitle != other.longTitle) return false
+        if (inPath != other.inPath) return false
+        if (tmpPath != other.tmpPath) return false
+        if (outPath != other.outPath) return false
+        if (locale != other.locale) return false
         if (!generators.contentEquals(other.generators)) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = title.hashCode()
+        var result = shortTitle.hashCode()
+        result = 31 * result + longTitle.hashCode()
+        result = 31 * result + inPath.hashCode()
+        result = 31 * result + tmpPath.hashCode()
+        result = 31 * result + outPath.hashCode()
+        result = 31 * result + locale.hashCode()
         result = 31 * result + generators.contentHashCode()
         return result
     }

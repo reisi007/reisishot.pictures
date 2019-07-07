@@ -39,6 +39,7 @@ fun HtmlBlockTag.insertImageGallery(
                 attributes["style"] = "width: ${ThumbnailGenerator.ImageSize.LARGEST.longestSidePx}px"
                 attributes["data-iesrc"] = largeImageUrl
                 attributes["data-alt"] = curImageInfo.title
+                attributes["data-url"] = curImageInfo.url
 
                 ThumbnailGenerator.ImageSize.ORDERED.forEach { curSize ->
                     generateSourceTag(curImageInfo, curSize, largeImageUrl)

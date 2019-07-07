@@ -21,6 +21,7 @@ object PageGenerator {
         locale: Locale = Locale.getDefault(),
         websiteConfiguration: WebsiteConfiguration,
         buildingCache: BuildingCache,
+        hasGallery: Boolean = true,
         additionalHeadContent: HEAD.() -> Unit = {},
         pageContent: DIV.() -> Unit
     ) = with(target) {
@@ -66,10 +67,12 @@ object PageGenerator {
                         footer("footer mt-auto py-3") {
                             container {
                                 span("text-muted") {
-                                    text("© Reisishot - Hobbyfotograf Florian Reisinger")
+                                    text("© ${websiteConfiguration.longTitle}")
                                 }
                             }
                         }
+                        if (hasGallery)
+                            photoSwipeHtml()
                     }
                 }
         }
@@ -79,7 +82,7 @@ object PageGenerator {
         nav("navbar navbar-expand-md") {
             val navId = "navbarCollapse"
             a(classes = "navbar-brand", href = "/") {
-                text(websiteConfiguration.title)
+                text(websiteConfiguration.shortTitle)
             }
             button(classes = "navbar-toggler") {
                 attributes["type"] = "button"

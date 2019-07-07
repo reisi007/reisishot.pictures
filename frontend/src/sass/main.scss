@@ -1,3 +1,6 @@
+@import "../css/photoswipe/default-skin.css";
+@import "animation.css";
+
 $mainColor: #27ae60; // Material Nephritis
 $accentColor: #2ecc71; // Material Emerald
 $accentWhite: #f5f5f5;
@@ -20,6 +23,10 @@ main {
     max-height: 100%;
     object-fit: contain;
   }
+}
+
+.pswp__button--share {
+  background-position: -44px -44px;
 }
 
 .gallery {
@@ -77,15 +84,10 @@ nav {
   }
 }
 
-main {
-  padding-top: 1.5rem;
-}
-
-.footer {
-  background-color: $accentWhite;
-
-  .container {
-    padding-right: 1rem;
-    padding-left: 1rem;
+.pswp__button {
+  &.pswp__button--details {
+    background-image: url("/static/info-circle.svg");
+    background-size: contain;
+    transform: scale(0.5);
   }
 }
