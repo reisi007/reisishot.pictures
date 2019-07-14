@@ -97,3 +97,12 @@ nav {
     transform: scale(0.5);
   }
 }
+
+#content {
+  &.singleImage {
+    .card {
+      padding: 0.67rem;
+      margin-top: 1rem;
+    }
+  }
+}

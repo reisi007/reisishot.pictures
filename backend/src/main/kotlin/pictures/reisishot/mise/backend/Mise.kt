@@ -42,16 +42,17 @@ object Mise {
                 Files.createDirectories(outPath)
                 Files.createDirectories(tmpPath)
             }
+            val buildingCache = BuildingCache();
 
             val generatorMap = TreeMap<Int, MutableList<WebsiteGenerator>>()
-            BuildingCache.loadCache(this)
+            buildingCache.loadCache(this)
             generators.forEach { generator ->
                 generatorMap.computeIfAbsent(generator.executionPriority) { mutableListOf() } += generator
             }
             println("Reading / generating cache...")
             println()
             with(generatorMap.values) {
-                flatMap { it }.forEachLimitedParallel(size) { it.loadCache(this@execute, BuildingCache) }
+                flatMap { it }.forEachLimitedParallel(size) { it.loadCache(this@execute, buildingCache) }
             }
             println()
             println("Reading / generating cache...")
@@ -68,7 +69,7 @@ object Mise {
                 )
                 runBlocking {
                     generators.forEachLimitedParallel(generators.size) { generator ->
-                        generator.fetchInformation(this@execute, BuildingCache, runGenerators)
+                        generator.fetchInformation(this@execute, buildingCache, runGenerators)
                     }
                 }
                 runGenerators += generators
@@ -80,7 +81,7 @@ object Mise {
             println("Building website using the following generator configuration... ")
             println()
             with(generatorMap.values) {
-                flatMap { it }.forEachLimitedParallel(size) { it.saveCache(this@execute, BuildingCache) }
+                flatMap { it }.forEachLimitedParallel(size) { it.saveCache(this@execute, buildingCache) }
             }
             generatorMap.forEach { priority, generators ->
                 println(
@@ -91,7 +92,7 @@ object Mise {
                 )
                 runBlocking {
                     generators.forEachLimitedParallel(generators.size) { generator ->
-                        generator.buildArtifacts(this@execute, BuildingCache)
+                        generator.buildArtifacts(this@execute, buildingCache)
                     }
                 }
                 runGenerators += generators
@@ -102,9 +103,9 @@ object Mise {
             println("Writing cache...")
             println()
             with(generatorMap.values) {
-                flatMap { it }.forEachLimitedParallel(size) { it.saveCache(this@execute, BuildingCache) }
+                flatMap { it }.forEachLimitedParallel(size) { it.saveCache(this@execute, buildingCache) }
             }
-            BuildingCache.saveCache(this)
+            buildingCache.saveCache(this)
             println()
             println("Writing cache...")
             println()

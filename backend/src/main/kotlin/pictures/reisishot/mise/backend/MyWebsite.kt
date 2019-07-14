@@ -28,7 +28,7 @@ object MyWebsite {
                             when (cur.first) {
                                 ExifdataKey.LENS_MODEL -> when (cur.second) {
                                     "105.0 mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM"
-                                    "147.0 mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM + 1.4 Sigma EX APO DG Teleconverter"
+                                    "147.0 mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM + 1.4 Sigma EX APO DG Telekonverter"
                                     else -> cur
                                 }
                                 else -> cur

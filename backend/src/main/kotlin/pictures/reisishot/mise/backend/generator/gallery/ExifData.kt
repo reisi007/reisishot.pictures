@@ -19,7 +19,11 @@ enum class ExifdataKey(val displayName: String, val getValue: (ExifInformation) 
     CAMERA_MODEL("Camera model", { it.exifD0Descriptor?.cameraModelDescription }),
     ISO("ISO", { it.exifSubIFDDescriptor?.isoEquivalentDescription }),
     APERTURE("Aperture", { it.exifSubIFDDescriptor?.apertureValueDescription }),
-    SHUTTER_SPEED("Shutter speed", { it.exifSubIFDDescriptor?.shutterSpeedDescription }),
+    SHUTTER_SPEED("Shutter speed", {
+        it.exifSubIFDDescriptor?.let { desc ->
+            desc.canonShutterspeedDescription ?: desc.shutterSpeedDescription
+        }
+    }),
     FOCAL_LENGTH("Focal length", { it.exifSubIFDDescriptor?.focalLengthDescription }),
     CREATION_TIME("Creation Time", {
         it.exifSubIFDDescriptor?.creationTimeDescription?.let {
@@ -44,6 +48,7 @@ val ExifIFD0Descriptor.cameraMakeDescription: String? get() = getDescription(Exi
 val ExifIFD0Descriptor.cameraModelDescription: String? get() = getDescription(ExifIFD0Directory.TAG_MODEL)
 val ExifSubIFDDescriptor.creationTimeDescription: String? get() = getDescription(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL)
 val ExifSubIFDDescriptor.lensModelDescription: String? get() = getDescription(ExifSubIFDDirectory.TAG_LENS_MODEL)
+val ExifSubIFDDescriptor.canonShutterspeedDescription: String? get() = getDescription(33434)
 
 class ExifInformation(metadata: Metadata) {
     val jpegDescriptor: JpegDescriptor?

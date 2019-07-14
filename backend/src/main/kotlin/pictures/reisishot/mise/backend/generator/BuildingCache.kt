@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.function.Function
 
-object BuildingCache {
+class BuildingCache {
 
 
     private lateinit var menuLinkPath: Path

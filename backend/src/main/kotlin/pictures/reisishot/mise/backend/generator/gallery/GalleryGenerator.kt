@@ -1,8 +1,7 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
 import com.drew.imaging.ImageMetadataReader
-import kotlinx.html.h1
-import kotlinx.html.i
+import kotlinx.html.*
 import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.MenuLinkContainer
@@ -10,6 +9,8 @@ import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertImageGallery
 import java.nio.file.Path
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 
 class GalleryGenerator(
@@ -199,6 +200,7 @@ class GalleryGenerator(
         configuration: WebsiteConfiguration,
         cache: BuildingCache
     ) {
+        val dateTimeFormatter = DateTimeFormatter.ofPattern("eeee 'den' dd.MM.YYYY 'um' HH:mm:ss z")
         (configuration.outPath withChild "gallery/images").let { baseHtmlPath ->
             this.cache.imageInformationData.values.forEachLimitedParallel(50) { curImageInformation ->
                 PageGenerator.generatePage(
@@ -207,10 +209,39 @@ class GalleryGenerator(
                     target = baseHtmlPath withChild curImageInformation.url withChild "index.html",
                     title = curImageInformation.title,
                     pageContent = {
+                        classes = classes + "singleImage"
                         h1("text-center") {
                             text(curImageInformation.title)
                         }
                         insertImageGallery("1", curImageInformation)
+                        div("card") {
+                            h4("card-title") {
+                                text("Exif Informationen")
+                            }
+                            div("card-body") {
+                                div("card-text") {
+                                    div("container") {
+                                        curImageInformation.exifInformation.forEach { (type, value) ->
+                                            div("row justify-content-between") {
+                                                div("col-3 align-self-center") {
+                                                    text("${type.displayName}:")
+                                                }
+                                                div("col-9 align-self-center") {
+                                                    when (type) {
+                                                        ExifdataKey.CREATION_TIME -> text(
+                                                            ZonedDateTime.parse(value).format(
+                                                                dateTimeFormatter
+                                                            )
+                                                        )
+                                                        else -> text(value)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 )
             }
