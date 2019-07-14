@@ -33,10 +33,12 @@ class GalleryGenerator(
     data class Cache(
         val imageInformationData: MutableMap<FilenameWithoutExtension, InternalImageInformation> =
             mutableMapOf(),
+        val categoryInformation: MutableMap<CategoryName, CategoryInformation> = mutableMapOf(),
         val computedTags: MutableMap<TagName, MutableSet<InternalImageInformation>> = mutableMapOf(),
-        val computedCategories: MutableMap<CategoryInformation, MutableSet<FilenameWithoutExtension>> =
+        val computedCategories: MutableMap<CategoryName, MutableSet<FilenameWithoutExtension>> =
             mutableMapOf(),
-        val computedSubcategories: MutableMap<CategoryInformation, Set<CategoryInformation>> = mutableMapOf()
+        val computedSubcategories: MutableMap<CategoryName, Set<CategoryName>> = mutableMapOf(),
+        val computedCategoryThumbnails: MutableMap<CategoryName, InternalImageInformation> = mutableMapOf()
     )
 
     override val imageInformationData: Collection<ImageInformation> = cache.imageInformationData.values
@@ -105,10 +107,21 @@ class GalleryGenerator(
                     imageConfig.title,
                     imageConfig.tags,
                     exifData,
-                    imageConfig.categoryThumbnail,
                     thumbnailConfig
                 ).apply {
                     cache.imageInformationData.put(filenameWithoutExtension, this)
+                    imageConfig.categoryThumbnail.forEach { category ->
+                        synchronized(cache.computedCategoryThumbnails) {
+                            cache.computedCategoryThumbnails.let { thumbnails ->
+                                thumbnails.get(category).let {
+                                    if (it != null)
+                                        throw IllegalStateException("A thumbnail for $category has already been set! (\"${it.title}\"")
+                                    else
+                                        thumbnails.put(category, this)
+                                }
+                            }
+                        }
+                    }
                 }
             }
     }
@@ -139,7 +152,7 @@ class GalleryGenerator(
                         categoryName.count { it == '/' }.let { subcategoryLevel ->
                             categoryLevelMap.computeIfAbsent(subcategoryLevel) { mutableSetOf() } += categoryInformation
                         }
-                        computedCategories.computeIfAbsent(categoryInformation) {
+                        computedCategories.computeIfAbsent(categoryInformation.complexName) {
                             if (categoryInformation.visible) {
                                 cache.addMenuItem(
                                     LINKTYPE_CATEGORIES, "Kategorien", 2, categoryInformation.complexName.simpleName,
@@ -149,7 +162,8 @@ class GalleryGenerator(
                             mutableSetOf()
                         } += filename
 
-                        imageInformationData[filename]?.categories?.add(categoryInformation) //TODO check for eleted images
+                        imageInformationData[filename]?.categories?.add(categoryInformation)
+                        this.categoryInformation.computeIfAbsent(categoryInformation.complexName) { categoryInformation }
                     }
                 }
         }
@@ -164,10 +178,10 @@ class GalleryGenerator(
                                 category.complexName,
                                 true
                             )
-                        }
+                        }.map { it.complexName }
                         .toSet().let { subcategories ->
                             if (subcategories.isNotEmpty())
-                                computedSubcategories.put(category, subcategories)
+                                computedSubcategories.put(category.complexName, subcategories)
                         }
                 }
             }
@@ -182,8 +196,13 @@ class GalleryGenerator(
         with(this.cache) {
             val categoryUrl = "$prefix/${curCategory.urlFragment}"
             cache.addLinkcacheEntryFor(LINKTYPE_CATEGORIES, curCategory.complexName, categoryUrl)
-            computedSubcategories[curCategory]?.forEach { nextCategory ->
-                addCategoryLinkFor(nextCategory, cache, categoryUrl)
+            computedSubcategories[curCategory.complexName]?.forEach { nextCategoryName ->
+                addCategoryLinkFor(
+                    categoryInformation[nextCategoryName]
+                        ?: throw IllegalStateException("No category foudn for name \"$nextCategoryName\""),
+                    cache,
+                    categoryUrl
+                )
             }
         }
 
@@ -248,12 +267,26 @@ class GalleryGenerator(
         }
     }
 
+    private val ExifdataKey.displayName
+        get() = when (this) {
+            ExifdataKey.CREATION_TIME -> "Erstellt am"
+            ExifdataKey.LENS_MODEL -> "Objektiv"
+            ExifdataKey.FOCAL_LENGTH -> "Brennweite"
+            ExifdataKey.APERTURE -> "Blende"
+            ExifdataKey.CAMERA_MAKE -> "Kamerahersteller"
+            ExifdataKey.CAMERA_MODEL -> "Kameramodell"
+            ExifdataKey.ISO -> "ISO"
+            ExifdataKey.SHUTTER_SPEED -> "Verschlusszeit"
+        }
+
     private fun generateCategoryPages(
         configuration: WebsiteConfiguration,
         cache: BuildingCache
     ) = with(this.cache) {
         (configuration.outPath withChild "gallery/categories").let { baseHtmlPath ->
-            computedCategories.forEach { (categoryMetaInformation, categoryImages) ->
+            computedCategories.forEach { (categoryName, categoryImages) ->
+                val categoryMetaInformation = categoryInformation[categoryName]
+                    ?: throw IllegalStateException("No category information found for name \"$categoryName\"!")
                 val targetFile = baseHtmlPath withChild categoryMetaInformation.urlFragment withChild "index.html"
                 PageGenerator.generatePage(
                     websiteConfiguration = configuration,
@@ -305,6 +338,10 @@ class GalleryGenerator(
             }
         }
     }
+
+    private fun Map<CategoryName, InternalImageInformation>.getThumbnailImageInformation(category: CategoryName): InternalImageInformation? =
+        get(category) ?: get(cache.computedCategories.keys.first())
+
 
     private fun Path.readExif(): Map<ExifdataKey, String> = mutableMapOf<ExifdataKey, String>().apply {
         ExifInformation(ImageMetadataReader.readMetadata(this@readExif.toFile()))

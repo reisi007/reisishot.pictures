@@ -14,23 +14,23 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-enum class ExifdataKey(val displayName: String, val getValue: (ExifInformation) -> String?) {
-    CAMERA_MAKE("Camera Make", { it.exifD0Descriptor?.cameraMakeDescription }),
-    CAMERA_MODEL("Camera model", { it.exifD0Descriptor?.cameraModelDescription }),
-    ISO("ISO", { it.exifSubIFDDescriptor?.isoEquivalentDescription }),
-    APERTURE("Aperture", { it.exifSubIFDDescriptor?.apertureValueDescription }),
-    SHUTTER_SPEED("Shutter speed", {
+enum class ExifdataKey(val getValue: (ExifInformation) -> String?) {
+    CAMERA_MAKE({ it.exifD0Descriptor?.cameraMakeDescription }),
+    CAMERA_MODEL({ it.exifD0Descriptor?.cameraModelDescription }),
+    ISO({ it.exifSubIFDDescriptor?.isoEquivalentDescription }),
+    APERTURE({ it.exifSubIFDDescriptor?.apertureValueDescription }),
+    SHUTTER_SPEED({
         it.exifSubIFDDescriptor?.let { desc ->
             desc.canonShutterspeedDescription ?: desc.shutterSpeedDescription
         }
     }),
-    FOCAL_LENGTH("Focal length", { it.exifSubIFDDescriptor?.focalLengthDescription }),
-    CREATION_TIME("Creation Time", {
+    FOCAL_LENGTH({ it.exifSubIFDDescriptor?.focalLengthDescription }),
+    CREATION_TIME({
         it.exifSubIFDDescriptor?.creationTimeDescription?.let {
             ZonedDateTime.of(LocalDateTime.from(exifDateTimeFormatter.parse(it)), ZoneId.systemDefault()).toString()
         }
     }),
-    LENS_MODEL("Lens model", {
+    LENS_MODEL({
         it.exifSubIFDDescriptor?.lensModelDescription.let { lensName ->
             if (lensName.isNullOrBlank()) {
                 val focalLength = FOCAL_LENGTH.getValue(it)
