@@ -13,6 +13,7 @@ main {
   padding-top: 1.5rem;
 }
 
+// Ensure correct dimensions of a lazy loaded image
 .lazy {
   min-height: 1rem;
   display: inline-block;
@@ -24,11 +25,6 @@ main {
     object-fit: contain;
   }
 }
-
-.pswp__button--share {
-  background-position: -44px -44px;
-}
-
 
 #gallery {
   display: flex;
@@ -65,6 +61,34 @@ main {
   }
 }
 
+// Allign the subcategories view
+.subcategories {
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+
+  div {
+    max-width: 33.33%;
+    min-width: 300px;
+    @media (max-width: 660px) {
+      min-width: 80%;
+    }
+
+    margin: 0.5rem;
+
+    picture {
+      margin: 0 auto;
+      max-height: 25%;
+    }
+  }
+}
+
+// Navbar backgroudn color
+.bg-dark {
+  background-color: $mainColor !important;
+}
+
+// Navbar
 .navbar {
   @extend .bg-dark;
 
@@ -74,10 +98,6 @@ main {
       padding-top: 0.7rem;
     }
   }
-}
-
-.bg-dark {
-  background-color: $mainColor !important;
 }
 
 nav {
@@ -90,6 +110,7 @@ nav {
   }
 }
 
+// Photoswipe added additional button
 .pswp__button {
   &.pswp__button--details {
     background-image: url("/static/info-circle.svg");
@@ -98,6 +119,11 @@ nav {
   }
 }
 
+.pswp__button--share {
+  background-position: -44px -44px;
+}
+
+// Image overview page
 #content {
   &.singleImage {
     .card {

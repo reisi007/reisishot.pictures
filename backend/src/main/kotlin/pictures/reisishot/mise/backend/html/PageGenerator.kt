@@ -58,7 +58,7 @@ object PageGenerator {
                         main("flex-shrink-0") {
                             attributes["role"] = "main"
                             fluidContainer {
-                                div("content") {
+                                divId("content") {
                                     pageContent(this)
                                 }
                             }
@@ -95,7 +95,7 @@ object PageGenerator {
             }
 
             var dropdownCount = 0;
-            div("navbarCollapse", "navbar-collapse collapse") {
+            divId("navbarCollapse", "navbar-collapse collapse") {
                 ul("navbar-nav mr-auto") {
                     items.forEach { curItem ->
                         li("nav-item") {

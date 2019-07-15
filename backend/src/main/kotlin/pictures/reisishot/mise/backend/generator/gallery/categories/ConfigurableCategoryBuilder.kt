@@ -85,7 +85,8 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
     ) {
         super.setup(configuration, cache)
         categoryConfigs = configuration.inPath.withChild("categories.conf").let {
-            it.parseConfig("categories") ?: throw IllegalStateException("Could not find config file \"$it\"!")
+            it.parseConfig<List<CategoryConfig>>("categories")
+                ?: throw IllegalStateException("Could not find config file \"$it\"!")
         }
     }
 

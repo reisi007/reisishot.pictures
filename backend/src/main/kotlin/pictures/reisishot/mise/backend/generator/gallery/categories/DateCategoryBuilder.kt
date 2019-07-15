@@ -32,9 +32,10 @@ class DateCategoryBuilder(val rootCategoryName: String) : CategoryBuilder {
 
         for (i in 1..second.size) {
             val urlFragments = this.second.subList(0, i)
+            val complexName = arrayOf(*urlFragments.toTypedArray()).joinToString("/")
             tmp += first to CategoryInformation(
-                complexName = arrayOf(*urlFragments.toTypedArray()).joinToString("/"),
-                urlFragment = urlFragments.last(),
+                complexName = complexName,
+                urlFragment = complexName.substringAfter('/'),
                 visible = false
             )
         }

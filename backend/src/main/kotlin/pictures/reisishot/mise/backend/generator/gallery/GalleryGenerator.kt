@@ -8,6 +8,7 @@ import pictures.reisishot.mise.backend.generator.MenuLinkContainer
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertImageGallery
+import pictures.reisishot.mise.backend.html.insertSubcategoryThumbnail
 import java.nio.file.Path
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -27,7 +28,7 @@ class GalleryGenerator(
     override val generatorName: String = "Reisishot Gallery"
     override val executionPriority: Int = 20_000
 
-    private var cache = Cache()
+    internal var cache = Cache()
     private lateinit var cachePath: Path
 
     data class Cache(
@@ -37,7 +38,7 @@ class GalleryGenerator(
         val computedTags: MutableMap<TagName, MutableSet<InternalImageInformation>> = mutableMapOf(),
         val computedCategories: MutableMap<CategoryName, MutableSet<FilenameWithoutExtension>> =
             mutableMapOf(),
-        val computedSubcategories: MutableMap<CategoryName, Set<CategoryName>> = mutableMapOf(),
+        val computedSubcategories: MutableMap<CategoryName?, Set<CategoryName>> = mutableMapOf(),
         val computedCategoryThumbnails: MutableMap<CategoryName, InternalImageInformation> = mutableMapOf()
     )
 
@@ -186,6 +187,13 @@ class GalleryGenerator(
                 }
             }
         }
+
+        // Add first level subcategories
+        categoryLevelMap[0]?.asSequence()?.map { it.complexName }?.toSet()?.let { firstLevelCategories ->
+            computedSubcategories.put(null, firstLevelCategories)
+        }
+
+
         // Add tag URLs to global cache
         categoryLevelMap[0]?.forEach { cur ->
             addCategoryLinkFor(cur, cache, "/gallery/categories")
@@ -305,12 +313,39 @@ class GalleryGenerator(
                             .map { imageInformationData.getValue(it) }
                             .toArray(categoryImages.size)
 
+                        insertSubcategoryThumbnails(categoryMetaInformation.complexName)
+
                         insertImageGallery("1", *imageInformations)
                     }
                 )
             }
         }
     }
+
+    private fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?) = with(cache) {
+        val subcategories = computedSubcategories[categoryName]
+        if (!subcategories.isNullOrEmpty())
+            div("subcategories") {
+                subcategories.asSequence()
+                    .map {
+                        categoryInformation.getValue(it) to
+                                computedCategoryThumbnails.getThumbnailImageInformation(it)
+                    }
+                    .filterNotNull()
+                    .forEach { (categoryName, imageInformation) ->
+                        if (imageInformation != null)
+                            insertSubcategoryThumbnail(
+                                categoryName,
+                                imageInformation
+                            )
+                    }
+            }
+    }
+
+    private fun Map<CategoryName, InternalImageInformation>.getThumbnailImageInformation(category: CategoryName): InternalImageInformation? =
+        get(category) ?: cache.imageInformationData[cache.computedCategories[category]?.first()]
+        ?: throw IllegalStateException("Could not find thumbnail for \"$category\"!")
+
 
     private fun generateTagPages(
         configuration: WebsiteConfiguration,
@@ -338,9 +373,6 @@ class GalleryGenerator(
             }
         }
     }
-
-    private fun Map<CategoryName, InternalImageInformation>.getThumbnailImageInformation(category: CategoryName): InternalImageInformation? =
-        get(category) ?: get(cache.computedCategories.keys.first())
 
 
     private fun Path.readExif(): Map<ExifdataKey, String> = mutableMapOf<ExifdataKey, String>().apply {
