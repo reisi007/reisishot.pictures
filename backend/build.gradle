@@ -39,6 +39,8 @@ dependencies {
     // https://mvnrepository.com/artifact/com.drewnoakes/metadata-extractor
     implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.11.0'
     // https://mvnrepository.com/artifact/com.thoughtworks.xstream/xstream
-    compile group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.+'
+    implementation group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.+'
+    // https://search.maven.org/artifact/com.atlassian.commonmark/commonmark/0.13.0/jar
+    implementation 'com.atlassian.commonmark:commonmark:0.13.0'
 
 }

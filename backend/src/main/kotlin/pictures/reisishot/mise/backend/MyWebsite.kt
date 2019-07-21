@@ -1,11 +1,11 @@
 package pictures.reisishot.mise.backend
 
-import pictures.reisishot.mise.backend.generator.blog.BlogGenerator
 import pictures.reisishot.mise.backend.generator.gallery.ExifdataKey
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.ThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.gallery.categories.ConfigurableCategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategoryBuilder
+import pictures.reisishot.mise.backend.generator.pages.PageGenerator
 import java.nio.file.Paths
 
 object MyWebsite {
@@ -19,7 +19,7 @@ object MyWebsite {
                 inPath = Paths.get("src/main/resources"),
                 outPath = Paths.get("../frontend/generated"),
                 generators = arrayOf(
-                    BlogGenerator(),
+                    PageGenerator(),
                     GalleryGenerator(
                         categoryBuilders = *arrayOf(
                             DateCategoryBuilder("Chronologisch"),
