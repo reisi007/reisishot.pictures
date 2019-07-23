@@ -134,7 +134,7 @@ class GalleryGenerator(
                 // Add tag URLs to global cache
                 "/gallery/tags/$tag".let { link ->
                     cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag, link)
-                    cache.addMenuItem(LINKTYPE_TAGS, "Tags", 3, tag, link)
+                    cache.addMenuItem(LINKTYPE_TAGS, "Tags", 300, tag, link)
                 }
             }
         }
@@ -156,7 +156,7 @@ class GalleryGenerator(
                         computedCategories.computeIfAbsent(categoryInformation.complexName) {
                             if (categoryInformation.visible) {
                                 cache.addMenuItem(
-                                    LINKTYPE_CATEGORIES, "Kategorien", 2, categoryInformation.complexName.simpleName,
+                                    LINKTYPE_CATEGORIES, "Kategorien", 200, categoryInformation.complexName.simpleName,
                                     "/gallery/categories/${categoryInformation.urlFragment}"
                                 )
                             }
