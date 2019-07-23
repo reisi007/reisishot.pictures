@@ -38,18 +38,18 @@ class BuildingCache {
     }
 
     fun addMenuItem(
-        containerType: String? = null,
+        containerId: String? = null,
         containerText: String? = null,
         index: Int,
         text: LinkText,
         link: Link
     ) {
-        if (containerType != null && containerText != null) {
+        if (containerId != null && containerText != null) {
             val menuLinkContainer = internalMenuLinks.find {
-                it is MenuLinkContainer && containerType == it.containerId
+                it is MenuLinkContainer && containerId == it.containerId
             } as? MenuLinkContainer ?: kotlin.run {
                 val newContainer = MenuLinkContainer(
-                    containerType,
+                    containerId,
                     index,
                     containerText
                 )
@@ -58,7 +58,7 @@ class BuildingCache {
             menuLinkContainer += MenuLinkContainerItem(menuLinkContainer.children.size, link, text)
             internalMenuLinks.add(menuLinkContainer)
         } else {
-            sequenceOf(containerType, containerText)
+            sequenceOf(containerId, containerText)
                 .filter { it != null }
                 .any()
                 .let { containerNeeded -> if (containerNeeded) throw IllegalStateException("Container needed, either all or no variables must be null!") }

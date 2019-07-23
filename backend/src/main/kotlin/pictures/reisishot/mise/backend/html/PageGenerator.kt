@@ -30,7 +30,7 @@ object PageGenerator {
         }
         Files.newBufferedWriter(target, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE).use {
             it.write("<!doctype html>")
-            it.appendHTML(prettyPrint = true, xhtmlCompatible = true)
+            it.appendHTML(prettyPrint = false, xhtmlCompatible = true)
                 .html(namespace = "http://www.w3.org/1999/xhtml") {
                     classes = classes + "h-100"
                     head {

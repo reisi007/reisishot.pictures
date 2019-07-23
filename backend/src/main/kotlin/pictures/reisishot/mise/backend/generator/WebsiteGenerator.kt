@@ -48,7 +48,7 @@ interface WebsiteGenerator {
         }
 
     val Path.isMarkdown
-        get() = toString().endsWith("mk", true)
+        get() = toString().endsWith("md", true)
 
     val Path.isConf
         get() = toString().endsWith("conf", true)

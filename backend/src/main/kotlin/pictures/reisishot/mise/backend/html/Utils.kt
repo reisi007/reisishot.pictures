@@ -98,7 +98,7 @@ fun HtmlBlockTag.insertImageGallery(
     }
 }
 
-private fun FlowOrInteractiveOrPhrasingContent.insertLazyPicture(
+internal fun FlowOrInteractiveOrPhrasingContent.insertLazyPicture(
     curImageInfo: InternalImageInformation,
     additionalClasses: List<String> = emptyList()
 ) {
