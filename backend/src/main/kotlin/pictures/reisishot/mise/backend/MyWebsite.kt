@@ -6,6 +6,7 @@ import pictures.reisishot.mise.backend.generator.gallery.ThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.gallery.categories.ConfigurableCategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategoryBuilder
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
+import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
 import java.nio.file.Paths
 
 object MyWebsite {
@@ -39,7 +40,8 @@ object MyWebsite {
                         ThumbnailGenerator.ForceRegeneration(
                             thumbnails = false
                         )
-                    )
+                    ),
+                    SitemapGenerator("https://reisishot.pictures")
                 )
             )
         )
