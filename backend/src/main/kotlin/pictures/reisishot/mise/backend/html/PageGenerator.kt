@@ -96,7 +96,7 @@ object PageGenerator {
 
             var dropdownCount = 0;
             divId("navbarCollapse", "navbar-collapse collapse") {
-                ul("navbar-nav mr-auto") {
+                ul("navbar-nav navbar-light mr-auto") {
                     items.forEach { curItem ->
                         li("nav-item") {
                             if (curItem is MenuLinkContainer) {
