@@ -2,17 +2,18 @@ package pictures.reisishot.mise.backend.generator.gallery
 
 
 interface ImageInformation {
-    val filenameWithoutExtension: FilenameWithoutExtension
-    val url: String
+    val url: FilenameWithoutExtension
     val title: String
     val tags: Set<TagName>
     val exifInformation: Map<ExifdataKey, String>
     val thumbnailSizes: Map<ThumbnailGenerator.ImageSize, ThumbnailGenerator.ThumbnailInformation>
+    val filenameWithoutExtension: FilenameWithoutExtension
+        get() = url
+
 }
 
 data class InternalImageInformation(
-    override val filenameWithoutExtension: FilenameWithoutExtension,
-    override val url: String,
+    override val url: FilenameWithoutExtension,
     override val title: String,
     override val tags: Set<TagName>,
     override val exifInformation: Map<ExifdataKey, String>,

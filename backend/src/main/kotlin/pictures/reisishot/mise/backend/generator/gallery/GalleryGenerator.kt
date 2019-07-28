@@ -104,7 +104,6 @@ class GalleryGenerator(
 
                 InternalImageInformation(
                     filenameWithoutExtension,
-                    imageConfig.url,
                     imageConfig.title,
                     imageConfig.tags,
                     exifData,
