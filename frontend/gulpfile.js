@@ -7,7 +7,7 @@ var
 
 gulp.task('styles', function () {
     return gulp
-        .src('./src/sass/main.scss')
+        .src('./src/scss/main.scss')
         .pipe($.sass().on('error', $.sass.logError))
         .pipe($.autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
         .pipe($.cleanCss())
@@ -71,7 +71,7 @@ gulp.task('watch', function () {
     // Watch .html files
     gulp.watch("generated/**/*.html").on('change', browserSync.reload);
     // Watch .sass files
-    gulp.watch(['src/sass/**/*.scss', 'src/sass/**/*.css'], ['styles', browserSync.reload]);
+    gulp.watch(['src/scss/**/*.scss', 'src/scss/**/*.css'], ['styles', browserSync.reload]);
     // Watch .css files
     gulp.watch('src/css/**/*.css', ['vendorStyles', browserSync.reload]);
     // Watch .js files

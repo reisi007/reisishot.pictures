@@ -1,0 +1,32 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.3.41'
+}
+
+group 'pictures.reisishot.mise'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    def kotlinx_coroutines_version = "1.3.0-RC"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-jdk8
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:${kotlinx_coroutines_version}"
+    // https://mvnrepository.com/artifact/org.jdbi/jdbi3-kotlin-sqlobject
+    implementation group: 'org.jdbi', name: 'jdbi3-kotlin-sqlobject', version: '3.9.0'
+    // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
+    implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.4.2'
+    // https://mvnrepository.com/artifact/com.beust/klaxon
+    implementation group: 'com.beust', name: 'klaxon', version: '5.0.7'
+
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}

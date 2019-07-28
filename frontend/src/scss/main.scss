@@ -1,9 +1,8 @@
+@import "constants";
 @import "../css/photoswipe/default-skin.css";
 @import "animation.css";
+@import "rs";
 
-$mainColor: #27ae60; // Material Nephritis
-$accentColor: #2ecc71; // Material Emerald
-$accentWhite: #f5f5f5;
 
 h1 {
   font-size: 2rem;
@@ -130,5 +129,21 @@ nav {
       padding: 0.67rem;
       margin-top: 1rem;
     }
+  }
+}
+
+footer {
+  span {
+    &.text-muted {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 0.5em;
+    }
+  }
+
+  .socialIcons {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-around;
   }
 }

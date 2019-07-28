@@ -69,6 +69,20 @@ object PageGenerator {
                                 span("text-muted") {
                                     text("© ${websiteConfiguration.longTitle}")
                                 }
+                                span("socialIcons") {
+                                    a("https://fb.me/reisishot", "_blank") {
+                                        insertIcon(ReisishotIcons.FB)
+                                    }
+                                    a("https://www.instagram.com/reisishot/", "_blank") {
+                                        insertIcon(ReisishotIcons.INSTAGRAM)
+                                    }
+                                    a("https://m.me/reisishot", "_blank") {
+                                        insertIcon(ReisishotIcons.FB_MESSENGER)
+                                    }
+                                    a("mailto:florian@reisishot.pictures", "_blank") {
+                                        insertIcon(ReisishotIcons.MAIL)
+                                    }
+                                }
                             }
                         }
                         if (hasGallery)
@@ -77,6 +91,7 @@ object PageGenerator {
                 }
         }
     }
+
 
     private fun HEADER.buildMenu(websiteConfiguration: WebsiteConfiguration, items: Set<MenuLink>) {
         nav("navbar navbar-dark navbar-expand-sm") {
@@ -132,20 +147,30 @@ object PageGenerator {
         }
     }
 
-
+    @HtmlTagMarker
     private fun HEAD.script(src: String) = script(src = src) {}
 
+    @HtmlTagMarker
     private fun HEAD.appCss() = styleLink("/css/app.css")
+
+    @HtmlTagMarker
     private fun HEAD.vendorCss() = styleLink("/css/vendor.css")
 
+    @HtmlTagMarker
     private fun HEAD.appJs() = script("/js/app.js")
+
+    @HtmlTagMarker
     private fun HEAD.vendorJs() = script("/js/vendor.js")
+
+    @HtmlTagMarker
     private fun HEAD.polyfills() {
         script("https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver")
     }
 
+    @HtmlTagMarker
     private fun HEAD.metaUTF8() = meta(charset = "UTF8")
 
+    @HtmlTagMarker
     private fun HEAD.metaViewport() =
         meta(name = "viewport", content = "width=device-width, initial-scale=1, shrink-to-fit=no")
 }

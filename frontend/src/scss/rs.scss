@@ -1,0 +1,43 @@
+@import "constants";
+@import "rs/styles.css";
+
+.icon {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  line-height: 1;
+  color: $mainColor
+}
+
+a {
+  i {
+    &.icon {
+      color: $mainColor
+    }
+  }
+}
+
+.rs-xs {
+  font-size: .75em;
+}
+
+.rs-sm {
+  font-size: .875em;
+}
+
+.rs-lg {
+  font-size: 1.33333em;
+  line-height: 0.75em;
+  vertical-align: -.0667em;
+}
+
+.rs-1x {
+  font-size: 1em;
+}
+
+.rs-2x {
+  font-size: 2em;
+}

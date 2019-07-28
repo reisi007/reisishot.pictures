@@ -26,6 +26,7 @@ import java.io.StringReader
 import java.io.StringWriter
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.attribute.BasicFileAttributeView
 import kotlin.streams.asSequence
 
 class PageGenerator : WebsiteGenerator {
@@ -86,7 +87,14 @@ class PageGenerator : WebsiteGenerator {
                     else
                         it to configuration.outPath.resolve("$base/index.html")
 
-                } // Generate all links
+                }.map {
+                    it to Files.getFileAttributeView(
+                        it.first,
+                        BasicFileAttributeView::class.java
+                    ).readAttributes().creationTime()
+                }.sortedBy { it.second.toInstant() }
+                .map { it.first }
+                // Generate all links
                 .peek { (_, outPath) ->
                     outPath.filenameWithoutExtension.substringBeforeLast(".").let { filename ->
                         val link = '/' + configuration.outPath.relativize(outPath).toString()
