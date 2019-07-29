@@ -93,7 +93,7 @@ object PageGenerator {
     }
 
 
-    private fun HEADER.buildMenu(websiteConfiguration: WebsiteConfiguration, items: Set<MenuLink>) {
+    private fun HEADER.buildMenu(websiteConfiguration: WebsiteConfiguration, items: Collection<MenuLink>) {
         nav("navbar navbar-dark navbar-expand-sm") {
             val navId = "navbarCollapse"
             a(classes = "navbar-brand", href = "/") {

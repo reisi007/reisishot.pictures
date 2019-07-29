@@ -224,3 +224,5 @@ typings/
 # End of https://www.gitignore.io/api/node,intellij,webstorm
 
 *.lock
+**/.gradle/**/*.bin
+cache.properties

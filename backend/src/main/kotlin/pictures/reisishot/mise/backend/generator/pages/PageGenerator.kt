@@ -102,11 +102,16 @@ class PageGenerator : WebsiteGenerator {
 
                         var inFilename = inPath.fileName.toString().filenameWithoutExtension
 
-                        val priority = inFilename.substringBefore(MENU_NAME_SEPARATOR).toIntOrNull() ?: 0
+                        val globalPriority = inFilename.substringBefore(MENU_NAME_SEPARATOR).toIntOrNull() ?: 0
                         inFilename = inFilename.substringAfter(MENU_NAME_SEPARATOR)
 
                         val menuContainerName =
                             inFilename.substringBefore(MENU_NAME_SEPARATOR).replace('_', ' ')
+                        inFilename = inFilename.substringAfter(MENU_NAME_SEPARATOR)
+                        val menuItemPriority = inFilename.substringBefore(MENU_NAME_SEPARATOR)
+                            .toIntOrNull()
+                            ?.also { inFilename = inFilename.substringAfter(MENU_NAME_SEPARATOR) }
+                            ?: 0
                         val menuItemName = inFilename.substringAfter(MENU_NAME_SEPARATOR).replace('_', ' ')
 
 
@@ -114,7 +119,7 @@ class PageGenerator : WebsiteGenerator {
                             cache.addLinkcacheEntryFor(LINKTYPE_PAGE, menuItemName, link)
                             cache.addMenuItem(
                                 generatorName + "_" + menuContainerName,
-                                priority,
+                                globalPriority,
                                 link,
                                 menuItemName
                             )
@@ -123,9 +128,10 @@ class PageGenerator : WebsiteGenerator {
                             cache.addMenuItemInContainer(
                                 generatorName + "_" + menuContainerName,
                                 menuContainerName,
-                                ++count,
+                                globalPriority,
                                 menuItemName,
-                                link
+                                link,
+                                menuItemPriority
                             )
                         }
                     }

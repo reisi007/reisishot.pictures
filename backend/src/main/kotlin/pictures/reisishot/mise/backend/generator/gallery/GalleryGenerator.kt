@@ -4,7 +4,6 @@ import com.drew.imaging.ImageMetadataReader
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.BuildingCache
-import pictures.reisishot.mise.backend.generator.MenuLinkContainer
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertImageGallery
@@ -127,6 +126,7 @@ class GalleryGenerator(
     }
 
     private fun buildTags(cache: BuildingCache) = with(this.cache) {
+        // cache.clearMenuItems { LINKTYPE_TAGS == it.id }
         imageInformationData.values.forEach { imageInformation ->
             imageInformation.tags.forEach { tag ->
                 computedTags.computeIfAbsent(tag) { mutableSetOf() } += imageInformation
@@ -144,7 +144,7 @@ class GalleryGenerator(
         cache: BuildingCache
     ) = with(this.cache) {
         val categoryLevelMap: MutableMap<Int, MutableSet<CategoryInformation>> = mutableMapOf()
-        cache.clearMenuItems { it is MenuLinkContainer && LINKTYPE_CATEGORIES == it.id }
+        //   cache.clearMenuItems { LINKTYPE_CATEGORIES == it.id }
         categoryBuilders.forEach { categoryBuilder ->
             categoryBuilder.generateCategories(this@GalleryGenerator, websiteConfiguration)
                 .forEach { (filename, categoryInformation) ->

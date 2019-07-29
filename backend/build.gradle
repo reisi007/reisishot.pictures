@@ -43,5 +43,7 @@ dependencies {
     implementation 'com.atlassian.commonmark:commonmark:0.13.0'
     // https://mvnrepository.com/artifact/org.apache.commons/commons-text
     implementation group: 'org.apache.commons', name: 'commons-text', version: '1.7'
+    // https://mvnrepository.com/artifact/com.google.guava/guava
+    implementation group: 'com.google.guava', name: 'guava', version: '28.0-jre'
 
 }

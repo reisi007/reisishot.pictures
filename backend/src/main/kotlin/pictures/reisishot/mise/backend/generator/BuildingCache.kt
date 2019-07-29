@@ -1,5 +1,7 @@
 package pictures.reisishot.mise.backend.generator
 
+import com.google.common.collect.SortedMultiset
+import com.google.common.collect.TreeMultiset
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.fromXml
 import pictures.reisishot.mise.backend.toXml
@@ -15,10 +17,10 @@ class BuildingCache {
     private val linkCache: MutableMap<String, MutableMap<String, Link>> = mutableMapOf()
 
 
-    private val internalMenuLinks: SortedSet<MenuLink> =
-        Collections.synchronizedSortedSet(TreeSet<MenuLink>(Comparator.comparing<MenuLink, Int> { it.uniqueIndex }))
+    private val internalMenuLinks: SortedMultiset<MenuLink> =
+        TreeMultiset.create(Comparator.comparing<MenuLink, Int> { it.uniqueIndex })
 
-    val menuLinks: Set<MenuLink> get() = internalMenuLinks
+    val menuLinks: Collection<MenuLink> get() = Collections.synchronizedCollection(internalMenuLinks)
 
     private val dateTimeFormatter = DateTimeFormatter.ISO_ZONED_DATE_TIME
 
@@ -30,39 +32,41 @@ class BuildingCache {
     }
 
 
-    fun clearMenuItems(removePredicate: (MenuLink) -> Boolean) {
-        internalMenuLinks.removeAll(removePredicate)
+    fun clearMenuItems(removePredicate: (MenuLink) -> Boolean) = synchronized(internalMenuLinks) {
+        internalMenuLinks.removeIf(removePredicate)
     }
 
-    fun addMenuItem(id: String = UUID.randomUUID().toString(), index: Int, href: Link, text: LinkText) {
-        val item = MenuLinkContainerItem(id, index, href, text)
-        internalMenuLinks.add(item)
-    }
+    fun addMenuItem(id: String = UUID.randomUUID().toString(), index: Int, href: Link, text: LinkText) =
+        synchronized(internalMenuLinks) {
+            val item = MenuLinkContainerItem(id, index, href, text)
+            internalMenuLinks.add(item)
+        }
 
     fun addMenuItemInContainer(
         containerId: String,
         containerText: String,
-        index: Int,
+        containerIndex: Int,
         text: LinkText,
-        link: Link
-    ) {
+        link: Link,
+        elementIndex: Int = 0
+    ) = synchronized(internalMenuLinks) {
         val menuLinkContainer = internalMenuLinks.find {
             it is MenuLinkContainer && containerId == it.id
         } as? MenuLinkContainer ?: run {
             val newContainer = MenuLinkContainer(
                 containerId,
-                index,
+                containerIndex,
                 containerText
             )
+            internalMenuLinks.add(newContainer)
             newContainer
         }
         menuLinkContainer += MenuLinkContainerItem(
             UUID.randomUUID().toString(),
-            menuLinkContainer.children.size,
+            elementIndex,
             link,
             text
         )
-        internalMenuLinks.add(menuLinkContainer)
 
     }
 
@@ -74,7 +78,7 @@ class BuildingCache {
 
 
 
-        menuLinkPath.fromXml<Set<MenuLink>>()?.let {
+        menuLinkPath.fromXml<List<MenuLink>>()?.let {
             internalMenuLinks += it
         }
 
@@ -84,7 +88,7 @@ class BuildingCache {
     }
 
     internal fun saveCache(config: WebsiteConfiguration) {
-        internalMenuLinks.toXml(menuLinkPath)
+        internalMenuLinks.toList().toXml(menuLinkPath)
         linkCache.toXml(linkPath)
     }
 }
