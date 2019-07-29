@@ -7,7 +7,6 @@ import pictures.reisishot.mise.backend.withChild
 import java.nio.file.Path
 import java.time.format.DateTimeFormatter
 import java.util.*
-import java.util.function.Function
 
 class BuildingCache {
     private lateinit var menuLinkPath: Path
@@ -17,7 +16,7 @@ class BuildingCache {
 
 
     private val internalMenuLinks: SortedSet<MenuLink> =
-        Collections.synchronizedSortedSet(TreeSet<MenuLink>(Comparator.comparing(Function<MenuLink, Int> { it.uniqueIndex })))
+        Collections.synchronizedSortedSet(TreeSet<MenuLink>(Comparator.comparing<MenuLink, Int> { it.uniqueIndex }))
 
     val menuLinks: Set<MenuLink> get() = internalMenuLinks
 

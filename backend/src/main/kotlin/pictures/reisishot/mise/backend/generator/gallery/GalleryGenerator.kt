@@ -87,7 +87,7 @@ class GalleryGenerator(
                 val filenameWithoutExtension = jpegPath.filenameWithoutExtension
                 val configPath = jpegPath.parent withChild "$filenameWithoutExtension.conf"
                 val thumbnailInfoPath =
-                    configuration.tmpPath withChild ThumbnailGenerator.NAME_THUMBINFO_SUBFOLDER withChild "$filenameWithoutExtension.xml"
+                    configuration.tmpPath withChild ThumbnailGenerator.NAME_THUMBINFO_SUBFOLDER withChild "$filenameWithoutExtension.cache.xml"
                 if (!configPath.exists())
                     throw IllegalStateException("Config path does not exist for $jpegPath!")
                 if (!jpegPath.exists())

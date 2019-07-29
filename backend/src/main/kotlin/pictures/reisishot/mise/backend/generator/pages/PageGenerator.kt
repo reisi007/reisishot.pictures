@@ -72,7 +72,7 @@ class PageGenerator : WebsiteGenerator {
                 ?: throw IllegalStateException("Gallery generator is needed for this generator!")
 
             var count = 0
-            cache.clearMenuItems { LINKTYPE_PAGE == it.id }
+            cache.clearMenuItems { it.id.startsWith(generatorName + "_") }
             filesToProcess = Files.walk(configuration.inPath)
                 .asSequence()
                 .filter { p -> p.isRegularFile() && (p.isMarkdown || p.isHtml) }
@@ -94,24 +94,40 @@ class PageGenerator : WebsiteGenerator {
                 }.sortedBy { it.second.toInstant() }
                 .map { it.first }
                 // Generate all links
-                .peek { (_, outPath) ->
-                    outPath.filenameWithoutExtension.substringBeforeLast(".").let { filename ->
-                        val link = '/' + configuration.outPath.relativize(outPath).toString()
-
-                        if (link.startsWith("/index"))
+                .peek { (inPath, outPath) ->
+                    configuration.outPath.relativize(outPath).parent?.fileName?.toString().let { filename ->
+                        if (filename == null)
                             return@peek
+                        val link = '/' + configuration.outPath.relativize(outPath).parent.toString()
 
-                        val menuContainerName = filename.substringBefore(MENU_NAME_SEPARATOR).replace('_', ' ')
-                        val menuItemName = filename.substringAfter(MENU_NAME_SEPARATOR).replace('_', ' ')
+                        var inFilename = inPath.fileName.toString().filenameWithoutExtension
 
-                        cache.addLinkcacheEntryFor(LINKTYPE_PAGE, menuContainerName, link)
-                        cache.addMenuItemInContainer(
-                            menuContainerName,
-                            menuContainerName,
-                            ++count,
-                            menuItemName,
-                            link
-                        )
+                        val priority = inFilename.substringBefore(MENU_NAME_SEPARATOR).toIntOrNull() ?: 0
+                        inFilename = inFilename.substringAfter(MENU_NAME_SEPARATOR)
+
+                        val menuContainerName =
+                            inFilename.substringBefore(MENU_NAME_SEPARATOR).replace('_', ' ')
+                        val menuItemName = inFilename.substringAfter(MENU_NAME_SEPARATOR).replace('_', ' ')
+
+
+                        if (menuContainerName.isBlank()) {
+                            cache.addLinkcacheEntryFor(LINKTYPE_PAGE, menuItemName, link)
+                            cache.addMenuItem(
+                                generatorName + "_" + menuContainerName,
+                                priority,
+                                link,
+                                menuItemName
+                            )
+                        } else {
+                            cache.addLinkcacheEntryFor(LINKTYPE_PAGE, "$menuContainerName-$menuItemName", link)
+                            cache.addMenuItemInContainer(
+                                generatorName + "_" + menuContainerName,
+                                menuContainerName,
+                                ++count,
+                                menuItemName,
+                                link
+                            )
+                        }
                     }
                 }.toList()
         }

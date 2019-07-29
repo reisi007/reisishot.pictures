@@ -91,20 +91,11 @@ main {
 .navbar {
   @extend .bg-dark;
 
-  a {
-    &.nav-link.dropdown-toggle {
-      color: white;
-      padding-top: 0.7rem;
-    }
-  }
-}
-
-nav {
-  a {
-    color: $accentWhite;
+  .nav-link {
+    color: $accentWhite !important;
 
     &:hover {
-      color: white;
+      color: white !important;
     }
   }
 }

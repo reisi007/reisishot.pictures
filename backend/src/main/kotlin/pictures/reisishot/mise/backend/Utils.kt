@@ -99,9 +99,11 @@ val Path.fileModifiedDateTime: ZonedDateTime?
     else null
 
 val Path.filenameWithoutExtension: FilenameWithoutExtension
-    get() = with(fileName.toString()) {
-        substring(0, lastIndexOf('.'))
-    }
+    get() = fileName.toString().filenameWithoutExtension
+
+internal val String.filenameWithoutExtension: FilenameWithoutExtension
+    get() = substring(0, lastIndexOf('.'))
+
 
 val Path.filenameExtension: String
     get() = with(fileName.toString()) {
