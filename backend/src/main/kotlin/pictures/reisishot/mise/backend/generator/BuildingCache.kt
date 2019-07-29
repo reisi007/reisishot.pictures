@@ -10,8 +10,6 @@ import java.util.*
 import java.util.function.Function
 
 class BuildingCache {
-
-
     private lateinit var menuLinkPath: Path
     private lateinit var linkPath: Path
 
@@ -37,37 +35,36 @@ class BuildingCache {
         internalMenuLinks.removeAll(removePredicate)
     }
 
-    fun addMenuItem(
-        containerId: String? = null,
-        containerText: String? = null,
+    fun addMenuItem(id: String = UUID.randomUUID().toString(), index: Int, href: Link, text: LinkText) {
+        val item = MenuLinkContainerItem(id, index, href, text)
+        internalMenuLinks.add(item)
+    }
+
+    fun addMenuItemInContainer(
+        containerId: String,
+        containerText: String,
         index: Int,
         text: LinkText,
         link: Link
     ) {
-        if (containerId != null && containerText != null) {
-            val menuLinkContainer = internalMenuLinks.find {
-                it is MenuLinkContainer && containerId == it.containerId
-            } as? MenuLinkContainer ?: kotlin.run {
-                val newContainer = MenuLinkContainer(
-                    containerId,
-                    index,
-                    containerText
-                )
-                newContainer
-            }
-            menuLinkContainer += MenuLinkContainerItem(menuLinkContainer.children.size, link, text)
-            internalMenuLinks.add(menuLinkContainer)
-        } else {
-            sequenceOf(containerId, containerText)
-                .filter { it != null }
-                .any()
-                .let { containerNeeded -> if (containerNeeded) throw IllegalStateException("Container needed, either all or no variables must be null!") }
-            val item = MenuLinkContainerItem(index, link, text)
-
-
-            internalMenuLinks.add(item)
-
+        val menuLinkContainer = internalMenuLinks.find {
+            it is MenuLinkContainer && containerId == it.id
+        } as? MenuLinkContainer ?: run {
+            val newContainer = MenuLinkContainer(
+                containerId,
+                index,
+                containerText
+            )
+            newContainer
         }
+        menuLinkContainer += MenuLinkContainerItem(
+            UUID.randomUUID().toString(),
+            menuLinkContainer.children.size,
+            link,
+            text
+        )
+        internalMenuLinks.add(menuLinkContainer)
+
     }
 
     internal fun loadCache(config: WebsiteConfiguration) {

@@ -12,7 +12,6 @@ import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.BuildingCache
-import pictures.reisishot.mise.backend.generator.MenuLinkContainer
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.gallery.FilenameWithoutExtension
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
@@ -73,7 +72,7 @@ class PageGenerator : WebsiteGenerator {
                 ?: throw IllegalStateException("Gallery generator is needed for this generator!")
 
             var count = 0
-            cache.clearMenuItems { it is MenuLinkContainer && LINKTYPE_PAGE == it.containerId }
+            cache.clearMenuItems { LINKTYPE_PAGE == it.id }
             filesToProcess = Files.walk(configuration.inPath)
                 .asSequence()
                 .filter { p -> p.isRegularFile() && (p.isMarkdown || p.isHtml) }
@@ -106,7 +105,7 @@ class PageGenerator : WebsiteGenerator {
                         val menuItemName = filename.substringAfter(MENU_NAME_SEPARATOR).replace('_', ' ')
 
                         cache.addLinkcacheEntryFor(LINKTYPE_PAGE, menuContainerName, link)
-                        cache.addMenuItem(
+                        cache.addMenuItemInContainer(
                             menuContainerName,
                             menuContainerName,
                             ++count,

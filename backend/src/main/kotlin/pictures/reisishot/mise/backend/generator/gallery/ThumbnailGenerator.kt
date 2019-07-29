@@ -77,12 +77,31 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
             configuration.inPath.withChild(NAME_IMAGE_SUBFOLDER).list().filter { it.isJpeg }.asIterable()
                 .forEachLimitedParallel(10) { inFile ->
                     val baseOutFile = outPath withChild inFile.fileName
+                    val thumbnailInfoPath =
+                        configuration.tmpPath withChild NAME_THUMBINFO_SUBFOLDER withChild "${baseOutFile.filenameWithoutExtension}.cache.xml"
                     if (!forceRegeneration.thumbnails) {
                         sequenceOf(inFile).plus(
                             imageSizes.asSequence().map { it.decoratePath(baseOutFile) }
-                        ).all { it.isNewerThan(inFile) }.let { changed ->
-                            if (!changed)
+                        ).all { it.exists() && it.isNewerThan(inFile) }.let { changed ->
+                            if (!changed) {
+                                if (!Files.exists(thumbnailInfoPath)) {
+                                    val thumbnailInfoMap = mutableMapOf<ImageSize, ThumbnailInformation>()
+                                    ImageSize.ORDERED.forEach { size ->
+                                        val imagePath = size.decoratePath(baseOutFile)
+                                        val image = imagePath.readImage()
+                                        thumbnailInfoMap.put(
+                                            size,
+                                            ThumbnailInformation(
+                                                imagePath.fileName.toString(),
+                                                image.width,
+                                                image.height
+                                            )
+                                        )
+                                    }
+                                    thumbnailInfoMap.toXml(thumbnailInfoPath)
+                                }
                                 return@forEachLimitedParallel
+                            }
                         }
                     }
 
@@ -95,8 +114,9 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
                     } else {
                         // Generate
                         val image = inFile.readImage()
-                        val jpegWriter = ImageIO.getImageWritersByFormatName("jpeg").next()
-                            ?: throw IllegalStateException("Could not find a writer for JPEG!")
+                        val jpegWriter =
+                            ImageIO.getImageWritersByFormatName("jpeg").next()
+                                ?: throw IllegalStateException("Could not find a writer for JPEG!")
 
                         val thumbnailInfoMap = mutableMapOf<ImageSize, ThumbnailInformation>()
                         imageSizes.forEach { imageSize ->
@@ -132,9 +152,8 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
                                 }
                             }
                         }
-                        with(configuration.tmpPath withChild NAME_THUMBINFO_SUBFOLDER withChild "${baseOutFile.filenameWithoutExtension}.xml") {
-                            thumbnailInfoMap.toXml(this)
-                        }
+
+                        thumbnailInfoMap.toXml(thumbnailInfoPath)
                     }
                 }
         }

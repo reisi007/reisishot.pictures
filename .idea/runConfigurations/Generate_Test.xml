@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Generate reisishot.pictures" type="JetRunConfigurationType" factoryName="Kotlin">
+  <configuration default="false" name="Generate Test" type="JetRunConfigurationType" factoryName="Kotlin">
     <module name="mise-backend.main" />
     <option name="VM_PARAMETERS" value="" />
     <option name="PROGRAM_PARAMETERS" value="" />

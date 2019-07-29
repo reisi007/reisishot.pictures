@@ -133,7 +133,7 @@ class GalleryGenerator(
                 // Add tag URLs to global cache
                 "/gallery/tags/$tag".let { link ->
                     cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag, link)
-                    cache.addMenuItem(LINKTYPE_TAGS, "Tags", 300, tag, link)
+                    cache.addMenuItemInContainer(LINKTYPE_TAGS, "Tags", 300, tag, link)
                 }
             }
         }
@@ -144,7 +144,7 @@ class GalleryGenerator(
         cache: BuildingCache
     ) = with(this.cache) {
         val categoryLevelMap: MutableMap<Int, MutableSet<CategoryInformation>> = mutableMapOf()
-        cache.clearMenuItems { it is MenuLinkContainer && LINKTYPE_CATEGORIES == it.containerId }
+        cache.clearMenuItems { it is MenuLinkContainer && LINKTYPE_CATEGORIES == it.id }
         categoryBuilders.forEach { categoryBuilder ->
             categoryBuilder.generateCategories(this@GalleryGenerator, websiteConfiguration)
                 .forEach { (filename, categoryInformation) ->
@@ -154,7 +154,7 @@ class GalleryGenerator(
                         }
                         computedCategories.computeIfAbsent(categoryInformation.complexName) {
                             if (categoryInformation.visible) {
-                                cache.addMenuItem(
+                                cache.addMenuItemInContainer(
                                     LINKTYPE_CATEGORIES, "Kategorien", 200, categoryInformation.complexName.simpleName,
                                     "/gallery/categories/${categoryInformation.urlFragment}"
                                 )
