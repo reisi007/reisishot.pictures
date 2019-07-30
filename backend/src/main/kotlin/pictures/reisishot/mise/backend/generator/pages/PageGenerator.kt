@@ -71,8 +71,8 @@ class PageGenerator : WebsiteGenerator {
             galleryGenerator = alreadyRunGenerators.find { it is GalleryGenerator } as? GalleryGenerator
                 ?: throw IllegalStateException("Gallery generator is needed for this generator!")
 
-            var count = 0
             cache.clearMenuItems { it.id.startsWith(generatorName + "_") }
+            cache.resetLinkcacheFor(LINKTYPE_PAGE)
             filesToProcess = Files.walk(configuration.inPath)
                 .asSequence()
                 .filter { p -> p.isRegularFile() && (p.isMarkdown || p.isHtml) }
@@ -91,15 +91,15 @@ class PageGenerator : WebsiteGenerator {
                         it.first,
                         BasicFileAttributeView::class.java
                     ).readAttributes().creationTime()
-                }.sortedBy { it.second.toInstant() }
-                .map { it.first }
+                }.map { it.first }
                 // Generate all links
                 .peek { (inPath, outPath) ->
                     configuration.outPath.relativize(outPath).parent?.fileName?.toString().let { filename ->
-                        if (filename == null)
+                        if (filename == null) {
+                            cache.addLinkcacheEntryFor(LINKTYPE_PAGE, "index", "")
                             return@peek
+                        }
                         val link = '/' + configuration.outPath.relativize(outPath).parent.toString()
-
                         var inFilename = inPath.fileName.toString().filenameWithoutExtension
 
                         val globalPriority = inFilename.substringBefore(MENU_NAME_SEPARATOR).toIntOrNull() ?: 0
@@ -144,7 +144,7 @@ class PageGenerator : WebsiteGenerator {
 
             return@run { templateData, originalFilename, websiteConfiguration, buildingCache, targetPath ->
                 val velocityContext = VelocityContext()
-                val galleryObject = VelocityGalleryObject(targetPath)
+                val galleryObject = VelocityGalleryObject(targetPath, buildingCache, websiteConfiguration)
                 // Make objects available in Velocity templates
                 velocityContext.put("please", galleryObject)
 
@@ -154,11 +154,12 @@ class PageGenerator : WebsiteGenerator {
                 }.let { html ->
                     PageGenerator.generatePage(
                         targetPath,
-                        originalFilename.substringAfter(MENU_NAME_SEPARATOR).let { result ->
-                            if ("index" == result)
-                                websiteConfiguration.longTitle
-                            else result
-                        }.replace('_', ' '),
+                        originalFilename.substringAfter(MENU_NAME_SEPARATOR)
+                            .substringAfter(MENU_NAME_SEPARATOR).let { result ->
+                                if ("index" == result)
+                                    websiteConfiguration.longTitle
+                                else result
+                            }.replace('_', ' '),
                         websiteConfiguration = websiteConfiguration,
                         buildingCache = buildingCache,
                         hasGallery = galleryObject.hasGallery,
@@ -220,10 +221,23 @@ class PageGenerator : WebsiteGenerator {
             targetFile
         )
 
-    inner class VelocityGalleryObject(private val targetPath: TargetPath) {
+    inner class VelocityGalleryObject(
+        private val targetPath: TargetPath,
+        private val cache: BuildingCache,
+        private val websiteConfiguration: WebsiteConfiguration
+    ) {
         private var privateHasGallery = false
+        private val websiteLocation by lazy {
+            with(websiteConfiguration.websiteLocation) {
+                if (!endsWith('/'))
+                    "$this/"
+                else
+                    this
+            }
+        }
         val hasGallery
             get() = privateHasGallery
+
 
         private fun Map<FilenameWithoutExtension, InternalImageInformation>.getOrThrow(key: FilenameWithoutExtension) =
             this[key]
@@ -257,6 +271,9 @@ class PageGenerator : WebsiteGenerator {
                     }
             }
         }
+
+        @SuppressWarnings("unused")
+        fun insertLink(type: String, key: String): String = websiteLocation + cache.getLinkcacheEntryFor(type, key)
     }
 
 }

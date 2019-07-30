@@ -31,6 +31,8 @@ class BuildingCache {
         linkCache.computeIfAbsent(linkType) { mutableMapOf() }.put(linkKey, link)
     }
 
+    fun getLinkcacheEntryFor(linkType: String, linkKey: String): Link = linkCache[linkType]?.get(linkKey)
+        ?: throw IllegalStateException("Menu link with type $linkType and key $linkKey not found!")
 
     fun clearMenuItems(removePredicate: (MenuLink) -> Boolean) = synchronized(internalMenuLinks) {
         internalMenuLinks.removeIf(removePredicate)

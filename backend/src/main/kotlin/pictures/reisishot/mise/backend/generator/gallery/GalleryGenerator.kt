@@ -126,7 +126,8 @@ class GalleryGenerator(
     }
 
     private fun buildTags(cache: BuildingCache) = with(this.cache) {
-        // cache.clearMenuItems { LINKTYPE_TAGS == it.id }
+        cache.clearMenuItems { LINKTYPE_TAGS == it.id }
+        cache.resetLinkcacheFor(LINKTYPE_TAGS)
         imageInformationData.values.forEach { imageInformation ->
             imageInformation.tags.forEach { tag ->
                 computedTags.computeIfAbsent(tag) { mutableSetOf() } += imageInformation
@@ -144,7 +145,8 @@ class GalleryGenerator(
         cache: BuildingCache
     ) = with(this.cache) {
         val categoryLevelMap: MutableMap<Int, MutableSet<CategoryInformation>> = mutableMapOf()
-        //   cache.clearMenuItems { LINKTYPE_CATEGORIES == it.id }
+        cache.clearMenuItems { LINKTYPE_CATEGORIES == it.id }
+        cache.resetLinkcacheFor(LINKTYPE_CATEGORIES)
         categoryBuilders.forEach { categoryBuilder ->
             categoryBuilder.generateCategories(this@GalleryGenerator, websiteConfiguration)
                 .forEach { (filename, categoryInformation) ->

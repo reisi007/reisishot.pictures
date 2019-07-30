@@ -8,17 +8,9 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.streams.asSequence
 
-class SitemapGenerator(websiteLocation: String) : WebsiteGenerator {
+class SitemapGenerator() : WebsiteGenerator {
     override val generatorName: String = "Sitemap Generator"
 
-    private val websiteLocation: String
-
-    init {
-        this.websiteLocation = if (!websiteLocation.endsWith('/'))
-            "$websiteLocation/"
-        else
-            websiteLocation
-    }
 
     override val executionPriority: Int = 100_000
 
@@ -31,6 +23,12 @@ class SitemapGenerator(websiteLocation: String) : WebsiteGenerator {
     }
 
     override suspend fun buildArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
+        val websiteLocation = with(configuration.websiteLocation) {
+            if (!endsWith('/'))
+                "$this/"
+            else
+                this
+        }
         PrintWriter(configuration.outPath.resolve("sitemap.xml").toFile(), Charsets.UTF_8.toString()).use {
             it.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
             it.println("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">")

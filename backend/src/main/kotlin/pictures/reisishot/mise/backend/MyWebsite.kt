@@ -17,9 +17,10 @@ object MyWebsite {
             WebsiteConfiguration(
                 shortTitle = "Reisishot",
                 longTitle = "Reisishot - Fotograf Florian Reisinger",
+                websiteLocation = "http://localhost:3000",
                 inPath = Paths.get("src/main/resources"),
                 outPath = Paths.get("../frontend/generated"),
-                generators = arrayOf(
+                generators = listOf(
                     PageGenerator(),
                     GalleryGenerator(
                         categoryBuilders = *arrayOf(
@@ -41,7 +42,7 @@ object MyWebsite {
                             thumbnails = false
                         )
                     ),
-                    SitemapGenerator("https://reisishot.pictures")
+                    SitemapGenerator()
                 )
             )
         )
