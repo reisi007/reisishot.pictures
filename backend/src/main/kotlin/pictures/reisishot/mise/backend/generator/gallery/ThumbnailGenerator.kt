@@ -1,5 +1,6 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
+import com.sun.imageio.plugins.jpeg.JPEGImageWriter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.coobird.thumbnailator.Thumbnails
@@ -75,7 +76,7 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
         }
         ImageSize.values().let { imageSizes ->
             configuration.inPath.withChild(NAME_IMAGE_SUBFOLDER).list().filter { it.isJpeg }.asIterable()
-                .forEachLimitedParallel(10) { inFile ->
+                .forEachLimitedParallel(2) { inFile ->
                     val baseOutFile = outPath withChild inFile.fileName
                     val thumbnailInfoPath =
                         configuration.tmpPath withChild NAME_THUMBINFO_SUBFOLDER withChild "${baseOutFile.filenameWithoutExtension}.cache.xml"
@@ -83,7 +84,7 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
                         sequenceOf(inFile).plus(
                             imageSizes.asSequence().map { it.decoratePath(baseOutFile) }
                         ).all { it.exists() && it.isNewerThan(inFile) }.let { changed ->
-                            if (!changed) {
+                            if (!changed && imageSizes.asSequence().map { it.decoratePath(baseOutFile) }.all { it.exists() }) {
                                 if (!Files.exists(thumbnailInfoPath)) {
                                     val thumbnailInfoMap = mutableMapOf<ImageSize, ThumbnailInformation>()
                                     ImageSize.ORDERED.forEach { size ->
@@ -114,9 +115,8 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
                     } else {
                         // Generate
                         val image = inFile.readImage()
-                        val jpegWriter =
-                            ImageIO.getImageWritersByFormatName("jpeg").next()
-                                ?: throw IllegalStateException("Could not find a writer for JPEG!")
+
+                        val jpegWriterMap = mutableMapOf<Thread, JPEGImageWriter>()
 
                         val thumbnailInfoMap = mutableMapOf<ImageSize, ThumbnailInformation>()
                         imageSizes.forEach { imageSize ->
@@ -133,6 +133,10 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
                                             StandardOpenOption.TRUNCATE_EXISTING
                                         )
                                     ).use { imageOs ->
+                                        val jpegWriter = jpegWriterMap.computeIfAbsent(Thread.currentThread()) {
+                                            ImageIO.getImageWritersByFormatName("jpeg").next() as? JPEGImageWriter
+                                                ?: throw IllegalStateException("Could not find a writer for JPEG!")
+                                        }
                                         val param = JPEGImageWriteParam(configuration.locale)
                                         param.compressionMode = ImageWriteParam.MODE_EXPLICIT
                                         param.compressionQuality = imageSize.quality

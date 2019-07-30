@@ -44,6 +44,25 @@ class BuildingCache {
             internalMenuLinks.add(item)
         }
 
+    fun addMenuItemInContainerNoDupes(
+        containerId: String,
+        containerText: String,
+        containerIndex: Int,
+        text: LinkText,
+        link: Link,
+        elementIndex: Int = 0
+    ): Unit = synchronized(internalMenuLinks) {
+        internalMenuLinks.find {
+            it is MenuLinkContainer && it.id == containerId && it.text == containerText
+                    && it.uniqueIndex == containerIndex && it.children.any {
+                it.text == text && it.href == link
+            }
+        }.let {
+            if (it == null)
+                addMenuItemInContainer(containerId, containerText, containerIndex, text, link, elementIndex)
+        }
+    }
+
     fun addMenuItemInContainer(
         containerId: String,
         containerText: String,

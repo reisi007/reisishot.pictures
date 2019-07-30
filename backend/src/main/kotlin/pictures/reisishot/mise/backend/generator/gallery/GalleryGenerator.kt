@@ -134,7 +134,7 @@ class GalleryGenerator(
                 // Add tag URLs to global cache
                 "/gallery/tags/$tag".let { link ->
                     cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag, link)
-                    cache.addMenuItemInContainer(LINKTYPE_TAGS, "Tags", 300, tag, link)
+                    cache.addMenuItemInContainerNoDupes(LINKTYPE_TAGS, "Tags", 300, tag, link)
                 }
             }
         }
