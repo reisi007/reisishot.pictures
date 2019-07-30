@@ -23,7 +23,7 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
     }
 
     enum class ImageSize(private val identifier: String, val longestSidePx: Int, val quality: Float) {
-        SMALL("icon", 300, 0.5f), MEDIUM("embed", 1000, 0.75f), LARGE("large", 2500, 0.85f);
+        SMALL("icon", 300, 0.35f), MEDIUM("embed", 1000, 0.5f), LARGE("large", 2500, 0.75f);
 
         companion object {
             val ORDERED = arrayOf(LARGE, MEDIUM, SMALL)
