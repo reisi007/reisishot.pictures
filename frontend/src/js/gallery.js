@@ -7,7 +7,6 @@
             loaded: function (el) {
                 el.style = "";
                 el.classList.add('loaded');
-                console.log("Lazy loaded element ", el)
             }
         });
         observer.observe();
@@ -17,14 +16,12 @@
     function initGallery() {
         // Save all galleries to the window
         document.querySelectorAll("div#gallery").forEach(gallery => {
-            let i = 0;
             gallery.querySelectorAll("picture").forEach(pictureElement => {
                 const galleryName = gallery.getAttribute("data-name");
                 const curGallery = galleries[galleryName] = galleries[galleryName] || [];
                 curGallery.push({picture: pictureElement});
-                const index = i;
+                const index = curGallery.length - 1;
                 pictureElement.onclick = () => openGallery(galleryName, index);
-                i++;
             })
         });
         parseUrl();
