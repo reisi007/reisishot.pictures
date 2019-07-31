@@ -1,5 +1,8 @@
 package pictures.reisishot.mise.backend.generator
 
+import com.google.common.collect.TreeMultiset
+import java.util.*
+
 typealias  Link = String
 typealias  LinkText = String
 
@@ -16,10 +19,11 @@ class MenuLinkContainer(
     id: String,
     uniqueIndex: Int,
     text: LinkText,
+    childComperator: Comparator<MenuLinkContainerItem>,
     addChildren: MenuLinkContainer.() -> Unit = {}
 ) : MenuLink(id, uniqueIndex, null, text) {
-    private val internalChildren = mutableListOf<MenuLinkContainerItem>()
-    val children: List<MenuLinkContainerItem> get() = internalChildren
+    private val internalChildren = TreeMultiset.create(childComperator)
+    val children: Collection<MenuLinkContainerItem> get() = internalChildren
 
     fun addChild(child: MenuLinkContainerItem) {
         internalChildren += child

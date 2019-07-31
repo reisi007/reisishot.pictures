@@ -4,6 +4,7 @@ import com.drew.imaging.ImageMetadataReader
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.BuildingCache
+import pictures.reisishot.mise.backend.generator.MenuLinkContainerItem
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertImageGallery
@@ -29,6 +30,7 @@ class GalleryGenerator(
 
     internal var cache = Cache()
     private lateinit var cachePath: Path
+    private val menuIemComperator = Comparator.comparing<MenuLinkContainerItem, String> { it.text }
 
     data class Cache(
         val imageInformationData: MutableMap<FilenameWithoutExtension, InternalImageInformation> =
@@ -134,7 +136,7 @@ class GalleryGenerator(
                 // Add tag URLs to global cache
                 "/gallery/tags/$tag".let { link ->
                     cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag, link)
-                    cache.addMenuItemInContainerNoDupes(LINKTYPE_TAGS, "Tags", 300, tag, link)
+                    cache.addMenuItemInContainerNoDupes(LINKTYPE_TAGS, "Tags", 300, tag, link, menuIemComperator)
                 }
             }
         }
@@ -158,7 +160,7 @@ class GalleryGenerator(
                             if (categoryInformation.visible) {
                                 cache.addMenuItemInContainer(
                                     LINKTYPE_CATEGORIES, "Kategorien", 200, categoryInformation.complexName.simpleName,
-                                    "/gallery/categories/${categoryInformation.urlFragment}"
+                                    "/gallery/categories/${categoryInformation.urlFragment}", menuIemComperator
                                 )
                             }
                             mutableSetOf()
@@ -323,30 +325,8 @@ class GalleryGenerator(
         }
     }
 
-    private fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?) = with(cache) {
-        val subcategories = computedSubcategories[categoryName]
-        if (!subcategories.isNullOrEmpty())
-            div("subcategories") {
-                subcategories.asSequence()
-                    .map {
-                        categoryInformation.getValue(it) to
-                                computedCategoryThumbnails.getThumbnailImageInformation(it)
-                    }
-                    .filterNotNull()
-                    .forEach { (categoryName, imageInformation) ->
-                        if (imageInformation != null)
-                            insertSubcategoryThumbnail(
-                                categoryName,
-                                imageInformation
-                            )
-                    }
-            }
-    }
-
-    private fun Map<CategoryName, InternalImageInformation>.getThumbnailImageInformation(category: CategoryName): InternalImageInformation? =
-        get(category) ?: cache.imageInformationData[cache.computedCategories[category]?.first()]
-        ?: throw IllegalStateException("Could not find thumbnail for \"$category\"!")
-
+    fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?) =
+        insertSubcategoryThumbnails(categoryName, this@GalleryGenerator)
 
     private fun generateTagPages(
         configuration: WebsiteConfiguration,
@@ -402,3 +382,31 @@ class GalleryGenerator(
         categoryBuilders.forEach { it.teardown(configuration, buildingCache) }
     }
 }
+
+fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?, generator: GalleryGenerator) = with(generator.cache) {
+    val subcategories = computedSubcategories[categoryName]
+    if (!subcategories.isNullOrEmpty())
+        div("subcategories") {
+            subcategories.asSequence()
+                .map {
+                    categoryInformation.getValue(it) to
+                            computedCategoryThumbnails.getThumbnailImageInformation(it, generator)
+                }
+                .filterNotNull()
+                .sortedBy { (categoryInformation, _) -> categoryInformation.complexName }
+                .forEach { (categoryName, imageInformation) ->
+                    if (imageInformation != null)
+                        insertSubcategoryThumbnail(
+                            categoryName,
+                            imageInformation
+                        )
+                }
+        }
+}
+
+internal fun Map<CategoryName, InternalImageInformation>.getThumbnailImageInformation(
+    category: CategoryName,
+    generator: GalleryGenerator
+): InternalImageInformation? =
+    get(category) ?: generator.cache.imageInformationData[generator.cache.computedCategories[category]?.first()]
+    ?: throw IllegalStateException("Could not find thumbnail for \"$category\"!")

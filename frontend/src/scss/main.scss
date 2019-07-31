@@ -10,6 +10,7 @@ h1 {
 
 main {
   padding-top: 1.5rem;
+  margin-top: 2.5rem;
 }
 
 // Ensure correct dimensions of a lazy loaded image
@@ -77,7 +78,6 @@ main {
 
     picture {
       margin: 0 auto;
-      max-height: 25%;
     }
   }
 }
@@ -137,4 +137,9 @@ footer {
     align-items: baseline;
     justify-content: space-around;
   }
+}
+
+.dropdown-menu {
+  overflow-y: auto;
+  max-height: 94vh;
 }

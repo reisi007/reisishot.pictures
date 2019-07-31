@@ -9,6 +9,7 @@ import pictures.reisishot.mise.backend.withChild
 import java.nio.file.Path
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.Comparator
 
 class BuildingCache {
     private lateinit var menuLinkPath: Path
@@ -50,6 +51,7 @@ class BuildingCache {
         containerIndex: Int,
         text: LinkText,
         link: Link,
+        comperator: Comparator<MenuLinkContainerItem> = Comparator.comparing<MenuLinkContainerItem, Int> { it.uniqueIndex },
         elementIndex: Int = 0
     ): Unit = synchronized(internalMenuLinks) {
         internalMenuLinks.find {
@@ -59,7 +61,7 @@ class BuildingCache {
             }
         }.let {
             if (it == null)
-                addMenuItemInContainer(containerId, containerText, containerIndex, text, link, elementIndex)
+                addMenuItemInContainer(containerId, containerText, containerIndex, text, link, comperator, elementIndex)
         }
     }
 
@@ -69,6 +71,7 @@ class BuildingCache {
         containerIndex: Int,
         text: LinkText,
         link: Link,
+        comperator: Comparator<MenuLinkContainerItem> = Comparator.comparing<MenuLinkContainerItem, Int> { it.uniqueIndex },
         elementIndex: Int = 0
     ) = synchronized(internalMenuLinks) {
         val menuLinkContainer = internalMenuLinks.find {
@@ -77,7 +80,8 @@ class BuildingCache {
             val newContainer = MenuLinkContainer(
                 containerId,
                 containerIndex,
-                containerText
+                containerText,
+                comperator
             )
             internalMenuLinks.add(newContainer)
             newContainer

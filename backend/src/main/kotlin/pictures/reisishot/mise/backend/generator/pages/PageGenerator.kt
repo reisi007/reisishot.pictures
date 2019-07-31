@@ -10,22 +10,25 @@ import org.apache.velocity.app.Velocity
 import org.apache.velocity.app.VelocityEngine
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
-import pictures.reisishot.mise.backend.*
+import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.filenameWithoutExtension
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.gallery.FilenameWithoutExtension
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
+import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbnails
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertImageGallery
 import pictures.reisishot.mise.backend.html.insertLazyPicture
 import pictures.reisishot.mise.backend.html.raw
+import pictures.reisishot.mise.backend.isRegularFile
+import pictures.reisishot.mise.backend.toArray
 import java.io.Reader
 import java.io.StringReader
 import java.io.StringWriter
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.attribute.BasicFileAttributeView
 import kotlin.streams.asSequence
 
 class PageGenerator : WebsiteGenerator {
@@ -33,11 +36,11 @@ class PageGenerator : WebsiteGenerator {
     override val generatorName: String = "Reisishot Page generator"
 
     companion object {
-        const val MENU_NAME_SEPARATOR = "-"
+        const val MENU_NAME_SEPARATOR = "--"
         const val LINKTYPE_PAGE = "PAGE"
     }
 
-    private lateinit var filesToProcess: List<Pair<SourcePath, TargetPath>>
+    private lateinit var filesToProcess: List<Triple<SourcePath, TargetPath, String/*Title*/>>
 
     private val parseMarkdown: (SourcePath) -> Reader by lazy {
         val parser = Parser.builder()
@@ -58,8 +61,9 @@ class PageGenerator : WebsiteGenerator {
         }
     }
 
-    private lateinit var speedupHtml: (Reader, FilenameWithoutExtension, WebsiteConfiguration, BuildingCache, TargetPath) -> Unit
+    private lateinit var speedupHtml: (Reader, FilenameWithoutExtension, WebsiteConfiguration, BuildingCache, TargetPath, String) -> Unit
     private lateinit var galleryGenerator: GalleryGenerator
+    private val displayReplacePattern = Regex("[\\-_]")
 
 
     override suspend fun fetchInformation(
@@ -76,73 +80,72 @@ class PageGenerator : WebsiteGenerator {
             filesToProcess = Files.walk(configuration.inPath)
                 .asSequence()
                 .filter { p -> p.isRegularFile() && (p.isMarkdown || p.isHtml) }
-                // Calculate out file location
-                .map {
-                    val base = configuration.inPath.relativize(it).toString()
-                        .substringBeforeLast(".")
-                        .substringAfterLast(MENU_NAME_SEPARATOR)
-                    if (base.startsWith("index", true))
-                        it to configuration.outPath.resolve("index.html")
-                    else
-                        it to configuration.outPath.resolve("$base/index.html")
-
-                }.map {
-                    it to Files.getFileAttributeView(
-                        it.first,
-                        BasicFileAttributeView::class.java
-                    ).readAttributes().creationTime()
-                }.map { it.first }
                 // Generate all links
-                .peek { (inPath, outPath) ->
-                    configuration.outPath.relativize(outPath).parent?.fileName?.toString().let { filename ->
+                .map { inPath ->
+                    configuration.inPath.relativize(inPath).parent?.fileName?.toString().let { filename ->
                         if (filename == null) {
                             cache.addLinkcacheEntryFor(LINKTYPE_PAGE, "index", "")
-                            return@peek
+                            return@map null
                         }
-                        val link = '/' + configuration.outPath.relativize(outPath).parent.toString()
+
                         var inFilename = inPath.fileName.toString().filenameWithoutExtension
 
                         val globalPriority = inFilename.substringBefore(MENU_NAME_SEPARATOR).toIntOrNull() ?: 0
                         inFilename = inFilename.substringAfter(MENU_NAME_SEPARATOR)
 
                         val menuContainerName =
-                            inFilename.substringBefore(MENU_NAME_SEPARATOR).replace('_', ' ')
+                            inFilename.substringBefore(MENU_NAME_SEPARATOR).replace(displayReplacePattern, " ")
                         inFilename = inFilename.substringAfter(MENU_NAME_SEPARATOR)
                         val menuItemPriority = inFilename.substringBefore(MENU_NAME_SEPARATOR)
                             .toIntOrNull()
                             ?.also { inFilename = inFilename.substringAfter(MENU_NAME_SEPARATOR) }
                             ?: 0
-                        val menuItemName = inFilename.substringAfter(MENU_NAME_SEPARATOR).replace('_', ' ')
+                        val rawMenuItemName = inFilename.substringAfter(MENU_NAME_SEPARATOR)
+                        val menuItemName =
+                            rawMenuItemName.replace(displayReplacePattern, " ")
 
+                        val outPath =
+                            configuration.inPath.relativize(inPath).resolveSibling("$rawMenuItemName/index.html")
+                        val link = '/' + outPath.parent.toString()
 
                         if (menuContainerName.isBlank()) {
                             cache.addLinkcacheEntryFor(LINKTYPE_PAGE, menuItemName, link)
-                            cache.addMenuItem(
-                                generatorName + "_" + menuContainerName,
-                                globalPriority,
-                                link,
-                                menuItemName
-                            )
+                            if (globalPriority > 0)
+                                cache.addMenuItem(
+                                    generatorName + "_" + menuContainerName,
+                                    globalPriority,
+                                    link,
+                                    menuItemName
+                                )
                         } else {
                             cache.addLinkcacheEntryFor(LINKTYPE_PAGE, "$menuContainerName-$menuItemName", link)
-                            cache.addMenuItemInContainer(
-                                generatorName + "_" + menuContainerName,
-                                menuContainerName,
-                                globalPriority,
-                                menuItemName,
-                                link,
-                                menuItemPriority
-                            )
+                            if (globalPriority > 0)
+                                cache.addMenuItemInContainer(
+                                    generatorName + "_" + menuContainerName,
+                                    menuContainerName,
+                                    globalPriority,
+                                    menuItemName,
+                                    link,
+                                    elementIndex = menuItemPriority
+                                )
                         }
+
+                        return@map Triple(
+                            inPath, configuration.outPath.resolve(
+                                outPath
+                            ), menuItemName
+                        )
                     }
-                }.toList()
+
+                }.filterNotNull()
+                .toList()
         }
 
         speedupHtml = run {
             Velocity.init()
             val velocity = VelocityEngine()
 
-            return@run { templateData, originalFilename, websiteConfiguration, buildingCache, targetPath ->
+            return@run { templateData, originalFilename, websiteConfiguration, buildingCache, targetPath, title ->
                 val velocityContext = VelocityContext()
                 val galleryObject = VelocityGalleryObject(targetPath, buildingCache, websiteConfiguration)
                 // Make objects available in Velocity templates
@@ -154,12 +157,7 @@ class PageGenerator : WebsiteGenerator {
                 }.let { html ->
                     PageGenerator.generatePage(
                         targetPath,
-                        originalFilename.substringAfter(MENU_NAME_SEPARATOR)
-                            .substringAfter(MENU_NAME_SEPARATOR).let { result ->
-                                if ("index" == result)
-                                    websiteConfiguration.longTitle
-                                else result
-                            }.replace('_', ' '),
+                        title,
                         websiteConfiguration = websiteConfiguration,
                         buildingCache = buildingCache,
                         hasGallery = galleryObject.hasGallery,
@@ -173,13 +171,20 @@ class PageGenerator : WebsiteGenerator {
     }
 
     override suspend fun buildArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
-        filesToProcess.forEach { (soureFile, targetFile) ->
+        filesToProcess.forEach { (soureFile, targetFile, title) ->
             if (soureFile.isMarkdown) convertMarkdown(
                 soureFile,
                 configuration,
                 cache,
-                targetFile
-            ) else convertHtml(soureFile, configuration, cache, targetFile)
+                targetFile,
+                title
+            ) else convertHtml(
+                soureFile,
+                configuration,
+                cache,
+                targetFile,
+                title
+            )
         }
     }
 
@@ -187,7 +192,8 @@ class PageGenerator : WebsiteGenerator {
         soureFile: SourcePath,
         websiteConfiguration: WebsiteConfiguration,
         buildingCache: BuildingCache,
-        targetFile: TargetPath
+        targetFile: TargetPath,
+        title: String
     ) =
         Files.newBufferedReader(soureFile).use { reader ->
             convertHtml(
@@ -195,7 +201,8 @@ class PageGenerator : WebsiteGenerator {
                 soureFile.filenameWithoutExtension,
                 websiteConfiguration,
                 buildingCache,
-                targetFile
+                targetFile,
+                title
             )
         }
 
@@ -204,22 +211,24 @@ class PageGenerator : WebsiteGenerator {
         sourceFileName: FilenameWithoutExtension,
         websiteConfiguration: WebsiteConfiguration,
         buildingCache: BuildingCache,
-        targetFile: TargetPath
-    ) = speedupHtml(soureData, sourceFileName, websiteConfiguration, buildingCache, targetFile)
+        targetFile: TargetPath,
+        title: String
+    ) = speedupHtml(soureData, sourceFileName, websiteConfiguration, buildingCache, targetFile, title)
 
     private fun convertMarkdown(
         soureFile: SourcePath,
         websiteConfiguration: WebsiteConfiguration,
         buildingCache: BuildingCache,
-        targetFile: TargetPath
-    ) =
-        convertHtml(
-            parseMarkdown(soureFile),
-            soureFile.filenameWithoutExtension,
-            websiteConfiguration,
-            buildingCache,
-            targetFile
-        )
+        targetFile: TargetPath,
+        title: String
+    ) = convertHtml(
+        parseMarkdown(soureFile),
+        soureFile.filenameWithoutExtension,
+        websiteConfiguration,
+        buildingCache,
+        targetFile,
+        title
+    )
 
     inner class VelocityGalleryObject(
         private val targetPath: TargetPath,
@@ -274,6 +283,13 @@ class PageGenerator : WebsiteGenerator {
 
         @SuppressWarnings("unused")
         fun insertLink(type: String, key: String): String = websiteLocation + cache.getLinkcacheEntryFor(type, key)
+
+        @SuppressWarnings("unused")
+        fun insertSubalbumThumbnails(albumname: String?): String = buildString {
+            appendHTML(false, true).div {
+                insertSubcategoryThumbnails(albumname, galleryGenerator)
+            }
+        }
     }
 
 }
