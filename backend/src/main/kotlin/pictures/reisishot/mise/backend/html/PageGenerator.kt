@@ -38,6 +38,7 @@ object PageGenerator {
 
                         metaUTF8()
                         metaViewport()
+                        favicon()
 
                         title(title)
 
@@ -173,4 +174,37 @@ object PageGenerator {
     @HtmlTagMarker
     private fun HEAD.metaViewport() =
         meta(name = "viewport", content = "width=device-width, initial-scale=1, shrink-to-fit=no")
+
+    @HtmlTagMarker
+    private fun HEAD.favicon() {
+        link("/apple-icon-57x57.png", "apple-touch-icon") { attributes["sizes"] = "57x57" }
+        link("/apple-icon-60x60.png", "apple-touch-icon") { attributes["sizes"] = "60x60" }
+        link("/apple-icon-72x72.png", "apple-touch-icon") { attributes["sizes"] = "72x72" }
+        link("/apple-icon-76x76.png", "apple-touch-icon") { attributes["sizes"] = "76x76" }
+        link("/apple-icon-114x114.png", "apple-touch-icon") { attributes["sizes"] = "114x114" }
+        link("/apple-icon-120x120.png", "apple-touch-icon") { attributes["sizes"] = "120x120" }
+        link("/apple-icon-144x144.png", "apple-touch-icon") { attributes["sizes"] = "144x144" }
+        link("/apple-icon-152x152.png", "apple-touch-icon") { attributes["sizes"] = "152x152" }
+        link("/apple-icon-180x180.png", "apple-touch-icon") { attributes["sizes"] = "180x180" }
+        link("/android-icon-192x192.png", "icon") {
+            attributes["sizes"] = "192x192"
+            attributes["type"] = "image/png"
+        }
+        link("/favicon-32x32.png", "icon") {
+            attributes["sizes"] = "32x32"
+            attributes["type"] = "image/png"
+        }
+        link("/favicon-96x96.png", "icon") {
+            attributes["sizes"] = "96x96"
+            attributes["type"] = "image/png"
+        }
+        link("/favicon-16x16.png", "icon") {
+            attributes["sizes"] = "16x16"
+            attributes["type"] = "image/png"
+        }
+
+        meta("msapplication-TileColor", "#ffffff")
+        meta("msapplication-TileColor", "#ffffff")
+        meta("msapplication-TileColor", "#ffffff")
+    }
 }
