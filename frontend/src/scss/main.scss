@@ -143,3 +143,9 @@ footer {
   overflow-y: auto;
   max-height: 94vh;
 }
+
+.carousel-item {
+  h5 {
+    @include stroke(1, black)
+  }
+}

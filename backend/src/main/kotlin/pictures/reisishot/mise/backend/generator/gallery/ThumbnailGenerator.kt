@@ -56,7 +56,7 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
     data class ThumbnailInformation(val filename: String, val width: Int, val height: Int)
 
     override val executionPriority: Int = 1_000
-    override val generatorName: String = "Reisishot JPG Thumbnail generator"
+    override val generatorName: String = "Reisishot JPG"
 
     override suspend fun buildArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
     }

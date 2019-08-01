@@ -33,7 +33,7 @@ import kotlin.streams.asSequence
 
 class PageGenerator : WebsiteGenerator {
     override val executionPriority: Int = 30_000
-    override val generatorName: String = "Reisishot Page generator"
+    override val generatorName: String = "Reisishot Page"
 
     companion object {
         const val MENU_NAME_SEPARATOR = "--"
@@ -85,7 +85,11 @@ class PageGenerator : WebsiteGenerator {
                     configuration.inPath.relativize(inPath).parent?.fileName?.toString().let { filename ->
                         if (filename == null) {
                             cache.addLinkcacheEntryFor(LINKTYPE_PAGE, "index", "")
-                            return@map null
+                            return@map Triple(
+                                inPath,
+                                configuration.outPath.resolve("index.html"),
+                                configuration.longTitle
+                            )
                         }
 
                         var inFilename = inPath.fileName.toString().filenameWithoutExtension
@@ -120,7 +124,7 @@ class PageGenerator : WebsiteGenerator {
                         } else {
                             cache.addLinkcacheEntryFor(LINKTYPE_PAGE, "$menuContainerName-$menuItemName", link)
                             if (globalPriority > 0)
-                                cache.addMenuItemInContainer(
+                                cache.addMenuItemInContainerNoDupes(
                                     generatorName + "_" + menuContainerName,
                                     menuContainerName,
                                     globalPriority,
@@ -137,7 +141,7 @@ class PageGenerator : WebsiteGenerator {
                         )
                     }
 
-                }.filterNotNull()
+                }
                 .toList()
         }
 

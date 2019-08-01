@@ -48,6 +48,7 @@ object PageGenerator {
                         polyfills()
                         vendorJs()
                         appJs()
+                        googleAnalytics()
 
                         additionalHeadContent(this)
                     }
@@ -88,6 +89,7 @@ object PageGenerator {
                         }
                         if (hasGallery)
                             photoSwipeHtml()
+                        cookieInfo()
                     }
                 }
         }
@@ -119,7 +121,7 @@ object PageGenerator {
                                 classes = classes + " dropdown"
                                 val dropDownId = "dropDown$dropdownCount"
                                 dropdownCount++
-                                a(classes = "nav-link dropdown-toggle", href = curItem.href ?: "#") {
+                                a(classes = "nav-link dropdown-toggle", href = curItem.href?.let { "/$it" } ?: "#") {
                                     attributes["id"] = dropDownId
                                     attributes["role"] = "button"
                                     attributes["data-toggle"] = "dropdown"
@@ -206,5 +208,35 @@ object PageGenerator {
         meta("msapplication-TileColor", "#ffffff")
         meta("msapplication-TileColor", "#ffffff")
         meta("msapplication-TileColor", "#ffffff")
+    }
+
+    @HtmlTagMarker
+    private fun BODY.cookieInfo() = script("text/javascript", "//cookieinfoscript.com/js/cookieinfo.min.js") {
+        attributes.putAll(
+            sequenceOf(
+                "id" to "cookieinfo",
+                "data-message" to "Hier werden Cookies verwendet. Wenn Sie fortfahren akzeptieren Sie die Verwendung von Cookies",
+                "data-linkmsg" to "Weitere Informationen zu Cookies",
+                "data-moreinfo" to "https://de.wikipedia.org/wiki/HTTP-Cookie",
+                "data-close-text" to "Akzeptieren",
+                "data-accept-on-scroll" to "true"
+            )
+        )
+
+    }
+
+    @HtmlTagMarker
+    private fun HEAD.googleAnalytics() {
+        script(src = "https://www.googletagmanager.com/gtag/js?id=UA-120917271-1") {
+            attributes["async"] = ""
+            raw(
+                """
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-120917271-1', { 'anonymize_ip': true });
+    """.trimIndent()
+            )
+        }
     }
 }

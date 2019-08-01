@@ -157,10 +157,12 @@ class GalleryGenerator(
                             categoryLevelMap.computeIfAbsent(subcategoryLevel) { mutableSetOf() } += categoryInformation
                         }
                         computedCategories.computeIfAbsent(categoryInformation.complexName) {
+                            val link = "gallery/categories/${categoryInformation.urlFragment}"
+                            cache.addLinkcacheEntryFor(LINKTYPE_CATEGORIES, categoryInformation.complexName, link)
                             if (categoryInformation.visible) {
                                 cache.addMenuItemInContainer(
                                     LINKTYPE_CATEGORIES, "Kategorien", 200, categoryInformation.complexName.simpleName,
-                                    "/gallery/categories/${categoryInformation.urlFragment}", menuIemComperator
+                                    link, menuIemComperator
                                 )
                             }
                             mutableSetOf()
