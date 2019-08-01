@@ -12,7 +12,6 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import javax.imageio.IIOImage
 import javax.imageio.ImageIO
-import javax.imageio.ImageWriteParam
 import javax.imageio.metadata.IIOMetadata
 import javax.imageio.plugins.jpeg.JPEGImageWriteParam
 
@@ -24,7 +23,7 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
     }
 
     enum class ImageSize(private val identifier: String, val longestSidePx: Int, val quality: Float) {
-        SMALL("icon", 300, 0.35f), MEDIUM("embed", 1000, 0.5f), LARGE("large", 2500, 0.75f);
+        SMALL("icon", 300, 0.35f), MEDIUM("embed", 1100, 0.5f), LARGE("large", 2500, 0.75f);
 
         companion object {
             val ORDERED = arrayOf(LARGE, MEDIUM, SMALL)
@@ -138,9 +137,11 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
                                                 ?: throw IllegalStateException("Could not find a writer for JPEG!")
                                         }
                                         val param = JPEGImageWriteParam(configuration.locale)
-                                        param.compressionMode = ImageWriteParam.MODE_EXPLICIT
+                                        param.compressionMode = JPEGImageWriteParam.MODE_EXPLICIT
                                         param.compressionQuality = imageSize.quality
-                                        param.progressiveMode = ImageWriteParam.MODE_DEFAULT
+                                        param.progressiveMode = JPEGImageWriteParam.MODE_DEFAULT
+                                        param.optimizeHuffmanTables = true
+
                                         val streamData: IIOMetadata? = jpegWriter.getDefaultStreamMetadata(param)
                                         jpegWriter.output = imageOs
 
