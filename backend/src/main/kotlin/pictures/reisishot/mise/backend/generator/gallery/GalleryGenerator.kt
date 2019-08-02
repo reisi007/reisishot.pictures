@@ -197,27 +197,7 @@ class GalleryGenerator(
         categoryLevelMap[0]?.asSequence()?.map { it.complexName }?.toSet()?.let { firstLevelCategories ->
             computedSubcategories.put(null, firstLevelCategories)
         }
-
-
-        // Add tag URLs to global cache
-        categoryLevelMap[0]?.forEach { cur ->
-            addCategoryLinkFor(cur, cache, "/gallery/categories")
-        }
     }
-
-    private fun addCategoryLinkFor(curCategory: CategoryInformation, cache: BuildingCache, prefix: String): Unit =
-        with(this.cache) {
-            val categoryUrl = "$prefix/${curCategory.urlFragment}"
-            cache.addLinkcacheEntryFor(LINKTYPE_CATEGORIES, curCategory.complexName, categoryUrl)
-            computedSubcategories[curCategory.complexName]?.forEach { nextCategoryName ->
-                addCategoryLinkFor(
-                    categoryInformation[nextCategoryName]
-                        ?: throw IllegalStateException("No category foudn for name \"$nextCategoryName\""),
-                    cache,
-                    categoryUrl
-                )
-            }
-        }
 
     private suspend fun generateWebpages(
         configuration: WebsiteConfiguration,

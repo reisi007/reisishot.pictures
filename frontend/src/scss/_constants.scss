@@ -2,6 +2,9 @@ $mainColor: #27ae60; // Material Nephritis
 $accentColor: #2ecc71; // Material Emerald
 $accentWhite: rgba(#fafafa, 0.92);
 
+$maxImageHeight: calc(100vh - 8.7rem);
+$maxCarouselHeight: calc(85vh - 8.7rem - 2 * 20px);
+
 /// Stroke font-character
 /// @param  {Integer} $stroke - Stroke width
 /// @param  {Color}   $color  - Stroke color

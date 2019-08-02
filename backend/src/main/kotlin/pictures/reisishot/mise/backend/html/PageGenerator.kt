@@ -68,6 +68,9 @@ object PageGenerator {
 
                         footer("footer mt-auto py-3") {
                             container {
+                                a {
+                                    attributes["name"] = "footer"
+                                }
                                 span("text-muted") {
                                     text("© ${websiteConfiguration.longTitle}")
                                 }
@@ -121,8 +124,7 @@ object PageGenerator {
                                 classes = classes + " dropdown"
                                 val dropDownId = "dropDown$dropdownCount"
                                 dropdownCount++
-                                a(classes = "nav-link dropdown-toggle") {
-                                    curItem.href?.let { attributes["href"] = "/$it" }
+                                a(classes = "nav-link dropdown-toggle", href = "#") {
                                     attributes["id"] = dropDownId
                                     attributes["role"] = "button"
                                     attributes["data-toggle"] = "dropdown"
@@ -133,14 +135,20 @@ object PageGenerator {
                                 div(classes = "dropdown-menu") {
                                     attributes["aria-labelledby"] = dropDownId
                                     curItem.children.forEach { entry ->
-                                        a(classes = "dropdown-item", href = entry.href) {
+                                        a(
+                                            classes = "dropdown-item",
+                                            href = websiteConfiguration.websiteLocation + "/" + entry.href
+                                        ) {
                                             text(entry.text)
                                         }
                                     }
                                 }
 
                             } else {
-                                a(classes = "nav-link", href = curItem.href) {
+                                a(
+                                    classes = "nav-link",
+                                    href = websiteConfiguration.websiteLocation + "/" + curItem.href
+                                ) {
                                     text(curItem.text)
                                 }
                             }

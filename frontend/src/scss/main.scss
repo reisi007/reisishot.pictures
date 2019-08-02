@@ -36,7 +36,7 @@ main {
       margin: 0 auto;
 
       img {
-        max-height: calc(100vh - 8.7rem);
+        max-height: $maxImageHeight;
       }
     }
   }
@@ -144,8 +144,54 @@ footer {
   max-height: 94vh;
 }
 
-.carousel-item {
-  h5 {
-    @include stroke(1, black)
+#carouselIndicator {
+  $margin: 20px;
+
+  padding-top: $margin;
+  padding-bottom: $margin;
+
+  background: $mainColor;
+
+  .carousel-indicators {
+    position: relative;
+    margin-top: 4px;
+  }
+
+  .carousel-inner {
+    height: $maxCarouselHeight;
+    max-height: $maxCarouselHeight;
+
+
+    .carousel-item {
+      height: $maxCarouselHeight;
+      max-height: $maxCarouselHeight;
+
+      a {
+        justify-content: space-between;
+
+        & > div {
+          display: flex;
+          justify-content: center;
+        }
+
+        height: $maxCarouselHeight;
+        max-height: $maxCarouselHeight;
+
+        img {
+          height: $maxCarouselHeight;
+          max-height: $maxCarouselHeight;
+        }
+      }
+
+      h5 {
+        @include stroke(1, black)
+      }
+    }
+  }
+}
+
+@media (max-height: 550px) {
+  &.carousel-caption {
+    display: none !important;
   }
 }
