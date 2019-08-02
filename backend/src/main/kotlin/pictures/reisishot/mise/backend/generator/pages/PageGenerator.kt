@@ -110,7 +110,7 @@ class PageGenerator : WebsiteGenerator {
 
                         val outPath =
                             configuration.inPath.relativize(inPath).resolveSibling("$rawMenuItemName/index.html")
-                        val link = '/' + outPath.parent.toString()
+                        val link = outPath.parent.toString()
 
                         if (menuContainerName.isBlank()) {
                             cache.addLinkcacheEntryFor(LINKTYPE_PAGE, menuItemName, link)

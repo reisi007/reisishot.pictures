@@ -121,7 +121,8 @@ object PageGenerator {
                                 classes = classes + " dropdown"
                                 val dropDownId = "dropDown$dropdownCount"
                                 dropdownCount++
-                                a(classes = "nav-link dropdown-toggle", href = curItem.href?.let { "/$it" } ?: "#") {
+                                a(classes = "nav-link dropdown-toggle") {
+                                    curItem.href?.let { attributes["href"] = "/$it" }
                                     attributes["id"] = dropDownId
                                     attributes["role"] = "button"
                                     attributes["data-toggle"] = "dropdown"
