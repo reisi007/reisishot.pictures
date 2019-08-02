@@ -82,8 +82,8 @@ class PageGenerator : WebsiteGenerator {
                 .filter { p -> p.isRegularFile() && (p.isMarkdown || p.isHtml) }
                 // Generate all links
                 .map { inPath ->
-                    configuration.inPath.relativize(inPath).parent?.fileName?.toString().let { filename ->
-                        if (filename == null) {
+                    configuration.inPath.relativize(inPath).let { filename ->
+                        if (filename.toString().startsWith("index.", true)) {
                             cache.addLinkcacheEntryFor(LINKTYPE_PAGE, "index", "")
                             return@map Triple(
                                 inPath,
@@ -109,7 +109,8 @@ class PageGenerator : WebsiteGenerator {
                             rawMenuItemName.replace(displayReplacePattern, " ")
 
                         val outPath =
-                            configuration.inPath.relativize(inPath).resolveSibling("$rawMenuItemName/index.html")
+                            configuration.inPath.relativize(inPath)
+                                .resolveSibling("${rawMenuItemName.toLowerCase()}/index.html")
                         val link = outPath.parent.toString()
 
                         if (menuContainerName.isBlank()) {
