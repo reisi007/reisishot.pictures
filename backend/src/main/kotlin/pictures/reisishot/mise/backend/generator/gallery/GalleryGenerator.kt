@@ -184,7 +184,8 @@ class GalleryGenerator(
                                 category.complexName,
                                 true
                             )
-                        }.map { it.complexName }
+                        }.filter { it.visible }
+                        .map { it.complexName }
                         .toSet().let { subcategories ->
                             if (subcategories.isNotEmpty())
                                 computedSubcategories.put(category.complexName, subcategories)
@@ -194,9 +195,13 @@ class GalleryGenerator(
         }
 
         // Add first level subcategories
-        categoryLevelMap[0]?.asSequence()?.map { it.complexName }?.toSet()?.let { firstLevelCategories ->
-            computedSubcategories.put(null, firstLevelCategories)
-        }
+        categoryLevelMap[0]?.asSequence()
+            ?.filter { it.visible }
+            ?.map { it.complexName }
+            ?.toSet()
+            ?.let { firstLevelCategories ->
+                computedSubcategories.put(null, firstLevelCategories)
+            }
     }
 
     private suspend fun generateWebpages(

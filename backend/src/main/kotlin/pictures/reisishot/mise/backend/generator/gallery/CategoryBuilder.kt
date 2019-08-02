@@ -35,7 +35,22 @@ data class CategoryInformation(
     val complexName: CategoryName,
     val urlFragment: String,
     val visible: Boolean = true
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as CategoryInformation
+
+        if (complexName != other.complexName) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return complexName.hashCode()
+    }
+}
 
 fun CategoryConfig.toCategoryInfotmation(visible: Boolean = true) = CategoryInformation(name, url, visible)
 
