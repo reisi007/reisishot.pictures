@@ -75,7 +75,7 @@ class ThumbnailGenerator(val forceRegeneration: ForceRegeneration = ForceRegener
         }
         ImageSize.values().let { imageSizes ->
             configuration.inPath.withChild(NAME_IMAGE_SUBFOLDER).list().filter { it.isJpeg }.asIterable()
-                    .forEachLimitedParallel(2) { inFile ->
+                    .forEachLimitedParallel(4) { inFile ->
                         val baseOutFile = outPath withChild inFile.fileName
                         val thumbnailInfoPath =
                                 configuration.tmpPath withChild NAME_THUMBINFO_SUBFOLDER withChild "${baseOutFile.filenameWithoutExtension}.cache.xml"
