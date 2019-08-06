@@ -15,10 +15,10 @@ import java.time.format.DateTimeFormatter
 
 
 class GalleryGenerator(
-    private vararg val categoryBuilders: CategoryBuilder,
-    private val exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }
+        private vararg val categoryBuilders: CategoryBuilder,
+        private val exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }
 ) : WebsiteGenerator,
-    ImageInformationRepository {
+        ImageInformationRepository {
 
     companion object {
         const val LINKTYPE_TAGS = "TAGS"
@@ -33,14 +33,14 @@ class GalleryGenerator(
     private val menuIemComperator = Comparator.comparing<MenuLinkContainerItem, String> { it.text }
 
     data class Cache(
-        val imageInformationData: MutableMap<FilenameWithoutExtension, InternalImageInformation> =
-            mutableMapOf(),
-        val categoryInformation: MutableMap<CategoryName, CategoryInformation> = mutableMapOf(),
-        val computedTags: MutableMap<TagName, MutableSet<InternalImageInformation>> = mutableMapOf(),
-        val computedCategories: MutableMap<CategoryName, MutableSet<FilenameWithoutExtension>> =
-            mutableMapOf(),
-        val computedSubcategories: MutableMap<CategoryName?, Set<CategoryName>> = mutableMapOf(),
-        val computedCategoryThumbnails: MutableMap<CategoryName, InternalImageInformation> = mutableMapOf()
+            val imageInformationData: MutableMap<FilenameWithoutExtension, InternalImageInformation> =
+                    mutableMapOf(),
+            val categoryInformation: MutableMap<CategoryName, CategoryInformation> = mutableMapOf(),
+            val computedTags: MutableMap<TagName, MutableSet<InternalImageInformation>> = mutableMapOf(),
+            val computedCategories: MutableMap<CategoryName, MutableSet<FilenameWithoutExtension>> =
+                    mutableMapOf(),
+            val computedSubcategories: MutableMap<CategoryName?, Set<CategoryName>> = mutableMapOf(),
+            val computedCategoryThumbnails: MutableMap<CategoryName, InternalImageInformation> = mutableMapOf()
     )
 
     override val imageInformationData: Collection<ImageInformation> = cache.imageInformationData.values
@@ -48,29 +48,29 @@ class GalleryGenerator(
 
 
     override suspend fun fetchInformation(
-        configuration: WebsiteConfiguration,
-        cache: BuildingCache,
-        alreadyRunGenerators: List<WebsiteGenerator>
+            configuration: WebsiteConfiguration,
+            cache: BuildingCache,
+            alreadyRunGenerators: List<WebsiteGenerator>
     ) = buildCache(configuration, cache)
 
     override suspend fun buildArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) =
-        generateWebpages(configuration, cache)
+            generateWebpages(configuration, cache)
 
 
     private suspend fun buildCache(
-        configuration: WebsiteConfiguration,
-        cache: BuildingCache
+            configuration: WebsiteConfiguration,
+            cache: BuildingCache
     ) {
         val newestFile = configuration.inPath.withChild(ThumbnailGenerator.NAME_IMAGE_SUBFOLDER).list()
-            .map {
-                it.fileModifiedDateTime
-                    ?: throw IllegalStateException("File $it is listed but no file modified time...")
-            }.max() ?: return  // No file to detect
+                .map {
+                    it.fileModifiedDateTime
+                            ?: throw IllegalStateException("File $it is listed but no file modified time...")
+                }.max() ?: return  // No file to detect
 
         cachePath.fileModifiedDateTime?.let { cacheTime ->
             if (cacheTime > newestFile) {
                 this.cache = cachePath.fromXml()
-                    ?: throw IllegalStateException("Cache has a modifed date, but cannot be parsed!")
+                        ?: throw IllegalStateException("Cache has a modifed date, but cannot be parsed!")
                 return
             }
         }
@@ -83,48 +83,48 @@ class GalleryGenerator(
     // TODO Write cache files and use them instead of computing...
     private suspend fun buildImageInformation(configuration: WebsiteConfiguration) {
         (configuration.inPath withChild ThumbnailGenerator.NAME_IMAGE_SUBFOLDER).list().filter { it.isJpeg }
-            .asIterable()
-            .forEachLimitedParallel(20) { jpegPath ->
-                val filenameWithoutExtension = jpegPath.filenameWithoutExtension
-                val configPath = jpegPath.parent withChild "$filenameWithoutExtension.conf"
-                val thumbnailInfoPath =
-                    configuration.tmpPath withChild ThumbnailGenerator.NAME_THUMBINFO_SUBFOLDER withChild "$filenameWithoutExtension.cache.xml"
-                if (!configPath.exists())
-                    throw IllegalStateException("Config path does not exist for $jpegPath!")
-                if (!jpegPath.exists())
-                    throw IllegalStateException("Image path does not exist for $jpegPath!")
-                if (!thumbnailInfoPath.exists())
-                    throw IllegalStateException("Thumbnail Info path does not exist for $jpegPath!")
+                .asIterable()
+                .forEachLimitedParallel(20) { jpegPath ->
+                    val filenameWithoutExtension = jpegPath.filenameWithoutExtension
+                    val configPath = jpegPath.parent withChild "$filenameWithoutExtension.conf"
+                    val thumbnailInfoPath =
+                            configuration.tmpPath withChild ThumbnailGenerator.NAME_THUMBINFO_SUBFOLDER withChild "$filenameWithoutExtension.cache.xml"
+                    if (!configPath.exists())
+                        throw IllegalStateException("Config path does not exist for $jpegPath!")
+                    if (!jpegPath.exists())
+                        throw IllegalStateException("Image path does not exist for $jpegPath!")
+                    if (!thumbnailInfoPath.exists())
+                        throw IllegalStateException("Thumbnail Info path does not exist for $jpegPath!")
 
 
-                val imageConfig: ImageConfig = configPath.parseConfig()
-                    ?: throw IllegalStateException("Could not load config file $configPath. Please check if the format is valid!")
-                val exifData = jpegPath.readExif()
-                val thumbnailConfig: HashMap<ThumbnailGenerator.ImageSize, ThumbnailGenerator.ThumbnailInformation> =
-                    thumbnailInfoPath.fromXml() ?: throw IllegalStateException("Thumbnail info not found...")
+                    val imageConfig: ImageConfig = configPath.parseConfig()
+                            ?: throw IllegalStateException("Could not load config file $configPath. Please check if the format is valid!")
+                    val exifData = jpegPath.readExif()
+                    val thumbnailConfig: HashMap<ThumbnailGenerator.ImageSize, ThumbnailGenerator.ThumbnailInformation> =
+                            thumbnailInfoPath.fromXml() ?: throw IllegalStateException("Thumbnail info not found...")
 
-                InternalImageInformation(
-                    filenameWithoutExtension,
-                    imageConfig.title,
-                    imageConfig.tags,
-                    exifData,
-                    thumbnailConfig
-                ).apply {
-                    cache.imageInformationData.put(filenameWithoutExtension, this)
-                    imageConfig.categoryThumbnail.forEach { category ->
-                        synchronized(cache.computedCategoryThumbnails) {
-                            cache.computedCategoryThumbnails.let { thumbnails ->
-                                thumbnails.get(category).let {
-                                    if (it != null)
-                                        throw IllegalStateException("A thumbnail for $category has already been set! (\"${it.title}\"")
-                                    else
-                                        thumbnails.put(category, this)
+                    InternalImageInformation(
+                            filenameWithoutExtension,
+                            imageConfig.title,
+                            imageConfig.tags,
+                            exifData,
+                            thumbnailConfig
+                    ).apply {
+                        cache.imageInformationData.put(filenameWithoutExtension, this)
+                        imageConfig.categoryThumbnail.forEach { category ->
+                            synchronized(cache.computedCategoryThumbnails) {
+                                cache.computedCategoryThumbnails.let { thumbnails ->
+                                    thumbnails.get(category).let {
+                                        if (it != null)
+                                            throw IllegalStateException("A thumbnail for $category has already been set! (\"${it.title}\"")
+                                        else
+                                            thumbnails.put(category, this)
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
     }
 
     private fun buildTags(cache: BuildingCache) = with(this.cache) {
@@ -134,7 +134,7 @@ class GalleryGenerator(
             imageInformation.tags.forEach { tag ->
                 computedTags.computeIfAbsent(tag) { mutableSetOf() } += imageInformation
                 // Add tag URLs to global cache
-                "/gallery/tags/$tag".let { link ->
+                "gallery/tags/$tag".replace("\\s", "-").let { link ->
                     cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag, link)
                     cache.addMenuItemInContainerNoDupes(LINKTYPE_TAGS, "Tags", 300, tag, link, menuIemComperator)
                 }
@@ -143,35 +143,35 @@ class GalleryGenerator(
     }
 
     private suspend fun buildCategories(
-        websiteConfiguration: WebsiteConfiguration,
-        cache: BuildingCache
+            websiteConfiguration: WebsiteConfiguration,
+            cache: BuildingCache
     ) = with(this.cache) {
         val categoryLevelMap: MutableMap<Int, MutableSet<CategoryInformation>> = mutableMapOf()
         cache.clearMenuItems { LINKTYPE_CATEGORIES == it.id }
         cache.resetLinkcacheFor(LINKTYPE_CATEGORIES)
         categoryBuilders.forEach { categoryBuilder ->
             categoryBuilder.generateCategories(this@GalleryGenerator, websiteConfiguration)
-                .forEach { (filename, categoryInformation) ->
-                    categoryInformation.complexName.let { categoryName ->
-                        categoryName.count { it == '/' }.let { subcategoryLevel ->
-                            categoryLevelMap.computeIfAbsent(subcategoryLevel) { mutableSetOf() } += categoryInformation
-                        }
-                        computedCategories.computeIfAbsent(categoryInformation.complexName) {
-                            val link = "gallery/categories/${categoryInformation.urlFragment}"
-                            cache.addLinkcacheEntryFor(LINKTYPE_CATEGORIES, categoryInformation.complexName, link)
-                            if (categoryInformation.visible) {
-                                cache.addMenuItemInContainer(
-                                    LINKTYPE_CATEGORIES, "Kategorien", 200, categoryInformation.complexName.simpleName,
-                                    link, menuIemComperator
-                                )
+                    .forEach { (filename, categoryInformation) ->
+                        categoryInformation.complexName.let { categoryName ->
+                            categoryName.count { it == '/' }.let { subcategoryLevel ->
+                                categoryLevelMap.computeIfAbsent(subcategoryLevel) { mutableSetOf() } += categoryInformation
                             }
-                            mutableSetOf()
-                        } += filename
+                            computedCategories.computeIfAbsent(categoryInformation.complexName) {
+                                val link = "gallery/categories/${categoryInformation.urlFragment}"
+                                cache.addLinkcacheEntryFor(LINKTYPE_CATEGORIES, categoryInformation.complexName, link)
+                                if (categoryInformation.visible) {
+                                    cache.addMenuItemInContainer(
+                                            LINKTYPE_CATEGORIES, "Kategorien", 200, categoryInformation.complexName.simpleName,
+                                            link, menuIemComperator
+                                    )
+                                }
+                                mutableSetOf()
+                            } += filename
 
-                        imageInformationData[filename]?.categories?.add(categoryInformation)
-                        this.categoryInformation.computeIfAbsent(categoryInformation.complexName) { categoryInformation }
+                            imageInformationData[filename]?.categories?.add(categoryInformation)
+                            this.categoryInformation.computeIfAbsent(categoryInformation.complexName) { categoryInformation }
+                        }
                     }
-                }
         }
 
         categoryLevelMap.keys.forEach { level ->
@@ -179,34 +179,34 @@ class GalleryGenerator(
             categoryLevelMap.getValue(level).forEach { category ->
                 categoryLevelMap[nextLevel]?.let { possibleSubcategories ->
                     possibleSubcategories.asSequence()
-                        .filter { possibleSubcategory ->
-                            possibleSubcategory.complexName.startsWith(
-                                category.complexName,
-                                true
-                            )
-                        }.filter { it.visible }
-                        .map { it.complexName }
-                        .toSet().let { subcategories ->
-                            if (subcategories.isNotEmpty())
-                                computedSubcategories.put(category.complexName, subcategories)
-                        }
+                            .filter { possibleSubcategory ->
+                                possibleSubcategory.complexName.startsWith(
+                                        category.complexName,
+                                        true
+                                )
+                            }.filter { it.visible }
+                            .map { it.complexName }
+                            .toSet().let { subcategories ->
+                                if (subcategories.isNotEmpty())
+                                    computedSubcategories.put(category.complexName, subcategories)
+                            }
                 }
             }
         }
 
         // Add first level subcategories
         categoryLevelMap[0]?.asSequence()
-            ?.filter { it.visible }
-            ?.map { it.complexName }
-            ?.toSet()
-            ?.let { firstLevelCategories ->
-                computedSubcategories.put(null, firstLevelCategories)
-            }
+                ?.filter { it.visible }
+                ?.map { it.complexName }
+                ?.toSet()
+                ?.let { firstLevelCategories ->
+                    computedSubcategories.put(null, firstLevelCategories)
+                }
     }
 
     private suspend fun generateWebpages(
-        configuration: WebsiteConfiguration,
-        cache: BuildingCache
+            configuration: WebsiteConfiguration,
+            cache: BuildingCache
     ) {
         generateImagePages(configuration, cache)
         generateCategoryPages(configuration, cache)
@@ -214,43 +214,44 @@ class GalleryGenerator(
     }
 
     private suspend fun generateImagePages(
-        configuration: WebsiteConfiguration,
-        cache: BuildingCache
+            configuration: WebsiteConfiguration,
+            cache: BuildingCache
     ) {
         val dateTimeFormatter = DateTimeFormatter.ofPattern("eeee 'den' dd.MM.YYYY 'um' HH:mm:ss z")
         (configuration.outPath withChild "gallery/images").let { baseHtmlPath ->
             this.cache.imageInformationData.values.forEachLimitedParallel(50) { curImageInformation ->
                 PageGenerator.generatePage(
-                    websiteConfiguration = configuration,
-                    buildingCache = cache,
-                    target = baseHtmlPath withChild curImageInformation.url withChild "index.html",
-                    title = curImageInformation.title,
-                    pageContent = {
-                        classes = classes + "singleImage"
-                        h1("text-center") {
-                            text(curImageInformation.title)
-                        }
-                        insertImageGallery("1", curImageInformation)
-                        div("card") {
-                            h4("card-title") {
-                                text("Exif Informationen")
+                        websiteConfiguration = configuration,
+                        buildingCache = cache,
+                        target = baseHtmlPath withChild curImageInformation.url withChild "index.html",
+                        title = curImageInformation.title,
+                        pageContent = {
+                            classes = classes + "singleImage"
+                            h1("text-center") {
+                                text(curImageInformation.title)
                             }
-                            div("card-body") {
-                                div("card-text") {
-                                    div("container") {
-                                        curImageInformation.exifInformation.forEach { (type, value) ->
-                                            div("row justify-content-between") {
-                                                div("col-3 align-self-center") {
-                                                    text("${type.displayName}:")
-                                                }
-                                                div("col-9 align-self-center") {
-                                                    when (type) {
-                                                        ExifdataKey.CREATION_TIME -> text(
-                                                            ZonedDateTime.parse(value).format(
-                                                                dateTimeFormatter
+                            insertImageGallery("1", curImageInformation)
+                            div("card") {
+                                h4("card-title") {
+                                    text("Exif Informationen")
+                                }
+                                div("card-body") {
+                                    div("card-text") {
+                                        div("container") {
+                                            curImageInformation.exifInformation.forEach { (type, value) ->
+                                                div("row justify-content-between") {
+                                                    div("col-3 align-self-center") {
+                                                        text("${type.displayName}:")
+                                                    }
+                                                    div("col-9 align-self-center") {
+                                                        when (type) {
+                                                            ExifdataKey.CREATION_TIME -> text(
+                                                                    ZonedDateTime.parse(value).format(
+                                                                            dateTimeFormatter
+                                                                    )
                                                             )
-                                                        )
-                                                        else -> text(value)
+                                                            else -> text(value)
+                                                        }
                                                     }
                                                 }
                                             }
@@ -259,7 +260,6 @@ class GalleryGenerator(
                                 }
                             }
                         }
-                    }
                 )
             }
         }
@@ -278,66 +278,66 @@ class GalleryGenerator(
         }
 
     private fun generateCategoryPages(
-        configuration: WebsiteConfiguration,
-        cache: BuildingCache
+            configuration: WebsiteConfiguration,
+            cache: BuildingCache
     ) = with(this.cache) {
         (configuration.outPath withChild "gallery/categories").let { baseHtmlPath ->
             computedCategories.forEach { (categoryName, categoryImages) ->
                 val categoryMetaInformation = categoryInformation[categoryName]
-                    ?: throw IllegalStateException("No category information found for name \"$categoryName\"!")
+                        ?: throw IllegalStateException("No category information found for name \"$categoryName\"!")
                 val targetFile = baseHtmlPath withChild categoryMetaInformation.urlFragment withChild "index.html"
                 PageGenerator.generatePage(
-                    websiteConfiguration = configuration,
-                    buildingCache = cache,
-                    target = targetFile,
-                    title = categoryMetaInformation.complexName.simpleName,
-                    pageContent = {
-                        h1("text-center") {
-                            text("Kategorie - ")
-                            i {
-                                text(("\"${categoryMetaInformation.complexName.simpleName}\""))
+                        websiteConfiguration = configuration,
+                        buildingCache = cache,
+                        target = targetFile,
+                        title = categoryMetaInformation.complexName.simpleName,
+                        pageContent = {
+                            h1("text-center") {
+                                text("Kategorie - ")
+                                i {
+                                    text(("\"${categoryMetaInformation.complexName.simpleName}\""))
+                                }
                             }
+
+                            val imageInformations = categoryImages.asSequence()
+                                    .map { imageInformationData.getValue(it) }
+                                    .toArray(categoryImages.size)
+
+                            insertSubcategoryThumbnails(categoryMetaInformation.complexName)
+
+                            insertImageGallery("1", *imageInformations)
                         }
-
-                        val imageInformations = categoryImages.asSequence()
-                            .map { imageInformationData.getValue(it) }
-                            .toArray(categoryImages.size)
-
-                        insertSubcategoryThumbnails(categoryMetaInformation.complexName)
-
-                        insertImageGallery("1", *imageInformations)
-                    }
                 )
             }
         }
     }
 
     fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?) =
-        insertSubcategoryThumbnails(categoryName, this@GalleryGenerator)
+            insertSubcategoryThumbnails(categoryName, this@GalleryGenerator)
 
     private fun generateTagPages(
-        configuration: WebsiteConfiguration,
-        cache: BuildingCache
+            configuration: WebsiteConfiguration,
+            cache: BuildingCache
     ) = with(this.cache) {
         (configuration.outPath withChild "gallery/tags").let { baseHtmlPath ->
             computedTags.forEach { (tagName, tagImages) ->
                 val targetFile = baseHtmlPath withChild tagName withChild "index.html"
 
                 PageGenerator.generatePage(
-                    websiteConfiguration = configuration,
-                    buildingCache = cache,
-                    target = targetFile,
-                    title = tagName,
-                    pageContent = {
-                        h1("text-center") {
-                            text("Tag - ")
-                            i {
-                                text(("\"$tagName\""))
+                        websiteConfiguration = configuration,
+                        buildingCache = cache,
+                        target = targetFile,
+                        title = tagName,
+                        pageContent = {
+                            h1("text-center") {
+                                text("Tag - ")
+                                i {
+                                    text(("\"$tagName\""))
+                                }
                             }
-                        }
 
-                        insertImageGallery(tagName, *tagImages.toTypedArray())
-                    })
+                            insertImageGallery(tagName, *tagImages.toTypedArray())
+                        })
             }
         }
     }
@@ -345,16 +345,16 @@ class GalleryGenerator(
 
     private fun Path.readExif(): Map<ExifdataKey, String> = mutableMapOf<ExifdataKey, String>().apply {
         ExifInformation(ImageMetadataReader.readMetadata(this@readExif.toFile()))
-            .let { exifInformation ->
-                ExifdataKey.values().forEach { key ->
-                    val exifValue = key.getValue(exifInformation)
-                    exifReplaceFunction(key to exifValue)
-                        .also { (key, possibleValue) ->
-                            if (possibleValue != null)
-                                put(key, possibleValue)
-                        }
+                .let { exifInformation ->
+                    ExifdataKey.values().forEach { key ->
+                        val exifValue = key.getValue(exifInformation)
+                        exifReplaceFunction(key to exifValue)
+                                .also { (key, possibleValue) ->
+                                    if (possibleValue != null)
+                                        put(key, possibleValue)
+                                }
+                    }
                 }
-            }
     }
 
     override suspend fun loadCache(configuration: WebsiteConfiguration, cache: BuildingCache) {
@@ -375,25 +375,25 @@ fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?, generator: Gall
     if (!subcategories.isNullOrEmpty())
         div("subcategories") {
             subcategories.asSequence()
-                .map {
-                    categoryInformation.getValue(it) to
-                            computedCategoryThumbnails.getThumbnailImageInformation(it, generator)
-                }
-                .filterNotNull()
-                .sortedBy { (categoryInformation, _) -> categoryInformation.complexName }
-                .forEach { (categoryName, imageInformation) ->
-                    if (imageInformation != null)
-                        insertSubcategoryThumbnail(
-                            categoryName,
-                            imageInformation
-                        )
-                }
+                    .map {
+                        categoryInformation.getValue(it) to
+                                computedCategoryThumbnails.getThumbnailImageInformation(it, generator)
+                    }
+                    .filterNotNull()
+                    .sortedBy { (categoryInformation, _) -> categoryInformation.complexName }
+                    .forEach { (categoryName, imageInformation) ->
+                        if (imageInformation != null)
+                            insertSubcategoryThumbnail(
+                                    categoryName,
+                                    imageInformation
+                            )
+                    }
         }
 }
 
 internal fun Map<CategoryName, InternalImageInformation>.getThumbnailImageInformation(
-    category: CategoryName,
-    generator: GalleryGenerator
+        category: CategoryName,
+        generator: GalleryGenerator
 ): InternalImageInformation? =
-    get(category) ?: generator.cache.imageInformationData[generator.cache.computedCategories[category]?.first()]
-    ?: throw IllegalStateException("Could not find thumbnail for \"$category\"!")
+        get(category) ?: generator.cache.imageInformationData[generator.cache.computedCategories[category]?.first()]
+        ?: throw IllegalStateException("Could not find thumbnail for \"$category\"!")
