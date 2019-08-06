@@ -5,6 +5,7 @@ import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.ThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.gallery.categories.ConfigurableCategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategoryBuilder
+import pictures.reisishot.mise.backend.generator.links.LinkGenerator
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
 import java.nio.file.Paths
@@ -14,37 +15,38 @@ object MyWebsite {
     @JvmStatic
     fun main(args: Array<String>) {
         Mise.build(
-            WebsiteConfiguration(
-                shortTitle = "Reisishot",
-                longTitle = "Reisishot - Fotograf Florian Reisinger",
-                websiteLocation = "http://localhost:3000",
-                inPath = Paths.get("src/main/resources"),
-                outPath = Paths.get("../frontend/generated"),
-                generators = listOf(
-                    PageGenerator(),
-                    GalleryGenerator(
-                        categoryBuilders = *arrayOf(
-                            DateCategoryBuilder("Chronologisch"),
-                            ConfigurableCategoryBuilder()
-                        ), exifReplaceFunction = { cur ->
-                            when (cur.first) {
-                                ExifdataKey.LENS_MODEL -> when (cur.second) {
-                                    "105.0 mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM"
-                                    "147.0 mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM + 1.4 Sigma EX APO DG Telekonverter"
-                                    else -> cur
+                WebsiteConfiguration(
+                        shortTitle = "Reisishot",
+                        longTitle = "Reisishot - Fotograf Florian Reisinger",
+                        websiteLocation = "http://localhost:3000",
+                        inPath = Paths.get("src/main/resources"),
+                        outPath = Paths.get("../frontend/generated"),
+                        generators = listOf(
+                                PageGenerator(),
+                                GalleryGenerator(
+                                        categoryBuilders = *arrayOf(
+                                                DateCategoryBuilder("Chronologisch"),
+                                                ConfigurableCategoryBuilder()
+                                        ), exifReplaceFunction = { cur ->
+                                    when (cur.first) {
+                                        ExifdataKey.LENS_MODEL -> when (cur.second) {
+                                            "105.0 mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM"
+                                            "147.0 mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM + 1.4 Sigma EX APO DG Telekonverter"
+                                            else -> cur
+                                        }
+                                        else -> cur
+                                    }
                                 }
-                                else -> cur
-                            }
-                        }
-                    ),
-                    ThumbnailGenerator(
-                        ThumbnailGenerator.ForceRegeneration(
-                            thumbnails = false
+                                ),
+                                ThumbnailGenerator(
+                                        ThumbnailGenerator.ForceRegeneration(
+                                                thumbnails = false
+                                        )
+                                ),
+                                LinkGenerator(),
+                                SitemapGenerator()
                         )
-                    ),
-                    SitemapGenerator()
                 )
-            )
         )
     }
 }
