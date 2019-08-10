@@ -2,9 +2,10 @@ package pictures.reisishot.mise.backend
 
 import pictures.reisishot.mise.backend.generator.gallery.ExifdataKey
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
-import pictures.reisishot.mise.backend.generator.gallery.ThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.gallery.categories.ConfigurableCategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategoryBuilder
+import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ForceRegeneration
+import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.links.LinkGenerator
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
@@ -38,9 +39,9 @@ object MyWebsite {
                                     }
                                 }
                                 ),
-                                ThumbnailGenerator(
-                                        ThumbnailGenerator.ForceRegeneration(
-                                                thumbnails = false
+                                ImageMagickThumbnailGenerator(
+                                        ForceRegeneration(
+                                                thumbnails = true
                                         )
                                 ),
                                 LinkGenerator(),
