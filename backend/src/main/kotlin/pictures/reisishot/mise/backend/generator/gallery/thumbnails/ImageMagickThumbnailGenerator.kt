@@ -11,7 +11,7 @@ import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import java.nio.file.Files
 import java.nio.file.Path
 
-class ImageMagickThumbnailGenerator(forceRegeneration: ForceRegeneration = ForceRegeneration()) : AbstractThumbnailGenerator(forceRegeneration) {
+open class ImageMagickThumbnailGenerator(forceRegeneration: ForceRegeneration = ForceRegeneration()) : AbstractThumbnailGenerator(forceRegeneration) {
     override val generatorName: String = "Image Magick Thumbnail"
 
 
@@ -53,7 +53,7 @@ class ImageMagickThumbnailGenerator(forceRegeneration: ForceRegeneration = Force
         return ThumbnailInformation(jpegImage.fileName.toString(), jpegExifData.imageHeight, jpegExifData.imageWidth)
     }
 
-    private fun ImageSize.getImageMagickString(inFile: Path, outFile: Path): Array<String> =
+    open protected fun ImageSize.getImageMagickString(inFile: Path, outFile: Path): Array<String> =
             arrayOf("magick", inFile.toAbsolutePath().normalize().toString(),
                     "-quality", "${(quality * 100).toInt()}",
                     "-resize", "${longestSidePx}x${longestSidePx}>",
