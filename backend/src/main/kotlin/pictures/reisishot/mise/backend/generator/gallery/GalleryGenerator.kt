@@ -138,7 +138,7 @@ class GalleryGenerator(
             imageInformation.tags.forEach { tag ->
                 computedTags.computeIfAbsent(tag) { mutableSetOf() } += imageInformation
                 // Add tag URLs to global cache
-                "/gallery/tags/$tag".let { link ->
+                "gallery/tags/$tag".replace("\\s", "-").let { link ->
                     cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag, link)
                     cache.addMenuItemInContainerNoDupes(LINKTYPE_TAGS, "Tags", 300, tag, link, menuIemComperator)
                 }
