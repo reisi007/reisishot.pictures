@@ -2,13 +2,16 @@ package pictures.reisishot.mise.backend.generator.gallery.thumbnails
 
 import com.drew.imaging.ImageMetadataReader
 import com.drew.metadata.jpeg.JpegDirectory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.withContext
 import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
+import java.nio.file.Files
 import java.nio.file.Path
 
-class ImageMagickThumbnailGenerator(forceRegeneration: ForceRegeneration) : AbstractThumbnailGenerator(forceRegeneration) {
+class ImageMagickThumbnailGenerator(forceRegeneration: ForceRegeneration = ForceRegeneration()) : AbstractThumbnailGenerator(forceRegeneration) {
     override val generatorName: String = "Image Magick Thumbnail"
 
 
@@ -19,6 +22,9 @@ class ImageMagickThumbnailGenerator(forceRegeneration: ForceRegeneration) : Abst
                         configuration.tmpPath withChild NAME_THUMBINFO_SUBFOLDER withChild "${configuration.inPath.resolve(jpegImage).filenameWithoutExtension}.cache.xml"
                 if (!(thumbnailInfoPath.exists() && thumbnailInfoPath.isNewerThan(jpegImage))) {
                     val baseOutPath = configuration.outPath.resolve(NAME_IMAGE_SUBFOLDER).resolve(jpegImage.fileName)
+                    withContext(Dispatchers.IO) {
+                        Files.createDirectories(baseOutPath.parent)
+                    }
                     ImageSize.ORDERED.asSequence().map { size ->
                         val outFile = size.decoratePath(baseOutPath)
 
@@ -53,6 +59,5 @@ class ImageMagickThumbnailGenerator(forceRegeneration: ForceRegeneration) : Abst
                     "-resize", "${longestSidePx}x${longestSidePx}>",
                     "-strip",
                     "-interlace", "Plane",
-
                     outFile.toAbsolutePath().normalize().toString())
 }

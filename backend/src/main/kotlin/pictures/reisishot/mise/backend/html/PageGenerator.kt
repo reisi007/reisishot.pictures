@@ -16,14 +16,14 @@ object PageGenerator {
     const val LAZYLOADER_CLASSNAME = "lazy"
 
     fun generatePage(
-        target: Path,
-        title: String,
-        locale: Locale = Locale.getDefault(),
-        websiteConfiguration: WebsiteConfiguration,
-        buildingCache: BuildingCache,
-        hasGallery: Boolean = true,
-        additionalHeadContent: HEAD.() -> Unit = {},
-        pageContent: DIV.() -> Unit
+            target: Path,
+            title: String,
+            locale: Locale = Locale.getDefault(),
+            websiteConfiguration: WebsiteConfiguration,
+            buildingCache: BuildingCache,
+            hasGallery: Boolean = true,
+            additionalHeadContent: HEAD.() -> Unit = {},
+            pageContent: DIV.() -> Unit
     ) = with(target) {
         target.parent?.let {
             Files.createDirectories(it)
@@ -31,70 +31,70 @@ object PageGenerator {
         Files.newBufferedWriter(target, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE).use {
             it.write("<!doctype html>")
             it.appendHTML(prettyPrint = false, xhtmlCompatible = true)
-                .html(namespace = "http://www.w3.org/1999/xhtml") {
-                    classes = classes + "h-100"
-                    head {
-                        lang = locale.toLanguageTag()
+                    .html(namespace = "http://www.w3.org/1999/xhtml") {
+                        classes = classes + "h-100"
+                        head {
+                            lang = locale.toLanguageTag()
 
-                        metaUTF8()
-                        metaViewport()
-                        favicon()
+                            metaUTF8()
+                            metaViewport()
+                            favicon()
 
-                        title(title)
+                            title(title)
 
-                        vendorCss()
-                        appCss()
+                            vendorCss()
+                            appCss()
 
-                        polyfills()
-                        vendorJs()
-                        appJs()
-                        googleAnalytics()
+                            polyfills()
+                            vendorJs()
+                            appJs()
+                            googleAnalytics()
 
-                        additionalHeadContent(this)
-                    }
-                    body("d-flex flex-column h-100") {
-                        header {
-                            buildMenu(websiteConfiguration, buildingCache.menuLinks)
+                            additionalHeadContent(this)
                         }
-
-                        main("flex-shrink-0") {
-                            attributes["role"] = "main"
-                            fluidContainer {
-                                divId("content") {
-                                    pageContent(this)
-                                }
+                        body("d-flex flex-column h-100") {
+                            header {
+                                buildMenu(websiteConfiguration, buildingCache.menuLinks)
                             }
-                        }
 
-                        footer("footer mt-auto py-3") {
-                            container {
-                                a {
-                                    attributes["name"] = "footer"
-                                }
-                                span("text-muted") {
-                                    text("© ${websiteConfiguration.longTitle}")
-                                }
-                                span("socialIcons") {
-                                    a("https://fb.me/reisishot", "_blank") {
-                                        insertIcon(ReisishotIcons.FB)
-                                    }
-                                    a("https://www.instagram.com/reisishot/", "_blank") {
-                                        insertIcon(ReisishotIcons.INSTAGRAM)
-                                    }
-                                    a("https://m.me/reisishot", "_blank") {
-                                        insertIcon(ReisishotIcons.FB_MESSENGER)
-                                    }
-                                    a("mailto:florian@reisishot.pictures", "_blank") {
-                                        insertIcon(ReisishotIcons.MAIL)
+                            main("flex-shrink-0") {
+                                attributes["role"] = "main"
+                                fluidContainer {
+                                    divId("content") {
+                                        pageContent(this)
                                     }
                                 }
                             }
+
+                            footer("footer mt-auto py-3") {
+                                container {
+                                    a {
+                                        attributes["name"] = "footer"
+                                    }
+                                    span("text-muted") {
+                                        text("© ${websiteConfiguration.longTitle}")
+                                    }
+                                    span("socialIcons") {
+                                        a("https://fb.me/reisishot", "_blank") {
+                                            insertIcon(ReisishotIcons.FB)
+                                        }
+                                        a("https://www.instagram.com/reisishot/", "_blank") {
+                                            insertIcon(ReisishotIcons.INSTAGRAM)
+                                        }
+                                        a("https://m.me/reisishot", "_blank") {
+                                            insertIcon(ReisishotIcons.FB_MESSENGER)
+                                        }
+                                        a("mailto:florian@reisishot.pictures", "_blank") {
+                                            insertIcon(ReisishotIcons.MAIL)
+                                        }
+                                    }
+                                }
+                            }
+                            if (hasGallery)
+                                photoSwipeHtml()
+                            cookieInfo()
                         }
-                        if (hasGallery)
-                            photoSwipeHtml()
-                        cookieInfo()
                     }
-                }
         }
     }
 
@@ -136,8 +136,8 @@ object PageGenerator {
                                     attributes["aria-labelledby"] = dropDownId
                                     curItem.children.forEach { entry ->
                                         a(
-                                            classes = "dropdown-item",
-                                            href = websiteConfiguration.websiteLocation + "/" + entry.href
+                                                classes = "dropdown-item",
+                                                href = websiteConfiguration.websiteLocation + "/" + entry.href
                                         ) {
                                             text(entry.text)
                                         }
@@ -146,8 +146,8 @@ object PageGenerator {
 
                             } else {
                                 a(
-                                    classes = "nav-link",
-                                    href = websiteConfiguration.websiteLocation + "/" + curItem.href
+                                        classes = "nav-link",
+                                        href = websiteConfiguration.websiteLocation + "/" + curItem.href
                                 ) {
                                     text(curItem.text)
                                 }
@@ -184,7 +184,7 @@ object PageGenerator {
 
     @HtmlTagMarker
     private fun HEAD.metaViewport() =
-        meta(name = "viewport", content = "width=device-width, initial-scale=1, shrink-to-fit=no")
+            meta(name = "viewport", content = "width=device-width, initial-scale=1, shrink-to-fit=no")
 
     @HtmlTagMarker
     private fun HEAD.favicon() {
@@ -222,14 +222,14 @@ object PageGenerator {
     @HtmlTagMarker
     private fun BODY.cookieInfo() = script("text/javascript", "//cookieinfoscript.com/js/cookieinfo.min.js") {
         attributes.putAll(
-            sequenceOf(
-                "id" to "cookieinfo",
-                "data-message" to "Hier werden Cookies verwendet. Wenn Sie fortfahren akzeptieren Sie die Verwendung von Cookies",
-                "data-linkmsg" to "Weitere Informationen zu Cookies",
-                "data-moreinfo" to "https://de.wikipedia.org/wiki/HTTP-Cookie",
-                "data-close-text" to "Akzeptieren",
-                "data-accept-on-scroll" to "true"
-            )
+                sequenceOf(
+                        "id" to "cookieinfo",
+                        "data-message" to "Hier werden Cookies verwendet. Wenn Sie fortfahren akzeptieren Sie die Verwendung von Cookies",
+                        "data-linkmsg" to "Weitere Informationen zu Cookies",
+                        "data-moreinfo" to "https://de.wikipedia.org/wiki/HTTP-Cookie",
+                        "data-close-text" to "Akzeptieren",
+                        "data-accept-on-scroll" to "true"
+                )
         )
 
     }
@@ -238,12 +238,13 @@ object PageGenerator {
     private fun HEAD.googleAnalytics() {
         script(src = "https://www.googletagmanager.com/gtag/js?id=UA-120917271-1") {
             attributes["async"] = ""
-            raw(
-                """
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'UA-120917271-1', { 'anonymize_ip': true });
+        }
+        script {
+            raw("""
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'UA-120917271-1', { 'anonymize_ip': true });
     """.trimIndent()
             )
         }
