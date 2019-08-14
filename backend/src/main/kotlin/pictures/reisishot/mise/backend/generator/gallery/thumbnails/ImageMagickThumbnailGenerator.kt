@@ -50,7 +50,7 @@ open class ImageMagickThumbnailGenerator(forceRegeneration: ForceRegeneration = 
     private fun getThumbnailInfo(jpegImage: Path): ThumbnailInformation {
         val exifData = ImageMetadataReader.readMetadata(jpegImage.toFile())
         val jpegExifData = exifData.getFirstDirectoryOfType(JpegDirectory::class.java)
-        return ThumbnailInformation(jpegImage.fileName.toString(), jpegExifData.imageHeight, jpegExifData.imageWidth)
+        return ThumbnailInformation(jpegImage.fileName.toString(), jpegExifData.imageWidth, jpegExifData.imageHeight)
     }
 
     open protected fun ImageSize.getImageMagickString(inFile: Path, outFile: Path): Array<String> =
