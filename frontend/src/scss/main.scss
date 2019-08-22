@@ -195,3 +195,17 @@ footer {
     display: none !important;
   }
 }
+
+.subcategories {
+  .card {
+    $h: 33vh;
+    min-height: $h;
+    max-height: $h;
+
+    img {
+      max-height: $h - 10vh;
+      margin: 0 auto;
+      display: block;
+    }
+  }
+}
