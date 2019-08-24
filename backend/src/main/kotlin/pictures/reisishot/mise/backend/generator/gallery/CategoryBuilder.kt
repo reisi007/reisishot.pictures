@@ -8,20 +8,20 @@ interface CategoryBuilder {
     val builderName: String
 
     suspend fun generateCategories(
-        imageInformationRepository: ImageInformationRepository,
-        websiteConfiguration: WebsiteConfiguration
+            imageInformationRepository: ImageInformationRepository,
+            websiteConfiguration: WebsiteConfiguration
     ): Sequence<Pair<FilenameWithoutExtension, CategoryInformation>>
 
     suspend fun setup(
-        configuration: WebsiteConfiguration,
-        cache: BuildingCache
+            configuration: WebsiteConfiguration,
+            cache: BuildingCache
     ) {
         println("Setup")
     }
 
     suspend fun teardown(
-        configuration: WebsiteConfiguration,
-        cache: BuildingCache
+            configuration: WebsiteConfiguration,
+            cache: BuildingCache
     ) {
         println("Teardown")
     }
@@ -32,9 +32,9 @@ interface CategoryBuilder {
 }
 
 data class CategoryInformation(
-    val complexName: CategoryName,
-    val urlFragment: String,
-    val visible: Boolean = true
+        val complexName: CategoryName,
+        val urlFragment: String,
+        val visible: Boolean = true
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

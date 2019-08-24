@@ -6,14 +6,14 @@ import java.nio.file.Paths
 import java.util.*
 
 data class WebsiteConfiguration(
-    val shortTitle: String,
-    val longTitle: String,
-    val websiteLocation: String,
-    val inPath: Path = Paths.get("./src/main/resources"),
-    val tmpPath: Path = Paths.get("./src/main/resources/cache"),
-    val outPath: Path = Paths.get("./generated"),
-    val locale: Locale = Locale.getDefault(),
-    val generators: List<WebsiteGenerator> = emptyList()
+        val shortTitle: String,
+        val longTitle: String,
+        val websiteLocation: String,
+        val inPath: Path = Paths.get("./src/main/resources"),
+        val tmpPath: Path = Paths.get("./src/main/resources/cache"),
+        val outPath: Path = Paths.get("./generated"),
+        val locale: Locale = Locale.getDefault(),
+        val generators: List<WebsiteGenerator> = emptyList()
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

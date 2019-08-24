@@ -6,7 +6,7 @@ val Path.filenameWithoutExtension: String
     }
 
 inline fun <T> Sequence<T>.peek(crossinline peekingAction: (T) -> Unit) =
-    map {
-        peekingAction(it)
-        it
-    }
+        map {
+            peekingAction(it)
+            it
+        }

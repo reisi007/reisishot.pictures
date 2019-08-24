@@ -14,28 +14,28 @@ object RenameDo {
 
         Files.newBufferedReader(csvPath, Charsets.UTF_8).useLines {
             it.map { it.split(';', limit = 2) }
-                .map { it[0] to it[1] }
-                .peek { (_, targetFilename) ->
-                    if (!targetFilenames.add(targetFilename))
-                        throw IllegalStateException("Cannot perform rename -> $targetFilename is duplicated")
-                }.filter { it.first != it.second }
-                .toList().asSequence()
-                .flatMap { (sourceName, targetName) ->
-                    sequenceOf(
-                        prepareRename(inputFolder, sourceName, targetName, "jpg"),
-                        prepareRename(inputFolder, sourceName, targetName, "conf")
-                    )
-                }.forEach { (from, to) ->
-                    Files.move(from, to)
-                }
+                    .map { it[0] to it[1] }
+                    .peek { (_, targetFilename) ->
+                        if (!targetFilenames.add(targetFilename))
+                            throw IllegalStateException("Cannot perform rename -> $targetFilename is duplicated")
+                    }.filter { it.first != it.second }
+                    .toList().asSequence()
+                    .flatMap { (sourceName, targetName) ->
+                        sequenceOf(
+                                prepareRename(inputFolder, sourceName, targetName, "jpg"),
+                                prepareRename(inputFolder, sourceName, targetName, "conf")
+                        )
+                    }.forEach { (from, to) ->
+                        Files.move(from, to)
+                    }
         }
     }
 
     private fun prepareRename(
-        inputFolder: Path,
-        sourceFilename: String,
-        targetFilename: String,
-        extension: String
+            inputFolder: Path,
+            sourceFilename: String,
+            targetFilename: String,
+            extension: String
     ): Pair<Path, Path> {
         val sourcePath = inputFolder.resolve("$sourceFilename.$extension")
         val targetPath = inputFolder.resolve("$targetFilename.$extension")
