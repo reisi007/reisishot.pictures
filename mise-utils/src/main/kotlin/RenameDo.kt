@@ -13,7 +13,7 @@ object RenameDo {
         val targetFilenames = mutableSetOf<String>()
 
         Files.newBufferedReader(csvPath, Charsets.UTF_8).useLines {
-            it.map { it.split(';', limit = 2) }
+            it.map { it.split(',', limit = 2) }
                     .map { it[0] to it[1] }
                     .peek { (_, targetFilename) ->
                         if (!targetFilenames.add(targetFilename))
@@ -25,7 +25,8 @@ object RenameDo {
                                 prepareRename(inputFolder, sourceName, targetName, "jpg"),
                                 prepareRename(inputFolder, sourceName, targetName, "conf")
                         )
-                    }.forEach { (from, to) ->
+                    }.filterNotNull()
+                    .forEach { (from, to) ->
                         Files.move(from, to)
                     }
         }
@@ -36,8 +37,10 @@ object RenameDo {
             sourceFilename: String,
             targetFilename: String,
             extension: String
-    ): Pair<Path, Path> {
+    ): Pair<Path, Path>? {
         val sourcePath = inputFolder.resolve("$sourceFilename.$extension")
+        if (!Files.exists(sourcePath))
+            return null
         val targetPath = inputFolder.resolve("$targetFilename.$extension")
         val tmpPath = inputFolder.resolve(UUID.randomUUID().toString())
 

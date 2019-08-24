@@ -303,9 +303,11 @@ class GalleryGenerator(
                                 }
                             }
 
-                            val imageInformations = categoryImages.asSequence()
-                                    .map { imageInformationData.getValue(it) }
-                                    .toArray(categoryImages.size)
+                            val imageInformations = with(categoryImages) {
+                                asSequence()
+                                        .map { imageInformationData.getValue(it) }
+                                        .toOrderedByTimeArray(size)
+                            }
 
                             insertSubcategoryThumbnails(categoryMetaInformation.complexName)
 
@@ -340,11 +342,15 @@ class GalleryGenerator(
                                 }
                             }
 
-                            insertImageGallery(tagName, *tagImages.toTypedArray())
+                            insertImageGallery(tagName, *tagImages.toOrderedByTimeArray())
                         })
             }
         }
     }
+
+    fun Collection<InternalImageInformation>.toOrderedByTimeArray() = asSequence().toOrderedByTimeArray(size)
+    fun Sequence<InternalImageInformation>.toOrderedByTimeArray(size: Int) = sortedByDescending { it.exifInformation[ExifdataKey.CREATION_TIME] }
+            .toArray(size)
 
 
     override suspend fun loadCache(configuration: WebsiteConfiguration, cache: BuildingCache) {
