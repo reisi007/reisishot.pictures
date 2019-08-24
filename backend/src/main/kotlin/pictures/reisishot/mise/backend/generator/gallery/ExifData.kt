@@ -59,11 +59,11 @@ class ExifInformation(metadata: Metadata) {
     init {
         jpegDescriptor = metadata.getFirstDirectoryOfType(JpegDirectory::class.java)?.let { JpegDescriptor(it) }
         exifD0Descriptor =
-            metadata.getFirstDirectoryOfType(ExifIFD0Directory::class.java)?.let { ExifIFD0Descriptor(it) }
+                metadata.getFirstDirectoryOfType(ExifIFD0Directory::class.java)?.let { ExifIFD0Descriptor(it) }
         exifSubIFDDescriptor =
-            metadata.getFirstDirectoryOfType(ExifSubIFDDirectory::class.java)?.let { ExifSubIFDDescriptor(it) }
+                metadata.getFirstDirectoryOfType(ExifSubIFDDirectory::class.java)?.let { ExifSubIFDDescriptor(it) }
         fileSystemDescriptor =
-            metadata.getFirstDirectoryOfType(FileSystemDirectory::class.java)?.let { FileSystemDescriptor(it) }
+                metadata.getFirstDirectoryOfType(FileSystemDirectory::class.java)?.let { FileSystemDescriptor(it) }
     }
 
     override fun equals(other: Any?): Boolean {

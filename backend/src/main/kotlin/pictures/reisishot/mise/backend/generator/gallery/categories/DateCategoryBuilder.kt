@@ -9,22 +9,22 @@ class DateCategoryBuilder(val rootCategoryName: String) : CategoryBuilder {
     override val builderName: String = "Reisishot Kalender Category Builder"
 
     override suspend fun generateCategories(
-        imageInformationRepository: ImageInformationRepository,
-        websiteConfiguration: WebsiteConfiguration
+            imageInformationRepository: ImageInformationRepository,
+            websiteConfiguration: WebsiteConfiguration
     ): Sequence<Pair<FilenameWithoutExtension, CategoryInformation>> =
-        imageInformationRepository.imageInformationData.asSequence()
-            .flatMap {
-                val captureDate = it.exifInformation.get(ExifdataKey.CREATION_TIME)?.let { ZonedDateTime.parse(it) }
-                if (captureDate == null)
-                    emptySequence()
-                else
-                    (it.filenameWithoutExtension to listOf<String>(
-                        rootCategoryName,
-                        captureDate.year.toString(),
-                        captureDate.month.getDisplayName(TextStyle.FULL, websiteConfiguration.locale),
-                        captureDate.dayOfMonth.toString()
-                    )).allPossibleSublists()
-            }
+            imageInformationRepository.imageInformationData.asSequence()
+                    .flatMap {
+                        val captureDate = it.exifInformation.get(ExifdataKey.CREATION_TIME)?.let { ZonedDateTime.parse(it) }
+                        if (captureDate == null)
+                            emptySequence()
+                        else
+                            (it.filenameWithoutExtension to listOf<String>(
+                                    rootCategoryName,
+                                    captureDate.year.toString(),
+                                    captureDate.month.getDisplayName(TextStyle.FULL, websiteConfiguration.locale),
+                                    captureDate.dayOfMonth.toString()
+                            )).allPossibleSublists()
+                    }
 
 
     private fun <A> Pair<A, List<String>>.allPossibleSublists(): Sequence<Pair<A, CategoryInformation>> {
@@ -34,9 +34,9 @@ class DateCategoryBuilder(val rootCategoryName: String) : CategoryBuilder {
             val urlFragments = this.second.subList(0, i)
             val complexName = arrayOf(*urlFragments.toTypedArray()).joinToString("/")
             tmp += first to CategoryInformation(
-                complexName = complexName,
-                urlFragment = complexName.substringAfter('/'),
-                visible = false
+                    complexName = complexName,
+                    urlFragment = complexName.substringAfter('/'),
+                    visible = false
             )
         }
         return tmp.asSequence()

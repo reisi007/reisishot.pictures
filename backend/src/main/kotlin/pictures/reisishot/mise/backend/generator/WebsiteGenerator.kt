@@ -14,26 +14,26 @@ interface WebsiteGenerator {
 
 
     suspend fun fetchInformation(
-        configuration: WebsiteConfiguration,
-        cache: BuildingCache,
-        alreadyRunGenerators: List<WebsiteGenerator>
+            configuration: WebsiteConfiguration,
+            cache: BuildingCache,
+            alreadyRunGenerators: List<WebsiteGenerator>
     )
 
     suspend fun buildArtifacts(
-        configuration: WebsiteConfiguration,
-        cache: BuildingCache
+            configuration: WebsiteConfiguration,
+            cache: BuildingCache
     )
 
     suspend fun loadCache(
-        configuration: WebsiteConfiguration,
-        cache: BuildingCache
+            configuration: WebsiteConfiguration,
+            cache: BuildingCache
     ) {
         println("Load cache")
     }
 
     suspend fun saveCache(
-        configuration: WebsiteConfiguration,
-        cache: BuildingCache
+            configuration: WebsiteConfiguration,
+            cache: BuildingCache
     ) {
         println("Save cache")
     }

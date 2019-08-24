@@ -19,7 +19,7 @@ class BuildingCache {
 
 
     private val internalMenuLinks: SortedMultiset<MenuLink> =
-        TreeMultiset.create(Comparator.comparing<MenuLink, Int> { it.uniqueIndex })
+            TreeMultiset.create(Comparator.comparing<MenuLink, Int> { it.uniqueIndex })
 
     val menuLinks: Collection<MenuLink> get() = Collections.synchronizedCollection(internalMenuLinks)
 
@@ -33,26 +33,26 @@ class BuildingCache {
     }
 
     fun getLinkcacheEntryFor(linkType: String, linkKey: String): Link = linkCache[linkType]?.get(linkKey)
-        ?: throw IllegalStateException("Menu link with type $linkType and key $linkKey not found!")
+            ?: throw IllegalStateException("Menu link with type $linkType and key $linkKey not found!")
 
     fun clearMenuItems(removePredicate: (MenuLink) -> Boolean) = synchronized(internalMenuLinks) {
         internalMenuLinks.removeIf(removePredicate)
     }
 
     fun addMenuItem(id: String = UUID.randomUUID().toString(), index: Int, href: Link, text: LinkText) =
-        synchronized(internalMenuLinks) {
-            val item = MenuLinkContainerItem(id, index, href, text)
-            internalMenuLinks.add(item)
-        }
+            synchronized(internalMenuLinks) {
+                val item = MenuLinkContainerItem(id, index, href, text)
+                internalMenuLinks.add(item)
+            }
 
     fun addMenuItemInContainerNoDupes(
-        containerId: String,
-        containerText: String,
-        containerIndex: Int,
-        text: LinkText,
-        link: Link,
-        comperator: Comparator<MenuLinkContainerItem> = Comparator.comparing<MenuLinkContainerItem, Int> { it.uniqueIndex },
-        elementIndex: Int = 0
+            containerId: String,
+            containerText: String,
+            containerIndex: Int,
+            text: LinkText,
+            link: Link,
+            comperator: Comparator<MenuLinkContainerItem> = Comparator.comparing<MenuLinkContainerItem, Int> { it.uniqueIndex },
+            elementIndex: Int = 0
     ): Unit = synchronized(internalMenuLinks) {
         internalMenuLinks.find {
             it is MenuLinkContainer && it.id == containerId && it.text == containerText
@@ -66,31 +66,31 @@ class BuildingCache {
     }
 
     fun addMenuItemInContainer(
-        containerId: String,
-        containerText: String,
-        containerIndex: Int,
-        text: LinkText,
-        link: Link,
-        comperator: Comparator<MenuLinkContainerItem> = Comparator.comparing<MenuLinkContainerItem, Int> { it.uniqueIndex },
-        elementIndex: Int = 0
+            containerId: String,
+            containerText: String,
+            containerIndex: Int,
+            text: LinkText,
+            link: Link,
+            comperator: Comparator<MenuLinkContainerItem> = Comparator.comparing<MenuLinkContainerItem, Int> { it.uniqueIndex },
+            elementIndex: Int = 0
     ) = synchronized(internalMenuLinks) {
         val menuLinkContainer = internalMenuLinks.find {
             it is MenuLinkContainer && containerId == it.id
         } as? MenuLinkContainer ?: run {
             val newContainer = MenuLinkContainer(
-                containerId,
-                containerIndex,
-                containerText,
-                comperator
+                    containerId,
+                    containerIndex,
+                    containerText,
+                    comperator
             )
             internalMenuLinks.add(newContainer)
             newContainer
         }
         menuLinkContainer += MenuLinkContainerItem(
-            UUID.randomUUID().toString(),
-            elementIndex,
-            link,
-            text
+                UUID.randomUUID().toString(),
+                elementIndex,
+                link,
+                text
         )
 
     }

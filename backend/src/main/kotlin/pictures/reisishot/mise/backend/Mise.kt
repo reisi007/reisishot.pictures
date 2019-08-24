@@ -62,10 +62,10 @@ object Mise {
             val runGenerators = mutableListOf<WebsiteGenerator>()
             generatorMap.forEach { priority, generators ->
                 println(
-                    "Executing priority $priority (the following generators " + generators.joinToString(
-                        prefix = "[",
-                        postfix = "]"
-                    ) { it.generatorName } + ")"
+                        "Executing priority $priority (the following generators " + generators.joinToString(
+                                prefix = "[",
+                                postfix = "]"
+                        ) { it.generatorName } + ")"
                 )
                 runBlocking {
                     generators.forEachLimitedParallel(generators.size) { generator ->
@@ -85,10 +85,10 @@ object Mise {
             }
             generatorMap.forEach { priority, generators ->
                 println(
-                    "Executing priority $priority (the following generators " + generators.joinToString(
-                        prefix = "[",
-                        postfix = "]"
-                    ) { it.generatorName } + ")"
+                        "Executing priority $priority (the following generators " + generators.joinToString(
+                                prefix = "[",
+                                postfix = "]"
+                        ) { it.generatorName } + ")"
                 )
                 runBlocking {
                     generators.forEachLimitedParallel(generators.size) { generator ->

@@ -2,6 +2,7 @@ package pictures.reisishot.mise.backend.generator.pages
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.html.a
 import kotlinx.html.div
 import kotlinx.html.stream.appendHTML
 import org.apache.commons.text.StringEscapeUtils
@@ -44,18 +45,18 @@ class PageGenerator : WebsiteGenerator {
 
     private val parseMarkdown: (SourcePath) -> Reader by lazy {
         val parser = Parser.builder()
-            .build()
+                .build()
         val htmlRenderer = HtmlRenderer.builder()
-            .softbreak(" ")
-            .build()
+                .softbreak(" ")
+                .build()
         return@lazy { sourceFile: SourcePath ->
             Files.newBufferedReader(sourceFile).use { reader ->
                 StringReader(
-                    StringEscapeUtils.unescapeHtml4(
-                        htmlRenderer.render(
-                            parser.parseReader(reader)
+                        StringEscapeUtils.unescapeHtml4(
+                                htmlRenderer.render(
+                                        parser.parseReader(reader)
+                                )
                         )
-                    )
                 )
             }
         }
@@ -67,83 +68,83 @@ class PageGenerator : WebsiteGenerator {
 
 
     override suspend fun fetchInformation(
-        configuration: WebsiteConfiguration,
-        cache: BuildingCache,
-        alreadyRunGenerators: List<WebsiteGenerator>
+            configuration: WebsiteConfiguration,
+            cache: BuildingCache,
+            alreadyRunGenerators: List<WebsiteGenerator>
     ) {
         withContext(Dispatchers.IO) {
             galleryGenerator = alreadyRunGenerators.find { it is GalleryGenerator } as? GalleryGenerator
-                ?: throw IllegalStateException("Gallery generator is needed for this generator!")
+                    ?: throw IllegalStateException("Gallery generator is needed for this generator!")
 
             cache.clearMenuItems { it.id.startsWith(generatorName + "_") }
             cache.resetLinkcacheFor(LINKTYPE_PAGE)
             filesToProcess = Files.walk(configuration.inPath)
-                .asSequence()
-                .filter { p -> p.isRegularFile() && (p.isMarkdown || p.isHtml) }
-                // Generate all links
-                .map { inPath ->
-                    configuration.inPath.relativize(inPath).let { filename ->
-                        if (filename.toString().startsWith("index.", true)) {
-                            cache.addLinkcacheEntryFor(LINKTYPE_PAGE, "index", "")
+                    .asSequence()
+                    .filter { p -> p.isRegularFile() && (p.isMarkdown || p.isHtml) }
+                    // Generate all links
+                    .map { inPath ->
+                        configuration.inPath.relativize(inPath).let { filename ->
+                            if (filename.toString().startsWith("index.", true)) {
+                                cache.addLinkcacheEntryFor(LINKTYPE_PAGE, "index", "")
+                                return@map Triple(
+                                        inPath,
+                                        configuration.outPath.resolve("index.html"),
+                                        configuration.longTitle
+                                )
+                            }
+
+                            var inFilename = inPath.fileName.toString().filenameWithoutExtension
+
+                            val globalPriority = inFilename.substringBefore(MENU_NAME_SEPARATOR).toIntOrNull() ?: 0
+                            inFilename = inFilename.substringAfter(MENU_NAME_SEPARATOR)
+
+                            val menuContainerName =
+                                    inFilename.substringBefore(MENU_NAME_SEPARATOR).replace(displayReplacePattern, " ")
+                            inFilename = inFilename.substringAfter(MENU_NAME_SEPARATOR)
+                            val menuItemPriority = inFilename.substringBefore(MENU_NAME_SEPARATOR)
+                                    .toIntOrNull()
+                                    ?.also { inFilename = inFilename.substringAfter(MENU_NAME_SEPARATOR) }
+                                    ?: 0
+                            val rawMenuItemName = inFilename.substringAfter(MENU_NAME_SEPARATOR)
+                            val menuItemName =
+                                    rawMenuItemName.replace(displayReplacePattern, " ")
+
+                            val outPath =
+                                    configuration.inPath.relativize(inPath)
+                                            .resolveSibling("$rawMenuItemName/index.html")
+                            val link = outPath.parent.toString()
+
+                            if (menuContainerName.isBlank()) {
+                                cache.addLinkcacheEntryFor(LINKTYPE_PAGE, menuItemName, link)
+                                if (globalPriority > 0)
+                                    cache.addMenuItem(
+                                            generatorName + "_" + menuContainerName,
+                                            globalPriority,
+                                            link,
+                                            menuItemName
+                                    )
+                            } else {
+                                cache.addLinkcacheEntryFor(LINKTYPE_PAGE, "$menuContainerName-$menuItemName", link)
+                                if (globalPriority > 0)
+                                    cache.addMenuItemInContainerNoDupes(
+                                            generatorName + "_" + menuContainerName,
+                                            menuContainerName,
+                                            globalPriority,
+                                            menuItemName,
+                                            link,
+                                            elementIndex = menuItemPriority
+                                    )
+                            }
+
                             return@map Triple(
-                                inPath,
-                                configuration.outPath.resolve("index.html"),
-                                configuration.longTitle
+                                    inPath, configuration.outPath.resolve(
+                                    outPath
+                            ), menuItemName
                             )
                         }
 
-                        var inFilename = inPath.fileName.toString().filenameWithoutExtension
-
-                        val globalPriority = inFilename.substringBefore(MENU_NAME_SEPARATOR).toIntOrNull() ?: 0
-                        inFilename = inFilename.substringAfter(MENU_NAME_SEPARATOR)
-
-                        val menuContainerName =
-                            inFilename.substringBefore(MENU_NAME_SEPARATOR).replace(displayReplacePattern, " ")
-                        inFilename = inFilename.substringAfter(MENU_NAME_SEPARATOR)
-                        val menuItemPriority = inFilename.substringBefore(MENU_NAME_SEPARATOR)
-                            .toIntOrNull()
-                            ?.also { inFilename = inFilename.substringAfter(MENU_NAME_SEPARATOR) }
-                            ?: 0
-                        val rawMenuItemName = inFilename.substringAfter(MENU_NAME_SEPARATOR)
-                        val menuItemName =
-                            rawMenuItemName.replace(displayReplacePattern, " ")
-
-                        val outPath =
-                            configuration.inPath.relativize(inPath)
-                                    .resolveSibling("$rawMenuItemName/index.html")
-                        val link = outPath.parent.toString()
-
-                        if (menuContainerName.isBlank()) {
-                            cache.addLinkcacheEntryFor(LINKTYPE_PAGE, menuItemName, link)
-                            if (globalPriority > 0)
-                                cache.addMenuItem(
-                                    generatorName + "_" + menuContainerName,
-                                    globalPriority,
-                                    link,
-                                    menuItemName
-                                )
-                        } else {
-                            cache.addLinkcacheEntryFor(LINKTYPE_PAGE, "$menuContainerName-$menuItemName", link)
-                            if (globalPriority > 0)
-                                cache.addMenuItemInContainerNoDupes(
-                                    generatorName + "_" + menuContainerName,
-                                    menuContainerName,
-                                    globalPriority,
-                                    menuItemName,
-                                    link,
-                                    elementIndex = menuItemPriority
-                                )
-                        }
-
-                        return@map Triple(
-                            inPath, configuration.outPath.resolve(
-                                outPath
-                            ), menuItemName
-                        )
                     }
-
-                }
-                .toList()
+                    .toList()
         }
 
         speedupHtml = run {
@@ -161,14 +162,14 @@ class PageGenerator : WebsiteGenerator {
                     it.toString()
                 }.let { html ->
                     PageGenerator.generatePage(
-                        targetPath,
-                        title,
-                        websiteConfiguration = websiteConfiguration,
-                        buildingCache = buildingCache,
-                        hasGallery = galleryObject.hasGallery,
-                        pageContent = {
-                            raw(html)
-                        }
+                            targetPath,
+                            title,
+                            websiteConfiguration = websiteConfiguration,
+                            buildingCache = buildingCache,
+                            hasGallery = galleryObject.hasGallery,
+                            pageContent = {
+                                raw(html)
+                            }
                     )
                 }
             }
@@ -178,67 +179,67 @@ class PageGenerator : WebsiteGenerator {
     override suspend fun buildArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
         filesToProcess.forEach { (soureFile, targetFile, title) ->
             if (soureFile.isMarkdown) convertMarkdown(
-                soureFile,
-                configuration,
-                cache,
-                targetFile,
-                title
+                    soureFile,
+                    configuration,
+                    cache,
+                    targetFile,
+                    title
             ) else convertHtml(
-                soureFile,
-                configuration,
-                cache,
-                targetFile,
-                title
+                    soureFile,
+                    configuration,
+                    cache,
+                    targetFile,
+                    title
             )
         }
     }
 
     private fun convertHtml(
-        soureFile: SourcePath,
-        websiteConfiguration: WebsiteConfiguration,
-        buildingCache: BuildingCache,
-        targetFile: TargetPath,
-        title: String
+            soureFile: SourcePath,
+            websiteConfiguration: WebsiteConfiguration,
+            buildingCache: BuildingCache,
+            targetFile: TargetPath,
+            title: String
     ) =
-        Files.newBufferedReader(soureFile).use { reader ->
-            convertHtml(
-                reader,
-                soureFile.filenameWithoutExtension,
-                websiteConfiguration,
-                buildingCache,
-                targetFile,
-                title
-            )
-        }
+            Files.newBufferedReader(soureFile).use { reader ->
+                convertHtml(
+                        reader,
+                        soureFile.filenameWithoutExtension,
+                        websiteConfiguration,
+                        buildingCache,
+                        targetFile,
+                        title
+                )
+            }
 
     private fun convertHtml(
-        soureData: Reader,
-        sourceFileName: FilenameWithoutExtension,
-        websiteConfiguration: WebsiteConfiguration,
-        buildingCache: BuildingCache,
-        targetFile: TargetPath,
-        title: String
+            soureData: Reader,
+            sourceFileName: FilenameWithoutExtension,
+            websiteConfiguration: WebsiteConfiguration,
+            buildingCache: BuildingCache,
+            targetFile: TargetPath,
+            title: String
     ) = speedupHtml(soureData, sourceFileName, websiteConfiguration, buildingCache, targetFile, title)
 
     private fun convertMarkdown(
-        soureFile: SourcePath,
-        websiteConfiguration: WebsiteConfiguration,
-        buildingCache: BuildingCache,
-        targetFile: TargetPath,
-        title: String
+            soureFile: SourcePath,
+            websiteConfiguration: WebsiteConfiguration,
+            buildingCache: BuildingCache,
+            targetFile: TargetPath,
+            title: String
     ) = convertHtml(
-        parseMarkdown(soureFile),
-        soureFile.filenameWithoutExtension,
-        websiteConfiguration,
-        buildingCache,
-        targetFile,
-        title
+            parseMarkdown(soureFile),
+            soureFile.filenameWithoutExtension,
+            websiteConfiguration,
+            buildingCache,
+            targetFile,
+            title
     )
 
     inner class VelocityGalleryObject(
-        private val targetPath: TargetPath,
-        private val cache: BuildingCache,
-        private val websiteConfiguration: WebsiteConfiguration
+            private val targetPath: TargetPath,
+            private val cache: BuildingCache,
+            private val websiteConfiguration: WebsiteConfiguration
     ) {
         private var privateHasGallery = false
         private val websiteLocation by lazy {
@@ -254,8 +255,8 @@ class PageGenerator : WebsiteGenerator {
 
 
         private fun Map<FilenameWithoutExtension, InternalImageInformation>.getOrThrow(key: FilenameWithoutExtension) =
-            this[key]
-                ?: throw IllegalStateException("Cannot find picture with filename \"$key\" (used in ${targetPath.filenameWithoutExtension})!")
+                this[key]
+                        ?: throw IllegalStateException("Cannot find picture with filename \"$key\" (used in ${targetPath.filenameWithoutExtension})!")
 
         @SuppressWarnings("unused")
         fun insertPicture(filenameWithoutExtension: FilenameWithoutExtension) = buildString {
@@ -268,26 +269,33 @@ class PageGenerator : WebsiteGenerator {
 
         @SuppressWarnings("unused")
         fun insertGallery(
-            galleryName: String,
-            vararg filenameWithoutExtension: FilenameWithoutExtension
+                galleryName: String,
+                vararg filenameWithoutExtension: FilenameWithoutExtension
         ): String {
             privateHasGallery = privateHasGallery || filenameWithoutExtension.isNotEmpty()
             return with(galleryGenerator.cache) {
                 filenameWithoutExtension.asSequence()
-                    .map {
-                        imageInformationData.getOrThrow(it)
-                    }.toArray(filenameWithoutExtension.size).let { imageInformations ->
-                        buildString {
-                            appendHTML(prettyPrint = false, xhtmlCompatible = true).div {
-                                insertImageGallery(galleryName, *imageInformations)
+                        .map {
+                            imageInformationData.getOrThrow(it)
+                        }.toArray(filenameWithoutExtension.size).let { imageInformations ->
+                            buildString {
+                                appendHTML(prettyPrint = false, xhtmlCompatible = true).div {
+                                    insertImageGallery(galleryName, *imageInformations)
+                                }
                             }
                         }
-                    }
             }
         }
 
         @SuppressWarnings("unused")
         fun insertLink(type: String, key: String): String = websiteLocation + cache.getLinkcacheEntryFor(type, key)
+
+        @SuppressWarnings("unused")
+        fun insertLink(linktext: String, type: String, key: String): String = buildString {
+            appendHTML(false, true).a(insertLink(type, key)) {
+                text(linktext)
+            }
+        }
 
         @SuppressWarnings("unused")
         fun insertSubalbumThumbnails(albumname: String?): String = buildString {

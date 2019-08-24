@@ -15,23 +15,24 @@ object RenamePrepare {
         PrintStream(Files.newOutputStream(Paths.get(csvPath))).use { writer ->
             Paths.get(inputFolder).let { basePath ->
                 Files.walk(basePath).asSequence()
-                    .filter { Files.isRegularFile(it) }
-                    .map { it.filenameWithoutExtension }
-                    .distinct()
-                    .peek {
-                        pattern.matchEntire(it).let { result ->
-                            result?.groups?.let { collection ->
-                                val pattern =
-                                    collection[1]?.value ?: throw IllegalStateException("Filename $it is not valid!")
-                                val count =
-                                    collection[2]?.value?.length
-                                        ?: throw IllegalStateException("Filename $it is not valid!")
-                                namePatterns.computeIfAbsent(pattern) { TreeSet() } += count
+                        .filter { Files.isRegularFile(it) }
+                        .map { it.filenameWithoutExtension }
+                        .distinct()
+                        .peek {
+                            pattern.matchEntire(it).let { result ->
+                                result?.groups?.let { collection ->
+                                    val pattern =
+                                            collection[1]?.value
+                                                    ?: throw IllegalStateException("Filename $it is not valid!")
+                                    val count =
+                                            collection[2]?.value?.length
+                                                    ?: throw IllegalStateException("Filename $it is not valid!")
+                                    namePatterns.computeIfAbsent(pattern) { TreeSet() } += count
+                                }
                             }
                         }
-                    }
-                    .map { "$it;$it" }
-                    .forEach { writer.println(it) }
+                        .map { "$it;$it" }
+                        .forEach { writer.println(it) }
             }
         }
 
