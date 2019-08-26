@@ -15,7 +15,7 @@ class BuildingCache {
     private lateinit var menuLinkPath: Path
     private lateinit var linkPath: Path
 
-    private val linkCache: MutableMap<String, MutableMap<String, Link>> = mutableMapOf()
+    private val linkCache: MutableMap<String, MutableMap<String, Link>> = ConcurrentHashMap()
 
 
     private val internalMenuLinks: SortedMultiset<MenuLink> =
