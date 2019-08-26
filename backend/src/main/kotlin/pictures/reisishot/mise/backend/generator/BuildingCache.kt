@@ -9,6 +9,7 @@ import pictures.reisishot.mise.backend.withChild
 import java.nio.file.Path
 import java.time.format.DateTimeFormatter
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.Comparator
 
 class BuildingCache {
@@ -25,11 +26,11 @@ class BuildingCache {
 
     private val dateTimeFormatter = DateTimeFormatter.ISO_ZONED_DATE_TIME
 
-    fun resetLinkcacheFor(linkType: String) = linkCache.computeIfAbsent(linkType) { mutableMapOf() }.clear()
+    fun resetLinkcacheFor(linkType: String) = linkCache.computeIfAbsent(linkType) { ConcurrentHashMap() }.clear()
 
 
     fun addLinkcacheEntryFor(linkType: String, linkKey: String, link: Link) = synchronized(linkCache) {
-        linkCache.computeIfAbsent(linkType) { mutableMapOf() }.put(linkKey, link)
+        linkCache.computeIfAbsent(linkType) { ConcurrentHashMap() }.put(linkKey, link)
     }
 
     fun getLinkcacheEntryFor(linkType: String, linkKey: String): Link = linkCache[linkType]?.get(linkKey)

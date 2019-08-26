@@ -5,6 +5,7 @@ import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.*
 import pictures.reisishot.mise.backend.parseConfig
 import pictures.reisishot.mise.backend.withChild
+import java.util.concurrent.ConcurrentHashMap
 
 class ConfigurableCategoryBuilder() : CategoryBuilder {
     override val builderName: String = "Configurable Categorybuilder"
@@ -15,7 +16,7 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
             imageInformationRepository: ImageInformationRepository,
             websiteConfiguration: WebsiteConfiguration
     ): Sequence<Pair<FilenameWithoutExtension, CategoryInformation>> {
-        val computedCategories: MutableMap<CategoryConfig, Set<FilenameWithoutExtension>> = mutableMapOf()
+        val computedCategories: MutableMap<CategoryConfig, Set<FilenameWithoutExtension>> = ConcurrentHashMap()
 
 
         var categoriesToCompute: Collection<CategoryConfig> = categoryConfigs

@@ -16,6 +16,7 @@ import pictures.reisishot.mise.backend.html.insertSubcategoryThumbnail
 import java.nio.file.Path
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.ConcurrentHashMap
 
 
 class GalleryGenerator(
@@ -150,7 +151,7 @@ class GalleryGenerator(
             websiteConfiguration: WebsiteConfiguration,
             cache: BuildingCache
     ) = with(this.cache) {
-        val categoryLevelMap: MutableMap<Int, MutableSet<CategoryInformation>> = mutableMapOf()
+        val categoryLevelMap: MutableMap<Int, MutableSet<CategoryInformation>> = ConcurrentHashMap()
         cache.clearMenuItems { LINKTYPE_CATEGORIES == it.id }
         cache.resetLinkcacheFor(LINKTYPE_CATEGORIES)
         categoryBuilders.forEach { categoryBuilder ->
@@ -204,7 +205,7 @@ class GalleryGenerator(
                 ?.map { it.complexName }
                 ?.toSet()
                 ?.let { firstLevelCategories ->
-                    computedSubcategories.put(null, firstLevelCategories)
+                    computedSubcategories.put("", firstLevelCategories)
                 }
     }
 
