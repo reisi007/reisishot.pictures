@@ -38,13 +38,13 @@ class GalleryGenerator(
 
     data class Cache(
             val imageInformationData: MutableMap<FilenameWithoutExtension, InternalImageInformation> =
-                    mutableMapOf(),
-            val categoryInformation: MutableMap<CategoryName, CategoryInformation> = mutableMapOf(),
-            val computedTags: MutableMap<TagName, MutableSet<InternalImageInformation>> = mutableMapOf(),
+                    ConcurrentHashMap(),
+            val categoryInformation: MutableMap<CategoryName, CategoryInformation> = ConcurrentHashMap(),
+            val computedTags: MutableMap<TagName, MutableSet<InternalImageInformation>> = ConcurrentHashMap(),
             val computedCategories: MutableMap<CategoryName, MutableSet<FilenameWithoutExtension>> =
-                    mutableMapOf(),
-            val computedSubcategories: MutableMap<CategoryName?, Set<CategoryName>> = mutableMapOf(),
-            val computedCategoryThumbnails: MutableMap<CategoryName, InternalImageInformation> = mutableMapOf()
+                    ConcurrentHashMap(),
+            val computedSubcategories: MutableMap<CategoryName?, Set<CategoryName>> = ConcurrentHashMap(),
+            val computedCategoryThumbnails: MutableMap<CategoryName, InternalImageInformation> = ConcurrentHashMap()
     )
 
     override val imageInformationData: Collection<ImageInformation> = cache.imageInformationData.values
