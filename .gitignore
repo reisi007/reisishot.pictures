@@ -226,3 +226,5 @@ typings/
 *.lock
 **/.gradle/**/*.bin
 cache.properties
+notepad++.session
+.~lock*#

@@ -1,5 +1,11 @@
 package pictures.reisishot.mise.backend.generator.pages
 
+import com.vladsch.flexmark.ext.autolink.AutolinkExtension
+import com.vladsch.flexmark.ext.emoji.EmojiExtension
+import com.vladsch.flexmark.ext.tables.TablesExtension
+import com.vladsch.flexmark.ext.toc.TocExtension
+import com.vladsch.flexmark.html.HtmlRenderer
+import com.vladsch.flexmark.parser.Parser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.a
@@ -9,8 +15,6 @@ import org.apache.commons.text.StringEscapeUtils
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.Velocity
 import org.apache.velocity.app.VelocityEngine
-import org.commonmark.parser.Parser
-import org.commonmark.renderer.html.HtmlRenderer
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.filenameWithoutExtension
 import pictures.reisishot.mise.backend.generator.BuildingCache
@@ -44,10 +48,19 @@ class PageGenerator : WebsiteGenerator {
     private lateinit var filesToProcess: List<Triple<SourcePath, TargetPath, String/*Title*/>>
 
     private val parseMarkdown: (SourcePath) -> Reader by lazy {
+        val extensions = listOf(
+                AutolinkExtension.create(),
+                TablesExtension.create(),
+                TocExtension.create(),
+                EmojiExtension.create()
+        )
+
         val parser = Parser.builder()
+                .extensions(extensions)
                 .build()
-        val htmlRenderer = HtmlRenderer.builder()
-                .softbreak(" ")
+        val htmlRenderer = HtmlRenderer
+                .builder()
+                .extensions(extensions)
                 .build()
         return@lazy { sourceFile: SourcePath ->
             Files.newBufferedReader(sourceFile).use { reader ->

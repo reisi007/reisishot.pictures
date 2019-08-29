@@ -216,3 +216,24 @@ p {
     margin: 0 auto;
   }
 }
+
+.lazy {
+  height: (300/2.5) px;
+}
+
+table {
+  margin: 0 auto;
+
+  td, th {
+    padding: .75rem;
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
+  }
+
+  thead {
+    td, th {
+      vertical-align: bottom;
+      border-bottom: 3px solid #dee2e6;
+    }
+  }
+}

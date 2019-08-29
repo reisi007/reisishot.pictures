@@ -5,6 +5,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         const observer = window.lozad('.lazy', {
             loaded: function (el) {
+                rootMargin = "150vh 0 0 0";
                 el.style = "";
                 el.classList.add('loaded');
             }
