@@ -7,7 +7,7 @@ import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThum
 interface ImageInformation {
     val url: FilenameWithoutExtension
     val title: String
-    val tags: Set<TagName>
+    val tags: Set<String>
     val exifInformation: Map<ExifdataKey, String>
     val thumbnailSizes: Map<ImageSize, ThumbnailInformation>
     val filenameWithoutExtension: FilenameWithoutExtension
@@ -18,7 +18,7 @@ interface ImageInformation {
 data class InternalImageInformation(
         override val url: FilenameWithoutExtension,
         override val title: String,
-        override val tags: Set<TagName>,
+        override val tags: Set<String>,
         override val exifInformation: Map<ExifdataKey, String>,
         override val thumbnailSizes: Map<ImageSize, ThumbnailInformation>,
         val categories: MutableSet<CategoryInformation> = mutableSetOf()

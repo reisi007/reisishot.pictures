@@ -1,11 +1,12 @@
 //'use strict';
+$ = $ || window.jQuery;
 (function () {
     const galleries = window.galleries = window.galleries || {};
 
     document.addEventListener('DOMContentLoaded', function () {
         const observer = window.lozad('.lazy', {
+            rootMargin: "1080px 0px 0px 0px",
             loaded: function (el) {
-                rootMargin = "150vh 0 0 0";
                 el.style = "";
                 el.classList.add('loaded');
             }
@@ -38,7 +39,6 @@
         };
 
         options.index = parseInt(realIndex);
-        console.log("Opening gallery", galleryName, "at index", realIndex);
 
         const photoswipeContainer = document.querySelectorAll('.pswp')[0];
         const gallery = new PhotoSwipe(photoswipeContainer, PhotoSwipeUI_Default, curGallery, options);
@@ -60,7 +60,6 @@
             item.h = sourceElement.getAttribute("data-h");
             item.pid = curGallery.length - index;
             item.name = pictureTag.getAttribute("data-url");
-            console.log("sdf", item)
         });
 
         gallery.init();

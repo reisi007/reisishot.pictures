@@ -7,7 +7,7 @@
     } else if (typeof exports === 'object') {
         module.exports = factory();
     } else {
-        root.PhotoSwipe = factory();
+        window.PhotoSwipe = factory();
     }
 })(this, function () {
 

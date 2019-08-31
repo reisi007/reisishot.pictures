@@ -169,7 +169,7 @@ object PageGenerator {
     private fun HEAD.vendorCss() = styleLink("/css/vendor.css")
 
     @HtmlTagMarker
-    private fun HEAD.appJs() = script("/js/app.js")
+    private fun HEAD.appJs() = script("/js/app.min.js")
 
     @HtmlTagMarker
     private fun HEAD.vendorJs() = script("/js/vendor.js")

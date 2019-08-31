@@ -13,7 +13,7 @@
     } else if (typeof exports === 'object') {
         module.exports = factory();
     } else {
-        root.PhotoSwipeUI_Default = factory();
+        window.PhotoSwipeUI_Default = factory();
     }
 })(this, function () {
 

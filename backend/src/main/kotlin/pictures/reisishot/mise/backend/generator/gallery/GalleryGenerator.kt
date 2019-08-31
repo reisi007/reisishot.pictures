@@ -41,7 +41,7 @@ class GalleryGenerator(
             val imageInformationData: MutableMap<FilenameWithoutExtension, InternalImageInformation> =
                     ConcurrentHashMap(),
             val categoryInformation: MutableMap<CategoryName, CategoryInformation> = ConcurrentHashMap(),
-            val computedTags: MutableMap<TagName, MutableSet<InternalImageInformation>> = ConcurrentHashMap(),
+            val computedTags: MutableMap<TagInformation, MutableSet<InternalImageInformation>> = ConcurrentHashMap(),
             val computedCategories: MutableMap<CategoryName, MutableSet<FilenameWithoutExtension>> =
                     ConcurrentHashMap(),
             val computedSubcategories: MutableMap<CategoryName?, Set<CategoryName>> = ConcurrentHashMap(),
@@ -49,7 +49,7 @@ class GalleryGenerator(
     )
 
     override val imageInformationData: Collection<ImageInformation> = cache.imageInformationData.values
-    override val computedTags: Map<TagName, Set<ImageInformation>> = cache.computedTags
+    override val computedTags: Map<TagInformation, Set<ImageInformation>> = cache.computedTags
 
 
     override suspend fun fetchInformation(
@@ -136,12 +136,13 @@ class GalleryGenerator(
         cache.clearMenuItems { LINKTYPE_TAGS == it.id }
         cache.resetLinkcacheFor(LINKTYPE_TAGS)
         imageInformationData.values.forEach { imageInformation ->
-            imageInformation.tags.forEach { tag ->
+            imageInformation.tags.forEach { tagName ->
+                val tag = TagInformation(tagName)
                 computedTags.computeIfAbsent(tag) { mutableSetOf() } += imageInformation
                 // Add tag URLs to global cache
-                "gallery/tags/$tag".replace("\\s", "-").let { link ->
-                    cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag, link)
-                    cache.addMenuItemInContainerNoDupes(LINKTYPE_TAGS, "Tags", 300, tag, link, menuIemComperator)
+                "gallery/tags/${tag.url}".let { link ->
+                    cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag.name, link)
+                    cache.addMenuItemInContainerNoDupes(LINKTYPE_TAGS, "Tags", 300, tag.name, link, menuIemComperator)
                 }
             }
         }
@@ -228,7 +229,7 @@ class GalleryGenerator(
                 PageGenerator.generatePage(
                         websiteConfiguration = configuration,
                         buildingCache = cache,
-                        target = baseHtmlPath withChild curImageInformation.url withChild "index.html",
+                        target = baseHtmlPath withChild curImageInformation.url.toLowerCase() withChild "index.html",
                         title = curImageInformation.title,
                         pageContent = {
                             classes = classes + "singleImage"
@@ -328,13 +329,13 @@ class GalleryGenerator(
     ) = with(this.cache) {
         (configuration.outPath withChild "gallery/tags").let { baseHtmlPath ->
             computedTags.forEach { (tagName, tagImages) ->
-                val targetFile = baseHtmlPath withChild tagName withChild "index.html"
+                val targetFile = baseHtmlPath withChild tagName.url withChild "index.html"
 
                 PageGenerator.generatePage(
                         websiteConfiguration = configuration,
                         buildingCache = cache,
                         target = targetFile,
-                        title = tagName,
+                        title = tagName.name,
                         pageContent = {
                             h1("text-center") {
                                 text("Tag - ")
@@ -343,7 +344,7 @@ class GalleryGenerator(
                                 }
                             }
 
-                            insertImageGallery(tagName, *tagImages.toOrderedByTimeArray())
+                            insertImageGallery("1", *tagImages.toOrderedByTimeArray())
                         })
             }
         }

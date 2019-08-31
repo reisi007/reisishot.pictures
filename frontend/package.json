@@ -14,6 +14,7 @@
     "babelify": "^10.0.0",
     "browser-sync": "^2.26.7",
     "browserify": "^16.2.3",
+    "browserify-shim": "^3.8.14",
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^6.1.0",
     "gulp-babel": "^8.0.0",
@@ -28,18 +29,6 @@
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0",
     "serve-static": "^1.14.1"
-  },
-  "browserify": {
-    "transform": [
-      [
-        "babelify",
-        {
-          "presets": [
-            "babel-preset-es2015-ie"
-          ]
-        }
-      ]
-    ]
   },
   "dependencies": {}
 }

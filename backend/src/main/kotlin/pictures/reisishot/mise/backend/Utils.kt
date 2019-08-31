@@ -164,3 +164,8 @@ internal fun Path.readExif(exifReplaceFunction: (Pair<ExifdataKey, String?>) -> 
                 }
             }
 }
+
+private val whiteSpace = """\s""".toRegex()
+internal fun String.toFriendlyPathName(): String {
+    return replace(whiteSpace, "-").toLowerCase()
+}
