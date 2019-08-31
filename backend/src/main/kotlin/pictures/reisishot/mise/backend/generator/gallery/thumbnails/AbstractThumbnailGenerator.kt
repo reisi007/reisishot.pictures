@@ -19,7 +19,9 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
     data class ThumbnailInformation(val filename: String, val width: Int, val height: Int)
 
     enum class ImageSize(private val identifier: String, val longestSidePx: Int, val quality: Float) {
-        SMALL("icon", 300, 0.35f), MEDIUM("embed", 1100, 0.5f), LARGE("large", 2500, 0.75f);
+        SMALL("icon", 300, 0.35f),
+        MEDIUM("embed", 1400, 0.5f),
+        LARGE("large", 3000, 0.75f);
 
         companion object {
             val ORDERED = arrayOf(LARGE, MEDIUM, SMALL)
