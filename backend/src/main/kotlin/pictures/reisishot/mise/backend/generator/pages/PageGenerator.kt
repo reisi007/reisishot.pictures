@@ -164,6 +164,7 @@ class PageGenerator : WebsiteGenerator {
             Velocity.init()
             val velocity = VelocityEngine()
 
+            val compressHtml = """[\s\n\r]{2,}""".toRegex()
             return@run { templateData, originalFilename, websiteConfiguration, buildingCache, targetPath, title ->
                 val velocityContext = VelocityContext()
                 val galleryObject = VelocityGalleryObject(targetPath, buildingCache, websiteConfiguration)
@@ -181,7 +182,7 @@ class PageGenerator : WebsiteGenerator {
                             buildingCache = buildingCache,
                             hasGallery = galleryObject.hasGallery,
                             pageContent = {
-                                raw(html)
+                                raw(html.replace(compressHtml, " "))
                             }
                     )
                 }

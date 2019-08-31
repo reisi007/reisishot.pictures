@@ -147,7 +147,17 @@ footer {
 
 #carouselIndicator {
   $margin: 20px;
+  color: white;
 
+  a {
+    &:active {
+      color: white;
+    }
+  }
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding-top: $margin;
   padding-bottom: $margin;
 
@@ -155,17 +165,49 @@ footer {
 
   .carousel-indicators {
     position: relative;
-    margin-top: 12px;
+    margin-top: -7.7vh;
+  }
+
+  height: $maxCarouselHeight;
+  max-height: $maxCarouselHeight;
+
+  @media only screen and (max-aspect-ratio: 21/31) {
+    $portraitHeight: 25vh;
+    min-height: 300px;
+    height: $portraitHeight;
+    max-height: $portraitHeight;
+    .carousel-inner {
+      max-height: $portraitHeight !important;
+
+      img {
+        height: $portraitHeight !important;
+        max-height: $portraitHeight !important;
+      }
+    }
+
+    .carousel-indicators {
+      margin-top: -2.7vh;
+    }
   }
 
   .carousel-inner {
     height: $maxCarouselHeight;
     max-height: $maxCarouselHeight;
 
-
     .carousel-item {
       height: $maxCarouselHeight;
       max-height: $maxCarouselHeight;
+
+      .carousel-caption {
+        position: relative;
+        bottom: 8vh !important;
+        left: 0;
+        right: 0;
+
+        h5 {
+          @include stroke(1, black)
+        }
+      }
 
       a {
         justify-content: space-between;
@@ -175,25 +217,12 @@ footer {
           justify-content: center;
         }
 
-        height: $maxCarouselHeight;
-        max-height: $maxCarouselHeight;
-
         img {
-          height: $maxCarouselHeight;
-          max-height: $maxCarouselHeight;
+          height: $maxCarouselImageHeight;
+          max-height: $maxCarouselImageHeight;
         }
       }
-
-      h5 {
-        @include stroke(1, black)
-      }
     }
-  }
-}
-
-@media (max-height: 550px) {
-  &.carousel-caption {
-    display: none !important;
   }
 }
 
