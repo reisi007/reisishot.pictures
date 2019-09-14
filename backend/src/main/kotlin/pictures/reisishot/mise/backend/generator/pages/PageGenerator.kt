@@ -124,7 +124,7 @@ class PageGenerator : WebsiteGenerator {
 
                             val outPath =
                                     configuration.inPath.relativize(inPath)
-                                            .resolveSibling("$rawMenuItemName/index.html")
+                                            .resolveSibling("${rawMenuItemName.toLowerCase()}/index.html")
                             val link = outPath.parent.toString()
 
                             if (menuContainerName.isBlank()) {
