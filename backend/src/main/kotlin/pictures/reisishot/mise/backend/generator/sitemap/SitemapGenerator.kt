@@ -34,7 +34,9 @@ class SitemapGenerator() : WebsiteGenerator {
             it.println("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">")
             configuration.outPath.findIndexHtmlFiles()
                     .map { it.normalize().toString().replace('\\', '/') }
-                    .map { websiteLocation + it }.forEach { pageUrl ->
+                    .map { websiteLocation + it }
+                    .map { if (it.endsWith('/')) it else "$it/" }
+                    .forEach { pageUrl ->
                         it.print("<url>")
                         it.print("<loc>$pageUrl</loc>")
                         it.print("</url>")
