@@ -495,7 +495,7 @@
                     option: 'pictureDetailsEl',
                     onTap: function () {
                         const curItem = pswp.currItem;
-                        const url = "/gallery/images/" + curItem.name;
+                        const url = "/gallery/images/" + curItem.name.toLowerCase();
                         if (curItem.name)
                             window.location = url
                     }

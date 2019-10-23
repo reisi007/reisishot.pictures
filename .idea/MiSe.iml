@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/input" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/frontend/generated" />
       <excludeFolder url="file://$MODULE_DIR$/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/unused" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

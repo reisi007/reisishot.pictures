@@ -117,7 +117,11 @@ internal fun FlowOrInteractiveOrPhrasingContent.insertLazyPicture(
         attributes["data-url"] = curImageInfo.url
 
         ORDERED.forEach { curSize ->
-            generateSourceTag(curImageInfo, curSize, largeImageUrl)
+            generateSourceTag(curImageInfo, curSize)
+        }
+
+        noScript {
+            img(alt = curImageInfo.title, src = largeImageUrl)
         }
     }
 }
@@ -158,8 +162,7 @@ fun PICTURE.source(srcset: String, mediaQuery: String? = null, classes: String? 
 
 private fun PICTURE.generateSourceTag(
         curImageInformation: InternalImageInformation,
-        curSize: ImageSize,
-        largeImageUrl: String
+        curSize: ImageSize
 ) {
     val curSizeInfo = curImageInformation.thumbnailSizes[curSize] ?: return
     val smallerSizeInfo = curSize.smallerSize?.let { curImageInformation.thumbnailSizes[it] }
@@ -173,10 +176,6 @@ private fun PICTURE.generateSourceTag(
             }
             attributes["data-w"] = width1.toString()
             attributes["data-h"] = height1.toString()
-        }
-
-        noScript {
-            img(alt = curImageInformation.title, src = largeImageUrl)
         }
     }
 }
