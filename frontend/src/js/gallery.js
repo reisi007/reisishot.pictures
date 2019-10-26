@@ -2,8 +2,11 @@
 $ = $ || window.jQuery;
 (function () {
     const galleries = window.galleries = window.galleries || {};
-
+    const galleyHtml = '<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true"><div class="pswp__bg"></div><div class="pswp__scroll-wrap"><div class="pswp__container"><div class="pswp__item"></div><div class="pswp__item"></div><div class="pswp__item"></div></div><div class="pswp__ui pswp__ui--hidden"><div class="pswp__top-bar"><div class="pswp__counter"></div><button class="pswp__button pswp__button--close" shorttitle="Schließen (Esc)"></button><button class="pswp__button pswp__button--fs" shorttitle="Fullscreen anzeigen"></button><button class="pswp__button pswp__button--zoom" shorttitle="Zoomen"></button><button class="pswp__button pswp__button--details" shorttitle="Details"></button><div class="pswp__preloader"><div class="pswp__preloader__icn"><div class="pswp__preloader__cut"><div class="pswp__preloader__donut"></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class="pswp__share-tooltip"></div></div><button class="pswp__button pswp__button--arrow--left" shorttitle="Vorheriges Bild"></button><button class="pswp__button pswp__button--arrow--right" shorttitle="Nächstes Bild"></button><div class="pswp__caption"><div class="pswp__caption__center"></div></div></div></div></div>';
+    const googleAnalytics = '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","UA-120917271-1",{"anonymize_ip":true});</script>';
     document.addEventListener('DOMContentLoaded', function () {
+        $(document.head).append($.parseHTML(googleAnalytics, document, true));
+
         const observer = window.lozad('.lazy', {
             rootMargin: "1080px 0px 0px 0px",
             loaded: function (el) {
@@ -26,6 +29,8 @@ $ = $ || window.jQuery;
                 pictureElement.onclick = () => openGallery(galleryName, index);
             })
         });
+        if (!$.isEmptyObject(galleries))
+            appendGalleryHtml();
         parseUrl();
     }
 
@@ -100,5 +105,9 @@ $ = $ || window.jQuery;
         const pid = parseInt(params["pid"]);
         if (gallery)
             openGallery(gid, gallery.length - pid);
+    }
+
+    function appendGalleryHtml() {
+        document.body.append($.parseHTML(galleyHtml)[0]);
     }
 })();

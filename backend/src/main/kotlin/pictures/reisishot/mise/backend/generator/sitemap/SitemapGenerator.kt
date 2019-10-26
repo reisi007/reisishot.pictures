@@ -23,18 +23,12 @@ class SitemapGenerator() : WebsiteGenerator {
     }
 
     override suspend fun buildArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
-        val websiteLocation = with(configuration.websiteLocation) {
-            if (!endsWith('/'))
-                "$this/"
-            else
-                this
-        }
         PrintWriter(configuration.outPath.resolve("sitemap.xml").toFile(), Charsets.UTF_8.toString()).use {
             it.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
             it.println("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">")
             configuration.outPath.findIndexHtmlFiles()
                     .map { it.normalize().toString().replace('\\', '/') }
-                    .map { websiteLocation + it }
+                    .map { configuration.websiteLocation + it }
                     .map { if (it.endsWith('/')) it else "$it/" }
                     .forEach { pageUrl ->
                         it.print("<url>")

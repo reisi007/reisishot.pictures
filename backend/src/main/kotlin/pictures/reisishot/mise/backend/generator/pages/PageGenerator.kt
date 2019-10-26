@@ -19,10 +19,7 @@ import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.filenameWithoutExtension
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
-import pictures.reisishot.mise.backend.generator.gallery.FilenameWithoutExtension
-import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
-import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
-import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbnails
+import pictures.reisishot.mise.backend.generator.gallery.*
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertImageGallery
 import pictures.reisishot.mise.backend.html.insertLazyPicture
@@ -256,14 +253,6 @@ class PageGenerator : WebsiteGenerator {
             private val websiteConfiguration: WebsiteConfiguration
     ) {
         private var privateHasGallery = false
-        private val websiteLocation by lazy {
-            with(websiteConfiguration.websiteLocation) {
-                if (!endsWith('/'))
-                    "$this/"
-                else
-                    this
-            }
-        }
         val hasGallery
             get() = privateHasGallery
 
@@ -302,7 +291,7 @@ class PageGenerator : WebsiteGenerator {
         }
 
         @SuppressWarnings("unused")
-        fun insertLink(type: String, key: String): String = websiteLocation + cache.getLinkcacheEntryFor(type, key)
+        fun insertLink(type: String, key: String): String = websiteConfiguration.websiteLocation + cache.getLinkcacheEntryFor(type, key)
 
         @SuppressWarnings("unused")
         fun insertLink(linktext: String, type: String, key: String): String = buildString {
@@ -312,9 +301,9 @@ class PageGenerator : WebsiteGenerator {
         }
 
         @SuppressWarnings("unused")
-        fun insertSubalbumThumbnails(albumname: String?): String = buildString {
+        fun insertSubalbumThumbnails(albumName: String?): String = buildString {
             appendHTML(false, true).div {
-                insertSubcategoryThumbnails(albumname, galleryGenerator)
+                insertSubcategoryThumbnails(CategoryName(albumName ?: ""), galleryGenerator)
             }
         }
     }

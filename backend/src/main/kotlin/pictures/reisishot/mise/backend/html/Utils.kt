@@ -3,7 +3,6 @@ package pictures.reisishot.mise.backend.html
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.generator.gallery.CategoryInformation
 import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
-import pictures.reisishot.mise.backend.generator.gallery.simpleName
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.Companion.NAME_IMAGE_SUBFOLDER
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize.Companion.LARGEST
@@ -34,59 +33,6 @@ fun FlowContent.container(block: DIV.() -> Unit = {}) = div("container", block)
 
 @HtmlTagMarker
 fun FlowContent.fluidContainer(block: DIV.() -> Unit = {}) = div("container-fluid", block)
-
-@HtmlTagMarker
-fun FlowContent.photoSwipeHtml() = div("pswp") {
-    attributes["tabindex"] = "-1"
-    attributes["role"] = "dialog"
-    attributes["aria-hidden"] = "true"
-    div("pswp__bg")
-    div("pswp__scroll-wrap") {
-        div("pswp__container") {
-            repeat(3) {
-                div("pswp__item")
-            }
-        }
-        div("pswp__ui pswp__ui--hidden") {
-            div("pswp__top-bar") {
-                div("pswp__counter")
-
-                button(classes = "pswp__button pswp__button--close") {
-                    attributes["shortTitle"] = "Schließen (Esc)"
-                }
-                button(classes = "pswp__button pswp__button--fs") {
-                    attributes["shortTitle"] = "Fullscreen anzeigen"
-                }
-                button(classes = "pswp__button pswp__button--zoom") {
-                    attributes["shortTitle"] = "Zoomen"
-                }
-                button(classes = "pswp__button pswp__button--details") {
-                    attributes["shortTitle"] = "Details"
-                }
-                div("pswp__preloader") {
-                    div("pswp__preloader__icn") {
-                        div("pswp__preloader__cut") {
-                            div("pswp__preloader__donut")
-                        }
-                    }
-                }
-            }
-
-            div("pswp__share-modal pswp__share-modal--hidden pswp__single-tap") {
-                div("pswp__share-tooltip")
-            }
-            button(classes = "pswp__button pswp__button--arrow--left") {
-                attributes["shortTitle"] = "Vorheriges Bild"
-            }
-            button(classes = "pswp__button pswp__button--arrow--right") {
-                attributes["shortTitle"] = "Nächstes Bild"
-            }
-            div("pswp__caption") {
-                div("pswp__caption__center")
-            }
-        }
-    }
-}
 
 fun HtmlBlockTag.insertImageGallery(
         galleryName: String,
@@ -126,7 +72,7 @@ internal fun FlowOrInteractiveOrPhrasingContent.insertLazyPicture(
     }
 }
 
-internal fun DIV.insertSubcategoryThumbnail(
+internal fun HtmlBlockTag.insertSubcategoryThumbnail(
         categoryInformation: CategoryInformation,
         imageInformation: InternalImageInformation
 ) {
@@ -135,7 +81,7 @@ internal fun DIV.insertSubcategoryThumbnail(
             insertLazyPicture(imageInformation, listOf("card-img-top"))
             div("card-body") {
                 h4("card-title") {
-                    text(categoryInformation.complexName.simpleName)
+                    text(categoryInformation.simpleName)
                 }
             }
         }
@@ -189,3 +135,9 @@ private fun Map<ImageSize, ThumbnailInformation>.getHtmlUrl(imageSize: ImageSize
 
 private fun getThumbnailUrlFromFilename(filename: String): String =
         "/${NAME_IMAGE_SUBFOLDER}/$filename"
+
+@HtmlTagMarker
+fun FlowOrInteractiveOrPhrasingContent.smallButtonLink(text: String, href: String, target: String = "_blank") = a(href, target, classes = "btn btn-primary btn-sm active") {
+    attributes["role"] = "button"
+    text(text)
+}

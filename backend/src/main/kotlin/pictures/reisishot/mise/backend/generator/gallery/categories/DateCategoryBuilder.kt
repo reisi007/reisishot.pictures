@@ -5,9 +5,8 @@ import pictures.reisishot.mise.backend.generator.gallery.*
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
 
-class DateCategoryBuilder(rootCategoryName: String) : CategoryBuilder {
+class DateCategoryBuilder(val rootCategoryName: String) : CategoryBuilder {
     override val builderName: String = "Reisishot Kalender Category Builder"
-    val rootCategoryName: String = rootCategoryName.toLowerCase()
 
     override suspend fun generateCategories(
             imageInformationRepository: ImageInformationRepository,
@@ -33,13 +32,24 @@ class DateCategoryBuilder(rootCategoryName: String) : CategoryBuilder {
 
         for (i in 1..second.size) {
             val urlFragments = this.second.subList(0, i)
-            val complexName = arrayOf(*urlFragments.toTypedArray()).joinToString("/")
+            val nameFragments = arrayOf(*urlFragments.toTypedArray())
             tmp += first to CategoryInformation(
-                    complexName = complexName,
-                    urlFragment = complexName.substringAfter('/'),
+                    internalName = CategoryName(nameFragments.asSequence().drop(1).joinToString("/"), nameFragments.computeName()),
+                    urlFragment = nameFragments.joinToString("/") { it }.substringAfter('/').toLowerCase(),
                     visible = false
             )
         }
         return tmp.asSequence()
     }
+
+    private fun Array<String>.computeName() = let {
+        when (it.size) {
+            4 -> it[3] + ". " + it[2] + " " + it[1]
+            3 -> it[2] + " " + it[1]
+            2 -> it[1]
+            1 -> it[0]
+            else -> throw IllegalStateException("Count ${it.size} not expected!")
+        }
+    }
+
 }

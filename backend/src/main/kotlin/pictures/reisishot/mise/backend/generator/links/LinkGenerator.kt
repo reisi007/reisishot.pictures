@@ -16,12 +16,6 @@ class LinkGenerator : WebsiteGenerator {
     override suspend fun fetchInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>) {
         configuration.inPath.resolve("urls.conf").let { configFile ->
             if (configFile.exists()) {
-                configuration.websiteLocation.let {
-                    if (it.endsWith("/"))
-                        it.substringBeforeLast("/")
-                    else
-                        it
-                }
                 val data: ManualLinks = configFile.parseConfig() ?: ManualLinks(emptyList())
                 if (data.menuItems.isNotEmpty()) {
                     cache.clearMenuItems { it.id.startsWith(LINK_TYPE) }

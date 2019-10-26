@@ -3,6 +3,19 @@
 @import "animation.css";
 @import "rs";
 
+.btn-primary {
+  background-color: $mainColor !important;
+  border-color: $mainColor !important;
+}
+
+.btn-flex {
+  display: flex;
+  flex-wrap: wrap;
+
+  a {
+    margin: 2.5px;
+  }
+}
 
 h1 {
   font-size: 2rem;

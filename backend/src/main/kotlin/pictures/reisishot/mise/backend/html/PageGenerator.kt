@@ -48,7 +48,6 @@ object PageGenerator {
                             polyfills()
                             vendorJs()
                             appJs()
-                            googleAnalytics()
 
                             additionalHeadContent(this)
                         }
@@ -90,8 +89,6 @@ object PageGenerator {
                                     }
                                 }
                             }
-                            if (hasGallery)
-                                photoSwipeHtml()
                             cookieInfo()
                         }
                     }
@@ -137,7 +134,7 @@ object PageGenerator {
                                     curItem.children.forEach { entry ->
                                         a(
                                                 classes = "dropdown-item",
-                                                href = websiteConfiguration.websiteLocation + "/" + entry.href
+                                                href = websiteConfiguration.websiteLocation + entry.href
                                         ) {
                                             text(entry.text)
                                         }
@@ -147,7 +144,7 @@ object PageGenerator {
                             } else {
                                 a(
                                         classes = "nav-link",
-                                        href = websiteConfiguration.websiteLocation + "/" + curItem.href
+                                        href = websiteConfiguration.websiteLocation + curItem.href
                                 ) {
                                     text(curItem.text)
                                 }
@@ -232,21 +229,5 @@ object PageGenerator {
                 )
         )
 
-    }
-
-    @HtmlTagMarker
-    private fun HEAD.googleAnalytics() {
-        script(src = "https://www.googletagmanager.com/gtag/js?id=UA-120917271-1") {
-            attributes["async"] = ""
-        }
-        script {
-            raw("""
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', 'UA-120917271-1', { 'anonymize_ip': true });
-    """.trimIndent()
-            )
-        }
     }
 }

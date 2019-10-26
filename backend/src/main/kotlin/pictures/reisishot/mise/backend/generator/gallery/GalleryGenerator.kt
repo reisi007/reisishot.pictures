@@ -5,7 +5,7 @@ import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.MenuLinkContainerItem
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
-import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
+import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.Companion.NAME_IMAGE_SUBFOLDER
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.Companion.NAME_THUMBINFO_SUBFOLDER
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
@@ -13,10 +13,12 @@ import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThum
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertImageGallery
 import pictures.reisishot.mise.backend.html.insertSubcategoryThumbnail
+import pictures.reisishot.mise.backend.html.smallButtonLink
 import java.nio.file.Path
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentSkipListMap
 
 
 class GalleryGenerator(
@@ -38,15 +40,19 @@ class GalleryGenerator(
     private val menuIemComperator = Comparator.comparing<MenuLinkContainerItem, String> { it.text }
 
     data class Cache(
-            val imageInformationData: MutableMap<FilenameWithoutExtension, InternalImageInformation> =
-                    ConcurrentHashMap(),
-            val categoryInformation: MutableMap<CategoryName, CategoryInformation> = ConcurrentHashMap(),
-            val computedTags: MutableMap<TagInformation, MutableSet<InternalImageInformation>> = ConcurrentHashMap(),
-            val computedCategories: MutableMap<CategoryName, MutableSet<FilenameWithoutExtension>> =
-                    ConcurrentHashMap(),
-            val computedSubcategories: MutableMap<CategoryName?, Set<CategoryName>> = ConcurrentHashMap(),
-            val computedCategoryThumbnails: MutableMap<CategoryName, InternalImageInformation> = ConcurrentHashMap()
-    )
+            val imageInformationData: MutableMap<FilenameWithoutExtension, InternalImageInformation> = concurrentSkipListMap(),
+            val categoryInformation: MutableMap<CategoryName, CategoryInformation> = concurrentSkipListMap(),
+            val computedTags: MutableMap<TagInformation, MutableSet<InternalImageInformation>> = concurrentSkipListMap(compareBy(TagInformation::name)),
+            val computedCategories: MutableMap<CategoryName, MutableSet<FilenameWithoutExtension>> = concurrentSkipListMap(),
+            val computedSubcategories: MutableMap<CategoryName, Set<CategoryName>> = concurrentSkipListMap(),
+            val computedCategoryThumbnails: MutableMap<CategoryName, InternalImageInformation> = concurrentSkipListMap()
+    ) {
+        companion object {
+            private fun <K, V> concurrentSkipListMap(comparator: Comparator<in K>): MutableMap<K, V> = ConcurrentSkipListMap(comparator)
+            private fun <K : Comparable<K>, V> concurrentSkipListMap(): MutableMap<K, V> = ConcurrentSkipListMap()
+        }
+    }
+
 
     override val imageInformationData: Collection<ImageInformation> = cache.imageInformationData.values
     override val computedTags: Map<TagInformation, Set<ImageInformation>> = cache.computedTags
@@ -87,7 +93,7 @@ class GalleryGenerator(
 
     // TODO Write cache files and use them instead of computing...
     private suspend fun buildImageInformation(configuration: WebsiteConfiguration) {
-        (configuration.inPath withChild AbstractThumbnailGenerator.NAME_IMAGE_SUBFOLDER).list().filter { it.isJpeg }
+        (configuration.inPath withChild NAME_IMAGE_SUBFOLDER).list().filter { it.isJpeg }
                 .asIterable()
                 .forEachLimitedParallel(20) { jpegPath ->
                     val filenameWithoutExtension = jpegPath.filenameWithoutExtension
@@ -155,19 +161,24 @@ class GalleryGenerator(
         val categoryLevelMap: MutableMap<Int, MutableSet<CategoryInformation>> = ConcurrentHashMap()
         cache.clearMenuItems { LINKTYPE_CATEGORIES == it.id }
         cache.resetLinkcacheFor(LINKTYPE_CATEGORIES)
+        val chroncicalCategoryName = categoryBuilders.asSequence()
+                .map { it as? DateCategoryBuilder }
+                .filterNotNull()
+                .map { it.rootCategoryName }
+                .firstOrNull()
         categoryBuilders.forEach { categoryBuilder ->
             categoryBuilder.generateCategories(this@GalleryGenerator, websiteConfiguration)
                     .forEach { (filename, categoryInformation) ->
-                        categoryInformation.complexName.let { categoryName ->
-                            categoryName.count { it == '/' }.let { subcategoryLevel ->
+                        categoryInformation.internalName.let { categoryName ->
+                            categoryName.complexName.count { it == '/' }.let { subcategoryLevel ->
                                 categoryLevelMap.computeIfAbsent(subcategoryLevel) { mutableSetOf() } += categoryInformation
                             }
-                            computedCategories.computeIfAbsent(categoryInformation.complexName) {
+                            computedCategories.computeIfAbsent(categoryInformation.internalName) {
                                 val link = "gallery/categories/${categoryInformation.urlFragment}"
-                                cache.addLinkcacheEntryFor(LINKTYPE_CATEGORIES, categoryInformation.complexName, link)
+                                cache.addLinkcacheEntryFor(LINKTYPE_CATEGORIES, categoryInformation.name, link)
                                 if (categoryInformation.visible) {
                                     cache.addMenuItemInContainer(
-                                            LINKTYPE_CATEGORIES, "Kategorien", 200, categoryInformation.complexName.simpleName,
+                                            LINKTYPE_CATEGORIES, "Kategorien", 200, categoryInformation.simpleName,
                                             link, menuIemComperator
                                     )
                                 }
@@ -175,7 +186,7 @@ class GalleryGenerator(
                             } += filename
 
                             imageInformationData[filename]?.categories?.add(categoryInformation)
-                            this.categoryInformation.computeIfAbsent(categoryInformation.complexName) { categoryInformation }
+                            this.categoryInformation.computeIfAbsent(categoryInformation.internalName) { categoryInformation }
                         }
                     }
         }
@@ -186,15 +197,16 @@ class GalleryGenerator(
                 categoryLevelMap[nextLevel]?.let { possibleSubcategories ->
                     possibleSubcategories.asSequence()
                             .filter { possibleSubcategory ->
-                                possibleSubcategory.complexName.startsWith(
-                                        category.complexName,
+                                possibleSubcategory.name.startsWith(
+                                        category.name,
                                         true
                                 )
                             }.filter { it.visible }
-                            .map { it.complexName }
-                            .toSet().let { subcategories ->
+                            .map { it.internalName }
+                            .toSet()
+                            .let { subcategories ->
                                 if (subcategories.isNotEmpty())
-                                    computedSubcategories.put(category.complexName, subcategories)
+                                    computedSubcategories.put(category.internalName, subcategories)
                             }
                 }
             }
@@ -203,10 +215,23 @@ class GalleryGenerator(
         // Add first level subcategories
         categoryLevelMap[0]?.asSequence()
                 ?.filter { it.visible }
-                ?.map { it.complexName }
+                ?.map { it.internalName }
+                ?.filter { it.complexName.isNotBlank() }
                 ?.toSet()
                 ?.let { firstLevelCategories ->
-                    computedSubcategories.put("", firstLevelCategories)
+                    computedSubcategories.put(CategoryName(""), firstLevelCategories)
+                }
+        // Add Chronological behaviour
+        categoryLevelMap[0]?.asSequence()
+                ?.map { it.internalName }
+                ?.filter { it.complexName.isBlank() }
+                ?.toSet()
+                ?.let { blankComplexNames ->
+                    val years = categoryLevelMap[0]?.asSequence()
+                            ?.map { it.internalName }
+                            ?.filter { it.complexName.toIntOrNull() != null }
+                            ?.toSet() ?: emptySet()
+                    blankComplexNames.forEach { computedSubcategories.put(it, years) }
                 }
     }
 
@@ -237,36 +262,71 @@ class GalleryGenerator(
                                 text(curImageInformation.title)
                             }
                             insertImageGallery("1", curImageInformation)
-                            div("card") {
-                                h4("card-title") {
-                                    text("Exif Informationen")
+
+                            insertCategoryLinks(curImageInformation, configuration, cache)
+
+                            insertTagLinks(curImageInformation, configuration, cache)
+
+                            insertExifInformation(curImageInformation, dateTimeFormatter)
+                        }
+                )
+            }
+        }
+    }
+
+    private fun DIV.insertTagLinks(curImageInformation: InternalImageInformation, configuration: WebsiteConfiguration, cache: BuildingCache) {
+        div("card") {
+            h4("card-title") {
+                text("Tags")
+            }
+            div("card-body btn-flex") {
+                curImageInformation.tags.forEach { category ->
+                    smallButtonLink(category, configuration.websiteLocation + cache.getLinkcacheEntryFor(LINKTYPE_TAGS, category))
+                }
+            }
+        }
+    }
+
+    private fun DIV.insertCategoryLinks(curImageInformation: InternalImageInformation, configuration: WebsiteConfiguration, cache: BuildingCache) {
+        div("card") {
+            h4("card-title") {
+                text("Kategorien")
+            }
+            div("card-body btn-flex") {
+                curImageInformation.categories.forEach { category ->
+                    smallButtonLink(category.simpleName, configuration.websiteLocation + cache.getLinkcacheEntryFor(LINKTYPE_CATEGORIES, category.name))
+                }
+            }
+        }
+    }
+
+    private fun DIV.insertExifInformation(curImageInformation: InternalImageInformation, dateTimeFormatter: DateTimeFormatter) {
+        div("card") {
+            h4("card-title") {
+                text("Exif Informationen")
+            }
+            div("card-body") {
+                div("card-text") {
+                    div("container") {
+                        curImageInformation.exifInformation.forEach { (type, value) ->
+                            div("row justify-content-between") {
+                                div("col-3 align-self-center") {
+                                    text("${type.displayName}:")
                                 }
-                                div("card-body") {
-                                    div("card-text") {
-                                        div("container") {
-                                            curImageInformation.exifInformation.forEach { (type, value) ->
-                                                div("row justify-content-between") {
-                                                    div("col-3 align-self-center") {
-                                                        text("${type.displayName}:")
-                                                    }
-                                                    div("col-9 align-self-center") {
-                                                        when (type) {
-                                                            ExifdataKey.CREATION_TIME -> text(
-                                                                    ZonedDateTime.parse(value).format(
-                                                                            dateTimeFormatter
-                                                                    )
-                                                            )
-                                                            else -> text(value)
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
+                                div("col-9 align-self-center") {
+                                    when (type) {
+                                        ExifdataKey.CREATION_TIME -> text(
+                                                ZonedDateTime.parse(value).format(
+                                                        dateTimeFormatter
+                                                )
+                                        )
+                                        else -> text(value)
                                     }
                                 }
                             }
                         }
-                )
+                    }
+                }
             }
         }
     }
@@ -296,12 +356,12 @@ class GalleryGenerator(
                         websiteConfiguration = configuration,
                         buildingCache = cache,
                         target = targetFile,
-                        title = categoryMetaInformation.complexName.simpleName,
+                        title = categoryMetaInformation.simpleName,
                         pageContent = {
                             h1("text-center") {
                                 text("Kategorie - ")
                                 i {
-                                    text(("\"${categoryMetaInformation.complexName.simpleName}\""))
+                                    text(("\"${categoryMetaInformation.simpleName}\""))
                                 }
                             }
 
@@ -311,7 +371,7 @@ class GalleryGenerator(
                                         .toOrderedByTimeArray(size)
                             }
 
-                            insertSubcategoryThumbnails(categoryMetaInformation.complexName)
+                            insertSubcategoryThumbnails(categoryMetaInformation.internalName)
 
                             insertImageGallery("1", *imageInformations)
                         }
@@ -340,7 +400,7 @@ class GalleryGenerator(
                             h1("text-center") {
                                 text("Tag - ")
                                 i {
-                                    text(("\"$tagName\""))
+                                    text(("\"${tagName.name}\""))
                                 }
                             }
 
@@ -378,7 +438,7 @@ fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?, generator: Gall
                                 computedCategoryThumbnails.getThumbnailImageInformation(it, generator)
                     }
                     .filterNotNull()
-                    .sortedBy { (categoryInformation, _) -> categoryInformation.complexName }
+                    .sortedBy { (categoryInformation, _) -> categoryInformation.name }
                     .forEach { (categoryName, imageInformation) ->
                         if (imageInformation != null)
                             insertSubcategoryThumbnail(
@@ -390,8 +450,9 @@ fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?, generator: Gall
 }
 
 internal fun Map<CategoryName, InternalImageInformation>.getThumbnailImageInformation(
-        category: CategoryName,
+        name: CategoryName,
         generator: GalleryGenerator
 ): InternalImageInformation? =
-        get(category) ?: generator.cache.imageInformationData[generator.cache.computedCategories[category]?.first()]
-        ?: throw IllegalStateException("Could not find thumbnail for \"$category\"!")
+        get(name)
+                ?: generator.cache.imageInformationData[generator.cache.computedCategories[name]?.first()]
+                ?: throw IllegalStateException("Could not find thumbnail for \"$name\"!")

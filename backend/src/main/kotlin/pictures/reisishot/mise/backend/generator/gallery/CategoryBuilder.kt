@@ -33,29 +33,33 @@ interface CategoryBuilder {
 }
 
 data class CategoryInformation(
-        val complexName: CategoryName,
+        val internalName: CategoryName,
         val urlFragment: String,
         val visible: Boolean = true
 ) {
+    val name
+        get() = internalName.complexName
+
+    val simpleName
+        get() = internalName.simpleName
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
         other as CategoryInformation
 
-        if (complexName != other.complexName) return false
+        if (this.name != other.name) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return complexName.hashCode()
+        return this.name.hashCode()
     }
 }
 
-fun CategoryConfig.toCategoryInfotmation(visible: Boolean = true) = CategoryInformation(name, name.toFriendlyPathName(), visible)
-
-val CategoryName.simpleName get() = substringAfterLast("/")
+fun CategoryConfig.toCategoryInfotmation(visible: Boolean = true) = CategoryInformation(CategoryName(name), name.toFriendlyPathName(), visible)
 
 class TagInformation(val name: String) : Comparator<TagInformation> {
     val url by lazy { name.toFriendlyPathName() }
@@ -80,8 +84,5 @@ class TagInformation(val name: String) : Comparator<TagInformation> {
     override fun toString(): String {
         return "TagName(name='$name')"
     }
-
-
 }
 typealias FilenameWithoutExtension = String
-typealias CategoryName = String

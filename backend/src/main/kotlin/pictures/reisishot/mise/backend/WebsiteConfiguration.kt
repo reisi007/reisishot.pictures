@@ -5,16 +5,18 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
 
-data class WebsiteConfiguration(
+class WebsiteConfiguration(
         val shortTitle: String,
         val longTitle: String,
-        val websiteLocation: String,
+        websiteLocation: String,
         val inPath: Path = Paths.get("./src/main/resources"),
         val tmpPath: Path = Paths.get("./src/main/resources/cache"),
         val outPath: Path = Paths.get("./generated"),
         val locale: Locale = Locale.getDefault(),
         val generators: List<WebsiteGenerator> = emptyList()
 ) {
+    val websiteLocation: String = websiteLocation.let { if (websiteLocation.endsWith("/")) it else "$it/" }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
