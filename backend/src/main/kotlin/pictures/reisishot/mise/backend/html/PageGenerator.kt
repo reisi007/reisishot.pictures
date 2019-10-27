@@ -46,6 +46,7 @@ object PageGenerator {
                             appCss()
 
                             polyfills()
+                            googleAnalytics()
                             vendorJs()
                             appJs()
 
@@ -174,6 +175,11 @@ object PageGenerator {
     @HtmlTagMarker
     private fun HEAD.polyfills() {
         script("https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver")
+    }
+
+    @HtmlTagMarker
+    private fun HEAD.googleAnalytics() = script(src = "https://www.googletagmanager.com/gtag/js?id=UA-120917271-1") {
+        attributes["async"] = ""
     }
 
     @HtmlTagMarker
