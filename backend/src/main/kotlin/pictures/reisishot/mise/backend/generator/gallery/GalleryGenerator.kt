@@ -186,26 +186,12 @@ class GalleryGenerator(
                     }
         }
 
-        categoryLevelMap.keys.forEach { level ->
-            val nextLevel = level + 1
-            categoryLevelMap.getValue(level).forEach { category ->
-                categoryLevelMap[nextLevel]?.let { possibleSubcategories ->
-                    possibleSubcategories.asSequence()
-                            .filter { possibleSubcategory ->
-                                possibleSubcategory.complexName.startsWith(
-                                        category.complexName,
-                                        true
-                                )
-                            }.filter { it.visible }
-                            .map { it.internalName }
-                            .toSet()
-                            .let { subcategories ->
-                                if (subcategories.isNotEmpty())
-                                    computedSubcategories.put(category.internalName, subcategories)
-                            }
+        categoryLevelMap.values.asSequence()
+                .flatMap { it.asSequence() }
+                .map { it.internalName to it.subcategoryComputator(categoryLevelMap) }
+                .forEach { (category, subcategories) ->
+                    computedSubcategories.put(category, subcategories)
                 }
-            }
-        }
 
         // Add first level subcategories
         categoryLevelMap[0]?.asSequence()
@@ -216,15 +202,6 @@ class GalleryGenerator(
                 ?.let { firstLevelCategories ->
                     computedSubcategories.put(CategoryName(""), firstLevelCategories)
                 }
-
-        categoryLevelMap.values.asSequence()
-                .flatMap { it.asSequence() }
-                .filter { it.subcategoryComputator != null }
-                .map { it.internalName to it.subcategoryComputator!!(categoryLevelMap) }
-                .forEach { (category, subcategories) ->
-                    computedSubcategories.put(category, subcategories)
-                }
-
     }
 
     private suspend fun generateWebpages(

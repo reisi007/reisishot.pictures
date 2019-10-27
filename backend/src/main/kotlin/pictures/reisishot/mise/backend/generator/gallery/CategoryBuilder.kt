@@ -36,7 +36,7 @@ data class CategoryInformation(
         val internalName: CategoryName,
         val urlFragment: String,
         val visible: Boolean = true,
-        val subcategoryComputator: SubcategoryComputator? = null
+        val subcategoryComputator: SubcategoryComputator
 ) {
     val complexName
         get() = internalName.complexName
@@ -60,7 +60,15 @@ data class CategoryInformation(
     }
 }
 
-fun CategoryConfig.toCategoryInfotmation(visible: Boolean = true) = CategoryInformation(CategoryName(name), name.toFriendlyPathName(), visible = visible)
+fun CategoryConfig.toCategoryInfotmation(visible: Boolean = true) = CategoryInformation(CategoryName(name), name.toFriendlyPathName(), visible) { levelMap ->
+    name.count { it == '/' }.plus(1).let { subcategoryLevel ->
+        (levelMap[subcategoryLevel]?.asSequence() ?: emptySequence())
+                .filter { it.complexName.startsWith(name) }
+                .map { it.internalName }
+                .toSet()
+    }
+
+}
 
 class TagInformation(val name: String) : Comparator<TagInformation> {
     val url by lazy { name.toFriendlyPathName() }

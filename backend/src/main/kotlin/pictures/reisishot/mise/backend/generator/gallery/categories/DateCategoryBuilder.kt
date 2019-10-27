@@ -6,8 +6,13 @@ import java.time.Month
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
 
+
 class DateCategoryBuilder(val rootCategoryName: String) : CategoryBuilder {
     override val builderName: String = "Reisishot Kalender Category Builder"
+
+    private enum class DateCategoryTypes {
+        ROOT, YEAR, MONTH, DAY;
+    }
 
     override suspend fun generateCategories(
             imageInformationRepository: ImageInformationRepository,
@@ -30,41 +35,37 @@ class DateCategoryBuilder(val rootCategoryName: String) : CategoryBuilder {
     private fun <A> Pair<A, DateCategoryData>.mapToCategory(websiteConfiguration: WebsiteConfiguration): Sequence<Pair<A, CategoryInformation>> {
         val tmp = mutableListOf<Pair<A, CategoryInformation>>()
 
-        for (i in 1..4) {
+        DateCategoryTypes.values().forEach {
             val internalName = CategoryName(
-                    complexName = second.computeComplexName(websiteConfiguration, i),
-                    displayName = second.computeDisplayName(websiteConfiguration, i)
+                    complexName = second.computeComplexName(websiteConfiguration, it),
+                    displayName = second.computeDisplayName(websiteConfiguration, it)
             )
             tmp += first to CategoryInformation(
                     internalName,
-                    internalName.complexName.substringAfter('/').toLowerCase(),
+                    internalName.complexName.toLowerCase(),
                     false,
-                    if (i == 1) chronologisch else getDateCategoryBuilder(internalName.complexName)
+                    if (it == DateCategoryTypes.ROOT) chronologisch else getDateCategoryBuilder(internalName.complexName)
             )
         }
         return tmp.asSequence()
     }
 
     data class DateCategoryData(val root: String, val year: String, val month: Month, val day: String);
-    private fun DateCategoryData.computeDisplayName(websiteConfiguration: WebsiteConfiguration, depth: Int): String = let {
-        when (depth) {
-            4 -> day + ". " + computeDisplayName(websiteConfiguration, 3)
-            3 -> month.toPrettyString(websiteConfiguration) + " " + computeDisplayName(websiteConfiguration, 2)
-            2 -> year
-            1 -> root
-            else -> throw IllegalStateException("Count ${depth} not expected!")
-        }
+    private fun DateCategoryData.computeDisplayName(websiteConfiguration: WebsiteConfiguration, depth: DateCategoryTypes): String = when (depth) {
+        DateCategoryTypes.DAY -> day.padStart(2, '0') + ". " + computeDisplayName(websiteConfiguration, DateCategoryTypes.MONTH)
+        DateCategoryTypes.MONTH -> month.toPrettyString(websiteConfiguration) + " " + computeDisplayName(websiteConfiguration, DateCategoryTypes.YEAR)
+        DateCategoryTypes.YEAR -> year
+        DateCategoryTypes.ROOT -> root
     }
 
-    private fun DateCategoryData.computeComplexName(websiteConfiguration: WebsiteConfiguration, depth: Int): ComplexName = let {
-        when (depth) {
-            4 -> computeComplexName(websiteConfiguration, 3) + "/" + day
-            3 -> computeComplexName(websiteConfiguration, 2) + "/" + month.value.toString().padStart(2, '0')
-            2 -> year
-            1 -> root
-            else -> throw IllegalStateException("Count ${depth} not expected!")
-        }
+
+    private fun DateCategoryData.computeComplexName(websiteConfiguration: WebsiteConfiguration, depth: DateCategoryTypes): ComplexName = when (depth) {
+        DateCategoryTypes.DAY -> computeComplexName(websiteConfiguration, DateCategoryTypes.MONTH) + "/" + day.padStart(2, '0')
+        DateCategoryTypes.MONTH -> computeComplexName(websiteConfiguration, DateCategoryTypes.YEAR) + "/" + month.value.toString().padStart(2, '0')
+        DateCategoryTypes.YEAR -> year
+        DateCategoryTypes.ROOT -> root
     }
+
 
     private fun Month.toPrettyString(websiteConfiguration: WebsiteConfiguration) = getDisplayName(TextStyle.FULL, websiteConfiguration.locale)
 
