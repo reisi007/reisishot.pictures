@@ -5,7 +5,6 @@ import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.MenuLinkContainerItem
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
-import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.Companion.NAME_IMAGE_SUBFOLDER
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.Companion.NAME_THUMBINFO_SUBFOLDER
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
@@ -161,11 +160,7 @@ class GalleryGenerator(
         val categoryLevelMap: MutableMap<Int, MutableSet<CategoryInformation>> = ConcurrentHashMap()
         cache.clearMenuItems { LINKTYPE_CATEGORIES == it.id }
         cache.resetLinkcacheFor(LINKTYPE_CATEGORIES)
-        val chroncicalCategoryName = categoryBuilders.asSequence()
-                .map { it as? DateCategoryBuilder }
-                .filterNotNull()
-                .map { it.rootCategoryName }
-                .firstOrNull()
+
         categoryBuilders.forEach { categoryBuilder ->
             categoryBuilder.generateCategories(this@GalleryGenerator, websiteConfiguration)
                     .forEach { (filename, categoryInformation) ->
@@ -175,10 +170,10 @@ class GalleryGenerator(
                             }
                             computedCategories.computeIfAbsent(categoryInformation.internalName) {
                                 val link = "gallery/categories/${categoryInformation.urlFragment}"
-                                cache.addLinkcacheEntryFor(LINKTYPE_CATEGORIES, categoryInformation.name, link)
+                                cache.addLinkcacheEntryFor(LINKTYPE_CATEGORIES, categoryInformation.complexName, link)
                                 if (categoryInformation.visible) {
                                     cache.addMenuItemInContainer(
-                                            LINKTYPE_CATEGORIES, "Kategorien", 200, categoryInformation.simpleName,
+                                            LINKTYPE_CATEGORIES, "Kategorien", 200, categoryInformation.displayName,
                                             link, menuIemComperator
                                     )
                                 }
@@ -197,8 +192,8 @@ class GalleryGenerator(
                 categoryLevelMap[nextLevel]?.let { possibleSubcategories ->
                     possibleSubcategories.asSequence()
                             .filter { possibleSubcategory ->
-                                possibleSubcategory.name.startsWith(
-                                        category.name,
+                                possibleSubcategory.complexName.startsWith(
+                                        category.complexName,
                                         true
                                 )
                             }.filter { it.visible }
@@ -221,18 +216,15 @@ class GalleryGenerator(
                 ?.let { firstLevelCategories ->
                     computedSubcategories.put(CategoryName(""), firstLevelCategories)
                 }
-        // Add Chronological behaviour
-        categoryLevelMap[0]?.asSequence()
-                ?.map { it.internalName }
-                ?.filter { it.complexName.isBlank() }
-                ?.toSet()
-                ?.let { blankComplexNames ->
-                    val years = categoryLevelMap[0]?.asSequence()
-                            ?.map { it.internalName }
-                            ?.filter { it.complexName.toIntOrNull() != null }
-                            ?.toSet() ?: emptySet()
-                    blankComplexNames.forEach { computedSubcategories.put(it, years) }
+
+        categoryLevelMap.values.asSequence()
+                .flatMap { it.asSequence() }
+                .filter { it.subcategoryComputator != null }
+                .map { it.internalName to it.subcategoryComputator!!(categoryLevelMap) }
+                .forEach { (category, subcategories) ->
+                    computedSubcategories.put(category, subcategories)
                 }
+
     }
 
     private suspend fun generateWebpages(
@@ -294,7 +286,7 @@ class GalleryGenerator(
             }
             div("card-body btn-flex") {
                 curImageInformation.categories.forEach { category ->
-                    smallButtonLink(category.simpleName, configuration.websiteLocation + cache.getLinkcacheEntryFor(LINKTYPE_CATEGORIES, category.name))
+                    smallButtonLink(category.displayName, configuration.websiteLocation + cache.getLinkcacheEntryFor(LINKTYPE_CATEGORIES, category.complexName))
                 }
             }
         }
@@ -356,12 +348,12 @@ class GalleryGenerator(
                         websiteConfiguration = configuration,
                         buildingCache = cache,
                         target = targetFile,
-                        title = categoryMetaInformation.simpleName,
+                        title = categoryMetaInformation.displayName,
                         pageContent = {
                             h1("text-center") {
                                 text("Kategorie - ")
                                 i {
-                                    text(("\"${categoryMetaInformation.simpleName}\""))
+                                    text(("\"${categoryMetaInformation.displayName}\""))
                                 }
                             }
 
@@ -438,7 +430,7 @@ fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?, generator: Gall
                                 computedCategoryThumbnails.getThumbnailImageInformation(it, generator)
                     }
                     .filterNotNull()
-                    .sortedBy { (categoryInformation, _) -> categoryInformation.name }
+                    .sortedBy { (categoryInformation, _) -> categoryInformation.complexName }
                     .forEach { (categoryName, imageInformation) ->
                         if (imageInformation != null)
                             insertSubcategoryThumbnail(

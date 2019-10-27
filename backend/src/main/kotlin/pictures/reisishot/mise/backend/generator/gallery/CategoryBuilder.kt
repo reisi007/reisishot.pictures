@@ -35,13 +35,14 @@ interface CategoryBuilder {
 data class CategoryInformation(
         val internalName: CategoryName,
         val urlFragment: String,
-        val visible: Boolean = true
+        val visible: Boolean = true,
+        val subcategoryComputator: SubcategoryComputator? = null
 ) {
-    val name
+    val complexName
         get() = internalName.complexName
 
-    val simpleName
-        get() = internalName.simpleName
+    val displayName
+        get() = internalName.displayName
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -49,17 +50,17 @@ data class CategoryInformation(
 
         other as CategoryInformation
 
-        if (this.name != other.name) return false
+        if (this.complexName != other.complexName) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return this.name.hashCode()
+        return this.complexName.hashCode()
     }
 }
 
-fun CategoryConfig.toCategoryInfotmation(visible: Boolean = true) = CategoryInformation(CategoryName(name), name.toFriendlyPathName(), visible)
+fun CategoryConfig.toCategoryInfotmation(visible: Boolean = true) = CategoryInformation(CategoryName(name), name.toFriendlyPathName(), visible = visible)
 
 class TagInformation(val name: String) : Comparator<TagInformation> {
     val url by lazy { name.toFriendlyPathName() }
@@ -85,4 +86,6 @@ class TagInformation(val name: String) : Comparator<TagInformation> {
         return "TagName(name='$name')"
     }
 }
+
 typealias FilenameWithoutExtension = String
+typealias SubcategoryComputator = (Map<Int, Set<CategoryInformation>>) -> Set<CategoryName>

@@ -81,7 +81,7 @@ internal fun HtmlBlockTag.insertSubcategoryThumbnail(
             insertLazyPicture(imageInformation, listOf("card-img-top"))
             div("card-body") {
                 h4("card-title") {
-                    text(categoryInformation.simpleName)
+                    text(categoryInformation.displayName)
                 }
             }
         }
