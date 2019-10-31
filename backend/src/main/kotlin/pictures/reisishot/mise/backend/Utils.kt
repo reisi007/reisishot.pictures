@@ -15,9 +15,7 @@ import pictures.reisishot.mise.backend.generator.gallery.ExifdataKey
 import pictures.reisishot.mise.backend.generator.gallery.FilenameWithoutExtension
 import java.awt.image.BufferedImage
 import java.io.BufferedReader
-import java.io.InputStream
 import java.nio.file.Files
-import java.nio.file.OpenOption
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.time.ZoneId
@@ -29,25 +27,32 @@ suspend fun <E> Iterable<E>.forEachLimitedParallel(
         maxThreadCount: Int, callable: suspend (E) -> Unit
 ) = forEachParallel(
         newFixedThreadPoolContext(
-                Math.min(maxThreadCount, 2 * Runtime.getRuntime().availableProcessors()),
+                Math.min(maxThreadCount, Runtime.getRuntime().availableProcessors()),
                 "Foreach"
         ), callable
 )
 
 suspend fun <E> Iterable<E>.forEachParallel(
         dispatcher: CoroutineDispatcher = newFixedThreadPoolContext(
-                2 * Runtime.getRuntime().availableProcessors(),
+                Runtime.getRuntime().availableProcessors(),
                 "Foreach"
         ), callable: suspend (E) -> Unit
 ) = coroutineScope {
     map { launch(dispatcher) { callable(it) } }
 }
 
+suspend fun <K : Comparable<K>, V> Map<K, Collection<V>>.forEachLimitedParallel(callable: suspend (V) -> Unit) = coroutineScope {
+    keys.forEach { priority ->
+        get(priority)?.let { generators ->
+            coroutineScope {
+                generators.forEachParallel { callable(it) }
+            }
+        } ?: throw IllegalStateException("No list found for priority $priority")
+    }
+}
+
 infix fun Path.withChild(fileOrFolder: String): Path = resolve(fileOrFolder)
 infix fun Path.withChild(fileOrFolder: Path): Path = resolve(fileOrFolder)
-
-fun <T> Path.useInputstream(vararg openOptions: OpenOption, callable: (InputStream) -> T): T =
-        Files.newInputStream(this, *openOptions).use(callable)
 
 fun <T> Path.useBufferedReader(callable: (BufferedReader) -> T): T =
         Files.newBufferedReader(this, Charsets.UTF_8).use(callable)

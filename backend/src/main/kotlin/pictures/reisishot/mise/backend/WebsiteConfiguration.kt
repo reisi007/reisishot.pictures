@@ -13,10 +13,10 @@ class WebsiteConfiguration(
         val tmpPath: Path = Paths.get("./src/main/resources/cache"),
         val outPath: Path = Paths.get("./generated"),
         val locale: Locale = Locale.getDefault(),
+        val cleanupGeneration: Boolean = false,
         val generators: List<WebsiteGenerator> = emptyList()
 ) {
     val websiteLocation: String = websiteLocation.let { if (websiteLocation.endsWith("/")) it else "$it/" }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -25,12 +25,13 @@ class WebsiteConfiguration(
 
         if (shortTitle != other.shortTitle) return false
         if (longTitle != other.longTitle) return false
-        if (websiteLocation != other.websiteLocation) return false
         if (inPath != other.inPath) return false
         if (tmpPath != other.tmpPath) return false
         if (outPath != other.outPath) return false
         if (locale != other.locale) return false
+        if (cleanupGeneration != other.cleanupGeneration) return false
         if (generators != other.generators) return false
+        if (websiteLocation != other.websiteLocation) return false
 
         return true
     }
@@ -38,12 +39,19 @@ class WebsiteConfiguration(
     override fun hashCode(): Int {
         var result = shortTitle.hashCode()
         result = 31 * result + longTitle.hashCode()
-        result = 31 * result + websiteLocation.hashCode()
         result = 31 * result + inPath.hashCode()
         result = 31 * result + tmpPath.hashCode()
         result = 31 * result + outPath.hashCode()
         result = 31 * result + locale.hashCode()
+        result = 31 * result + cleanupGeneration.hashCode()
         result = 31 * result + generators.hashCode()
+        result = 31 * result + websiteLocation.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "WebsiteConfiguration(shortTitle='$shortTitle', longTitle='$longTitle', inPath=$inPath, tmpPath=$tmpPath, outPath=$outPath, locale=$locale, cleanupGeneration=$cleanupGeneration, generators=$generators, websiteLocation='$websiteLocation')"
+    }
+
+
 }

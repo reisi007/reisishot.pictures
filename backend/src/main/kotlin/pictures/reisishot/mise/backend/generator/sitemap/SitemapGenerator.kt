@@ -22,8 +22,9 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
         // Nothing to do
     }
 
-    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changedFiles: ChangedFileset) {
+    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changedFiles: ChangedFileset): Boolean {
         // Nothing to do
+        return false
     }
 
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
@@ -51,12 +52,13 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
             .filterNotNull()
             .map { relativize(it) }
 
-    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changedFiles: ChangedFileset) {
+    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changedFiles: ChangedFileset): Boolean {
         val fixNoChange = changedFiles.all { (file, changeState) ->
-            file.hasExtension(*noChangedFileExtensions) && changeState.all(ChangeState.EDIT::equals)
+            file.hasExtension(*noChangedFileExtensions) && changeState.isStateEdited()
         }
         if (!fixNoChange)
             buildInitialArtifacts(configuration, cache)
+        return false
     }
 
     override suspend fun cleanup(configuration: WebsiteConfiguration, cache: BuildingCache) {

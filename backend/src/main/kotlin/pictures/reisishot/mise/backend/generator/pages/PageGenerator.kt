@@ -247,37 +247,39 @@ class PageGenerator : WebsiteGenerator {
             title
     )
 
-    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changedFiles: ChangedFileset) {
+    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changedFiles: ChangedFileset): Boolean {
         val relevantFiles = changedFiles.relevantFiles()
         withContext(Dispatchers.IO) {
             filesToProcess = computeFilesToProcess(relevantFiles, configuration, cache)
             cleanupOutDir(relevantFiles, configuration, cache)
         }
+
+        return relevantFiles.any { (_, changeState) -> !changeState.isStateEdited() }
     }
 
     private fun computeFilesToProcess(relevantFiles: Set<Map.Entry<Path, Set<ChangeState>>>, configuration: WebsiteConfiguration, cache: BuildingCache): List<PageGeneratorInfo> {
         return relevantFiles.asSequence()
-                .filter { (_, changeStates) -> !changeStates.contains(ChangeState.DELETE) }
-                .map { (file, _) -> file }
-                .distinct()
+                .filter { (_, changeStates) -> !changeStates.isStateDeleted() }
+                .map { (file, _) -> configuration.inPath.resolve(file) }
                 .map { it.computePageGeneratorInfo(configuration, cache) }
                 .toList()
     }
 
     private fun cleanupOutDir(relevantFiles: Set<Map.Entry<Path, Set<ChangeState>>>, configuration: WebsiteConfiguration, cache: BuildingCache) {
         relevantFiles.asSequence()
-                .filter { (_, changedStates) -> changedStates.contains(ChangeState.DELETE) }
+                .filter { (_, changedStates) -> changedStates.isStateDeleted() }
                 .forEach { (sourcePath, _) ->
                     cache.resetLinkcacheFor(LINKTYPE_PAGE)
                     sourcePath.computePageGeneratorInfo(configuration, cache).let { (_, targetPath, _) ->
-                        Files.list(targetPath.parent)
-                                .sorted(Comparator.reverseOrder())
-                                .forEach(Files::delete)
+                        targetPath.parent.toFile().deleteRecursively()
                     }
                 }
     }
 
-    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changedFiles: ChangedFileset) = buildInitialArtifacts(configuration, cache)
+    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changedFiles: ChangedFileset): Boolean {
+        buildInitialArtifacts(configuration, cache)
+        return false
+    }
 
     private fun ChangedFileset.relevantFiles() = asSequence()
             .filter { (file, _) -> file.hasExtension(FileExtension::isHtml, FileExtension::isMarkdown) }
@@ -285,11 +287,9 @@ class PageGenerator : WebsiteGenerator {
 
     override suspend fun cleanup(configuration: WebsiteConfiguration, cache: BuildingCache): Unit = withContext(Dispatchers.IO) {
         cache.getLinkcacheEntriesFor(LINKTYPE_PAGE).values.asSequence()
-                .map { configuration.outPath.resolve(it) }
+                .map { configuration.outPath.resolve("index.html") }
                 .forEach {
-                    Files.list(it)
-                            .sorted(Comparator.reverseOrder())
-                            .forEach(Files::delete)
+                    Files.deleteIfExists(it)
                 }
     }
 

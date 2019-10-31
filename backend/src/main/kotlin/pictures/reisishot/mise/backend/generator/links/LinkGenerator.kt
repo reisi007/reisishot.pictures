@@ -34,10 +34,12 @@ class LinkGenerator : WebsiteGenerator {
         }
     }
 
-    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changedFiles: ChangedFileset) {
+    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changedFiles: ChangedFileset): Boolean {
         val configFile = configuration.getConfigFile()
-        if (changedFiles.keys.any(configFile::equals))
+        if (changedFiles.keys.any(configFile::equals)) {
             fetchInitialInformation(configuration, cache, alreadyRunGenerators)
+            return true
+        } else return false
     }
 
     private fun WebsiteConfiguration.getConfigFile() =
@@ -47,8 +49,9 @@ class LinkGenerator : WebsiteGenerator {
         // No action needed
     }
 
-    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changedFiles: ChangedFileset) {
+    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changedFiles: ChangedFileset): Boolean {
         // No action needed
+        return false
     }
 
     override suspend fun cleanup(configuration: WebsiteConfiguration, cache: BuildingCache) {

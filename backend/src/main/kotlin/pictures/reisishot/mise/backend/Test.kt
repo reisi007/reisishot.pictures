@@ -22,8 +22,8 @@ object Test {
                         shortTitle = "Reisishot",
                         longTitle = "Reisishot - Fotograf Florian Reisinger",
                         websiteLocation = "http://localhost:3000",
-                        inPath = Paths.get("src/main/resources"),
-                        outPath = Paths.get("../frontend/generated"),
+                        inPath = Paths.get("src/main/resources").toAbsolutePath(),
+                        outPath = Paths.get("../frontend/generated").toAbsolutePath(),
                         generators = listOf(
                                 PageGenerator(),
                                 GalleryGenerator(

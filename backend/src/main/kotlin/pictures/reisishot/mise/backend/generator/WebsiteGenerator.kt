@@ -3,6 +3,8 @@ package pictures.reisishot.mise.backend.generator
 import pictures.reisishot.mise.backend.FileExtension
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.fileExtension
+import pictures.reisishot.mise.backend.generator.ChangeState.CREATE
+import pictures.reisishot.mise.backend.generator.ChangeState.DELETE
 import java.nio.file.Path
 
 interface WebsiteGenerator {
@@ -26,7 +28,7 @@ interface WebsiteGenerator {
             cache: BuildingCache,
             alreadyRunGenerators: List<WebsiteGenerator>,
             changedFiles: ChangedFileset
-    )
+    ): Boolean
 
     suspend fun buildInitialArtifacts(
             configuration: WebsiteConfiguration,
@@ -37,7 +39,7 @@ interface WebsiteGenerator {
             configuration: WebsiteConfiguration,
             cache: BuildingCache,
             changedFiles: ChangedFileset
-    )
+    ): Boolean
 
     suspend fun loadCache(
             configuration: WebsiteConfiguration,
@@ -73,6 +75,8 @@ fun FileExtension.isJson() = equals("json", true)
 
 fun FileExtension.isHtml() = equals("html", true) || equals("htm", true)
 
+fun FileExtension.isJetbrainsTemp() = contains("__jb_")
+
 fun Path.hasExtension(vararg predicates: (FileExtension) -> Boolean) = fileExtension.isAny(*predicates)
 
 fun FileExtension.isAny(vararg predicates: (FileExtension) -> Boolean) = predicates.any { it(this) }
@@ -84,5 +88,9 @@ enum class ChangeState {
 typealias ChangedFileset = Map<Path, Set<ChangeState>>
 
 fun ChangedFileset.hasDeletions(vararg predicates: (FileExtension) -> Boolean) = asSequence()
-        .filter { (_, changedState) -> changedState.contains(ChangeState.DELETE) }
+        .filter { (_, changedStates) -> changedStates.isStateDeleted() }
         .any { (file, _) -> file.hasExtension(*predicates) }
+
+fun Set<ChangeState>.isStateEdited() = (contains(DELETE) && contains(CREATE)) || contains(ChangeState.EDIT)
+
+fun Set<ChangeState>.isStateDeleted() = contains(DELETE) && !contains(CREATE)

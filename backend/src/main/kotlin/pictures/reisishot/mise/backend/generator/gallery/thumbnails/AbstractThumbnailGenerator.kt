@@ -58,16 +58,20 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
     }
 
-    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changedFiles: ChangedFileset) {
+    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changedFiles: ChangedFileset): Boolean {
         if (changedFiles.hasRelevantDeletions())
             cleanup(configuration, cache)
-        if (changedFiles.hasRelevantChanges())
+        if (changedFiles.hasRelevantChanges()) {
             fetchInitialInformation(configuration, cache, alreadyRunGenerators)
+            return true
+        } else return false
     }
 
-    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changedFiles: ChangedFileset) {
-        if (changedFiles.hasRelevantChanges())
+    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changedFiles: ChangedFileset): Boolean {
+        if (changedFiles.hasRelevantChanges()) {
             buildInitialArtifacts(configuration, cache)
+            return true
+        } else return false
     }
 
     private fun ChangedFileset.hasRelevantChanges() = keys.asSequence().any { it.hasExtension(FileExtension::isJpeg) }
@@ -80,7 +84,7 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
                     .collect(Collectors.toSet())
 
             Files.list(configuration.tmpPath.withChild(NAME_THUMBINFO_SUBFOLDER))
-                    .filter { !existingFiles.contains(it.filenameWithoutExtension) }
+                    .filter { !existingFiles.contains(it.filenameWithoutExtension.substringBeforeLast('.')) }
                     .forEach(Files::delete)
 
             Files.list(configuration.outPath.withChild(NAME_IMAGE_SUBFOLDER))
@@ -89,5 +93,5 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
         }
     }
 
-    protected open fun computeOriginalFilename(generatedFilename: FilenameWithoutExtension): FilenameWithoutExtension = generatedFilename.substringBeforeLast('/')
+    protected open fun computeOriginalFilename(generatedFilename: FilenameWithoutExtension): FilenameWithoutExtension = generatedFilename.substringBeforeLast('_')
 }

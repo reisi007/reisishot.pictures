@@ -21,9 +21,9 @@ object Production {
                         shortTitle = "Reisishot",
                         longTitle = "Reisishot - Fotograf Florian Reisinger",
                         websiteLocation = "https://reisishot.pictures",
-                        inPath = Paths.get("input"),
-                        tmpPath = Paths.get("tmp"),
-                        outPath = Paths.get("frontend/generated"),
+                        inPath = Paths.get("input").toAbsolutePath(),
+                        tmpPath = Paths.get("tmp").toAbsolutePath(),
+                        outPath = Paths.get("frontend/generated").toAbsolutePath(),
                         generators = listOf(
                                 PageGenerator(),
                                 GalleryGenerator(

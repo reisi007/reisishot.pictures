@@ -13,7 +13,6 @@ import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertImageGallery
 import pictures.reisishot.mise.backend.html.insertSubcategoryThumbnail
 import pictures.reisishot.mise.backend.html.smallButtonLink
-import java.nio.file.Files
 import java.nio.file.Path
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -245,16 +244,19 @@ class GalleryGenerator(
         }
     }
 
-    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changedFiles: ChangedFileset) {
+    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changedFiles: ChangedFileset): Boolean {
         if (changedFiles.hasRelevantChanges()) {
             cleanup(configuration, cache)
             fetchInitialInformation(configuration, cache, alreadyRunGenerators)
-        }
+            return true
+        } else return false
     }
 
-    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changedFiles: ChangedFileset) {
-        if (changedFiles.hasRelevantChanges())
+    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changedFiles: ChangedFileset): Boolean {
+        if (changedFiles.hasRelevantChanges()) {
             buildInitialArtifacts(configuration, cache)
+            return true
+        } else return false
     }
 
     private fun ChangedFileset.hasRelevantChanges() =
@@ -263,9 +265,9 @@ class GalleryGenerator(
 
     override suspend fun cleanup(configuration: WebsiteConfiguration, cache: BuildingCache): Unit {
         withContext(Dispatchers.IO) {
-            Files.list(configuration.outPath.resolve(SUBFOLDER_OUT))
-                    .sorted(Comparator.reverseOrder())
-                    .forEach(Files::delete)
+            configuration.outPath.resolve(SUBFOLDER_OUT)
+                    .toFile()
+                    .deleteRecursively()
         }
     }
 
@@ -416,10 +418,10 @@ class GalleryGenerator(
         categoryBuilders.forEach { it.setup(configuration, cache) }
     }
 
-    override suspend fun saveCache(configuration: WebsiteConfiguration, buildingCache: BuildingCache) {
-        super.saveCache(configuration, buildingCache)
-        cache.toXml(cachePath)
-        categoryBuilders.forEach { it.teardown(configuration, buildingCache) }
+    override suspend fun saveCache(configuration: WebsiteConfiguration, cache: BuildingCache) {
+        super.saveCache(configuration, cache)
+        this.cache.toXml(cachePath)
+        categoryBuilders.forEach { it.teardown(configuration, cache) }
     }
 }
 
