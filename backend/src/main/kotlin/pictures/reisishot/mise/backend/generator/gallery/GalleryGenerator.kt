@@ -1,10 +1,10 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.*
-import pictures.reisishot.mise.backend.generator.BuildingCache
-import pictures.reisishot.mise.backend.generator.MenuLinkContainerItem
-import pictures.reisishot.mise.backend.generator.WebsiteGenerator
+import pictures.reisishot.mise.backend.generator.*
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.Companion.NAME_IMAGE_SUBFOLDER
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.Companion.NAME_THUMBINFO_SUBFOLDER
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
@@ -13,6 +13,7 @@ import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertImageGallery
 import pictures.reisishot.mise.backend.html.insertSubcategoryThumbnail
 import pictures.reisishot.mise.backend.html.smallButtonLink
+import java.nio.file.Files
 import java.nio.file.Path
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -25,10 +26,10 @@ class GalleryGenerator(
         private val exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }
 ) : WebsiteGenerator, ImageInformationRepository {
 
-
     companion object {
         const val LINKTYPE_TAGS = "TAGS"
         const val LINKTYPE_CATEGORIES = "CATEGORIES"
+        const val SUBFOLDER_OUT = "gallery/images"
     }
 
     override val generatorName: String = "Reisishot Gallery"
@@ -57,13 +58,13 @@ class GalleryGenerator(
     override val computedTags: Map<TagInformation, Set<ImageInformation>> = cache.computedTags
 
 
-    override suspend fun fetchInformation(
+    override suspend fun fetchInitialInformation(
             configuration: WebsiteConfiguration,
             cache: BuildingCache,
             alreadyRunGenerators: List<WebsiteGenerator>
     ) = buildCache(configuration, cache)
 
-    override suspend fun buildArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) =
+    override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) =
             generateWebpages(configuration, cache)
 
 
@@ -92,7 +93,7 @@ class GalleryGenerator(
 
     // TODO Write cache files and use them instead of computing...
     private suspend fun buildImageInformation(configuration: WebsiteConfiguration) {
-        (configuration.inPath withChild NAME_IMAGE_SUBFOLDER).list().filter { it.isJpeg }
+        (configuration.inPath withChild NAME_IMAGE_SUBFOLDER).list().filter { it.fileExtension.isJpeg() }
                 .asIterable()
                 .forEachLimitedParallel(20) { jpegPath ->
                     val filenameWithoutExtension = jpegPath.filenameWithoutExtension
@@ -213,6 +214,7 @@ class GalleryGenerator(
         generateTagPages(configuration, cache)
     }
 
+
     private suspend fun generateImagePages(
             configuration: WebsiteConfiguration,
             cache: BuildingCache
@@ -240,6 +242,30 @@ class GalleryGenerator(
                         }
                 )
             }
+        }
+    }
+
+    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changedFiles: ChangedFileset) {
+        if (changedFiles.hasRelevantChanges()) {
+            cleanup(configuration, cache)
+            fetchInitialInformation(configuration, cache, alreadyRunGenerators)
+        }
+    }
+
+    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changedFiles: ChangedFileset) {
+        if (changedFiles.hasRelevantChanges())
+            buildInitialArtifacts(configuration, cache)
+    }
+
+    private fun ChangedFileset.hasRelevantChanges() =
+            keys.asSequence()
+                    .any { it.hasExtension(FileExtension::isConf) }
+
+    override suspend fun cleanup(configuration: WebsiteConfiguration, cache: BuildingCache): Unit {
+        withContext(Dispatchers.IO) {
+            Files.list(configuration.outPath.resolve(SUBFOLDER_OUT))
+                    .sorted(Comparator.reverseOrder())
+                    .forEach(Files::delete)
         }
     }
 

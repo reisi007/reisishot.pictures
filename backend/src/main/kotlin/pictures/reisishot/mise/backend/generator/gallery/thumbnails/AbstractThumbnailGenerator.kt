@@ -1,11 +1,16 @@
 package pictures.reisishot.mise.backend.generator.gallery.thumbnails
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import pictures.reisishot.mise.backend.FileExtension
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.filenameWithoutExtension
-import pictures.reisishot.mise.backend.generator.BuildingCache
-import pictures.reisishot.mise.backend.generator.WebsiteGenerator
+import pictures.reisishot.mise.backend.generator.*
+import pictures.reisishot.mise.backend.generator.gallery.FilenameWithoutExtension
 import pictures.reisishot.mise.backend.withChild
+import java.nio.file.Files
 import java.nio.file.Path
+import java.util.stream.Collectors
 
 abstract class AbstractThumbnailGenerator(protected val forceRegeneration: ForceRegeneration) : WebsiteGenerator {
 
@@ -50,6 +55,39 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
 
     data class ForceRegeneration(val thumbnails: Boolean = false)
 
-    override suspend fun buildArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
+    override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
     }
+
+    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changedFiles: ChangedFileset) {
+        if (changedFiles.hasRelevantDeletions())
+            cleanup(configuration, cache)
+        if (changedFiles.hasRelevantChanges())
+            fetchInitialInformation(configuration, cache, alreadyRunGenerators)
+    }
+
+    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changedFiles: ChangedFileset) {
+        if (changedFiles.hasRelevantChanges())
+            buildInitialArtifacts(configuration, cache)
+    }
+
+    private fun ChangedFileset.hasRelevantChanges() = keys.asSequence().any { it.hasExtension(FileExtension::isJpeg) }
+    private fun ChangedFileset.hasRelevantDeletions() = hasDeletions(FileExtension::isJpeg)
+
+    override suspend fun cleanup(configuration: WebsiteConfiguration, cache: BuildingCache) {
+        withContext(Dispatchers.IO) {
+            val existingFiles: Set<FilenameWithoutExtension> = Files.list(configuration.inPath.resolve(NAME_IMAGE_SUBFOLDER))
+                    .map { it.filenameWithoutExtension }
+                    .collect(Collectors.toSet())
+
+            Files.list(configuration.tmpPath.withChild(NAME_THUMBINFO_SUBFOLDER))
+                    .filter { !existingFiles.contains(it.filenameWithoutExtension) }
+                    .forEach(Files::delete)
+
+            Files.list(configuration.outPath.withChild(NAME_IMAGE_SUBFOLDER))
+                    .filter { !existingFiles.contains(computeOriginalFilename(it.filenameWithoutExtension)) }
+                    .forEach(Files::delete)
+        }
+    }
+
+    protected open fun computeOriginalFilename(generatedFilename: FilenameWithoutExtension): FilenameWithoutExtension = generatedFilename.substringBeforeLast('/')
 }

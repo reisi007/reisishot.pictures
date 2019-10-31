@@ -7,7 +7,6 @@ import pictures.reisishot.mise.backend.fromXml
 import pictures.reisishot.mise.backend.toXml
 import pictures.reisishot.mise.backend.withChild
 import java.nio.file.Path
-import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.Comparator
@@ -24,8 +23,6 @@ class BuildingCache {
 
     val menuLinks: Collection<MenuLink> get() = Collections.synchronizedCollection(internalMenuLinks)
 
-    private val dateTimeFormatter = DateTimeFormatter.ISO_ZONED_DATE_TIME
-
     fun resetLinkcacheFor(linkType: String) = linkCache.computeIfAbsent(linkType) { ConcurrentHashMap() }.clear()
 
 
@@ -35,6 +32,8 @@ class BuildingCache {
 
     fun getLinkcacheEntryFor(linkType: String, linkKey: String): Link = linkCache[linkType]?.get(linkKey)
             ?: throw IllegalStateException("Menu link with type $linkType and key $linkKey not found!")
+
+    fun getLinkcacheEntriesFor(linkType: String): Map<String, Link> = linkCache[linkType] ?: emptyMap()
 
     fun clearMenuItems(removePredicate: (MenuLink) -> Boolean) = synchronized(internalMenuLinks) {
         internalMenuLinks.removeIf(removePredicate)

@@ -69,7 +69,7 @@ object Mise {
                 )
                 runBlocking {
                     generators.forEachLimitedParallel(generators.size) { generator ->
-                        generator.fetchInformation(this@execute, buildingCache, runGenerators)
+                        generator.fetchInitialInformation(this@execute, buildingCache, runGenerators)
                     }
                 }
                 runGenerators += generators
@@ -92,7 +92,7 @@ object Mise {
                 )
                 runBlocking {
                     generators.forEachLimitedParallel(generators.size) { generator ->
-                        generator.buildArtifacts(this@execute, buildingCache)
+                        generator.buildInitialArtifacts(this@execute, buildingCache)
                     }
                 }
                 runGenerators += generators

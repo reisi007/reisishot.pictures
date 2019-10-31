@@ -1,20 +1,20 @@
 package pictures.reisishot.mise.backend.generator.sitemap
 
+import pictures.reisishot.mise.backend.FileExtension
 import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.generator.BuildingCache
-import pictures.reisishot.mise.backend.generator.WebsiteGenerator
+import pictures.reisishot.mise.backend.generator.*
 import java.io.PrintWriter
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.streams.asSequence
 
-class SitemapGenerator() : WebsiteGenerator {
-    override val generatorName: String = "Sitemap Generator"
+class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtension) -> Boolean) : WebsiteGenerator {
 
+    override val generatorName: String = "Sitemap Generator"
 
     override val executionPriority: Int = 100_000
 
-    override suspend fun fetchInformation(
+    override suspend fun fetchInitialInformation(
             configuration: WebsiteConfiguration,
             cache: BuildingCache,
             alreadyRunGenerators: List<WebsiteGenerator>
@@ -22,7 +22,11 @@ class SitemapGenerator() : WebsiteGenerator {
         // Nothing to do
     }
 
-    override suspend fun buildArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
+    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changedFiles: ChangedFileset) {
+        // Nothing to do
+    }
+
+    override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
         PrintWriter(configuration.outPath.resolve("sitemap.xml").toFile(), Charsets.UTF_8.toString()).use {
             it.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
             it.println("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">")
@@ -46,4 +50,16 @@ class SitemapGenerator() : WebsiteGenerator {
             .map { it.parent }
             .filterNotNull()
             .map { relativize(it) }
+
+    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changedFiles: ChangedFileset) {
+        val fixNoChange = changedFiles.all { (file, changeState) ->
+            file.hasExtension(*noChangedFileExtensions) && changeState.all(ChangeState.EDIT::equals)
+        }
+        if (!fixNoChange)
+            buildInitialArtifacts(configuration, cache)
+    }
+
+    override suspend fun cleanup(configuration: WebsiteConfiguration, cache: BuildingCache) {
+        // Nothing to do
+    }
 }

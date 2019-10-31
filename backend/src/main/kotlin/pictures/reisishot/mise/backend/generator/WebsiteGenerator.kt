@@ -1,6 +1,8 @@
 package pictures.reisishot.mise.backend.generator
 
+import pictures.reisishot.mise.backend.FileExtension
 import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.fileExtension
 import java.nio.file.Path
 
 interface WebsiteGenerator {
@@ -13,15 +15,28 @@ interface WebsiteGenerator {
     val generatorName: String
 
 
-    suspend fun fetchInformation(
+    suspend fun fetchInitialInformation(
             configuration: WebsiteConfiguration,
             cache: BuildingCache,
             alreadyRunGenerators: List<WebsiteGenerator>
     )
 
-    suspend fun buildArtifacts(
+    suspend fun fetchUpdateInformation(
+            configuration: WebsiteConfiguration,
+            cache: BuildingCache,
+            alreadyRunGenerators: List<WebsiteGenerator>,
+            changedFiles: ChangedFileset
+    )
+
+    suspend fun buildInitialArtifacts(
             configuration: WebsiteConfiguration,
             cache: BuildingCache
+    )
+
+    suspend fun buildUpdateArtifacts(
+            configuration: WebsiteConfiguration,
+            cache: BuildingCache,
+            changedFiles: ChangedFileset
     )
 
     suspend fun loadCache(
@@ -38,21 +53,36 @@ interface WebsiteGenerator {
         println("Save cache")
     }
 
+    suspend fun cleanup(
+            configuration: WebsiteConfiguration,
+            cache: BuildingCache
+    )
+
     fun println(a: Any?) {
         kotlin.io.println("[GENERATOR] [$generatorName] $a")
     }
-
-    val Path.isJpeg
-        get() = toString().let { filename ->
-            filename.endsWith("jpg", true) || filename.endsWith("jpeg", true)
-        }
-
-    val Path.isMarkdown
-        get() = toString().endsWith("md", true)
-
-    val Path.isConf
-        get() = toString().endsWith("conf", true)
-
-    val Path.isJson
-        get() = toString().endsWith("json", true)
 }
+
+fun FileExtension.isJpeg() = equals("jpg", true) || equals("jpeg", true)
+
+fun FileExtension.isMarkdown() = equals("md", true)
+
+fun FileExtension.isConf() = equals("conf", true)
+
+fun FileExtension.isJson() = equals("json", true)
+
+fun FileExtension.isHtml() = equals("html", true) || equals("htm", true)
+
+fun Path.hasExtension(vararg predicates: (FileExtension) -> Boolean) = fileExtension.isAny(*predicates)
+
+fun FileExtension.isAny(vararg predicates: (FileExtension) -> Boolean) = predicates.any { it(this) }
+
+enum class ChangeState {
+    CREATE, EDIT, DELETE
+}
+
+typealias ChangedFileset = Map<Path, Set<ChangeState>>
+
+fun ChangedFileset.hasDeletions(vararg predicates: (FileExtension) -> Boolean) = asSequence()
+        .filter { (_, changedState) -> changedState.contains(ChangeState.DELETE) }
+        .any { (file, _) -> file.hasExtension(*predicates) }

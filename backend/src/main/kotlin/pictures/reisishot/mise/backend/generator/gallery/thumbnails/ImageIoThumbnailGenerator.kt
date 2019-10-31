@@ -7,6 +7,7 @@ import net.coobird.thumbnailator.Thumbnails
 import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
+import pictures.reisishot.mise.backend.generator.isJpeg
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 import javax.imageio.IIOImage
@@ -18,7 +19,7 @@ class ImageIoThumbnailGenerator(forceRegeneration: ForceRegeneration = ForceRege
 
     override val generatorName: String = "Reisishot ImageIO JPG"
 
-    override suspend fun fetchInformation(
+    override suspend fun fetchInitialInformation(
             configuration: WebsiteConfiguration,
             cache: BuildingCache,
             alreadyRunGenerators: List<WebsiteGenerator>
@@ -28,7 +29,7 @@ class ImageIoThumbnailGenerator(forceRegeneration: ForceRegeneration = ForceRege
             Files.createDirectories(outPath)
         }
         ImageSize.values().let { imageSizes ->
-            configuration.inPath.withChild(NAME_IMAGE_SUBFOLDER).list().filter { it.isJpeg }.asIterable()
+            configuration.inPath.withChild(NAME_IMAGE_SUBFOLDER).list().filter { it.fileExtension.isJpeg() }.asIterable()
                     .forEachLimitedParallel(4) { inFile ->
                         val baseOutFile = outPath withChild inFile.fileName
                         val thumbnailInfoPath =

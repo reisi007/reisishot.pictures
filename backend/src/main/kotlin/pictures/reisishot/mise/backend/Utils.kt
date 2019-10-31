@@ -108,7 +108,7 @@ internal val String.filenameWithoutExtension: FilenameWithoutExtension
     get() = substring(0, lastIndexOf('.'))
 
 
-val Path.filenameExtension: String
+val Path.fileExtension: FileExtension
     get() = with(fileName.toString()) {
         substring(lastIndexOf('.') + 1)
     }
@@ -169,3 +169,5 @@ private val whiteSpace = """\s""".toRegex()
 internal fun String.toFriendlyPathName(): String {
     return replace(whiteSpace, "-").toLowerCase()
 }
+
+typealias FileExtension = String

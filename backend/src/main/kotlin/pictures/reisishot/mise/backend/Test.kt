@@ -6,12 +6,14 @@ import pictures.reisishot.mise.backend.generator.gallery.categories.Configurable
 import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ForceRegeneration
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
+import pictures.reisishot.mise.backend.generator.isHtml
+import pictures.reisishot.mise.backend.generator.isMarkdown
 import pictures.reisishot.mise.backend.generator.links.LinkGenerator
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
 import java.nio.file.Paths
 
-object MyWebsite {
+object Test {
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -45,7 +47,7 @@ object MyWebsite {
                                         )
                                 ),
                                 LinkGenerator(),
-                                SitemapGenerator()
+                                SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
                         )
                 )
         )

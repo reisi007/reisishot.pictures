@@ -8,6 +8,7 @@ import kotlinx.coroutines.withContext
 import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
+import pictures.reisishot.mise.backend.generator.isJpeg
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -15,9 +16,9 @@ open class ImageMagickThumbnailGenerator(forceRegeneration: ForceRegeneration = 
     override val generatorName: String = "Image Magick Thumbnail"
 
 
-    override suspend fun fetchInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>) {
+    override suspend fun fetchInitialInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>) {
         newFixedThreadPoolContext(4, "Convert").use { preparation ->
-            configuration.inPath.withChild(NAME_IMAGE_SUBFOLDER).list().filter { it.isRegularFile() && it.isJpeg }.asSequence().asIterable().forEachParallel(preparation) { jpegImage ->
+            configuration.inPath.withChild(NAME_IMAGE_SUBFOLDER).list().filter { it.fileExtension.isJpeg() }.asSequence().asIterable().forEachParallel(preparation) { jpegImage ->
                 val thumbnailInfoPath =
                         configuration.tmpPath withChild NAME_THUMBINFO_SUBFOLDER withChild "${configuration.inPath.resolve(jpegImage).filenameWithoutExtension}.cache.xml"
                 if (!(thumbnailInfoPath.exists() && thumbnailInfoPath.isNewerThan(jpegImage))) {
