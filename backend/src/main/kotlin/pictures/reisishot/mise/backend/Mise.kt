@@ -88,17 +88,15 @@ object Mise {
         val coroutineDispatcher = newFixedThreadPoolContext(
                 Runtime.getRuntime().availableProcessors(), "Incremental pool"
         )
-        while (true) {
-            delay(3000)
+        while (interactiveDelayMs != null) {
+            delay(interactiveDelayMs)
             watchKey.processEvents(this, cache, generators, coroutineDispatcher)
         }
     }
 
 
     private suspend fun WatchKey.processEvents(configuration: WebsiteConfiguration, cache: BuildingCache, generatorMap: Map<Int, List<WebsiteGenerator>>, coroutineDispatcher: CoroutineDispatcher) {
-        val polledEvents = pollEvents()
-        reset()
-        val changedFileset = mapToInternal(polledEvents)
+        val changedFileset = pollEvents(configuration)
         if (changedFileset.isNotEmpty())
             doing("Incremental build") {
                 val generators = mutableListOf<WebsiteGenerator>()
@@ -109,23 +107,39 @@ object Mise {
                         changed.addAndGet(1)
                 }
                 generatorMap.forEachLimitedParallel {
-                    it.buildUpdateArtifacts(configuration, cache, changedFileset)
+                    val cacheChanged = it.buildUpdateArtifacts(configuration, cache, changedFileset)
+                    if (cacheChanged)
+                        changed.addAndGet(1)
                 }
                 if (changed.get() > 0)
                     cache.saveCache(configuration)
             }
     }
 
-    fun mapToInternal(polledEvents: List<WatchEvent<*>>): ChangedFileset =
+    private suspend fun WatchKey.pollEvents(configuration: WebsiteConfiguration): ChangeFileset {
+        val polledEvents = pollEvents()
+        reset()
+        val changedFileset = mapToInternal(polledEvents, configuration)
+        if (changedFileset.isNotEmpty()) {
+            delay(1000)
+            val nextEvents = pollEvents(configuration)
+            nextEvents.forEach { (p, changeStates) ->
+                changedFileset.computeIfAbsent(p) { key -> mutableSetOf() } += changeStates
+            }
+        }
+        return changedFileset
+    }
+
+    fun mapToInternal(polledEvents: List<WatchEvent<*>>, configuration: WebsiteConfiguration): MutableChangedFileset =
             polledEvents.stream()
                     .map { it.getContextPath() to it.kind() }
-                    .map { (path, kind) -> filterIllegalPaths(path) to kind.asChangeState() }
+                    .map { (path, kind) -> path.filterIllegalPaths(configuration) to kind.asChangeState() }
                     .filter { (path, kind) -> kind != null && path != null }
                     .map { (a, b) -> a!! to b!! }
                     .collect(groupingBy({ it.first }, mapping({ it.second }, toSet())))
 
-    private fun filterIllegalPaths(path: Path?): Path? = path?.let {
-        if (it.hasExtension(FileExtension::isJetbrainsTemp))
+    private fun Path?.filterIllegalPaths(websiteConfiguration: WebsiteConfiguration): Path? = this?.let {
+        if (it.hasExtension(*websiteConfiguration.interactiveIgnoredFiles))
             null
         else it
     }

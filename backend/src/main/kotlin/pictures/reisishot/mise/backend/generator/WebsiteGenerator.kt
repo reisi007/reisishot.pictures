@@ -2,9 +2,9 @@ package pictures.reisishot.mise.backend.generator
 
 import pictures.reisishot.mise.backend.FileExtension
 import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.exists
 import pictures.reisishot.mise.backend.fileExtension
-import pictures.reisishot.mise.backend.generator.ChangeState.CREATE
-import pictures.reisishot.mise.backend.generator.ChangeState.DELETE
+import pictures.reisishot.mise.backend.generator.ChangeState.*
 import java.nio.file.Path
 
 interface WebsiteGenerator {
@@ -23,11 +23,14 @@ interface WebsiteGenerator {
             alreadyRunGenerators: List<WebsiteGenerator>
     )
 
+    /**
+     * @return true, if the cache has been changed
+     */
     suspend fun fetchUpdateInformation(
             configuration: WebsiteConfiguration,
             cache: BuildingCache,
             alreadyRunGenerators: List<WebsiteGenerator>,
-            changedFiles: ChangedFileset
+            changeFiles: ChangeFileset
     ): Boolean
 
     suspend fun buildInitialArtifacts(
@@ -35,10 +38,13 @@ interface WebsiteGenerator {
             cache: BuildingCache
     )
 
+    /**
+     * @return true, if the cache has been changed
+     */
     suspend fun buildUpdateArtifacts(
             configuration: WebsiteConfiguration,
             cache: BuildingCache,
-            changedFiles: ChangedFileset
+            changeFiles: ChangeFileset
     ): Boolean
 
     suspend fun loadCache(
@@ -77,6 +83,8 @@ fun FileExtension.isHtml() = equals("html", true) || equals("htm", true)
 
 fun FileExtension.isJetbrainsTemp() = contains("__jb_")
 
+fun FileExtension.isTemp() = contains('~')
+
 fun Path.hasExtension(vararg predicates: (FileExtension) -> Boolean) = fileExtension.isAny(*predicates)
 
 fun FileExtension.isAny(vararg predicates: (FileExtension) -> Boolean) = predicates.any { it(this) }
@@ -85,12 +93,18 @@ enum class ChangeState {
     CREATE, EDIT, DELETE
 }
 
-typealias ChangedFileset = Map<Path, Set<ChangeState>>
+typealias ChangeFileset = Map<Path, Set<ChangeState>>
+typealias MutableChangedFileset = MutableMap<Path, MutableSet<ChangeState>>
+typealias ChangeFilesetEntry = Map.Entry<Path, Set<ChangeState>>
 
-fun ChangedFileset.hasDeletions(vararg predicates: (FileExtension) -> Boolean) = asSequence()
-        .filter { (_, changedStates) -> changedStates.isStateDeleted() }
+fun ChangeFileset.hasDeletions(vararg predicates: (FileExtension) -> Boolean) = asSequence()
+        .filter { changedStates -> changedStates.isStateDeleted() }
         .any { (file, _) -> file.hasExtension(*predicates) }
 
-fun Set<ChangeState>.isStateEdited() = (contains(DELETE) && contains(CREATE)) || contains(ChangeState.EDIT)
+fun ChangeFilesetEntry.isStateEdited() = let { (file, changeSet) ->
+    (changeSet.containsAll(listOf(CREATE, DELETE)) || changeSet.contains(EDIT)) && file.exists()
+}
 
-fun Set<ChangeState>.isStateDeleted() = contains(DELETE) && !contains(CREATE)
+fun ChangeFilesetEntry.isStateDeleted() = let { (file, changeSet) ->
+    changeSet.contains(DELETE) && !file.exists()
+}

@@ -6,7 +6,9 @@ import pictures.reisishot.mise.backend.generator.gallery.categories.Configurable
 import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.isHtml
+import pictures.reisishot.mise.backend.generator.isJetbrainsTemp
 import pictures.reisishot.mise.backend.generator.isMarkdown
+import pictures.reisishot.mise.backend.generator.isTemp
 import pictures.reisishot.mise.backend.generator.links.LinkGenerator
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
@@ -24,6 +26,7 @@ object Production {
                         inPath = Paths.get("input").toAbsolutePath(),
                         tmpPath = Paths.get("tmp").toAbsolutePath(),
                         outPath = Paths.get("frontend/generated").toAbsolutePath(),
+                        interactiveIgnoredFiles = *arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         generators = listOf(
                                 PageGenerator(),
                                 GalleryGenerator(

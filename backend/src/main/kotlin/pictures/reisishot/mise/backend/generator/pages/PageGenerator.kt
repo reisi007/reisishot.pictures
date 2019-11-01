@@ -17,7 +17,10 @@ import org.apache.velocity.app.Velocity
 import org.apache.velocity.app.VelocityEngine
 import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.*
-import pictures.reisishot.mise.backend.generator.gallery.*
+import pictures.reisishot.mise.backend.generator.gallery.CategoryName
+import pictures.reisishot.mise.backend.generator.gallery.FilenameWithoutExtension
+import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
+import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertImageGallery
 import pictures.reisishot.mise.backend.html.insertLazyPicture
@@ -247,19 +250,19 @@ class PageGenerator : WebsiteGenerator {
             title
     )
 
-    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changedFiles: ChangedFileset): Boolean {
-        val relevantFiles = changedFiles.relevantFiles()
+    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changeFiles: ChangeFileset): Boolean {
+        val relevantFiles = changeFiles.relevantFiles()
         withContext(Dispatchers.IO) {
             filesToProcess = computeFilesToProcess(relevantFiles, configuration, cache)
             cleanupOutDir(relevantFiles, configuration, cache)
         }
 
-        return relevantFiles.any { (_, changeState) -> !changeState.isStateEdited() }
+        return relevantFiles.any { changeState -> !changeState.isStateEdited() }
     }
 
     private fun computeFilesToProcess(relevantFiles: Set<Map.Entry<Path, Set<ChangeState>>>, configuration: WebsiteConfiguration, cache: BuildingCache): List<PageGeneratorInfo> {
         return relevantFiles.asSequence()
-                .filter { (_, changeStates) -> !changeStates.isStateDeleted() }
+                .filter { changeStates -> !changeStates.isStateDeleted() }
                 .map { (file, _) -> configuration.inPath.resolve(file) }
                 .map { it.computePageGeneratorInfo(configuration, cache) }
                 .toList()
@@ -267,7 +270,7 @@ class PageGenerator : WebsiteGenerator {
 
     private fun cleanupOutDir(relevantFiles: Set<Map.Entry<Path, Set<ChangeState>>>, configuration: WebsiteConfiguration, cache: BuildingCache) {
         relevantFiles.asSequence()
-                .filter { (_, changedStates) -> changedStates.isStateDeleted() }
+                .filter { changedStates -> changedStates.isStateDeleted() }
                 .forEach { (sourcePath, _) ->
                     cache.resetLinkcacheFor(LINKTYPE_PAGE)
                     sourcePath.computePageGeneratorInfo(configuration, cache).let { (_, targetPath, _) ->
@@ -276,12 +279,12 @@ class PageGenerator : WebsiteGenerator {
                 }
     }
 
-    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changedFiles: ChangedFileset): Boolean {
+    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changeFiles: ChangeFileset): Boolean {
         buildInitialArtifacts(configuration, cache)
         return false
     }
 
-    private fun ChangedFileset.relevantFiles() = asSequence()
+    private fun ChangeFileset.relevantFiles() = asSequence()
             .filter { (file, _) -> file.hasExtension(FileExtension::isHtml, FileExtension::isMarkdown) }
             .toSet()
 

@@ -3,7 +3,7 @@ package pictures.reisishot.mise.backend.generator.links
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.exists
 import pictures.reisishot.mise.backend.generator.BuildingCache
-import pictures.reisishot.mise.backend.generator.ChangedFileset
+import pictures.reisishot.mise.backend.generator.ChangeFileset
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.parseConfig
 
@@ -34,9 +34,9 @@ class LinkGenerator : WebsiteGenerator {
         }
     }
 
-    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changedFiles: ChangedFileset): Boolean {
+    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changeFiles: ChangeFileset): Boolean {
         val configFile = configuration.getConfigFile()
-        if (changedFiles.keys.any(configFile::equals)) {
+        if (changeFiles.keys.any(configFile::equals)) {
             fetchInitialInformation(configuration, cache, alreadyRunGenerators)
             return true
         } else return false
@@ -49,7 +49,7 @@ class LinkGenerator : WebsiteGenerator {
         // No action needed
     }
 
-    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changedFiles: ChangedFileset): Boolean {
+    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changeFiles: ChangeFileset): Boolean {
         // No action needed
         return false
     }

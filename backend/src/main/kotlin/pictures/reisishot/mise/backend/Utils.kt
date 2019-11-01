@@ -23,8 +23,8 @@ import java.time.ZonedDateTime
 import javax.swing.ImageIcon
 import kotlin.streams.asSequence
 
-suspend fun <E> Iterable<E>.forEachLimitedParallel(
-        maxThreadCount: Int, callable: suspend (E) -> Unit
+suspend inline fun <E> Iterable<E>.forEachLimitedParallel(
+        maxThreadCount: Int, noinline callable: suspend (E) -> Unit
 ) = forEachParallel(
         newFixedThreadPoolContext(
                 Math.min(maxThreadCount, Runtime.getRuntime().availableProcessors()),
@@ -32,20 +32,20 @@ suspend fun <E> Iterable<E>.forEachLimitedParallel(
         ), callable
 )
 
-suspend fun <E> Iterable<E>.forEachParallel(
+suspend inline fun <E> Iterable<E>.forEachParallel(
         dispatcher: CoroutineDispatcher = newFixedThreadPoolContext(
                 Runtime.getRuntime().availableProcessors(),
                 "Foreach"
-        ), callable: suspend (E) -> Unit
+        ), noinline callable: suspend (E) -> Unit
 ) = coroutineScope {
     map { launch(dispatcher) { callable(it) } }
 }
 
-suspend fun <K : Comparable<K>, V> Map<K, Collection<V>>.forEachLimitedParallel(callable: suspend (V) -> Unit) = coroutineScope {
+suspend inline fun <K : Comparable<K>, V> Map<K, Collection<V>>.forEachLimitedParallel(noinline callable: suspend (V) -> Unit) = coroutineScope {
     keys.forEach { priority ->
         get(priority)?.let { generators ->
             coroutineScope {
-                generators.forEachParallel { callable(it) }
+                generators.forEachParallel(callable = callable)
             }
         } ?: throw IllegalStateException("No list found for priority $priority")
     }
@@ -54,7 +54,7 @@ suspend fun <K : Comparable<K>, V> Map<K, Collection<V>>.forEachLimitedParallel(
 infix fun Path.withChild(fileOrFolder: String): Path = resolve(fileOrFolder)
 infix fun Path.withChild(fileOrFolder: Path): Path = resolve(fileOrFolder)
 
-fun <T> Path.useBufferedReader(callable: (BufferedReader) -> T): T =
+inline fun <T> Path.useBufferedReader(callable: (BufferedReader) -> T): T =
         Files.newBufferedReader(this, Charsets.UTF_8).use(callable)
 
 fun Path.getConfig(configParseOptions: ConfigParseOptions = ConfigParseOptions.defaults()): Config? =
@@ -89,11 +89,6 @@ inline fun <reified T> Path.parseConfig(
         configParseOptions: ConfigParseOptions = ConfigParseOptions.defaults()
 ): T? = getConfig(configParseOptions)?.extract()
 
-fun String.writeTo(p: Path) =
-        Files.newBufferedWriter(p, Charsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING).use {
-            it.write(this)
-        }
-
 fun Path.readImage(): BufferedImage =
         ImageIcon(toUri().toURL()).let {
             BufferedImage(it.iconWidth, it.iconHeight, BufferedImage.TYPE_INT_RGB).apply {
@@ -124,9 +119,9 @@ fun Path.exists() = Files.exists(this)
 
 fun Path.isRegularFile() = Files.isRegularFile(this)
 
-val xStrem by lazy { XStream() }
+internal val xStrem by lazy { XStream() }
 
-inline fun <reified T> T.toXml(path: Path) {
+internal inline fun <reified T> T.toXml(path: Path) {
     path.parent?.let {
         Files.createDirectories(it)
         Files.newBufferedWriter(path, Charsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
@@ -136,7 +131,7 @@ inline fun <reified T> T.toXml(path: Path) {
     }
 }
 
-inline fun <reified T> Path.fromXml(): T? =
+internal inline fun <reified T> Path.fromXml(): T? =
         if (!(exists() && isRegularFile())) null else
             Files.newBufferedReader(this, Charsets.UTF_8).use { reader ->
                 xStrem.fromXML(reader) as? T
@@ -146,12 +141,6 @@ inline fun <reified T> Sequence<T>.toArray(size: Int): Array<T> {
     val iter = iterator()
     return Array(size) { iter.next() }
 }
-
-inline fun <T> Sequence<T>.peek(crossinline peekingAction: (T) -> Unit) =
-        map {
-            peekingAction(it)
-            it
-        }
 
 internal fun Path.isNewerThan(other: Path): Boolean =
         Files.getLastModifiedTime(this) > Files.getLastModifiedTime(other)
@@ -174,5 +163,16 @@ private val whiteSpace = """\s""".toRegex()
 internal fun String.toFriendlyPathName(): String {
     return replace(whiteSpace, "-").toLowerCase()
 }
+
+fun Array<String>.runAndWaitOnConsole() {
+    ProcessBuilder(*this)
+            .inheritIO()
+            .start()
+            .waitFor()
+}
+
+fun Path.toNormalizedString() = asNormalizedPath().toString()
+
+fun Path.asNormalizedPath(): Path = toAbsolutePath().normalize()
 
 typealias FileExtension = String

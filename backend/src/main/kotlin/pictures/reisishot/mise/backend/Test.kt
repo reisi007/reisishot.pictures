@@ -7,6 +7,7 @@ import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategory
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ForceRegeneration
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.isHtml
+import pictures.reisishot.mise.backend.generator.isJetbrainsTemp
 import pictures.reisishot.mise.backend.generator.isMarkdown
 import pictures.reisishot.mise.backend.generator.links.LinkGenerator
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
@@ -24,6 +25,7 @@ object Test {
                         websiteLocation = "http://localhost:3000",
                         inPath = Paths.get("src/main/resources").toAbsolutePath(),
                         outPath = Paths.get("../frontend/generated").toAbsolutePath(),
+                        interactiveIgnoredFiles = *arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp),
                         generators = listOf(
                                 PageGenerator(),
                                 GalleryGenerator(

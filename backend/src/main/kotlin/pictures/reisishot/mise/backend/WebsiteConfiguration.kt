@@ -14,7 +14,9 @@ class WebsiteConfiguration(
         val outPath: Path = Paths.get("./generated"),
         val locale: Locale = Locale.getDefault(),
         val cleanupGeneration: Boolean = false,
-        val generators: List<WebsiteGenerator> = emptyList()
+        val interactiveDelayMs: Long? = 2000,
+        val generators: List<WebsiteGenerator> = emptyList(),
+        vararg val interactiveIgnoredFiles: ((FileExtension) -> Boolean) = arrayOf({ it: String -> false })
 ) {
     val websiteLocation: String = websiteLocation.let { if (websiteLocation.endsWith("/")) it else "$it/" }
     override fun equals(other: Any?): Boolean {
@@ -30,7 +32,9 @@ class WebsiteConfiguration(
         if (outPath != other.outPath) return false
         if (locale != other.locale) return false
         if (cleanupGeneration != other.cleanupGeneration) return false
+        if (interactiveDelayMs != other.interactiveDelayMs) return false
         if (generators != other.generators) return false
+        if (!interactiveIgnoredFiles.contentEquals(other.interactiveIgnoredFiles)) return false
         if (websiteLocation != other.websiteLocation) return false
 
         return true
@@ -44,14 +48,14 @@ class WebsiteConfiguration(
         result = 31 * result + outPath.hashCode()
         result = 31 * result + locale.hashCode()
         result = 31 * result + cleanupGeneration.hashCode()
+        result = 31 * result + (interactiveDelayMs?.hashCode() ?: 0)
         result = 31 * result + generators.hashCode()
+        result = 31 * result + interactiveIgnoredFiles.contentHashCode()
         result = 31 * result + websiteLocation.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "WebsiteConfiguration(shortTitle='$shortTitle', longTitle='$longTitle', inPath=$inPath, tmpPath=$tmpPath, outPath=$outPath, locale=$locale, cleanupGeneration=$cleanupGeneration, generators=$generators, websiteLocation='$websiteLocation')"
+        return "WebsiteConfiguration(shortTitle='$shortTitle', longTitle='$longTitle', inPath=$inPath, tmpPath=$tmpPath, outPath=$outPath, locale=$locale, cleanupGeneration=$cleanupGeneration, interactiveDelayMs=$interactiveDelayMs, generators=$generators, interactiveIgnoredFiles=${interactiveIgnoredFiles.contentToString()}, websiteLocation='$websiteLocation')"
     }
-
-
 }
