@@ -106,7 +106,7 @@ object Mise {
                     if (cacheChanged)
                         changed.addAndGet(1)
                 }
-                generatorMap.forEachLimitedParallel {
+                generatorMap.forEachLimitedParallel(coroutineDispatcher) {
                     val cacheChanged = it.buildUpdateArtifacts(configuration, cache, changedFileset)
                     if (cacheChanged)
                         changed.addAndGet(1)

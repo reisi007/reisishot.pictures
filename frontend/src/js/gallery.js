@@ -3,22 +3,27 @@ $ = $ || window.jQuery;
 (function () {
     const galleries = window.galleries = window.galleries || {};
     const galleyHtml = '<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true"><div class="pswp__bg"></div><div class="pswp__scroll-wrap"><div class="pswp__container"><div class="pswp__item"></div><div class="pswp__item"></div><div class="pswp__item"></div></div><div class="pswp__ui pswp__ui--hidden"><div class="pswp__top-bar"><div class="pswp__counter"></div><button class="pswp__button pswp__button--close" shorttitle="Schließen (Esc)"></button><button class="pswp__button pswp__button--fs" shorttitle="Fullscreen anzeigen"></button><button class="pswp__button pswp__button--zoom" shorttitle="Zoomen"></button><button class="pswp__button pswp__button--details" shorttitle="Details"></button><div class="pswp__preloader"><div class="pswp__preloader__icn"><div class="pswp__preloader__cut"><div class="pswp__preloader__donut"></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class="pswp__share-tooltip"></div></div><button class="pswp__button pswp__button--arrow--left" shorttitle="Vorheriges Bild"></button><button class="pswp__button pswp__button--arrow--right" shorttitle="Nächstes Bild"></button><div class="pswp__caption"><div class="pswp__caption__center"></div></div></div></div></div>';
-    const googleAnalytics = '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());' +
-        'gtag("config","UA-120917271-1",{"anonymize_ip":true});</script>';
 
-    function initGoogleAnalytics() {
-        window.dataLayer = window.dataLayer || [];
+    function initAnalytics() {
+        // Start Open Web Analytics Tracker
+        let owa_baseUrl = 'https://analytics.reisishot.pictures/';
+        const owa_cmds = owa_cmds || [];
+        owa_cmds.push(['setSiteId', '540cd9487baf5035f7f8cd185e25fd4b']);
+        owa_cmds.push(['trackPageView']);
+        owa_cmds.push(['trackClicks']);
 
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-
-        gtag('js', new Date());
-        gtag('config', 'UA-120917271-1');
+        const _owa = document.createElement('script');
+        _owa.type = 'text/javascript';
+        _owa.async = true;
+        owa_baseUrl = ('https:' === document.location.protocol ? window.owa_baseSecUrl || owa_baseUrl.replace(/http:/, 'https:') : owa_baseUrl);
+        _owa.src = owa_baseUrl + 'modules/base/js/owa.tracker-combined-min.js';
+        const _owa_s = document.getElementsByTagName('script')[0];
+        _owa_s.parentNode.insertBefore(_owa, _owa_s);
+        // End Open Web Analytics Code
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        initGoogleAnalytics();
+        initAnalytics();
 
         const observer = window.lozad('.lazy', {
             rootMargin: "1080px 0px 0px 0px",

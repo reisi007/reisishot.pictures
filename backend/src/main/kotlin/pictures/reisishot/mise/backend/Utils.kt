@@ -41,11 +41,14 @@ suspend inline fun <E> Iterable<E>.forEachParallel(
     map { launch(dispatcher) { callable(it) } }
 }
 
-suspend inline fun <K : Comparable<K>, V> Map<K, Collection<V>>.forEachLimitedParallel(noinline callable: suspend (V) -> Unit) = coroutineScope {
+suspend inline fun <K : Comparable<K>, V> Map<K, Collection<V>>.forEachLimitedParallel(dispatcher: CoroutineDispatcher? = null, noinline callable: suspend (V) -> Unit) = coroutineScope {
     keys.forEach { priority ->
         get(priority)?.let { generators ->
             coroutineScope {
-                generators.forEachParallel(callable = callable)
+                if (dispatcher == null)
+                    generators.forEachParallel(callable = callable)
+                else
+                    generators.forEachParallel(dispatcher, callable)
             }
         } ?: throw IllegalStateException("No list found for priority $priority")
     }

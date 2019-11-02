@@ -6,7 +6,6 @@ import pictures.reisishot.mise.backend.forEachLimitedParallel
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertImageGallery
-import pictures.reisishot.mise.backend.html.insertSubcategoryThumbnail
 import pictures.reisishot.mise.backend.html.smallButtonLink
 import pictures.reisishot.mise.backend.withChild
 import java.time.ZonedDateTime
@@ -176,27 +175,4 @@ class GalleryGenerator(
 
     fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?) =
             insertSubcategoryThumbnails(categoryName, this@GalleryGenerator)
-
-    fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?, generator: GalleryGenerator) = with(generator.cache) {
-        val subcategories = computedSubcategories[categoryName]
-        if (!subcategories.isNullOrEmpty())
-            div("subcategories") {
-                subcategories.asSequence()
-                        .map {
-                            categoryInformation.getValue(it) to
-                                    computedCategoryThumbnails.getThumbnailImageInformation(it, generator)
-                        }
-                        .filterNotNull()
-                        .sortedBy { (categoryInformation, _) -> categoryInformation.complexName }
-                        .forEach { (categoryName, imageInformation) ->
-                            if (imageInformation != null)
-                                insertSubcategoryThumbnail(
-                                        categoryName,
-                                        imageInformation
-                                )
-                        }
-            }
-
-
-    }
 }

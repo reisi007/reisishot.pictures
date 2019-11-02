@@ -17,10 +17,7 @@ import org.apache.velocity.app.Velocity
 import org.apache.velocity.app.VelocityEngine
 import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.*
-import pictures.reisishot.mise.backend.generator.gallery.CategoryName
-import pictures.reisishot.mise.backend.generator.gallery.FilenameWithoutExtension
-import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
-import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
+import pictures.reisishot.mise.backend.generator.gallery.*
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertImageGallery
 import pictures.reisishot.mise.backend.html.insertLazyPicture

@@ -2,9 +2,12 @@ package pictures.reisishot.mise.backend.generator.gallery
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.html.DIV
+import kotlinx.html.div
 import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.*
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
+import pictures.reisishot.mise.backend.html.insertSubcategoryThumbnail
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
@@ -249,12 +252,33 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
         this.cache.toXml(cachePath)
         categoryBuilders.forEach { it.teardown(configuration, cache) }
     }
+}
 
-    protected fun Map<CategoryName, InternalImageInformation>.getThumbnailImageInformation(
-            name: CategoryName,
-            generator: GalleryGenerator
-    ): InternalImageInformation? =
-            get(name)
-                    ?: generator.cache.imageInformationData[generator.cache.computedCategories[name]?.first()]
-                    ?: throw IllegalStateException("Could not find thumbnail for \"$name\"!")
+fun Map<CategoryName, InternalImageInformation>.getThumbnailImageInformation(
+        name: CategoryName,
+        generator: AbstractGalleryGenerator
+): InternalImageInformation? =
+        get(name)
+                ?: generator.cache.imageInformationData[generator.cache.computedCategories[name]?.first()]
+                ?: throw IllegalStateException("Could not find thumbnail for \"$name\"!")
+
+fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?, generator: AbstractGalleryGenerator) = with(generator.cache) {
+    val subcategories = computedSubcategories[categoryName]
+    if (!subcategories.isNullOrEmpty())
+        div("subcategories") {
+            subcategories.asSequence()
+                    .map {
+                        categoryInformation.getValue(it) to
+                                computedCategoryThumbnails.getThumbnailImageInformation(it, generator)
+                    }
+                    .filterNotNull()
+                    .sortedBy { (categoryInformation, _) -> categoryInformation.complexName }
+                    .forEach { (categoryName, imageInformation) ->
+                        if (imageInformation != null)
+                            insertSubcategoryThumbnail(
+                                    categoryName,
+                                    imageInformation
+                            )
+                    }
+        }
 }
