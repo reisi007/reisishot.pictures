@@ -32,16 +32,16 @@ suspend inline fun <E> Iterable<E>.forEachLimitedParallel(
         ), callable
 )
 
-suspend inline fun <E> Iterable<E>.forEachParallel(
+suspend fun <E> Iterable<E>.forEachParallel(
         dispatcher: CoroutineDispatcher = newFixedThreadPoolContext(
                 Runtime.getRuntime().availableProcessors(),
                 "Foreach"
-        ), noinline callable: suspend (E) -> Unit
+        ), callable: suspend (E) -> Unit
 ) = coroutineScope {
     map { launch(dispatcher) { callable(it) } }
 }
 
-suspend inline fun <K : Comparable<K>, V> Map<K, Collection<V>>.forEachLimitedParallel(dispatcher: CoroutineDispatcher? = null, noinline callable: suspend (V) -> Unit) = coroutineScope {
+suspend fun <K : Comparable<K>, V> Map<K, Collection<V>>.forEachLimitedParallel(dispatcher: CoroutineDispatcher? = null, callable: suspend (V) -> Unit) = coroutineScope {
     keys.forEach { priority ->
         get(priority)?.let { generators ->
             coroutineScope {
