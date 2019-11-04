@@ -1,3 +1,5 @@
+package pictures.reisishot.mise.converter.piwigo
+
 import com.beust.klaxon.Json
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon

@@ -1,12 +1,12 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="PrepareImages" type="JetRunConfigurationType" factoryName="Kotlin" nameIsGenerated="true">
+  <configuration default="false" name="PrepareImages" type="JetRunConfigurationType" factoryName="Kotlin">
     <module name="mise-utils.main" />
     <option name="VM_PARAMETERS" value="" />
     <option name="PROGRAM_PARAMETERS" value="&quot;D:\Reisishot\MiSe\input\images&quot;" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <option name="PASS_PARENT_ENVS" value="true" />
-    <option name="MAIN_CLASS_NAME" value="PrepareImages" />
+    <option name="MAIN_CLASS_NAME" value="pictures.reisishot.mise.utils.PrepareImages" />
     <option name="WORKING_DIRECTORY" value="" />
     <method v="2">
       <option name="Make" enabled="true" />

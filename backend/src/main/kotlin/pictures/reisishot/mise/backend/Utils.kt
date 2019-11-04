@@ -62,7 +62,14 @@ inline fun <T> Path.useBufferedReader(callable: (BufferedReader) -> T): T =
 
 fun Path.getConfig(configParseOptions: ConfigParseOptions = ConfigParseOptions.defaults()): Config? =
         if (exists())
-            useBufferedReader { ConfigFactory.parseReader(it, configParseOptions) }
+            useBufferedReader {
+                try {
+                    ConfigFactory.parseReader(it, configParseOptions)
+                } catch (e: Exception) {
+                    System.err.println("Error while reading from $this")
+                    throw e
+                }
+            }
         else null
 
 inline fun <reified T> Path.parseConfig(

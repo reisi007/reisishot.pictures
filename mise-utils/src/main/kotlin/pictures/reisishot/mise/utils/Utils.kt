@@ -1,3 +1,5 @@
+package pictures.reisishot.mise.utils
+
 import java.nio.file.Path
 
 val Path.filenameWithoutExtension: String
