@@ -1,6 +1,7 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
 import at.reisishot.mise.commons.*
+import at.reisishot.mise.config.ImageConfig
 import at.reisishot.mise.config.parseConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

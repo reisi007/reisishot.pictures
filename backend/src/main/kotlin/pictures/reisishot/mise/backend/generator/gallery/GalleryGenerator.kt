@@ -1,5 +1,6 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
+import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.forEachLimitedParallel
 import at.reisishot.mise.commons.withChild
 import kotlinx.html.*

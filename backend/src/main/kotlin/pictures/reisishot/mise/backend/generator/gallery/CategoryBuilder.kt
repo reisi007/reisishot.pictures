@@ -1,5 +1,6 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
+import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.commons.toFriendlyPathName
 import pictures.reisishot.mise.backend.WebsiteConfiguration

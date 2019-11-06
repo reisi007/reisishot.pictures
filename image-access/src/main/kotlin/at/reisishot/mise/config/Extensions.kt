@@ -5,8 +5,21 @@ import at.reisishot.mise.commons.useBufferedReader
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
+import com.typesafe.config.ConfigRenderOptions
 import io.github.config4k.extract
+import io.github.config4k.toConfig
 import java.nio.file.Path
+
+fun ImageConfig.writeConfig(p: Path) {
+    val name = "image"
+    toConfig(name)
+            .getConfig(name)
+            .root()
+            .render(ConfigRenderOptions.defaults().apply {
+                json = false
+                originComments = false
+            })
+}
 
 fun Path.getConfig(configParseOptions: ConfigParseOptions = ConfigParseOptions.defaults()): Config? =
         if (exists())

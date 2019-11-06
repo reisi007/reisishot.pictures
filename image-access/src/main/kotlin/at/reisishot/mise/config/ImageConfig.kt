@@ -1,4 +1,6 @@
-package pictures.reisishot.mise.backend.generator.gallery
+package at.reisishot.mise.config
+
+import at.reisishot.mise.commons.CategoryName
 
 data class ImageConfig(
         val title: String,

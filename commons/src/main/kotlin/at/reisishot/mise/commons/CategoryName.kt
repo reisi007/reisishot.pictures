@@ -1,4 +1,4 @@
-package pictures.reisishot.mise.backend.generator.gallery
+package at.reisishot.mise.commons
 
 class CategoryName(val complexName: ComplexName,
                    val sortKey: String = complexName,
@@ -30,5 +30,3 @@ class CategoryName(val complexName: ComplexName,
 
     override fun toString() = displayName
 }
-
-typealias ComplexName = String
