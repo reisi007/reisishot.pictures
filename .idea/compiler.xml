@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="mise-backend.main" target="1.8" />
+      <module name="mise-backend.test" target="1.8" />
+      <module name="mise-utils.main" target="1.8" />
+      <module name="mise-utils.test" target="1.8" />
+      <module name="My_website_(reisishot.pictures).config_ui.main" target="1.8" />
+      <module name="My_website_(reisishot.pictures).config_ui.test" target="1.8" />
+      <module name="My_website_(reisishot.pictures).configui.main" target="1.8" />
+      <module name="My_website_(reisishot.pictures).configui.test" target="1.8" />
+      <module name="My_website_(reisishot.pictures).image_access.main" target="1.8" />
+      <module name="My_website_(reisishot.pictures).image_access.test" target="1.8" />
+      <module name="My_website_(reisishot.pictures).utils.main" target="1.8" />
+      <module name="My_website_(reisishot.pictures).utils.test" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

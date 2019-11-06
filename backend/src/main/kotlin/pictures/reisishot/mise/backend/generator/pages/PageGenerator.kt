@@ -1,5 +1,6 @@
 package pictures.reisishot.mise.backend.generator.pages
 
+import at.reisishot.mise.commons.*
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension
 import com.vladsch.flexmark.ext.emoji.EmojiExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
@@ -15,9 +16,12 @@ import org.apache.commons.text.StringEscapeUtils
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.Velocity
 import org.apache.velocity.app.VelocityEngine
-import pictures.reisishot.mise.backend.*
+import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.*
-import pictures.reisishot.mise.backend.generator.gallery.*
+import pictures.reisishot.mise.backend.generator.gallery.CategoryName
+import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
+import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
+import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbnails
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertImageGallery
 import pictures.reisishot.mise.backend.html.insertLazyPicture
@@ -84,7 +88,7 @@ class PageGenerator : WebsiteGenerator {
                 )
             }
 
-            var inFilename = fileName.toString().filenameWithoutExtension
+            var inFilename = fileName.filenameWithoutExtension
 
             val globalPriority = inFilename.substringBefore(MENU_NAME_SEPARATOR).toIntOrNull() ?: 0
             inFilename = inFilename.substringAfter(MENU_NAME_SEPARATOR)

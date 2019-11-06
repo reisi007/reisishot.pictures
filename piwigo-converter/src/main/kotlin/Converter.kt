@@ -1,10 +1,11 @@
 package pictures.reisishot.mise.converter.piwigo
 
+import at.reisishot.mise.commons.filenameWithoutExtension
+import at.reisishot.mise.commons.forEachLimitedParallel
 import com.beust.klaxon.Json
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.jdbi.v3.core.Jdbi
@@ -28,18 +29,18 @@ object Converter {
         )
     }
 
-    private fun convertPiwigo2Mise(piwigoEndpoint: String, connectionString: String, targetPath: Path) {
+    private fun convertPiwigo2Mise(piwigoEndpoint: String, connectionString: String, targetPath: Path) = runBlocking {
         // Get SQL connection
         val jdbi = Jdbi.create(connectionString)
-
         jdbi.open().use { db ->
             db.createQuery("select id from gal_images")
                     .mapTo(Int::class.java)
                     .list()
-        }.foreachParallel {
+        }.forEachLimitedParallel(10) {
             downloadImage(it, piwigoEndpoint, targetPath)
         }
     }
+
 
     data class ImageInfoResult(
             val file: String,
@@ -73,10 +74,10 @@ object Converter {
             tags= [
             %s
             ]
-        """.trimIndent().format(imageInfo.tags.joinToString("\n"))
+        """.trimIndent()
+                .format(imageInfo.tags.joinToString("\n"))
 
-        withContext(Dispatchers.IO)
-        {
+        withContext(Dispatchers.IO) {
             val outFile = baseFolder.resolve("$filenameWithoutExtension.jpg")
             URL(imageInfo.elementUrl).openStream().use { inputStream ->
                 Files.copy(inputStream, outFile)
@@ -86,15 +87,4 @@ object Converter {
             }
         }
     }
-}
-
-internal val Path.filenameWithoutExtension: String
-    get() = fileName.toString().filenameWithoutExtension
-internal val String.filenameWithoutExtension: String
-    get() = substring(0, lastIndexOf('.'))
-
-
-internal fun <T> Iterable<T>.foreachParallel(action: suspend (T) -> Unit) = runBlocking {
-    forEach { launch { action(it) } }
-
 }

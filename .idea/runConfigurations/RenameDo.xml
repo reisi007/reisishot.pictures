@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="RenameDo" type="JetRunConfigurationType" factoryName="Kotlin">
-    <module name="mise-utils.main" />
+    <module name="My_website_(reisishot.pictures).mise-utils.main" />
     <option name="VM_PARAMETERS" value="" />
     <option name="PROGRAM_PARAMETERS" value="&quot;D:\Reisishot\MiSe\mise-utils\rename.csv&quot; &quot;D:\Reisishot\MiSe\input\images&quot;" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />

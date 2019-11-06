@@ -1,9 +1,9 @@
 package pictures.reisishot.mise.backend.generator
 
-import pictures.reisishot.mise.backend.FileExtension
+import at.reisishot.mise.commons.FileExtension
+import at.reisishot.mise.commons.exists
+import at.reisishot.mise.commons.hasExtension
 import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.exists
-import pictures.reisishot.mise.backend.fileExtension
 import pictures.reisishot.mise.backend.generator.ChangeState.*
 import java.nio.file.Path
 
@@ -70,24 +70,6 @@ interface WebsiteGenerator {
         kotlin.io.println("[GENERATOR] [$generatorName] $a")
     }
 }
-
-fun FileExtension.isJpeg() = equals("jpg", true) || equals("jpeg", true)
-
-fun FileExtension.isMarkdown() = equals("md", true)
-
-fun FileExtension.isConf() = equals("conf", true)
-
-fun FileExtension.isJson() = equals("json", true)
-
-fun FileExtension.isHtml() = equals("html", true) || equals("htm", true)
-
-fun FileExtension.isJetbrainsTemp() = contains("__jb_")
-
-fun FileExtension.isTemp() = contains('~')
-
-fun Path.hasExtension(vararg predicates: (FileExtension) -> Boolean) = fileExtension.isAny(*predicates)
-
-fun FileExtension.isAny(vararg predicates: (FileExtension) -> Boolean) = predicates.any { it(this) }
 
 enum class ChangeState {
     CREATE, EDIT, DELETE

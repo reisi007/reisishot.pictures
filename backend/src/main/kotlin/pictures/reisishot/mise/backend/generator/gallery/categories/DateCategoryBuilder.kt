@@ -1,5 +1,6 @@
 package pictures.reisishot.mise.backend.generator.gallery.categories
 
+import at.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.gallery.*
 import java.time.Month

@@ -1,5 +1,6 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
+import at.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ThumbnailInformation
 

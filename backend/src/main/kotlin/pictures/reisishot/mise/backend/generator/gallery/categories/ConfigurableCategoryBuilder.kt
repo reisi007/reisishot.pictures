@@ -1,10 +1,11 @@
 package pictures.reisishot.mise.backend.generator.gallery.categories
 
+import at.reisishot.mise.commons.FilenameWithoutExtension
+import at.reisishot.mise.commons.withChild
+import at.reisishot.mise.config.parseConfig
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.*
-import pictures.reisishot.mise.backend.parseConfig
-import pictures.reisishot.mise.backend.withChild
 import java.util.concurrent.ConcurrentHashMap
 
 class ConfigurableCategoryBuilder() : CategoryBuilder {

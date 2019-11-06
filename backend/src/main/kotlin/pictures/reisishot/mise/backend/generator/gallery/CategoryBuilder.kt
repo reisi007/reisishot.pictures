@@ -1,8 +1,9 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
+import at.reisishot.mise.commons.FilenameWithoutExtension
+import at.reisishot.mise.commons.toFriendlyPathName
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
-import pictures.reisishot.mise.backend.toFriendlyPathName
 
 interface CategoryBuilder {
 
@@ -95,5 +96,5 @@ class TagInformation(val name: String) : Comparator<TagInformation> {
     }
 }
 
-typealias FilenameWithoutExtension = String
+
 typealias SubcategoryComputator = (Map<Int, Set<CategoryInformation>>) -> Set<CategoryName>

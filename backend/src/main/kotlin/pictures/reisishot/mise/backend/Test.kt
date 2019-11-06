@@ -1,14 +1,16 @@
 package pictures.reisishot.mise.backend
 
+import at.reisishot.mise.commons.FileExtension
+import at.reisishot.mise.commons.isHtml
+import at.reisishot.mise.commons.isJetbrainsTemp
+import at.reisishot.mise.commons.isMarkdown
 import pictures.reisishot.mise.backend.generator.gallery.ExifdataKey
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.categories.ConfigurableCategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ForceRegeneration
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
-import pictures.reisishot.mise.backend.generator.isHtml
-import pictures.reisishot.mise.backend.generator.isJetbrainsTemp
-import pictures.reisishot.mise.backend.generator.isMarkdown
+
 import pictures.reisishot.mise.backend.generator.links.LinkGenerator
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator

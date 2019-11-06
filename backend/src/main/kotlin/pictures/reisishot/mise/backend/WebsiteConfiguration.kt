@@ -1,5 +1,6 @@
 package pictures.reisishot.mise.backend
 
+import at.reisishot.mise.commons.FileExtension
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import java.nio.file.Path
 import java.nio.file.Paths

@@ -1,11 +1,11 @@
 package pictures.reisishot.mise.backend.generator
 
+import at.reisishot.mise.commons.withChild
 import com.google.common.collect.SortedMultiset
 import com.google.common.collect.TreeMultiset
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.fromXml
 import pictures.reisishot.mise.backend.toXml
-import pictures.reisishot.mise.backend.withChild
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap

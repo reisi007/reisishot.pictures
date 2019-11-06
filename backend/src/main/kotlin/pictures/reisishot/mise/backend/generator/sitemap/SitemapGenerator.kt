@@ -1,8 +1,12 @@
 package pictures.reisishot.mise.backend.generator.sitemap
 
-import pictures.reisishot.mise.backend.FileExtension
+import at.reisishot.mise.commons.FileExtension
+import at.reisishot.mise.commons.hasExtension
 import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.generator.*
+import pictures.reisishot.mise.backend.generator.BuildingCache
+import pictures.reisishot.mise.backend.generator.ChangeFileset
+import pictures.reisishot.mise.backend.generator.WebsiteGenerator
+import pictures.reisishot.mise.backend.generator.isStateEdited
 import java.io.PrintWriter
 import java.nio.file.Files
 import java.nio.file.Path

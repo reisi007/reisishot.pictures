@@ -1,7 +1,7 @@
 package pictures.reisishot.mise.backend.generator.gallery.thumbnails
 
-import pictures.reisishot.mise.backend.runAndWaitOnConsole
-import pictures.reisishot.mise.backend.toNormalizedString
+import at.reisishot.mise.commons.runAndWaitOnConsole
+import at.reisishot.mise.commons.toNormalizedString
 import java.nio.file.Path
 
 open class ImageMagickThumbnailGenerator(forceRegeneration: ForceRegeneration = ForceRegeneration()) : AbstractThumbnailGenerator(forceRegeneration) {

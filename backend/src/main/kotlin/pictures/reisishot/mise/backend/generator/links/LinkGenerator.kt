@@ -1,11 +1,11 @@
 package pictures.reisishot.mise.backend.generator.links
 
+import at.reisishot.mise.commons.exists
+import at.reisishot.mise.config.parseConfig
 import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.exists
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.ChangeFileset
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
-import pictures.reisishot.mise.backend.parseConfig
 
 class LinkGenerator : WebsiteGenerator {
 
