@@ -141,5 +141,5 @@ gradle-app.setting
 # End of https://www.gitignore.io/api/java,gradle,kotlin,intellij
 **.cache.json
 **.cache.xml
-**.gradle
+**/.gradle/**
 notepad++.session

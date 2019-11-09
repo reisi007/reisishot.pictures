@@ -1,0 +1,9 @@
+rootProject.name = "My website (reisishot.pictures)"
+// Utils
+include "commons"
+include "image-access"
+// Projects (depend on utils but not on each other)
+include "backend"
+include "config-ui"
+include "mise-utils"
+include "piwigo-converter"

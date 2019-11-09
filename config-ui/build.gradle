@@ -1,0 +1,7 @@
+dependencies {
+    implementation project(":image-access")
+
+    implementation group: 'no.tornado', name: 'tornadofx', version: '1.7.19'
+    // https://mvnrepository.com/artifact/org.controlsfx/controlsfx
+    implementation group: 'org.controlsfx', name: 'controlsfx', version: '8.40.15'
+}
