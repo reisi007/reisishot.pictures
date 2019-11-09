@@ -1,0 +1,20 @@
+.tag-bar {
+    -fx-border-color: lightblue;
+    -fx-spacing: 3;
+    -fx-padding: 3;
+    -fx-max-height: 30;
+}
+
+.tag-bar .tag {
+    -fx-background-color: -fx-selection-bar;
+    -fx-border-radius: 5 5 5 5;
+}
+
+.tag-bar .tag {
+    -fx-text-fill: white;
+}
+
+.tag-bar .tag .button {
+    -fx-text-fill: orange;
+    -fx-font-weight: bold;
+}
