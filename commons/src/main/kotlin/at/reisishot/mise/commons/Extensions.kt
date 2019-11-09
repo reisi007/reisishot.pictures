@@ -110,3 +110,6 @@ inline fun <T> Sequence<T>.peek(crossinline peekingAction: (T) -> Unit) =
             peekingAction(it)
             it
         }
+
+fun <T> Iterator<T>.nextOrNull(): T? = if (hasNext()) next() else null
+fun <T> ListIterator<T>.previousOrNull(): T? = if (hasPrevious()) previous() else null

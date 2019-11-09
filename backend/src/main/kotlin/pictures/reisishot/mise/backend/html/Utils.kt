@@ -7,7 +7,7 @@ import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThum
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize.Companion.LARGEST
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize.Companion.ORDERED
-import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize.LARGE
+import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize.Companion.getSize
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ThumbnailInformation
 
 
@@ -56,7 +56,7 @@ internal fun FlowOrInteractiveOrPhrasingContent.insertLazyPicture(
     picture(PageGenerator.LAZYLOADER_CLASSNAME) {
         if (additionalClasses.isNotEmpty())
             classes = classes + additionalClasses
-        val largeImageUrl = curImageInfo.thumbnailSizes.getHtmlUrl(LARGE)
+        val largeImageUrl = curImageInfo.thumbnailSizes.getHtmlUrl(getSize(300))
         attributes["style"] = "width: ${LARGEST.longestSidePx}px"
         attributes["data-iesrc"] = largeImageUrl
         attributes["data-alt"] = curImageInfo.title
@@ -127,7 +127,7 @@ private fun PICTURE.generateSourceTag(
 }
 
 private fun Map<ImageSize, ThumbnailInformation>.getHtmlUrl(imageSize: ImageSize): String =
-        with(this.get(imageSize)?.filename) {
+        with(this[imageSize]?.filename) {
             if (this == null)
                 throw IllegalStateException("Cannot get Url for this Thumbnail!")
             getThumbnailUrlFromFilename(this)

@@ -27,34 +27,56 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
 
     data class ThumbnailInformation(val filename: String, val width: Int, val height: Int)
 
-    enum class ImageSize(private val identifier: String, val longestSidePx: Int, val quality: Float) {
-        SMALL("icon", 300, 0.35f),
-        MEDIUM("embed", 1400, 0.5f),
-        LARGE("large", 3000, 0.75f);
+    enum class Interpolation(val value: String) {
+        NONE("4:4:4"),
+        LOW("4:2:2"),
+        MEDIUM("4:2:0"),
+        HIGH("4:1:1")
+    }
+
+    enum class ImageSize(
+            private val identifier: String,
+            val longestSidePx: Int,
+            val quality: Float,
+            val interpolation: Interpolation
+    ) {
+        SMALL("icon", 300, 0.35f, Interpolation.LOW),
+        EMBED("embed", 700, 0.35f, Interpolation.HIGH),
+        MEDIUM("medium", 1200, 0.35f, Interpolation.HIGH),
+        LARGE("large", 2050, 0.35f, Interpolation.HIGH),
+        XLARGE("xlarge", 3000, 0.45f, Interpolation.MEDIUM);
 
         companion object {
-            val ORDERED = arrayOf(LARGE, MEDIUM, SMALL)
+            val ORDERED = listOf(XLARGE, LARGE, MEDIUM, EMBED, SMALL)
             val SMALLEST = ORDERED.last()
             val LARGEST = ORDERED.first()
+
+            fun getSize(minSize: Int) = ORDERED.asReversed()
+                    .asSequence()
+                    .firstOrNull { it.longestSidePx > minSize } ?: LARGEST
         }
 
         fun decoratePath(p: Path): Path = with(p) {
             parent withChild fileName.filenameWithoutExtension + '_' + identifier + ".jpg"
         }
 
+
         val smallerSize: ImageSize?
-            get() = when (this) {
-                SMALL -> null
-                MEDIUM -> SMALL
-                LARGE -> MEDIUM
-            }
+            get() = ORDERED.listIterator().find(this)?.nextOrNull() ?: SMALLEST
+
 
         val biggerSize: ImageSize?
-            get() = when (this) {
-                SMALL -> MEDIUM
-                MEDIUM -> LARGE
-                LARGE -> null
+            get() = ORDERED.listIterator().find(this)?.previousOrNull() ?: LARGEST
+
+
+        private fun <T> ListIterator<T>.find(imageSize: ImageSize): ListIterator<T>? {
+            while (hasNext()) {
+                val next = next()
+                if (imageSize == next)
+                    return this
             }
+            return null
+        }
     }
 
     data class ForceRegeneration(val thumbnails: Boolean = false)

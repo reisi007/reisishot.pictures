@@ -12,6 +12,7 @@ open class ImageMagickThumbnailGenerator(forceRegeneration: ForceRegeneration = 
             "-quality", "${(size.quality * 100).toInt()}",
             "-resize", "${size.longestSidePx}x${size.longestSidePx}>",
             "-strip",
+            "-sampling-factor", size.interpolation.value,
             "-interlace", "Plane",
             outFile.toNormalizedString()
     ).runAndWaitOnConsole()

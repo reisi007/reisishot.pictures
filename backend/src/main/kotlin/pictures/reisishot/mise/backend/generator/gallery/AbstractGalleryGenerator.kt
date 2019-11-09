@@ -140,14 +140,13 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
                     ).apply {
                         cache.imageInformationData.put(filenameWithoutExtension, this)
                         imageConfig.categoryThumbnail.forEach { category ->
-                            synchronized(cache.computedCategoryThumbnails) {
-                                cache.computedCategoryThumbnails.let { thumbnails ->
-                                    thumbnails.get(category).let {
-                                        if (it != null)
-                                            throw IllegalStateException("A thumbnail for $category has already been set! (\"${it.title}\"")
-                                        else
-                                            thumbnails.put(category, this)
-                                    }
+                            val categoryName = CategoryName(category)
+                            cache.computedCategoryThumbnails.let { thumbnails ->
+                                thumbnails.get(categoryName).let {
+                                    if (it != null)
+                                        throw IllegalStateException("A thumbnail for $category has already been set! (\"${it.title}\"")
+                                    else
+                                        thumbnails.put(categoryName, this)
                                 }
                             }
                         }
