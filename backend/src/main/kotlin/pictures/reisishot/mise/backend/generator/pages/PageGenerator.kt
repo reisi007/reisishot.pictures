@@ -54,6 +54,10 @@ class PageGenerator : WebsiteGenerator {
 
         val parser = Parser.builder()
                 .extensions(extensions)
+                .apply {
+                    set(Parser.SPACE_IN_LINK_ELEMENTS, true)
+                    set(Parser.SPACE_IN_LINK_URLS, true)
+                }
                 .build()
         val htmlRenderer = HtmlRenderer
                 .builder()

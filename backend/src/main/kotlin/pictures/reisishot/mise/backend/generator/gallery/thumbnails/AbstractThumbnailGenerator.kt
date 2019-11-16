@@ -41,10 +41,10 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
             val interpolation: Interpolation
     ) {
         SMALL("icon", 300, 0.35f, Interpolation.LOW),
-        EMBED("embed", 700, 0.35f, Interpolation.HIGH),
-        MEDIUM("medium", 1200, 0.35f, Interpolation.HIGH),
-        LARGE("large", 2050, 0.35f, Interpolation.HIGH),
-        XLARGE("xlarge", 3000, 0.45f, Interpolation.MEDIUM);
+        EMBED("embed", 700, 0.45f, Interpolation.HIGH),
+        MEDIUM("medium", 1200, 0.45f, Interpolation.MEDIUM),
+        LARGE("large", 2050, 0.45f, Interpolation.HIGH),
+        XLARGE("xlarge", 3000, 0.55f, Interpolation.MEDIUM);
 
         companion object {
             val ORDERED = listOf(XLARGE, LARGE, MEDIUM, EMBED, SMALL)
