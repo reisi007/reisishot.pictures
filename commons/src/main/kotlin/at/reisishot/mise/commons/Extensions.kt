@@ -113,3 +113,9 @@ inline fun <T> Sequence<T>.peek(crossinline peekingAction: (T) -> Unit) =
 
 fun <T> Iterator<T>.nextOrNull(): T? = if (hasNext()) next() else null
 fun <T> ListIterator<T>.previousOrNull(): T? = if (hasPrevious()) previous() else null
+
+fun <K, V : Collection<*>> Map<K, V>.prettyPrint() = keys.forEach { k ->
+    println(k.toString())
+    println(getValue(k).joinToString("\n\t", "\t"))
+    println()
+}

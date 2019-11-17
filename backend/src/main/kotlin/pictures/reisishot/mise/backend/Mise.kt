@@ -3,6 +3,7 @@ package pictures.reisishot.mise.backend
 import at.reisishot.mise.commons.forEachLimitedParallel
 import at.reisishot.mise.commons.forEachParallel
 import at.reisishot.mise.commons.hasExtension
+import at.reisishot.mise.commons.prettyPrint
 import kotlinx.coroutines.*
 import pictures.reisishot.mise.backend.generator.*
 import pictures.reisishot.mise.backend.generator.ChangeState.*
@@ -123,6 +124,7 @@ object Mise {
         val polledEvents = pollEvents()
         reset()
         val changedFileset = mapToInternal(polledEvents, configuration)
+        changedFileset.prettyPrint()
         if (changedFileset.isNotEmpty()) {
             delay(1000)
             val nextEvents = pollEvents(configuration)

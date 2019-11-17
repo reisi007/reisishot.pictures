@@ -14,6 +14,7 @@ dependencies {
     implementation group: 'com.vladsch.flexmark', name: 'flexmark', version: flexmark_version
     implementation group: 'com.vladsch.flexmark', name: 'flexmark-ext-tables', version: flexmark_version
     implementation group: 'com.vladsch.flexmark', name: 'flexmark-ext-autolink', version: flexmark_version
+    implementation group: 'com.vladsch.flexmark', name: 'flexmark-ext-anchorlink', version: flexmark_version
     implementation group: 'com.vladsch.flexmark', name: 'flexmark-ext-toc', version: flexmark_version
     implementation group: 'com.vladsch.flexmark', name: 'flexmark-ext-emoji', version: flexmark_version
 

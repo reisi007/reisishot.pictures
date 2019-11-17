@@ -1,6 +1,7 @@
 package pictures.reisishot.mise.backend.generator.pages
 
 import at.reisishot.mise.commons.*
+import com.vladsch.flexmark.ext.anchorlink.AnchorLinkExtension
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension
 import com.vladsch.flexmark.ext.emoji.EmojiExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
@@ -49,7 +50,8 @@ class PageGenerator : WebsiteGenerator {
                 AutolinkExtension.create(),
                 TablesExtension.create(),
                 TocExtension.create(),
-                EmojiExtension.create()
+                EmojiExtension.create(),
+                AnchorLinkExtension.create()
         )
 
         val parser = Parser.builder()
