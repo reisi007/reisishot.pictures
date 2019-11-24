@@ -59,7 +59,7 @@ gulp.task('vendorScripts', function () {
 
 gulp.task('copyStatic', function () {
     return gulp
-        .src('./src/static/**/*')
+        .src('./src/static/**/*', {dot: true})
         .pipe(gulp.dest('generated'))
 });
 
