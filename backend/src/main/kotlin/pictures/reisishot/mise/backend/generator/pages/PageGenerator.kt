@@ -39,7 +39,7 @@ class PageGenerator : WebsiteGenerator {
     override val generatorName: String = "Reisishot Page"
 
     companion object {
-        const val MENU_NAME_SEPARATOR = "--"
+        const val FILENAME_SEPERATOR = "--"
         const val LINKTYPE_PAGE = "PAGE"
     }
 
@@ -82,6 +82,10 @@ class PageGenerator : WebsiteGenerator {
     private lateinit var galleryGenerator: GalleryGenerator
     private val displayReplacePattern = Regex("[\\-_]")
 
+    data class FilenameParts(val menuContainerName: String, val destinationPath: Path, val globalPriority: Int,
+                             val menuItemName: String, val menuItemDisplayName: String, val menuItemPriority: Int,
+                             val folderName: String, val folderDisplayName: String)
+
     private fun Path.computePageGeneratorInfo(configuration: WebsiteConfiguration, cache: BuildingCache): PageGeneratorInfo {
         configuration.inPath.relativize(this).let { filename ->
             if (filename.toString().startsWith("index.", true)) {
@@ -93,56 +97,67 @@ class PageGenerator : WebsiteGenerator {
                 )
             }
 
-            var inFilename = fileName.filenameWithoutExtension
+            val filenameParts = calculateFilenameParts(configuration)
 
-            val globalPriority = inFilename.substringBefore(MENU_NAME_SEPARATOR).toIntOrNull() ?: 0
-            inFilename = inFilename.substringAfter(MENU_NAME_SEPARATOR)
-
-            val menuContainerName =
-                    inFilename.substringBefore(MENU_NAME_SEPARATOR).replace(displayReplacePattern, " ")
-            inFilename = inFilename.substringAfter(MENU_NAME_SEPARATOR)
-            val menuItemPriority = inFilename.substringBefore(MENU_NAME_SEPARATOR)
-                    .toIntOrNull()
-                    ?.also { inFilename = inFilename.substringAfter(MENU_NAME_SEPARATOR) }
-                    ?: 0
-            val rawMenuItemName = inFilename.substringAfter(MENU_NAME_SEPARATOR)
-            val menuItemName =
-                    rawMenuItemName.replace(displayReplacePattern, " ")
-
-            val outFile =
-                    configuration.inPath.relativize(this)
-                            .resolveSibling("${rawMenuItemName.toLowerCase()}/index.html")
-            val link = outFile.parent.toString()
-
-            if (menuContainerName.isBlank()) {
-                cache.addLinkcacheEntryFor(LINKTYPE_PAGE, menuItemName, link)
-                if (globalPriority > 0)
+            val link = filenameParts.destinationPath.parent.toString()
+            if (filenameParts.menuContainerName.isBlank()) {
+                cache.addLinkcacheEntryFor(LINKTYPE_PAGE, filenameParts.folderDisplayName, link)
+                if (filenameParts.globalPriority > 0)
                     cache.addMenuItem(
-                            generatorName + "_" + menuContainerName,
-                            globalPriority,
+                            generatorName + "_" + filenameParts.menuContainerName,
+                            filenameParts.globalPriority,
                             link,
-                            menuItemName
+                            filenameParts.menuItemDisplayName
                     )
             } else {
-                cache.addLinkcacheEntryFor(LINKTYPE_PAGE, "$menuContainerName-$menuItemName", link)
-                if (globalPriority > 0)
+                cache.addLinkcacheEntryFor(LINKTYPE_PAGE, "${filenameParts.menuContainerName}--${filenameParts.folderDisplayName}", link)
+                if (filenameParts.globalPriority > 0)
                     cache.addMenuItemInContainerNoDupes(
-                            generatorName + "_" + menuContainerName,
-                            menuContainerName,
-                            globalPriority,
-                            menuItemName,
+                            generatorName + "_" + filenameParts.menuContainerName,
+                            filenameParts.menuContainerName,
+                            filenameParts.globalPriority,
+                            filenameParts.menuItemDisplayName,
                             link,
-                            elementIndex = menuItemPriority
+                            elementIndex = filenameParts.menuItemPriority
                     )
             }
 
             return Triple(
                     this,
-                    configuration.outPath.resolve(outFile),
-                    menuItemName
+                    filenameParts.destinationPath,
+                    filenameParts.menuItemDisplayName
             )
         }
     }
+
+    private fun Path.calculateFilenameParts(configuration: WebsiteConfiguration): FilenameParts {
+        var inFilename = filenameWithoutExtension
+
+        val globalPriority = inFilename.substringBefore(FILENAME_SEPERATOR).toIntOrNull() ?: 0
+        inFilename = inFilename.substringAfter(FILENAME_SEPERATOR)
+
+        val menuContainerName =
+                inFilename.substringBefore(FILENAME_SEPERATOR).replace(displayReplacePattern, " ")
+        inFilename = inFilename.substringAfter(FILENAME_SEPERATOR)
+        val menuItemPriority = inFilename.substringBefore(FILENAME_SEPERATOR)
+                .toIntOrNull()
+                ?.also { inFilename = inFilename.substringAfter(FILENAME_SEPERATOR) }
+                ?: 0
+
+        val rawMenuItemName = inFilename.substringBefore(FILENAME_SEPERATOR)
+        val rawFolderName = inFilename.substringAfter(FILENAME_SEPERATOR)
+
+        val menuItemName = rawMenuItemName.replace(displayReplacePattern, " ")
+        val folderName = rawFolderName.replace(displayReplacePattern, " ")
+
+
+        val outFile = configuration.inPath.relativize(this)
+                .resolveSibling("${rawFolderName.toLowerCase()}/index.html")
+                .let { configuration.outPath.resolve(it) }
+
+        return FilenameParts(menuContainerName, outFile, globalPriority, rawMenuItemName, menuItemName, menuItemPriority, rawFolderName, folderName)
+    }
+
 
     override suspend fun fetchInitialInformation(
             configuration: WebsiteConfiguration,
@@ -176,7 +191,11 @@ class PageGenerator : WebsiteGenerator {
                 velocityContext.put("please", galleryObject)
 
                 StringWriter().let {
-                    velocity.evaluate(velocityContext, it, "Velocity", templateData)
+                    try {
+                        velocity.evaluate(velocityContext, it, "Velocity", templateData)
+                    } catch (e: Exception) {
+                        throw IllegalStateException("Could not parse $originalFilename!", e)
+                    }
                     it.toString()
                 }.let { html ->
                     PageGenerator.generatePage(
