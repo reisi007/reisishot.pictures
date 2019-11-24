@@ -99,7 +99,7 @@ class PageGenerator : WebsiteGenerator {
 
             val filenameParts = calculateFilenameParts(configuration)
 
-            val link = filenameParts.destinationPath.parent.toString()
+            val link = configuration.outPath.relativize(filenameParts.destinationPath.parent).toString()
             if (filenameParts.menuContainerName.isBlank()) {
                 cache.addLinkcacheEntryFor(LINKTYPE_PAGE, filenameParts.folderDisplayName, link)
                 if (filenameParts.globalPriority > 0)
