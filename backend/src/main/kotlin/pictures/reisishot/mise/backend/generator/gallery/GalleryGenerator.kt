@@ -153,10 +153,10 @@ class GalleryGenerator(
                     div("container") {
                         curImageInformation.exifInformation.forEach { (type, value) ->
                             div("row justify-content-between") {
-                                div("col-3 align-self-center") {
+                                div("col-md-3 align-self-center") {
                                     text("${type.displayName}:")
                                 }
-                                div("col-9 align-self-center") {
+                                div("col-md-9 align-self-center") {
                                     when (type) {
                                         ExifdataKey.CREATION_TIME -> text(
                                                 ZonedDateTime.parse(value).format(
