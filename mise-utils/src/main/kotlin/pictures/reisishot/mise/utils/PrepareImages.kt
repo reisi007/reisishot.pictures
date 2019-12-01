@@ -13,7 +13,7 @@ object PrepareImages {
     fun main(args: Array<String>) {
         val folder = Paths.get(args.first())
         val configFile = """
-                        title = 
+                        title = ""
                         tags = [
                         
                         ]

@@ -8,17 +8,20 @@ import com.typesafe.config.ConfigParseOptions
 import com.typesafe.config.ConfigRenderOptions
 import io.github.config4k.extract
 import io.github.config4k.toConfig
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
 import java.nio.file.Path
 
 fun ImageConfig.writeConfig(p: Path) {
     val name = "image"
-    toConfig(name)
+    val config = toConfig(name)
             .getConfig(name)
             .root()
             .render(ConfigRenderOptions.defaults().apply {
                 json = false
                 originComments = false
             })
+    Files.newBufferedWriter(p, StandardCharsets.UTF_8).use { it.write(config) }
 }
 
 fun Path.getConfig(configParseOptions: ConfigParseOptions = ConfigParseOptions.defaults()): Config? =

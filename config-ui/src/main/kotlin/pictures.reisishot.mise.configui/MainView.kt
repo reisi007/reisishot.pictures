@@ -31,14 +31,14 @@ class MainView : View("Main View") {
         isPreserveRatio = true
         maxWidth(Double.POSITIVE_INFINITY)
     }
+    private lateinit var lastPath: Path
     private val titleField = TextField()
     private val tagField = AutocompleteMultiSelectionBox()
     private val saveButton = Button("Speichern").apply {
         hgrow = Priority.ALWAYS
         maxWidth = Double.POSITIVE_INFINITY
         setOnAction {
-            if (imageConfigs.isNotEmpty())
-                saveImageConfig(imageConfigs.first())
+            saveImageConfig()
         }
     }
 
@@ -54,7 +54,6 @@ class MainView : View("Main View") {
 
         imageView.fitWidthProperty().bind(widthProperty())
         imageView.fitHeightProperty().bind(heightProperty() - menuBar.heightProperty() - form.heightProperty() - saveButton.heightProperty() - ((children.size) * spacing))
-
 
         add(menuBar)
         addInHBox(imageView)
@@ -146,21 +145,17 @@ class MainView : View("Main View") {
         loadNextImage()
     }
 
-    private fun saveImageConfig(e: Pair<Path, ImageConfig>) = e.let { (path, c) ->
-        c.let { config ->
-
-            val tags = tagField.tags.toSet()
-            val title = titleField.text ?: config.title
-            config.copy(title, tags = tags)
-        }.writeConfig(path)
-        if (imageConfigs.isNotEmpty())
-            imageConfigs.removeAt(0)
+    private fun saveImageConfig() {
+        val tags = tagField.tags.toSet()
+        val title = titleField.text
+        ImageConfig(title, tags = tags).writeConfig(lastPath)
         loadNextImage()
     }
 
     private fun loadNextImage() {
         val (path, imageConfig) = imageConfigs.firstOrNull() ?: return
         imageConfigs.removeFirst()
+        lastPath = path
         imageView.image = Image(Files.newInputStream(path.let { it.resolveSibling(it.filenameWithoutExtension + ".jpg") }))
         tagField.tags.addAll(imageConfig.tags)
         titleField.text = imageConfig.title

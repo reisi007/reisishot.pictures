@@ -4,6 +4,7 @@ import at.reisishot.mise.commons.forEachLimitedParallel
 import at.reisishot.mise.commons.forEachParallel
 import at.reisishot.mise.commons.hasExtension
 import at.reisishot.mise.commons.prettyPrint
+import com.sun.nio.file.ExtendedWatchEventModifier
 import kotlinx.coroutines.*
 import pictures.reisishot.mise.backend.generator.*
 import pictures.reisishot.mise.backend.generator.ChangeState.*
@@ -11,7 +12,7 @@ import java.nio.file.*
 import java.nio.file.StandardWatchEventKinds.*
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.stream.Collectors.*
+import kotlin.collections.HashSet
 
 object Mise {
 
@@ -86,7 +87,7 @@ object Mise {
     private suspend fun WebsiteConfiguration.startIncrementalGeneration(cache: BuildingCache, generators: Map<Int, List<WebsiteGenerator>>) = doing("Waiting for changes in order to perform an incremental build") {
         val watchKey = withContext(Dispatchers.IO) {
             FileSystems.getDefault().newWatchService().let {
-                inPath.register(it, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE)
+                inPath.register(it, arrayOf(ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE), ExtendedWatchEventModifier.FILE_TREE)
             }
         }
         val coroutineDispatcher = newFixedThreadPoolContext(
@@ -94,13 +95,13 @@ object Mise {
         )
         while (interactiveDelayMs != null) {
             delay(interactiveDelayMs)
-            watchKey.processEvents(this, cache, generators, coroutineDispatcher)
+            watchKey.processEvents(this, inPath, cache, generators, coroutineDispatcher)
         }
     }
 
 
-    private suspend fun WatchKey.processEvents(configuration: WebsiteConfiguration, cache: BuildingCache, generatorMap: Map<Int, List<WebsiteGenerator>>, coroutineDispatcher: CoroutineDispatcher) {
-        val changedFileset = pollEvents(configuration)
+    private suspend fun WatchKey.processEvents(configuration: WebsiteConfiguration, watchedDir: Path, cache: BuildingCache, generatorMap: Map<Int, List<WebsiteGenerator>>, coroutineDispatcher: CoroutineDispatcher) {
+        val changedFileset = pollEvents(configuration, watchedDir)
         if (changedFileset.isNotEmpty())
             doing("Incremental build") {
                 val generators = mutableListOf<WebsiteGenerator>()
@@ -120,14 +121,14 @@ object Mise {
             }
     }
 
-    private suspend fun WatchKey.pollEvents(configuration: WebsiteConfiguration): ChangeFileset {
+    private suspend fun WatchKey.pollEvents(configuration: WebsiteConfiguration, watchedDir: Path): ChangeFileset {
         val polledEvents = pollEvents()
         reset()
-        val changedFileset = mapToInternal(polledEvents, configuration)
+        val changedFileset = mapToInternal(polledEvents, watchedDir, configuration)
         changedFileset.prettyPrint()
         if (changedFileset.isNotEmpty()) {
             delay(1000)
-            val nextEvents = pollEvents(configuration)
+            val nextEvents = pollEvents(configuration, watchedDir)
             nextEvents.forEach { (p, changeStates) ->
                 changedFileset.computeIfAbsent(p) { key -> mutableSetOf() } += changeStates
             }
@@ -135,18 +136,29 @@ object Mise {
         return changedFileset
     }
 
-    fun mapToInternal(polledEvents: List<WatchEvent<*>>, configuration: WebsiteConfiguration): MutableChangedFileset =
-            polledEvents.stream()
-                    .map { it.getContextPath() to it.kind() }
-                    .map { (path, kind) -> path.filterIllegalPaths(configuration) to kind.asChangeState() }
-                    .filter { (path, kind) -> kind != null && path != null }
-                    .map { (a, b) -> a!! to b!! }
-                    .collect(groupingBy({ it.first }, mapping({ it.second }, toSet())))
+    fun mapToInternal(polledEvents: List<WatchEvent<*>>, watchedDir: Path, configuration: WebsiteConfiguration): MutableChangedFileset {
+        val events: MutableChangedFileset = mutableMapOf()
+
+        polledEvents.forEach {
+            val path = it.getContextPath()
+                    ?.let { watchedDir.resolve(it).normalize() }
+                    ?.filterIllegalPaths(configuration)
+                    ?: return@forEach
+            val kind = it.kind()?.asChangeState() ?: return@forEach
+            events.computeIfAbsent(path) { HashSet() } += kind
+        }
+
+        return events
+    }
 
     private fun Path?.filterIllegalPaths(websiteConfiguration: WebsiteConfiguration): Path? = this?.let {
-        if (it.hasExtension(*websiteConfiguration.interactiveIgnoredFiles))
-            null
-        else it
+        if (
+                Files.exists(this) &&
+                Files.isRegularFile(this) &&
+                !it.hasExtension(*websiteConfiguration.interactiveIgnoredFiles)
+        )
+            it
+        else null
     }
 
     private fun WatchEvent.Kind<*>.asChangeState(): ChangeState? = when (this) {
