@@ -3,7 +3,6 @@ package pictures.reisishot.mise.configui
 import at.reisishot.mise.commons.fileExtension
 import at.reisishot.mise.commons.filenameWithoutExtension
 import at.reisishot.mise.commons.isConf
-import at.reisishot.mise.commons.isRegularFile
 import at.reisishot.mise.config.ImageConfig
 import at.reisishot.mise.config.parseConfig
 import at.reisishot.mise.config.writeConfig
@@ -42,7 +41,7 @@ class MainView : View("Main View") {
         }
     }
 
-    private val knownTags = tagField.suggestions
+    private val knownTags = mutableSetOf<String>()
     private val imageConfigs = LinkedList<Pair<Path, ImageConfig>>()
     private var initialDirectory: File = File("D:\\Reisishot\\MiSe\\input\\images")
 
@@ -119,16 +118,22 @@ class MainView : View("Main View") {
                     } while (dir == null || !Files.list(dir).anyMatch { it.fileExtension.isConf() })
 
                     initialDirectory = dir.toFile()
+                    val configNoTags = Files.list(dir)
+                            .filter { it.fileExtension.isConf() }
+                            .map { p -> p to p.parseConfig<ImageConfig>() }
+                            .filter { (_, config) -> config != null }
+                            .map {
+                                @Suppress("UNCHECKED_CAST")
+                                it as Pair<Path, ImageConfig>
+                            }.filter { (_, config) -> config.tags.isEmpty() }
+                            .asSequence()
+                    val imagesNoConfig = Files.list(dir)
+                            .map { it.resolveSibling(it.filenameWithoutExtension + ".conf") }
+                            .filter { !Files.exists(it) }
+                            .map { it to ImageConfig("", tags = setOf()) }
+                            .asSequence()
                     loadImageConfig(
-                            Files.list(dir)
-                                    .filter { it.fileExtension.isConf() }
-                                    .map { p -> p to p.parseConfig<ImageConfig>() }
-                                    .filter { (_, config) -> config != null }
-                                    .map {
-                                        @Suppress("UNCHECKED_CAST")
-                                        it as Pair<Path, ImageConfig>
-                                    }.filter { (_, config) -> config.tags.isEmpty() }
-                                    .asSequence()
+                            imagesNoConfig + configNoTags
                     )
                 }
             }
@@ -137,7 +142,8 @@ class MainView : View("Main View") {
 
 
     private fun loadImageConfig(fileSequence: Sequence<Pair<Path, ImageConfig>>) {
-        imageConfigs.addAll(fileSequence.toList())
+        val files = fileSequence.toList()
+        imageConfigs.addAll(files)
         imageConfigs.firstOrNull()?.let { (p, _) ->
             knownTags.clear()
             knownTags.addAll(p.loadTagList())
@@ -148,6 +154,7 @@ class MainView : View("Main View") {
     private fun saveImageConfig() {
         val tags = tagField.tags.toSet()
         val title = titleField.text
+        knownTags += tags
         ImageConfig(title, tags = tags).writeConfig(lastPath)
         loadNextImage()
     }
@@ -157,15 +164,23 @@ class MainView : View("Main View") {
         imageConfigs.removeFirst()
         lastPath = path
         imageView.image = Image(Files.newInputStream(path.let { it.resolveSibling(it.filenameWithoutExtension + ".jpg") }))
-        tagField.tags.addAll(imageConfig.tags)
+        with(tagField.suggestions) {
+            clear()
+            addAll(knownTags)
+        }
+        with(tagField.tags) {
+            clear()
+            addAll(imageConfig.tags)
+        }
         titleField.text = imageConfig.title
     }
 
     private fun Path.loadTagList(): List<String> {
-        if (isRegularFile())
+        if (!Files.isDirectory(this))
             return parent?.loadTagList() ?: emptyList()
         return Files.list(this)
                 .asSequence()
+                .filter { Files.exists(it) }
                 .filter { it.fileExtension.isConf() }
                 .map { it.parseConfig<ImageConfig>() }
                 .filterNotNull()
