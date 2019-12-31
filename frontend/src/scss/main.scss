@@ -80,10 +80,22 @@ main {
 }
 
 // Allign the subcategories view
-.subcategories {
+.category-thumbnails {
   display: flex;
   justify-content: space-evenly;
   flex-wrap: wrap;
+
+  .card {
+    $h: 33vh;
+    min-height: $h;
+    max-height: $h;
+
+    img {
+      max-height: $h - 10vh;
+      margin: 0 auto;
+      display: block;
+    }
+  }
 
   div {
     max-width: 33.33%;
@@ -240,20 +252,6 @@ footer {
           max-height: $maxCarouselImageHeight;
         }
       }
-    }
-  }
-}
-
-.subcategories {
-  .card {
-    $h: 33vh;
-    min-height: $h;
-    max-height: $h;
-
-    img {
-      max-height: $h - 10vh;
-      margin: 0 auto;
-      display: block;
     }
   }
 }

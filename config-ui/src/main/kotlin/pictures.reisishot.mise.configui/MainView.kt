@@ -1,8 +1,6 @@
 package pictures.reisishot.mise.configui
 
-import at.reisishot.mise.commons.fileExtension
-import at.reisishot.mise.commons.filenameWithoutExtension
-import at.reisishot.mise.commons.isConf
+import at.reisishot.mise.commons.*
 import at.reisishot.mise.config.ImageConfig
 import at.reisishot.mise.config.parseConfig
 import at.reisishot.mise.config.writeConfig
@@ -90,18 +88,32 @@ class MainView : View("Main View") {
         menu("Datei") {
             item("Config öffnen") {
                 setOnAction {
-                    var path: Path?
-                    var parsedConfig: ImageConfig?
+                    var path: List<Path>
                     do {
-                        path = with(FileChooser()) {
+                        with(FileChooser()) {
                             initialDirectory = this@MainView.initialDirectory
-                            extensionFilters.add(FileChooser.ExtensionFilter("Config files", "*.conf"))
-                            showOpenDialog(null)
-                        }?.toPath()
-                        parsedConfig = path?.parseConfig<ImageConfig>()
-                    } while (path == null || parsedConfig == null)
-                    initialDirectory = path.toFile()
-                    loadImageConfig(sequenceOf(path to parsedConfig))
+                            extensionFilters.add(FileChooser.ExtensionFilter("Image files", "*.jpg", "*.jpeg"))
+                            val showOpenMultipleDialog = showOpenMultipleDialog(null)
+                            path = showOpenMultipleDialog
+                                    ?.asSequence()
+                                    ?.map { it.toPath() }
+                                    ?.map { it.resolveSibling("${it.fileName.filenameWithoutExtension}.conf") }
+                                    ?.toList() ?: emptyList()
+                        }
+                    } while (path.isNullOrEmpty())
+                    path.first().parent?.toFile()?.let {
+                        initialDirectory = it
+                    }
+                    val configs = path.asSequence()
+                            .map {
+                                it to if (it.exists())
+                                    it.parseConfig<ImageConfig>()
+                                            ?: throw IllegalStateException("Cannot load image config from file \"$it\"!")
+                                else
+                                    ImageConfig("", tags = mutableSetOf())
+                            }
+
+                    loadImageConfig(configs)
                 }
 
             }
@@ -155,6 +167,8 @@ class MainView : View("Main View") {
         val tags = tagField.tags.toSet()
         val title = titleField.text
         knownTags += tags
+        if (!lastPath.hasExtension(FileExtension::isConf))
+            throw IllegalStateException("Cannot write to file $lastPath, it is not a valid config file!")
         ImageConfig(title, tags = tags).writeConfig(lastPath)
         loadNextImage()
     }

@@ -10,21 +10,14 @@ import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.html.a
-import kotlinx.html.div
-import kotlinx.html.stream.appendHTML
 import org.apache.commons.text.StringEscapeUtils
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.Velocity
 import org.apache.velocity.app.VelocityEngine
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.*
-import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
-import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
-import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbnails
+import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.html.PageGenerator
-import pictures.reisishot.mise.backend.html.insertImageGallery
-import pictures.reisishot.mise.backend.html.insertLazyPicture
 import pictures.reisishot.mise.backend.html.raw
 import java.io.Reader
 import java.io.StringReader
@@ -79,7 +72,7 @@ class PageGenerator : WebsiteGenerator {
     }
 
     private lateinit var speedupHtml: (Reader, FilenameWithoutExtension, WebsiteConfiguration, BuildingCache, TargetPath, String) -> Unit
-    private lateinit var galleryGenerator: GalleryGenerator
+    private lateinit var galleryGenerator: AbstractGalleryGenerator
     private val displayReplacePattern = Regex("[\\-_]")
 
     data class FilenameParts(val menuContainerName: String, val destinationPath: Path, val globalPriority: Int,
@@ -165,7 +158,7 @@ class PageGenerator : WebsiteGenerator {
             alreadyRunGenerators: List<WebsiteGenerator>
     ) {
         withContext(Dispatchers.IO) {
-            galleryGenerator = alreadyRunGenerators.find { it is GalleryGenerator } as? GalleryGenerator
+            galleryGenerator = alreadyRunGenerators.find { it is AbstractGalleryGenerator } as? AbstractGalleryGenerator
                     ?: throw IllegalStateException("Gallery generator is needed for this generator!")
 
             cache.clearMenuItems { it.id.startsWith(generatorName + "_") }
@@ -186,7 +179,7 @@ class PageGenerator : WebsiteGenerator {
             val compressHtml = """[\s\n\r]{2,}""".toRegex()
             return@run { templateData, originalFilename, websiteConfiguration, buildingCache, targetPath, title ->
                 val velocityContext = VelocityContext()
-                val galleryObject = VelocityGalleryObject(targetPath, buildingCache, websiteConfiguration)
+                val galleryObject = TemplateApi(targetPath, galleryGenerator, buildingCache, websiteConfiguration)
                 // Make objects available in Velocity templates
                 velocityContext.put("please", galleryObject)
 
@@ -194,7 +187,7 @@ class PageGenerator : WebsiteGenerator {
                     try {
                         velocity.evaluate(velocityContext, it, "Velocity", templateData)
                     } catch (e: Exception) {
-                        throw IllegalStateException("Could not parse $originalFilename!", e)
+                        throw IllegalStateException("Could not parse \"$originalFilename!\"", e)
                     }
                     it.toString()
                 }.let { html ->
@@ -320,68 +313,6 @@ class PageGenerator : WebsiteGenerator {
                     Files.deleteIfExists(it)
                 }
     }
-
-    inner class VelocityGalleryObject(
-            private val targetPath: TargetPath,
-            private val cache: BuildingCache,
-            private val websiteConfiguration: WebsiteConfiguration
-    ) {
-        private var privateHasGallery = false
-        val hasGallery
-            get() = privateHasGallery
-
-
-        private fun Map<FilenameWithoutExtension, InternalImageInformation>.getOrThrow(key: FilenameWithoutExtension) =
-                this[key]
-                        ?: throw IllegalStateException("Cannot find picture with filename \"$key\" (used in ${targetPath.filenameWithoutExtension})!")
-
-        @SuppressWarnings("unused")
-        fun insertPicture(filenameWithoutExtension: FilenameWithoutExtension) = buildString {
-            appendHTML(prettyPrint = false, xhtmlCompatible = true).div {
-                with(galleryGenerator.cache) {
-                    insertLazyPicture(imageInformationData.getOrThrow(filenameWithoutExtension))
-                }
-            }
-        }
-
-        @SuppressWarnings("unused")
-        fun insertGallery(
-                galleryName: String,
-                vararg filenameWithoutExtension: FilenameWithoutExtension
-        ): String {
-            privateHasGallery = privateHasGallery || filenameWithoutExtension.isNotEmpty()
-            return with(galleryGenerator.cache) {
-                filenameWithoutExtension.asSequence()
-                        .map {
-                            imageInformationData.getOrThrow(it)
-                        }.toArray(filenameWithoutExtension.size).let { imageInformations ->
-                            buildString {
-                                appendHTML(prettyPrint = false, xhtmlCompatible = true).div {
-                                    insertImageGallery(galleryName, *imageInformations)
-                                }
-                            }
-                        }
-            }
-        }
-
-        @SuppressWarnings("unused")
-        fun insertLink(type: String, key: String): String = websiteConfiguration.websiteLocation + cache.getLinkcacheEntryFor(type, key)
-
-        @SuppressWarnings("unused")
-        fun insertLink(linktext: String, type: String, key: String): String = buildString {
-            appendHTML(false, true).a(insertLink(type, key)) {
-                text(linktext)
-            }
-        }
-
-        @SuppressWarnings("unused")
-        fun insertSubalbumThumbnails(albumName: String?): String = buildString {
-            appendHTML(false, true).div {
-                insertSubcategoryThumbnails(CategoryName(albumName ?: ""), galleryGenerator)
-            }
-        }
-    }
-
 }
 typealias SourcePath = Path;
 typealias TargetPath = Path;

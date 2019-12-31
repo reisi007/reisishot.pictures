@@ -222,8 +222,8 @@ object PageGenerator {
                 sequenceOf(
                         "id" to "cookieinfo",
                         "data-message" to "Hier werden Cookies verwendet. Wenn Sie fortfahren akzeptieren Sie die Verwendung von Cookies",
-                        "data-linkmsg" to "Weitere Informationen zu Cookies",
-                        "data-moreinfo" to "https://de.wikipedia.org/wiki/HTTP-Cookie",
+                        "data-linkmsg" to "Weitere Informationen zum Datenschutz",
+                        "data-moreinfo" to "https://reisishot.pictures/datenschutz",
                         "data-close-text" to "Akzeptieren",
                         "data-accept-on-scroll" to "true"
                 )

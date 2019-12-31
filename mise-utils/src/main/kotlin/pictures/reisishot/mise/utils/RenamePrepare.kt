@@ -22,7 +22,7 @@ object RenamePrepare {
             Paths.get(inputFolder).let { basePath ->
                 Files.walk(basePath).asSequence()
                         .filter { Files.isRegularFile(it) }
-                        .sortedByDescending { Files.getLastModifiedTime(it) }
+                        .sortedBy { Files.getLastModifiedTime(it) }
                         .map { it.filenameWithoutExtension }
                         .distinct()
                         .peek {

@@ -57,7 +57,6 @@ Redirect 301 /gallery/categories/2017/juni/ https://reisishot.pictures/gallery/c
 Redirect 301 /gallery/categories/2018/Mai/4/ https://reisishot.pictures/gallery/categories/2018/05/04/
 Redirect 301 /gallery/categories/2019/Mai/ https://reisishot.pictures/gallery/categories/2019/05/
 Redirect 301 /gallery/categories/2019/jänner/20 https://reisishot.pictures/gallery/categories/2019/01/20
-Redirect 301 /gallery/tags/portfolio/ https://reisishot.pictures/gallery/tags/portfolio/
 Redirect 301 /About-me/ https://reisishot.pictures/about-me/
 Redirect 301 /gallery/categories/Personen/Männer/ https://reisishot.pictures/gallery/categories/personen/mann/
 Redirect 301 /gallery/categories/Personen/Musiker/ https://reisishot.pictures/gallery/categories/personen/musiker/
@@ -520,6 +519,7 @@ Redirect gone "/picture/183/category/natur"
 Redirect gone "/picture/184/categories"
 Redirect gone "/picture/184/category/natur"
 Redirect gone "/picture/185/tags/vogel"
+Redirect gone "/gallery/tags/portfolio/"
 Redirect gone "/picture/186/category/natur/blumen"
 Redirect gone "/picture/186/category/staedte/baden-bei-wien"
 Redirect gone "/picture/186/tags/biene"
@@ -1092,8 +1092,8 @@ Redirect 301 "/gallery/tags/Biene/" https://reisishot.pictures/gallery/tags/bien
 Redirect 301 "/gallery/tags/Budapest/" https://reisishot.pictures/gallery/tags/budapest/
 Redirect 301 "/gallery/tags/Detailaufnahme" https://reisishot.pictures/gallery/tags/detailaufnahme/
 Redirect 301 "/gallery/tags/Detailaufnahme/" https://reisishot.pictures/gallery/tags/detailaufnahme/
-Redirect 301 "/gallery/tags/Feuerwerk" https://reisishot.pictures/gallery/tags/feuerwerk/
-Redirect 301 "/gallery/tags/Feuerwerk/" https://reisishot.pictures/gallery/tags/feuerwerk/
+Redirect 301 "/gallery/tags/Feuerwerk" https://reisishot.pictures/gallery/tags/feuerwerk
+Redirect 301 "/gallery/tags/Feuerwerk/" https://reisishot.pictures/gallery/tags/feuerwerk
 Redirect 301 "/gallery/tags/Floorball" https://reisishot.pictures/gallery/tags/floorball/
 Redirect 301 "/gallery/tags/Floorball/" https://reisishot.pictures/gallery/tags/floorball/
 Redirect 301 "/gallery/tags/Frau/" https://reisishot.pictures/gallery/tags/frau/
@@ -1131,7 +1131,6 @@ Redirect 301 "/gallery/tags/Sandra-Fraubaum" https://reisishot.pictures/gallery/
 Redirect 301 "/gallery/tags/Sandra-Fraubaum/" https://reisishot.pictures/gallery/tags/sandra-fraubaum/
 Redirect 301 "/gallery/tags/Sarah-B/" https://reisishot.pictures/gallery/tags/sarah-b/
 Redirect 301 "/gallery/tags/Sarah-B/" https://reisishot.pictures/gallery/tags/sarah-b/
-Redirect 301 "/gallery/tags/schwarz-weiss" https://reisishot.pictures/gallery/tags/schwarz-weiss/
 Redirect 301 "/gallery/tags/Schwarz-Weiß/" https://reisishot.pictures/gallery/tags/schwarz-weiß/
 Redirect 301 "/gallery/tags/Schwebfliege" https://reisishot.pictures/gallery/tags/schwebfliege/
 Redirect 301 "/gallery/tags/Schwebfliege/" https://reisishot.pictures/gallery/tags/schwebfliege/
@@ -1203,52 +1202,13 @@ Redirect 301 /gallery/categories/2018/juni/ https://reisishot.pictures/gallery/c
 Redirect 301 /gallery/categories/2018/april/ https://reisishot.pictures/gallery/categories/2018/04/
 Redirect 301 /gallery/categories/2018/mai/4/ https://reisishot.pictures/gallery/categories/2018/05/04/
 Redirect 301 /gallery/categories/2019/mai/ https://reisishot.pictures/gallery/categories/2019/05/
-Redirect 301 /about-me/ https://reisishot.pictures/about-me/
-Redirect 301 /gallery/categories/personen/mann/ https://reisishot.pictures/gallery/categories/personen/mann/
-Redirect 301 /gallery/categories/personen/musiker/ https://reisishot.pictures/gallery/categories/personen/musiker/
 Redirect 301 /gallery/categories/personen/tfp/ https://reisishot.pictures/gallery/categories/personen/tfp-shootings/
 Redirect 301 /gallery/images/anja07/ https://reisishot.pictures/gallery/images/anjah007/
 Redirect 301 /gallery/images/biene004/ https://reisishot.pictures/gallery/images/biene0004/
-Redirect 301 /gallery/images/blume0005/ https://reisishot.pictures/gallery/images/blume0005/
-Redirect 301 /gallery/images/blume0027/ https://reisishot.pictures/gallery/images/blume0027/
-Redirect 301 /gallery/images/blume0030/ https://reisishot.pictures/gallery/images/blume0030/
-Redirect 301 /gallery/images/blume0031/ https://reisishot.pictures/gallery/images/blume0031/
-Redirect 301 /gallery/images/blume0053/ https://reisishot.pictures/gallery/images/blume0053/
-Redirect 301 /gallery/images/blume0058/ https://reisishot.pictures/gallery/images/blume0058/
-Redirect 301 /gallery/images/blume0084/ https://reisishot.pictures/gallery/images/blume0084/
-Redirect 301 /gallery/images/blume0086/ https://reisishot.pictures/gallery/images/blume0086/
-Redirect 301 /gallery/images/blume0109/ https://reisishot.pictures/gallery/images/blume0109/
-Redirect 301 /gallery/images/blume0111/ https://reisishot.pictures/gallery/images/blume0111/
-Redirect 301 /gallery/images/frau01/ https://reisishot.pictures/gallery/images/frau01/
-Redirect 301 /gallery/images/frau03/ https://reisishot.pictures/gallery/images/frau03/
-Redirect 301 /gallery/images/insekt02/ https://reisishot.pictures/gallery/images/insekt002/
-Redirect 301 /gallery/images/katze001/ https://reisishot.pictures/gallery/images/katze001/
-Redirect 301 /gallery/images/lentos01/ https://reisishot.pictures/gallery/images/lentos01/
-Redirect 301 /gallery/images/passau02/ https://reisishot.pictures/gallery/images/passau002/
-Redirect 301 /gallery/images/passau03/ https://reisishot.pictures/gallery/images/passau003/
-Redirect 301 /gallery/images/passau04/ https://reisishot.pictures/gallery/images/passau004/
-Redirect 301 /gallery/images/pferd001/ https://reisishot.pictures/gallery/images/pferd001/
-Redirect 301 /gallery/images/raureif02/ https://reisishot.pictures/gallery/images/raureif02/
-Redirect 301 /gallery/images/sarahb02/ https://reisishot.pictures/gallery/images/sarahb002/
-Redirect 301 /gallery/images/sarahb07/ https://reisishot.pictures/gallery/images/sarahb007/
-Redirect 301 /gallery/images/vogel004/ https://reisishot.pictures/gallery/images/vogel004/
-Redirect 301 /gallery/images/vogel008/ https://reisishot.pictures/gallery/images/vogel008/
-Redirect 301 /gallery/tags/attersee/ https://reisishot.pictures/gallery/tags/attersee/
-Redirect 301 /gallery/tags/ebensee/ https://reisishot.pictures/gallery/tags/ebensee/
-Redirect 301 /gallery/tags/fotowalk/ https://reisishot.pictures/gallery/tags/fotowalk/
-Redirect 301 /gallery/tags/hornisse/ https://reisishot.pictures/gallery/tags/hornisse/
-Redirect 301 /gallery/tags/hund/ https://reisishot.pictures/gallery/tags/hund/
 Redirect 301 "/gallery/tags/jku sommerfest/" https://reisishot.pictures/gallery/tags/jku-sommerfest/
-Redirect 301 /gallery/tags/mond/ https://reisishot.pictures/gallery/tags/mond/
-Redirect 301 /gallery/tags/passau/ https://reisishot.pictures/gallery/tags/passau/
-Redirect 301 /gallery/tags/pferd/ https://reisishot.pictures/gallery/tags/pferd/
-Redirect 301 /gallery/tags/salzburg/ https://reisishot.pictures/gallery/tags/salzburg/
 Redirect 301 "/gallery/tags/tfp oö/" https://reisishot.pictures/gallery/tags/tfp-ooe/
 Redirect 301 /gallery/tags/tfp-nö https://reisishot.pictures/gallery/tags/tfp-noe/
 Redirect 301 /gallery/tags/traunkirchen https://reisishot.pictures/gallery/tags/traunkirchen/
-Redirect 301 /gallery/tags/traunkirchen/ https://reisishot.pictures/gallery/tags/traunkirchen/
-Redirect 301 /gallery/tags/weihnachten/ https://reisishot.pictures/gallery/tags/weihnachten/
-Redirect 301 /gallery/tags/wespe/ https://reisishot.pictures/gallery/tags/wespe/
 Redirect gone "/about.php"
 Redirect 301 "/gallery/images/Spinne02/" https://reisishot.pictures/gallery/images/spinne02/
 Redirect 301 "/gallery/images/Spinne02/" https://reisishot.pictures/gallery/images/spinne02/
@@ -1541,3 +1501,21 @@ Redirect 301 "/tipps/Wie-schaut-ein-Shooting-bei-mir-aus/" https://reisishot.pic
 Redirect 301 "/tipps/Wie-schaut-ein-Shooting-bei-mir-aus/" https://reisishot.pictures/tipps/wie-schaut-ein-shooting-bei-mir-aus/
 Redirect gone "/picture/202/category/jahreszeiten"
 Redirect gone "/picture.php"
+Redirect 301 "gallery/tags/tfp-leonding" https://reisishot.pictures/gallery/categories/personen/
+Redirect 301 "gallery/tags/tfp-linz" https://reisishot.pictures/gallery/categories/personen/
+Redirect 301 "gallery/tags/tfp-noe" https://reisishot.pictures/gallery/categories/personen/
+Redirect 301 "gallery/tags/tfp-wien" https://reisishot.pictures/gallery/categories/personen/
+Redirect 301 "categories/personen/tfp-shootings/" https://reisishot.pictures/gallery/categories/personen/
+
+Redirect 301 "gallery/categories/personen/frauen" https://reisishot.pictures/gallery/categories/fotoshootings/frauen
+Redirect 301 "gallery/categories/personen/musiker" https://reisishot.pictures/gallery/categories/fotoshootings/musiker
+Redirect 301 "gallery/categories/personen/m%C3%A4nner" https://reisishot.pictures/gallery/categories/fotoshootings/m%C3%A4nner
+Redirect 301 "gallery/categories/personen/paare" https://reisishot.pictures/gallery/categories/fotoshootings/paare
+Redirect 301 "gallery/categories/personen/sport" https://reisishot.pictures/gallery/categories/fotoshootings/sport
+Redirect 301 "gallery/categories/personen/sport/beachvolleyball" https://reisishot.pictures/gallery/categories/fotoshootings/sport/beachvolleyball
+Redirect 301 "gallery/categories/personen/sport/floorball" https://reisishot.pictures/gallery/categories/fotoshootings/sport/floorball
+
+RewriteCond %{HTTP_HOST} !=""
+RewriteCond %{THE_REQUEST} ^[A-Z]+\s//+(.*)\sHTTP/[0-9.]+$ [OR]
+RewriteCond %{THE_REQUEST} ^[A-Z]+\s(.*/)/+\sHTTP/[0-9.]+$
+RewriteRule .* http://%{HTTP_HOST}/%1 [R=301,L]

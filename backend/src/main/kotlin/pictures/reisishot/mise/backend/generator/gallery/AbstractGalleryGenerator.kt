@@ -270,14 +270,19 @@ fun Map<CategoryName, InternalImageInformation>.getThumbnailImageInformation(
                 ?: generator.cache.imageInformationData[generator.cache.computedCategories[name]?.first()]
                 ?: throw IllegalStateException("Could not find thumbnail for \"$name\"!")
 
-fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?, generator: AbstractGalleryGenerator) = with(generator.cache) {
-    val subcategories = computedSubcategories[categoryName]
+fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?, generator: AbstractGalleryGenerator) {
+    val subcategories = generator.cache.computedSubcategories[categoryName] ?: emptySet()
+    if (subcategories.isNullOrEmpty()) return
+    insertCategoryThumbnails(subcategories, generator)
+}
+
+fun DIV.insertCategoryThumbnails(subcategories: Set<CategoryName>, generator: AbstractGalleryGenerator) {
     if (!subcategories.isNullOrEmpty())
-        div("subcategories") {
+        div("category-thumbnails") {
             subcategories.asSequence()
                     .map {
-                        categoryInformation.getValue(it) to
-                                computedCategoryThumbnails.getThumbnailImageInformation(it, generator)
+                        generator.cache.categoryInformation.getValue(it) to
+                                generator.cache.computedCategoryThumbnails.getThumbnailImageInformation(it, generator)
                     }
                     .filterNotNull()
                     .sortedBy { (categoryInformation, _) -> categoryInformation.complexName }
