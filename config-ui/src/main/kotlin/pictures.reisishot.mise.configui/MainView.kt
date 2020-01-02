@@ -31,6 +31,7 @@ class MainView : View("Main View") {
     private lateinit var lastPath: Path
     private val titleField = TextField()
     private val tagField = AutocompleteMultiSelectionBox()
+    private val filenameChooser = FilenameChooser()
     private val saveButton = Button("Speichern").apply {
         hgrow = Priority.ALWAYS
         maxWidth = Double.POSITIVE_INFINITY
@@ -43,16 +44,16 @@ class MainView : View("Main View") {
     private val imageConfigs = LinkedList<Pair<Path, ImageConfig>>()
     private var initialDirectory: File = File("D:\\Reisishot\\MiSe\\input\\images")
 
-
     override val root = vbox(5) {
 
         val menuBar = getMenubar()
         val form = getEditFields()
 
         imageView.fitWidthProperty().bind(widthProperty())
-        imageView.fitHeightProperty().bind(heightProperty() - menuBar.heightProperty() - form.heightProperty() - saveButton.heightProperty() - ((children.size) * spacing))
+        imageView.fitHeightProperty().bind(heightProperty() - filenameChooser.heightProperty() - menuBar.heightProperty() - form.heightProperty() - saveButton.heightProperty() - ((children.size) * spacing))
 
         add(menuBar)
+        addInHBox(filenameChooser)
         addInHBox(imageView)
         addInHBox(form)
     }
