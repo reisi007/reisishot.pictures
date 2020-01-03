@@ -11,10 +11,12 @@ import java.util.function.Consumer
 
 class FilenameChooser : HBox(5.0), Consumer<Path> {
 
-    private val items = FXCollections.observableList(ArrayList<FilenameData>())
+    val items = FXCollections.observableList(ArrayList<FilenameData>())
     private val comboBox: ComboBox<FilenameData> = ComboBox(items.sorted())
 
-    private val nameSplittingPattern = """^(?<name>.*?)(?<count>\d+)$""".toRegex()
+    val selectedItem
+        get() = comboBox.value ?: throw IllegalStateException("No filename pattern selected!")
+
 
     init {
         vgrow = Priority.NEVER
@@ -31,14 +33,8 @@ class FilenameChooser : HBox(5.0), Consumer<Path> {
     }
 
     override fun accept(t: Path) {
-
-        nameSplittingPattern.matchEntire(t.fileName.toString())?.let { result ->
-            val (name, numberPart) = result.destructured
-            val newData = FilenameData(name, numberPart.length)
-            comboBox.accept(newData)
-        }
+        FilenameData.fromPath(t)?.let { comboBox.accept(it) }
     }
-
 
     private fun ComboBox<FilenameData>.accept(filenameData: FilenameData) {
         with(this@FilenameChooser.items) {

@@ -20,6 +20,7 @@ import tornadofx.*
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 import java.util.*
 import kotlin.streams.asSequence
 
@@ -50,7 +51,14 @@ class MainView : View("Main View") {
         val form = getEditFields()
 
         imageView.fitWidthProperty().bind(widthProperty())
-        imageView.fitHeightProperty().bind(heightProperty() - filenameChooser.heightProperty() - menuBar.heightProperty() - form.heightProperty() - saveButton.heightProperty() - ((children.size) * spacing))
+        imageView.fitHeightProperty().bind(
+                heightProperty() -
+                        filenameChooser.heightProperty() -
+                        menuBar.heightProperty() -
+                        form.heightProperty() -
+                        saveButton.heightProperty() -
+                        ((children.size) * spacing)
+        )
 
         add(menuBar)
         addInHBox(filenameChooser)
@@ -157,9 +165,11 @@ class MainView : View("Main View") {
     private fun loadImageConfig(fileSequence: Sequence<Pair<Path, ImageConfig>>) {
         val files = fileSequence.toList()
         imageConfigs.addAll(files)
-        imageConfigs.firstOrNull()?.let { (p, _) ->
+        imageConfigs.firstOrNull()?.let { (first, _) ->
             knownTags.clear()
-            knownTags.addAll(p.loadTagList())
+            knownTags.addAll(first.loadTagList())
+            first.loadFilenameData()
+            filenameChooser.accept(first)
         }
         loadNextImage()
     }
@@ -168,10 +178,30 @@ class MainView : View("Main View") {
         val tags = tagField.tags.toSet()
         val title = titleField.text
         knownTags += tags
+        renameImageIfNeeded()
         if (!lastPath.hasExtension(FileExtension::isConf))
             throw IllegalStateException("Cannot write to file $lastPath, it is not a valid config file!")
         ImageConfig(title, tags = tags).writeConfig(lastPath)
         loadNextImage()
+    }
+
+    private fun renameImageIfNeeded() {
+        val newFilenameData = filenameChooser.selectedItem
+        val oldConfigPath = lastPath
+        val oldFilenameData = FilenameData.fromPath(oldConfigPath) ?: return
+        if (oldFilenameData == newFilenameData)
+            return
+
+        val newConfigPath = newFilenameData.getNextFreePath(oldConfigPath).let { it.resolveSibling(it.filenameWithoutExtension + ".conf") }
+        val oldImagePath = oldConfigPath.resolveSibling(oldConfigPath.filenameWithoutExtension + ".jpg")
+        val newImagePath = newConfigPath.resolveSibling(newConfigPath.filenameWithoutExtension + ".jpg")
+
+        if (Files.exists(oldConfigPath))
+            Files.move(oldConfigPath, newConfigPath, StandardCopyOption.ATOMIC_MOVE)
+        if (Files.exists(oldImagePath))
+            Files.move(oldImagePath, newImagePath, StandardCopyOption.ATOMIC_MOVE)
+
+        lastPath = newConfigPath
     }
 
     private fun loadNextImage() {
@@ -188,6 +218,18 @@ class MainView : View("Main View") {
             addAll(imageConfig.tags)
         }
         titleField.text = imageConfig.title
+    }
+
+    private fun Path.loadFilenameData() {
+        if (!Files.isDirectory(this))
+            parent?.loadFilenameData()
+        else {
+            filenameChooser.items.clear()
+            Files.list(this)
+                    .filter { it.isRegularFile() }
+                    .filter { it.fileExtension.isJpeg() }
+                    .forEach { filenameChooser.accept(it) }
+        }
     }
 
     private fun Path.loadTagList(): List<String> {
