@@ -102,8 +102,6 @@ Redirect 301 /gallery/tags/Pferd/ https://reisishot.pictures/gallery/tags/pferd/
 Redirect 301 /gallery/tags/Salzburg/ https://reisishot.pictures/gallery/tags/salzburg/
 Redirect 301 "/gallery/tags/TFP OÖ/" https://reisishot.pictures/gallery/tags/tfp-ooe/
 Redirect 301 /gallery/tags/TFP-NÖ https://reisishot.pictures/gallery/tags/tfp-noe/
-Redirect 301 /gallery/tags/Traunkirchen https://reisishot.pictures/gallery/tags/traunkirchen/
-Redirect 301 /gallery/tags/Traunkirchen/ https://reisishot.pictures/gallery/tags/traunkirchen/
 Redirect 301 /gallery/tags/Weihnachten/ https://reisishot.pictures/gallery/tags/weihnachten/
 Redirect 301 /gallery/tags/Wespe/ https://reisishot.pictures/gallery/tags/wespe/
 Redirect gone  "/picture/360/category/staedte/prag"
@@ -1075,7 +1073,6 @@ Redirect 301 "/gallery/categories/Regionen/Baden-bei-Wien/" https://reisishot.pi
 Redirect 301 "/gallery/categories/Regionen/Prag" https://reisishot.pictures/gallery/categories/regionen/prag/
 Redirect 301 "/gallery/categories/Regionen/Prag/" https://reisishot.pictures/gallery/categories/regionen/prag/
 Redirect 301 "/gallery/categories/Regionen/Semmering/" https://reisishot.pictures/gallery/categories/regionen/semmering/
-Redirect 301 "/gallery/categories/Regionen/Traunkirchen/" https://reisishot.pictures/gallery/categories/regionen/traunkirchen/
 Redirect 301 "/gallery/categories/Regionen/Wien/" https://reisishot.pictures/gallery/categories/regionen/wien/
 Redirect 301 "/gallery/categories/Regionen/Zypern" https://reisishot.pictures/gallery/categories/regionen/zypern/
 Redirect 301 "/gallery/categories/Regionen/Zypern/" https://reisishot.pictures/gallery/categories/regionen/zypern/
@@ -1208,7 +1205,6 @@ Redirect 301 /gallery/images/biene004/ https://reisishot.pictures/gallery/images
 Redirect 301 "/gallery/tags/jku sommerfest/" https://reisishot.pictures/gallery/tags/jku-sommerfest/
 Redirect 301 "/gallery/tags/tfp oö/" https://reisishot.pictures/gallery/tags/tfp-ooe/
 Redirect 301 /gallery/tags/tfp-nö https://reisishot.pictures/gallery/tags/tfp-noe/
-Redirect 301 /gallery/tags/traunkirchen https://reisishot.pictures/gallery/tags/traunkirchen/
 Redirect gone "/about.php"
 Redirect 301 "/gallery/images/Spinne02/" https://reisishot.pictures/gallery/images/spinne02/
 Redirect 301 "/gallery/images/Spinne02/" https://reisishot.pictures/gallery/images/spinne02/
@@ -1248,6 +1244,7 @@ Redirect 301 "/gallery/tags/Libelle" https://reisishot.pictures/gallery/tags/lib
 Redirect 301 "/gallery/tags/Linz" https://reisishot.pictures/gallery/tags/linz
 Redirect 301 "/gallery/tags/Lowkey" https://reisishot.pictures/gallery/tags/lowkey
 Redirect 301 "/gallery/tags/Mann" https://reisishot.pictures/gallery/tags/mann
+Redirect 301 "/gallery/tags/Traunkirchen" https://reisishot.pictures/gallery/tags/traunkirchen
 Redirect 301 "/gallery/tags/Martina Kremsmayr" https://reisishot.pictures/gallery/tags/mintha
 Redirect 301 "/gallery/tags/Martina Kremsmayr" https://reisishot.pictures/gallery/tags/mintha
 Redirect 301 "/gallery/tags/martina-kremsmayr" https://reisishot.pictures/gallery/tags/mintha
@@ -1506,7 +1503,7 @@ Redirect 301 "gallery/tags/tfp-linz" https://reisishot.pictures/gallery/categori
 Redirect 301 "gallery/tags/tfp-noe" https://reisishot.pictures/gallery/categories/personen/
 Redirect 301 "gallery/tags/tfp-wien" https://reisishot.pictures/gallery/categories/personen/
 Redirect 301 "categories/personen/tfp-shootings/" https://reisishot.pictures/gallery/categories/personen/
-
+Redirect 301 "storytime/models-wanted/" https://reisishot.pictures/storytime/models-gesucht/
 Redirect 301 "gallery/categories/personen/frauen" https://reisishot.pictures/gallery/categories/fotoshootings/frauen
 Redirect 301 "gallery/categories/personen/musiker" https://reisishot.pictures/gallery/categories/fotoshootings/musiker
 Redirect 301 "gallery/categories/personen/m%C3%A4nner" https://reisishot.pictures/gallery/categories/fotoshootings/m%C3%A4nner
