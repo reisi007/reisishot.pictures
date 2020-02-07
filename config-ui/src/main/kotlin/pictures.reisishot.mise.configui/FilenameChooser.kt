@@ -14,8 +14,11 @@ class FilenameChooser : HBox(5.0), Consumer<Path> {
     val items = FXCollections.observableList(ArrayList<FilenameData>())
     private val comboBox: ComboBox<FilenameData> = ComboBox(items.sorted())
 
-    val selectedItem
+    var selectedItem: FilenameData
         get() = comboBox.value ?: throw IllegalStateException("No filename pattern selected!")
+        set(value) {
+            comboBox.value = value
+        }
 
 
     init {

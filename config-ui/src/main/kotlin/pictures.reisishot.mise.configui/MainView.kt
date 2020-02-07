@@ -61,8 +61,8 @@ class MainView : View("Main View") {
         )
 
         add(menuBar)
-        addInHBox(filenameChooser)
         addInHBox(imageView)
+        addInHBox(filenameChooser)
         addInHBox(form)
     }
 
@@ -218,6 +218,7 @@ class MainView : View("Main View") {
             addAll(imageConfig.tags)
         }
         titleField.text = imageConfig.title
+        FilenameData.fromPath(path)?.let { filenameChooser.selectedItem = it }
     }
 
     private fun Path.loadFilenameData() {

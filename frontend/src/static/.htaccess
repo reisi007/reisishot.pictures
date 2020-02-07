@@ -1508,10 +1508,11 @@ Redirect 301 "gallery/categories/personen/frauen" https://reisishot.pictures/gal
 Redirect 301 "gallery/categories/personen/musiker" https://reisishot.pictures/gallery/categories/fotoshootings/musiker
 Redirect 301 "gallery/categories/personen/m%C3%A4nner" https://reisishot.pictures/gallery/categories/fotoshootings/m%C3%A4nner
 Redirect 301 "gallery/categories/personen/paare" https://reisishot.pictures/gallery/categories/fotoshootings/paare
+Redirect 301 "gallery/categories/personen/paare/" https://reisishot.pictures/gallery/categories/fotoshootings/paare
 Redirect 301 "gallery/categories/personen/sport" https://reisishot.pictures/gallery/categories/fotoshootings/sport
 Redirect 301 "gallery/categories/personen/sport/beachvolleyball" https://reisishot.pictures/gallery/categories/fotoshootings/sport/beachvolleyball
 Redirect 301 "gallery/categories/personen/sport/floorball" https://reisishot.pictures/gallery/categories/fotoshootings/sport/floorball
-
+Redirect 301 "https://reisishot.pictures/gallery/categories/personen/paare/" https://reisishot.pictures/gallery/categories/fotoshootings/paare
 RewriteCond %{HTTP_HOST} !=""
 RewriteCond %{THE_REQUEST} ^[A-Z]+\s//+(.*)\sHTTP/[0-9.]+$ [OR]
 RewriteCond %{THE_REQUEST} ^[A-Z]+\s(.*/)/+\sHTTP/[0-9.]+$

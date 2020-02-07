@@ -24,7 +24,7 @@ object Production {
                         tmpPath = Paths.get("tmp").toAbsolutePath(),
                         outPath = Paths.get("frontend/generated").toAbsolutePath(),
                         interactiveIgnoredFiles = *arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
-                        cleanupGeneration = true,
+                        cleanupGeneration = false,
                         generators = listOf(
                                 PageGenerator(),
                                 GalleryGenerator(
