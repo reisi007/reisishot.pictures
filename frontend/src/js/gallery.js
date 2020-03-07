@@ -1,4 +1,3 @@
-//'use strict';
 $ = $ || window.jQuery;
 (function () {
     const galleries = window.galleries = window.galleries || {};
@@ -107,7 +106,7 @@ $ = $ || window.jQuery;
     }
 
     function appendGalleryHtml() {
-        document.body.append($.parseHTML(galleyHtml)[0]);
+        document.body.appendChild($.parseHTML(galleyHtml)[0]);
     }
 })();
 
