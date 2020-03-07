@@ -15,8 +15,9 @@ import java.time.format.DateTimeFormatter
 
 class GalleryGenerator(
         vararg val categoryBuilders: CategoryBuilder,
-        val exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }
-) : AbstractGalleryGenerator(*categoryBuilders, exifReplaceFunction = exifReplaceFunction) {
+        displayedMenuItems: Set<DisplayedMenuItems> = setOf(DisplayedMenuItems.CATEGORIES, DisplayedMenuItems.TAGS),
+        exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }
+) : AbstractGalleryGenerator(*categoryBuilders, displayedMenuItems = displayedMenuItems, exifReplaceFunction = exifReplaceFunction) {
 
     override val generatorName: String = "Reisishot Gallery"
     override val executionPriority: Int = 20_000

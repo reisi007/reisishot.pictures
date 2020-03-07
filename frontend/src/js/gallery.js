@@ -110,19 +110,17 @@ $ = $ || window.jQuery;
     }
 })();
 
-let owa_baseUrl = 'https://analytics.reisishot.pictures/';
-let owa_cmds = owa_cmds || [];
-owa_cmds.push(['setSiteId', '540cd9487baf5035f7f8cd185e25fd4b']);
-owa_cmds.push(['trackPageView']);
-owa_cmds.push(['trackClicks']);
-owa_cmds.push(['trackDomStream']);
-
+var _paq = window._paq || [];
+_paq.push(['trackPageView']);
+_paq.push(['enableLinkTracking']);
 (function () {
-    var _owa = document.createElement('script');
-    _owa.type = 'text/javascript';
-    _owa.async = true;
-    owa_baseUrl = ('https:' == document.location.protocol ? window.owa_baseSecUrl || owa_baseUrl.replace(/http:/, 'https:') : owa_baseUrl);
-    _owa.src = owa_baseUrl + 'modules/base/js/owa.tracker-combined-min.js';
-    var _owa_s = document.getElementsByTagName('script')[0];
-    _owa_s.parentNode.insertBefore(_owa, _owa_s);
-}());
+    var u = "//analytics.reisishot.pictures/";
+    _paq.push(['setTrackerUrl', u + 'matomo.php']);
+    _paq.push(['setSiteId', '1']);
+    var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
+    g.type = 'text/javascript';
+    g.async = true;
+    g.defer = true;
+    g.src = u + 'matomo.js';
+    s.parentNode.insertBefore(g, s);
+})();

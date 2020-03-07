@@ -21,8 +21,16 @@ import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
 
+
 abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: CategoryBuilder,
+                                        private val displayedMenuItems: Set<DisplayedMenuItems> = setOf(DisplayedMenuItems.CATEGORIES, DisplayedMenuItems.TAGS),
                                         private val exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }) : WebsiteGenerator, ImageInformationRepository {
+
+    enum class DisplayedMenuItems {
+        CATEGORIES,
+        TAGS;
+    }
+
     internal var cache = Cache()
     protected lateinit var cachePath: Path
     private val menuIemComperator = Comparator.comparing<MenuLinkContainerItem, String> { it.text }
@@ -93,6 +101,7 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
             generateWebpages(configuration, cache)
 
     protected fun buildTags(cache: BuildingCache) = with(this.cache) {
+        val shallAddToMenu = displayedMenuItems.contains(DisplayedMenuItems.TAGS)
         cache.clearMenuItems { LINKTYPE_TAGS == it.id }
         cache.resetLinkcacheFor(LINKTYPE_TAGS)
         imageInformationData.values.forEach { imageInformation ->
@@ -102,7 +111,8 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
                 // Add tag URLs to global cache
                 "gallery/tags/${tag.url}".let { link ->
                     cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag.name, link)
-                    cache.addMenuItemInContainerNoDupes(LINKTYPE_TAGS, "Tags", 300, tag.name, link, menuIemComperator)
+                    if (shallAddToMenu)
+                        cache.addMenuItemInContainerNoDupes(LINKTYPE_TAGS, "Tags", 300, tag.name, link, menuIemComperator)
                 }
             }
         }
@@ -158,6 +168,8 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
             websiteConfiguration: WebsiteConfiguration,
             cache: BuildingCache
     ) = with(this.cache) {
+        val shallAddToMenu = displayedMenuItems.contains(DisplayedMenuItems.CATEGORIES)
+
         val categoryLevelMap: MutableMap<Int, MutableSet<CategoryInformation>> = ConcurrentHashMap()
         cache.clearMenuItems { LINKTYPE_CATEGORIES == it.id }
         cache.resetLinkcacheFor(LINKTYPE_CATEGORIES)
@@ -172,7 +184,7 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
                             computedCategories.computeIfAbsent(categoryInformation.internalName) {
                                 val link = "gallery/categories/${categoryInformation.urlFragment}"
                                 cache.addLinkcacheEntryFor(LINKTYPE_CATEGORIES, categoryInformation.complexName, link)
-                                if (categoryInformation.visible) {
+                                if (shallAddToMenu && categoryInformation.visible) {
                                     cache.addMenuItemInContainer(
                                             LINKTYPE_CATEGORIES, "Kategorien", 200, categoryInformation.displayName,
                                             link, menuIemComperator
