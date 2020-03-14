@@ -39,8 +39,8 @@ fun HtmlBlockTag.insertImageGallery(
 ) = with(imageInformation) {
     if (isEmpty())
         return@with
-    divId("gallery") {
-        classes = classes + if (imageInformation.size == 1) "single" else "overview"
+    div {
+        classes = classes + "gallery" + if (imageInformation.size == 1) "single" else "overview"
         attributes["data-name"] = galleryName
         imageInformation.forEach { curImageInfo ->
             insertLazyPicture(curImageInfo)

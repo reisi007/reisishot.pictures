@@ -18,7 +18,7 @@ $ = $ || window.jQuery;
 
     function initGallery() {
         // Save all galleries to the window
-        document.querySelectorAll("div#gallery").forEach(gallery => {
+        document.querySelectorAll("div.gallery").forEach(gallery => {
             gallery.querySelectorAll("picture").forEach(pictureElement => {
                 const galleryName = gallery.getAttribute("data-name");
                 const curGallery = galleries[galleryName] = galleries[galleryName] || [];
