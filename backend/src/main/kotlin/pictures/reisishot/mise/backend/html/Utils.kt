@@ -5,7 +5,6 @@ import pictures.reisishot.mise.backend.generator.gallery.CategoryInformation
 import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.Companion.NAME_IMAGE_SUBFOLDER
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
-import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize.Companion.LARGEST
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize.Companion.ORDERED
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize.Companion.getSize
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ThumbnailInformation
@@ -56,8 +55,10 @@ internal fun FlowOrInteractiveOrPhrasingContent.insertLazyPicture(
     picture(PageGenerator.LAZYLOADER_CLASSNAME) {
         if (additionalClasses.isNotEmpty())
             classes = classes + additionalClasses
-        val largeImageUrl = curImageInfo.thumbnailSizes.getHtmlUrl(getSize(300))
-        attributes["style"] = "width: ${LARGEST.longestSidePx}px"
+        val imageSize = getSize(300)
+        val largeImageUrl = curImageInfo.thumbnailSizes.getHtmlUrl(imageSize)
+        val thumbnailInformation = curImageInfo.thumbnailSizes.getValue(imageSize)
+        attributes["style"] = "width: ${thumbnailInformation.width}px; height: ${thumbnailInformation.height}px; display: inline-block;"
         attributes["data-iesrc"] = largeImageUrl
         attributes["data-alt"] = curImageInfo.title
         attributes["data-url"] = curImageInfo.url
