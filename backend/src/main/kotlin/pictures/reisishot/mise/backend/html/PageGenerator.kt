@@ -38,6 +38,7 @@ object PageGenerator {
 
                             metaUTF8()
                             metaViewport()
+                            linkCanonnical(websiteConfiguration, target)
                             favicon()
 
                             title(title)
@@ -178,6 +179,10 @@ object PageGenerator {
 
     @HtmlTagMarker
     private fun HEAD.metaUTF8() = meta(charset = "UTF8")
+
+    @HtmlTagMarker
+    private fun HEAD.linkCanonnical(websiteConfiguration: WebsiteConfiguration, target: Path) = link(rel = "canonical", href = websiteConfiguration.websiteLocation + websiteConfiguration.outPath.relativize(target).parent?.toString()
+            ?: "")
 
     @HtmlTagMarker
     private fun HEAD.metaViewport() =
