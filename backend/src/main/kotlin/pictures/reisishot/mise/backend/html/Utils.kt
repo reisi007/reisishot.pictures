@@ -58,7 +58,7 @@ internal fun FlowOrInteractiveOrPhrasingContent.insertLazyPicture(
         val imageSize = getSize(300)
         val largeImageUrl = curImageInfo.thumbnailSizes.getHtmlUrl(imageSize)
         val thumbnailInformation = curImageInfo.thumbnailSizes.getValue(imageSize)
-        attributes["style"] = "width: ${thumbnailInformation.width}px; height: ${thumbnailInformation.height}px; display: inline-block;"
+        attributes["style"] = "width: ${thumbnailInformation.width}px; height: ${thumbnailInformation.height}px;"
         attributes["data-iesrc"] = largeImageUrl
         attributes["data-alt"] = curImageInfo.title
         attributes["data-url"] = curImageInfo.url

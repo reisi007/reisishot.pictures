@@ -44,7 +44,7 @@ main {
   }
 }
 
-#gallery {
+.gallery {
   display: flex;
 
   &.single {
@@ -60,7 +60,7 @@ main {
   }
 
   &.overview {
-    justify-content: space-evenly;
+    justify-content: space-around;
     flex-wrap: wrap;
 
     picture {
