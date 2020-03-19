@@ -155,3 +155,5 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
 
     protected open fun computeOriginalFilename(generatedFilename: FilenameWithoutExtension): FilenameWithoutExtension = generatedFilename.substringBeforeLast('_')
 }
+
+fun AbstractThumbnailGenerator.ThumbnailInformation.scaleToHeight(desiredHeight: Int): AbstractThumbnailGenerator.ThumbnailInformation = copy(height = desiredHeight, width = width * desiredHeight / height)

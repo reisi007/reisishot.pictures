@@ -8,6 +8,7 @@ import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThum
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize.Companion.ORDERED
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize.Companion.getSize
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ThumbnailInformation
+import pictures.reisishot.mise.backend.generator.gallery.thumbnails.scaleToHeight
 
 
 @HtmlTagMarker
@@ -55,9 +56,10 @@ internal fun FlowOrInteractiveOrPhrasingContent.insertLazyPicture(
     picture(PageGenerator.LAZYLOADER_CLASSNAME) {
         if (additionalClasses.isNotEmpty())
             classes = classes + additionalClasses
-        val imageSize = getSize(300)
+        val desiredHeight = 300
+        val imageSize = getSize(desiredHeight)
         val largeImageUrl = curImageInfo.thumbnailSizes.getHtmlUrl(imageSize)
-        val thumbnailInformation = curImageInfo.thumbnailSizes.getValue(imageSize)
+        val thumbnailInformation = curImageInfo.thumbnailSizes.getValue(imageSize).scaleToHeight(desiredHeight)
         attributes["style"] = "width: ${thumbnailInformation.width}px; height: ${thumbnailInformation.height}px;"
         attributes["data-iesrc"] = largeImageUrl
         attributes["data-alt"] = curImageInfo.title

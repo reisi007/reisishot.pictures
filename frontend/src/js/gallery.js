@@ -6,9 +6,8 @@ $ = $ || window.jQuery;
     document.addEventListener('DOMContentLoaded', function () {
 
         const observer = window.lozad('.lazy', {
-            rootMargin: "1080px 0px 0px 0px",
+            rootMargin: "540px 0px 0px 1620px",
             loaded: function (el) {
-                el.style = "";
                 el.classList.add('loaded');
             }
         });

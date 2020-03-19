@@ -90,6 +90,10 @@ main {
     min-height: $h;
     max-height: $h;
 
+    .lazy {
+      display: inline;
+    }
+
     img {
       max-height: $h - 10vh;
       margin: 0 auto;
@@ -261,10 +265,6 @@ p {
     display: block;
     margin: 0 auto;
   }
-}
-
-.lazy {
-  height: (300/2.5) px;
 }
 
 table {
