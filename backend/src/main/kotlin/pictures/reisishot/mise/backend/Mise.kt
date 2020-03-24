@@ -95,10 +95,13 @@ object Mise {
         )
         while (interactiveDelayMs != null) {
             delay(interactiveDelayMs)
-            watchKey.processEvents(this, inPath, cache, generators, coroutineDispatcher)
+            try {
+                watchKey.processEvents(this, inPath, cache, generators, coroutineDispatcher)
+            } catch (e: Exception) {
+                System.err.println(e.javaClass.canonicalName + ": " + e.message)
+            }
         }
     }
-
 
     private suspend fun WatchKey.processEvents(configuration: WebsiteConfiguration, watchedDir: Path, cache: BuildingCache, generatorMap: Map<Int, List<WebsiteGenerator>>, coroutineDispatcher: CoroutineDispatcher) {
         val changedFileset = pollEvents(configuration, watchedDir)
