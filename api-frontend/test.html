@@ -3,8 +3,8 @@
 
 <head>
     <script>
-        function send(formId) {
-            const form = document.getElementById(formId);
+        function send(formName) {
+            const form = document.querySelector("[r-form=\"" + formName + "\"]");
             const data = {};
             for (let element of form.querySelectorAll("[name]")) {
                 const name = element.name;
@@ -22,19 +22,20 @@
             const request = new XMLHttpRequest();
             request.open("POST", url);
             request.send(JSON.stringify(data));
-            request.onreadystatechange = (e) => {
-                console.log(e, request.responseText)
-            }
+            form.style = "display: none";
+            const element = document.querySelector("[r-form-submitted=\"" + formName + "\"]");
+            element.style = "";
+            return false;
         }
     </script>
     <title>Test</title>
 </head>
 
 <body>
-<form id="form" method="post" onsubmit="send('form'); return false;">
+<form r-form="form" onsubmit="send('form'); return false">
     <p>
         <label for="email">Mail Adresse:</label>
-        <input id="email" name="E-Mail" required="true" type="email" value="a@example.com"/>
+        <input id="email" name="E-Mail" required type="email" value="a@example.com"/>
     </p>
     <p>
         <label for="freitext">Kommentare:</label>
@@ -49,9 +50,12 @@
         </select>
     </p>
     <p>
-        <button name="submit">Senden</button>
+        <button name="submit" type="submit">Senden</button>
     </p>
 </form>
+<div r-form-submitted="form" style="display: none">
+    <h1>Thank you!</h1>
+</div>
 </body>
 
 </html>
