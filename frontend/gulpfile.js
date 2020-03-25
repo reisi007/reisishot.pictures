@@ -36,7 +36,7 @@ function babelify() {
     return $.babel();
 }
 
-gulp.task('scripts', function () {
+gulp.task('scripts!!', function () {
     return gulp
         .src([
             './src/js/!(vendor)**/!(app)*.js',
@@ -47,13 +47,28 @@ gulp.task('scripts', function () {
         .pipe($.concat('app.min.js'))
         .pipe($.uglify())
         .pipe(gulp.dest('generated/js'))
-        .pipe(browserSync.reload({stream: true}));
+
 });
+gulp.task('scripts', function () {
+    return gulp
+        .src([
+            './src/js/!(vendor)**/!(app)*.js',
+            './src/js/!(app)*.js'
+        ])
+        .pipe($.concat('app.min.js'))
+        .pipe(gulp.dest('generated/js'))
+
+});
+
 
 gulp.task('vendorScripts', function () {
     gulp.src('./src/js/vendor/**/*.js')
+        .pipe(babelify())
+        .pipe($.plumber())
         .pipe($.concat('vendor.js'))
-        .pipe(gulp.dest('generated/js'));
+        .pipe($.uglify())
+        .pipe(gulp.dest('generated/js'))
+        .pipe(browserSync.reload({stream: true}));
 });
 
 

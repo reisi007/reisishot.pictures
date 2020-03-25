@@ -1,11 +1,12 @@
 @import "constants";
 @import "../css/photoswipe/default-skin.css";
 @import "animation.css";
+@import "form";
 @import "rs";
 
 .btn-primary {
-  background-color: $mainColor !important;
-  border-color: $mainColor !important;
+  background-color: $primaryColor !important;
+  border-color: $primaryColor !important;
 }
 
 .btn-flex {
@@ -118,7 +119,7 @@ main {
 
 // Navbar backgroudn color
 .bg-dark {
-  background-color: $mainColor !important;
+  background-color: $primaryColor !important;
 }
 
 // Navbar
@@ -195,7 +196,7 @@ footer {
   padding-top: $margin;
   padding-bottom: $margin;
 
-  background: $mainColor;
+  background: $primaryColor;
 
   .carousel-indicators {
     position: relative;

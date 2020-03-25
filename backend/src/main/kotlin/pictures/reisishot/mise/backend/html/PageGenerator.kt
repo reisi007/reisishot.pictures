@@ -71,6 +71,19 @@ object PageGenerator {
                                     a {
                                         attributes["name"] = "footer"
                                     }
+                                    buildForm(
+                                            title = { h2 { text("Kontaktiere mich") } },
+                                            thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich schnellstmöglich!") } },
+                                            formStructure = {
+                                                FormRoot("footer",
+                                                        FormHGroup(
+                                                                FormInput("Name", "Name", "Dein Name", "Bitte sag mir wie du heißt", InputType.text),
+                                                                FormInput("E-Mail", "E-Mail Adresse", "Deine E-Mail-Adresse, auf die du deine Antwort bekommst", "Ich brauche deine E-Mail-Adresse um dir zu antworten", InputType.email)
+                                                        ),
+                                                        FormTextArea("freitext", "Deine Nachricht an mich:", "z.B.: Shooting Anfragen (Bitte Link zu Portfolio einfügen) oder Feedback zu meiner Seite oder meinen Bildern.", "Bitte gib eine Nachricht ein"),
+                                                        FormCheckbox("zustimmung", "Ich akzeptiere, dass der Inhalt dieses Formulars per Mail zugestellt wird.", "Natürlich wird diese E-Mail-Adresse nur zum Zwecke deiner Anfrage verwendet und nicht mit Dritten geteilt", "Leider benötige ich deine Einwilligung, damit")
+                                                )
+                                            })
                                     span("text-muted") {
                                         text("© ${websiteConfiguration.longTitle}")
                                     }

@@ -1,6 +1,6 @@
-/*! lozad.js - v1.10.0 - 2019-06-06
+/*! lozad.js - v1.14.0 - 2020-01-25
 * https://github.com/ApoorvSaxena/lozad.js
-* Copyright (c) 2019 Apoorv Saxena; Licensed MIT */
+* Copyright (c) 2020 Apoorv Saxena; Licensed MIT */
 
 
 (function (global, factory) {
@@ -9,18 +9,6 @@
             (global.lozad = factory());
 }(window, (function () {
     'use strict';
-
-    var _extends = Object.assign || function (target) {
-        for (var i = 1; i < arguments.length; i++) {
-            var source = arguments[i];
-            for (var key in source) {
-                if (Object.prototype.hasOwnProperty.call(source, key)) {
-                    target[key] = source[key];
-                }
-            }
-        }
-        return target;
-    };
 
     /**
      * Detect IE browser
@@ -43,7 +31,7 @@
                     img.alt = element.getAttribute('data-alt');
                 }
 
-                element.appendChild(img);
+                element.append(img);
             }
 
             if (element.nodeName.toLowerCase() === 'video' && !element.getAttribute('data-src')) {
@@ -61,6 +49,10 @@
                 }
             }
 
+            if (element.getAttribute('data-poster')) {
+                element.poster = element.getAttribute('data-poster');
+            }
+
             if (element.getAttribute('data-src')) {
                 element.src = element.getAttribute('data-src');
             }
@@ -70,7 +62,16 @@
             }
 
             if (element.getAttribute('data-background-image')) {
-                element.style.backgroundImage = 'url(\'' + element.getAttribute('data-background-image') + '\')';
+                element.style.backgroundImage = 'url(\'' + element.getAttribute('data-background-image').split(',').join('\'),url(\'') + '\')';
+            } else if (element.getAttribute('data-background-image-set')) {
+                var imageSetLinks = element.getAttribute('data-background-image-set').split(',');
+                var firstUrlLink = imageSetLinks[0].substr(0, imageSetLinks[0].indexOf(' ')) || imageSetLinks[0]; // Substring before ... 1x
+                firstUrlLink = firstUrlLink.indexOf('url(') === -1 ? 'url(' + firstUrlLink + ')' : firstUrlLink;
+                if (imageSetLinks.length === 1) {
+                    element.style.backgroundImage = firstUrlLink;
+                } else {
+                    element.setAttribute('style', (element.getAttribute('style') || '') + ('background-image: ' + firstUrlLink + '; background-image: -webkit-image-set(' + imageSetLinks + '); background-image: image-set(' + imageSetLinks + ')'));
+                }
             }
 
             if (element.getAttribute('data-toggle-class')) {
@@ -123,12 +124,12 @@
         var selector = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '.lozad';
         var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-        var _defaultConfig$option = _extends({}, defaultConfig, options),
-            root = _defaultConfig$option.root,
-            rootMargin = _defaultConfig$option.rootMargin,
-            threshold = _defaultConfig$option.threshold,
-            load = _defaultConfig$option.load,
-            loaded = _defaultConfig$option.loaded;
+        var _Object$assign = Object.assign({}, defaultConfig, options),
+            root = _Object$assign.root,
+            rootMargin = _Object$assign.rootMargin,
+            threshold = _Object$assign.threshold,
+            load = _Object$assign.load,
+            loaded = _Object$assign.loaded;
 
         var observer = void 0;
 
