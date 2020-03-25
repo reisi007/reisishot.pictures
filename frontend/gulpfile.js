@@ -36,7 +36,7 @@ function babelify() {
     return $.babel();
 }
 
-gulp.task('scripts!!', function () {
+gulp.task('scripts', function () {
     return gulp
         .src([
             './src/js/!(vendor)**/!(app)*.js',
@@ -49,7 +49,7 @@ gulp.task('scripts!!', function () {
         .pipe(gulp.dest('generated/js'))
 
 });
-gulp.task('scripts', function () {
+gulp.task('scripts!!', function () {
     return gulp
         .src([
             './src/js/!(vendor)**/!(app)*.js',

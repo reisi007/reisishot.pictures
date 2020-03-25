@@ -15,9 +15,9 @@
                 )
                     if (typeof name === 'string' && ['submit'].indexOf(name) < 0)
                         data[name] = element.value;
+                    else if (element instanceof HTMLInputElement && element.type === 'checkbox')
+                        data[name] = element.checked ? 'Ja' : 'Nein';
             }
-
-
             const url = "https://api.reisishot.pictures/send.php";
 
             const request = new XMLHttpRequest();
@@ -26,7 +26,6 @@
             form.style = "display: none";
             const element = document.querySelector("[r-form-submitted=\"" + formName + "\"]");
             element.style = "";
-            return false;
         }
     </script>
     <title>Test</title>
@@ -49,6 +48,10 @@
             <option value="B">B</option>
             <option value="C">C</option>
         </select>
+    </p>
+    <p>
+
+        <input id="check" type="checkbox"/> <label for="check">Ok</label>
     </p>
     <p>
         <button name="submit" type="submit">Senden</button>
