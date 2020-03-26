@@ -2,6 +2,7 @@
 @import "../css/photoswipe/default-skin.css";
 @import "animation.css";
 @import "form";
+@import "gallery";
 @import "rs";
 
 .btn-primary {
@@ -30,54 +31,6 @@ h1, h2, h3, h4, h5, h6 {
 
 main {
   margin-top: 1rem;
-}
-
-// Ensure correct dimensions of a lazy loaded image
-.lazy {
-  min-height: 1rem;
-  display: inline-block;
-  max-width: 100%;
-
-  img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-  }
-}
-
-.gallery {
-  display: flex;
-
-  &.single {
-    align-content: center;
-
-    picture {
-      margin: 0 auto;
-
-      img {
-        max-height: $maxImageHeight;
-      }
-    }
-  }
-
-  &.overview {
-    justify-content: space-around;
-    flex-wrap: wrap;
-
-    picture {
-      margin: 1rem;
-      max-height: 300px;
-
-      img {
-        //TODO make responsive
-        max-height: 300px;
-      }
-    }
-  }
-
-  picture {
-    cursor: pointer;
-  }
 }
 
 // Allign the subcategories view
