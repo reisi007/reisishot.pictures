@@ -31,7 +31,7 @@ class MainView : View("Main View") {
     }
     private lateinit var lastPath: Path
     private val titleField = TextField()
-    private val tagField = AutocompleteMultiSelectionBox()
+    private val tagField = AutocompleteMultiSelectionBox { it }
     private val filenameChooser = FilenameChooser()
     private val saveButton = Button("Speichern").apply {
         hgrow = Priority.ALWAYS
@@ -186,7 +186,7 @@ class MainView : View("Main View") {
     }
 
     private fun renameImageIfNeeded() {
-        val newFilenameData = filenameChooser.selectedItem
+        val newFilenameData = filenameChooser.selectedItems.first()
         val oldConfigPath = lastPath
         val oldFilenameData = FilenameData.fromPath(oldConfigPath) ?: return
         if (oldFilenameData == newFilenameData)
@@ -218,7 +218,12 @@ class MainView : View("Main View") {
             addAll(imageConfig.tags)
         }
         titleField.text = imageConfig.title
-        FilenameData.fromPath(path)?.let { filenameChooser.selectedItem = it }
+        FilenameData.fromPath(path)?.let {
+            filenameChooser.selectedItems = filenameChooser.selectedItems
+                    .firstOrNull()
+                    ?.let { sel -> listOf(sel, it).distinct() }
+                    ?: listOf(it)
+        }
     }
 
     private fun Path.loadFilenameData() {

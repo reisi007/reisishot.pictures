@@ -1,8 +1,8 @@
 package pictures.reisishot.mise.configui
 
 import javafx.collections.FXCollections
+import javafx.collections.ListChangeListener
 import javafx.collections.ListChangeListener.Change
-import javafx.collections.ObservableList
 import javafx.collections.ObservableSet
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
@@ -28,11 +28,12 @@ import java.util.*
 /**
  * Code based on https://stackoverflow.com/a/56644865/1870799 with minor modifications
  */
-class AutocompleteMultiSelectionBox : HBox() {
-    val tags: ObservableList<String>
-    val suggestions: ObservableSet<String>
+class AutocompleteMultiSelectionBox<T : Comparable<T>>(private val maxItems: Int = -1, private val entryGenerator: (String) -> T?) : HBox() {
+    val tags: MutableList<T>
+    val suggestions: MutableSet<T>
     private val entriesPopup: ContextMenu
     private val inputTextField: TextField
+
     /**
      * "Suggestion" specific listners
      */
@@ -44,8 +45,8 @@ class AutocompleteMultiSelectionBox : HBox() {
                 entriesPopup.hide()
             } else {
                 //filter all possible suggestions depends on "Text", case insensitive
-                val filteredEntries: List<String> = suggestions.asSequence()
-                        .filter { it.contains(newValue, true) }
+                val filteredEntries = suggestions.asSequence()
+                        .filter { it.toString().contains(newValue, true) }
                         .toList()
                 //some suggestions are found
                 if (filteredEntries.isNotEmpty()) {
@@ -66,6 +67,7 @@ class AutocompleteMultiSelectionBox : HBox() {
         focusedProperty().addListener { _, _, _ ->
             entriesPopup.hide()
         }
+
     }
 
     /**
@@ -73,15 +75,15 @@ class AutocompleteMultiSelectionBox : HBox() {
      *
      * @param searchResult The set of matching strings.
      */
-    private fun populatePopup(searchResult: List<String>, searchRequest: String) {
+    private fun populatePopup(searchResult: List<T>, searchRequest: String) {
         //List of "suggestions"
         //Build list as set of labels
         val menuItems = searchResult.asSequence()
                 .take(MAX_ENTRIES)// Limit to MAX_ENTRIES in the suggestions
                 .minus(tags)
-                .map { result: String ->
+                .map { result ->
                     //label with graphic (text flow) to highlight founded subtext in suggestions
-                    val textFlow = buildTextFlow(result, searchRequest)
+                    val textFlow = buildTextFlow(result.toString(), searchRequest)
                     textFlow.prefWidthProperty().bind(widthProperty())
                     val item = CustomMenuItem(textFlow, true)
 
@@ -106,12 +108,12 @@ class AutocompleteMultiSelectionBox : HBox() {
      * @param suggestions set of items.
      */
 
-    fun setSuggestions(suggestions: ObservableSet<String?>) {
+    fun setSuggestions(suggestions: ObservableSet<T>) {
         this.suggestions.clear()
         this.suggestions.addAll(suggestions)
     }
 
-    private inner class Tag internal constructor(tag: String) : HBox() {
+    private inner class Tag internal constructor(tag: T) : HBox() {
         init {
             // Style
             styleClass.add("tag")
@@ -125,7 +127,7 @@ class AutocompleteMultiSelectionBox : HBox() {
             }
 
             // Displayed text
-            val text = Text(tag)
+            val text = Text(tag.toString())
             text.fill = Color.WHITE
             text.font = Font.font(text.font.family, FontWeight.BOLD, text.font.size)
 
@@ -139,6 +141,7 @@ class AutocompleteMultiSelectionBox : HBox() {
 
     companion object {
         private const val MAX_ENTRIES = 10
+
         /**
          * Build TextFlow with selected text. Return "case" dependent.
          *
@@ -165,15 +168,26 @@ class AutocompleteMultiSelectionBox : HBox() {
             stylesheets.add(it)
         } ?: throw IllegalStateException("No styles found")
 
-        tags = FXCollections.observableArrayList()
-        suggestions = FXCollections.observableSet()
+        val observableTags = FXCollections.observableList<T>(LinkedList())
+        if (maxItems > 0)
+            observableTags.apply {
+                addListener(ListChangeListener { change ->
+                    with(change.list) {
+                        val spaceLeft = maxItems - size
+                        if (spaceLeft < 0)
+                            remove(0, -spaceLeft)
+                    }
+                })
+            }
+        tags = observableTags
+        suggestions = FXCollections.observableSet(TreeSet())
         inputTextField = TextField()
         entriesPopup = ContextMenu()
         setListner()
         inputTextField.onKeyPressed = EventHandler { event: KeyEvent ->
             // Remove last element with backspace
             if (event.code == KeyCode.BACK_SPACE && tags.isNotEmpty() && inputTextField.text.isEmpty()) {
-                val last: String = tags.last()
+                val last = tags.last()
                 suggestions.add(last)
                 tags.remove(last)
             }
@@ -182,15 +196,18 @@ class AutocompleteMultiSelectionBox : HBox() {
         inputTextField.onKeyTyped = EventHandler { event ->
             if (event.character == "\r" && inputTextField.text.isNotEmpty()) {
                 val newTag = inputTextField.text
-                suggestions.add(newTag)
-                tags.add(newTag)
+                val element = entryGenerator(newTag)
+                if (element == null)
+                    return@EventHandler
+                suggestions.add(element)
+                tags.add(element)
                 inputTextField.text = ""
             }
         }
         inputTextField.prefHeightProperty().bind(heightProperty())
         setHgrow(inputTextField, Priority.ALWAYS)
         inputTextField.background = null
-        tags.addListener { change: Change<out String> ->
+        tags.addListener { change: Change<out T> ->
             while (change.next()) {
                 if (change.wasPermutated()) {
                     val newSublist = ArrayList<Node?>(change.to - change.from)
@@ -215,7 +232,7 @@ class AutocompleteMultiSelectionBox : HBox() {
                         children.subList(change.from, change.from + change.removedSize).clear()
                     }
                     if (change.wasAdded()) {
-                        children.addAll(change.from, change.addedSubList.map { tag: String -> Tag(tag) })
+                        children.addAll(change.from, change.addedSubList.map { tag -> Tag(tag) })
                     }
                 }
             }

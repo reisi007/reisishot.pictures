@@ -3,7 +3,7 @@ package pictures.reisishot.mise.configui
 import at.reisishot.mise.commons.filenameWithoutExtension
 import java.nio.file.Path
 
-data class FilenameData(val name: String, val digitCount: Int = 3) {
+data class FilenameData(val name: String, val digitCount: Int = 3) : Comparable<FilenameData> {
     override fun toString(): String {
         return name
     }
@@ -16,4 +16,6 @@ data class FilenameData(val name: String, val digitCount: Int = 3) {
                     FilenameData(name, numberPart.length)
                 }
     }
+
+    override fun compareTo(other: FilenameData): Int = compareValuesBy(this, other, FilenameData::name)
 }
