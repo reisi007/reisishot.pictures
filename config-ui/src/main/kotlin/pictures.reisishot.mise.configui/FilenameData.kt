@@ -11,10 +11,10 @@ data class FilenameData(val name: String, val digitCount: Int = 3) : Comparable<
     companion object {
         private val nameSplittingPattern = """^(?<name>.*?)(?<count>\d+)$""".toRegex()
         fun fromPath(p: Path) =
-                nameSplittingPattern.matchEntire(p.fileName.filenameWithoutExtension)?.let { result ->
+                nameSplittingPattern.matchEntire(p.filenameWithoutExtension)?.let { result ->
                     val (name, numberPart) = result.destructured
                     FilenameData(name, numberPart.length)
-                }
+                } ?: FilenameData(p.filenameWithoutExtension)
     }
 
     override fun compareTo(other: FilenameData): Int = compareValuesBy(this, other, FilenameData::name)

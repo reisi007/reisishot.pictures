@@ -9,7 +9,7 @@ import java.util.function.Consumer
 
 class FilenameChooser : HBox(5.0), Consumer<Path> {
 
-    private val input = AutocompleteMultiSelectionBox<FilenameData>(2) { null }
+    private val input = AutocompleteMultiSelectionBox<FilenameData>(2) { FilenameData(it) }
 
     var items: MutableCollection<FilenameData> = input.suggestions
 
@@ -43,8 +43,7 @@ class FilenameChooser : HBox(5.0), Consumer<Path> {
 
     private fun AutocompleteMultiSelectionBox<FilenameData>.accept(filenameData: FilenameData) {
         with(input.suggestions) {
-            if (!contains(filenameData))
-                add(filenameData)
+            add(filenameData)
         }
         selectedItems = listOf(filenameData)
     }
