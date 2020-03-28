@@ -10,43 +10,40 @@ import javafx.util.Duration
 import org.languagetool.JLanguageTool
 import org.languagetool.language.AustrianGerman
 import tornadofx.*
+import java.util.concurrent.atomic.AtomicBoolean
 
-private val spellcheckerDelegate = lazy { JLanguageTool(AustrianGerman()) }
-private val spellchecker by spellcheckerDelegate
+private val spellchecker by lazy { JLanguageTool(AustrianGerman()) }
 
-
-private val debouncing = mutableMapOf<TextInputControl, PauseTransition>()
+private val isSpellCheckerInitialized = AtomicBoolean(false)
 
 fun <T : TextInputControl> T.enableSpellcheck() = apply {
-    onKeyReleased = EventHandler {
-        performSpellcheckEventListener()
-    }
-}
-
-private fun <T : TextInputControl> T.performSpellcheckEventListener() {
-    if (!spellcheckerDelegate.isInitialized()) {
-        println("Spell check: " + spellchecker.language)
-        spellchecker.check("")
-    }
-
-    val debouncing = debouncing.computeIfAbsent(this) {
-        PauseTransition(Duration(200.0)).apply {
-            onFinished = EventHandler {
-                val spellingErrors = performSpellcheck()
-                if (spellingErrors.isEmpty())
-                    this@performSpellcheckEventListener.tooltip = null
-                else
-                    tooltip {
-                        text = spellingErrors.joinToString(System.lineSeparator()) { it }
-                        println(text)
-                        hackTooltipStartTiming()
-                        show()
-                    }
+    val debouncing = PauseTransition(Duration(200.0))
+            .apply {
+                onFinished = EventHandler {
+                    val spellingErrors = performSpellcheck()
+                    if (spellingErrors.isEmpty())
+                        tooltip = null
+                    else
+                        tooltip {
+                            text = spellingErrors.joinToString(System.lineSeparator()) { it }
+                            println(text)
+                            hackTooltipStartTiming()
+                            show()
+                        }
+                }
             }
-
+    if (!isSpellCheckerInitialized.getAndSet(true)) {
+        runAsync {
+            finally {
+                println("Spell check: " + spellchecker.language)
+            }
+            spellchecker.check("")
         }
     }
-    debouncing.playFromStart()
+
+    onKeyReleased = EventHandler {
+        debouncing.playFromStart()
+    }
 }
 
 private fun TextInputControl.performSpellcheck(): List<String> = text.let { text ->

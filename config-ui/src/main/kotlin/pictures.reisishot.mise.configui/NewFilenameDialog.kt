@@ -9,7 +9,8 @@ import tornadofx.*
 
 class NewFilenameDialog : Dialog<FilenameData?>() {
 
-    private val nameField = textfield("")
+    private val nameField = textfield()
+            .enableSpellcheck()
     private val numberField = combobox(values = (1..10).toList()).apply {
         value = 3
     }
