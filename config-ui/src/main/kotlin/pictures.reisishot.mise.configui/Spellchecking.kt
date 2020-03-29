@@ -17,7 +17,7 @@ private val spellchecker by lazy { JLanguageTool(AustrianGerman()) }
 private val isSpellCheckerInitialized = AtomicBoolean(false)
 
 fun <T : TextInputControl> T.enableSpellcheck() = apply {
-    val debouncing = PauseTransition(Duration(200.0))
+    val debouncing = PauseTransition(Duration(500.0))
             .apply {
                 onFinished = EventHandler {
                     val spellingErrors = performSpellcheck()
@@ -32,12 +32,13 @@ fun <T : TextInputControl> T.enableSpellcheck() = apply {
                         }
                 }
             }
-    if (!isSpellCheckerInitialized.getAndSet(true)) {
+    if (!isSpellCheckerInitialized.get()) {
         runAsync {
             finally {
                 println("Spell check: " + spellchecker.language)
             }
-            spellchecker.check("")
+            spellchecker.check("init")
+            isSpellCheckerInitialized.lazySet(true)
         }
     }
 
@@ -46,7 +47,9 @@ fun <T : TextInputControl> T.enableSpellcheck() = apply {
     }
 }
 
-private fun TextInputControl.performSpellcheck(): List<String> = text.let { text ->
+private fun TextInputControl.performSpellcheck(): List<String> = performSpellCheck(text)
+
+private fun performSpellCheck(text: String): List<String> = if (isSpellCheckerInitialized.get())
     spellchecker
             .check(text)
             .map { match ->
@@ -56,7 +59,7 @@ private fun TextInputControl.performSpellcheck(): List<String> = text.let { text
                 else
                     message
             }
-}
+else emptyList()
 
 // https://stackoverflow.com/a/27739605/1870799
 private fun Tooltip.hackTooltipStartTiming() {
