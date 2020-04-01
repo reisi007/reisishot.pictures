@@ -16,6 +16,8 @@ import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.stage.DirectoryChooser
 import javafx.stage.FileChooser
+import pictures.reisishot.mise.base.AutocompleteMultiSelectionBox
+import pictures.reisishot.mise.base.enableSpellcheck
 import tornadofx.*
 import java.io.File
 import java.nio.file.Files
@@ -250,7 +252,4 @@ class MainView : View("Main View") {
                 .flatMap { it.tags.asSequence() }
                 .toList()
     }
-
-
 }
-

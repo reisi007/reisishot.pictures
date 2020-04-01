@@ -1,7 +1,7 @@
 package pictures.reisishot.mise.backend
 
 import at.reisishot.mise.commons.*
-import pictures.reisishot.mise.backend.generator.gallery.ExifdataKey
+import at.reisishot.mise.exifdata.defaultExifReplaceFunction
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.categories.ConfigurableCategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategoryBuilder
@@ -33,16 +33,7 @@ object Production {
                                                 ConfigurableCategoryBuilder()
                                         ),
                                         displayedMenuItems = emptySet(),
-                                        exifReplaceFunction = { cur ->
-                                            when (cur.first) {
-                                                ExifdataKey.LENS_MODEL -> when (cur.second) {
-                                                    "105.0 mm", "105mm", "105 mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM"
-                                                    "147.0 mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM + 1.4 Sigma EX APO DG Telekonverter"
-                                                    else -> cur
-                                                }
-                                                else -> cur
-                                            }
-                                        }
+                                        exifReplaceFunction = defaultExifReplaceFunction
                                 ),
                                 ImageMagickThumbnailGenerator(),
                                 LinkGenerator(),

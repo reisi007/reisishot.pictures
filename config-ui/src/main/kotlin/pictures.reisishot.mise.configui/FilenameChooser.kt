@@ -3,6 +3,7 @@ package pictures.reisishot.mise.configui
 import javafx.geometry.Pos
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
+import pictures.reisishot.mise.base.AutocompleteMultiSelectionBox
 import tornadofx.*
 import java.nio.file.Path
 import java.util.function.Consumer
@@ -38,7 +39,7 @@ class FilenameChooser : HBox(5.0), Consumer<Path> {
     }
 
     override fun accept(t: Path) {
-        FilenameData.fromPath(t)?.let { input.accept(it) }
+        FilenameData.fromPath(t).let { input.accept(it) }
     }
 
     private fun AutocompleteMultiSelectionBox<FilenameData>.accept(filenameData: FilenameData) {

@@ -1,5 +1,6 @@
-package pictures.reisishot.mise.backend.generator.gallery
+package at.reisishot.mise.exifdata
 
+import com.drew.imaging.ImageMetadataReader
 import com.drew.metadata.Metadata
 import com.drew.metadata.exif.ExifIFD0Descriptor
 import com.drew.metadata.exif.ExifIFD0Directory
@@ -9,6 +10,7 @@ import com.drew.metadata.file.FileSystemDescriptor
 import com.drew.metadata.file.FileSystemDirectory
 import com.drew.metadata.jpeg.JpegDescriptor
 import com.drew.metadata.jpeg.JpegDirectory
+import java.nio.file.Path
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -92,4 +94,29 @@ class ExifInformation(metadata: Metadata) {
         return "ExifInformation(jpegDescriptor=$jpegDescriptor, exifD0Descriptor=$exifD0Descriptor, exifSubIFDDescriptor=$exifSubIFDDescriptor, fileSystemDescriptor=$fileSystemDescriptor)"
     }
 
+}
+
+val defaultExifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { cur ->
+    when (cur.first) {
+        ExifdataKey.LENS_MODEL -> when (cur.second) {
+            "105.0 mm", "105mm", "105 mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM"
+            "147.0 mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM + 1.4 Sigma EX APO DG Telekonverter"
+            else -> cur
+        }
+        else -> cur
+    }
+}
+
+fun Path.readExif(exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }): Map<ExifdataKey, String> = mutableMapOf<ExifdataKey, String>().apply {
+    ExifInformation(ImageMetadataReader.readMetadata(this@readExif.toFile()))
+            .let { exifInformation ->
+                ExifdataKey.values().forEach { key ->
+                    val exifValue = key.getValue(exifInformation)
+                    exifReplaceFunction(key to exifValue)
+                            .also { (key, possibleValue) ->
+                                if (possibleValue != null)
+                                    put(key, possibleValue)
+                            }
+                }
+            }
 }

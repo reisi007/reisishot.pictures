@@ -3,6 +3,8 @@ package pictures.reisishot.mise.backend.generator.gallery
 import at.reisishot.mise.commons.*
 import at.reisishot.mise.config.ImageConfig
 import at.reisishot.mise.config.parseConfig
+import at.reisishot.mise.exifdata.ExifdataKey
+import at.reisishot.mise.exifdata.readExif
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.DIV
@@ -15,7 +17,6 @@ import pictures.reisishot.mise.backend.generator.MenuLinkContainerItem
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.html.insertSubcategoryThumbnail
-import pictures.reisishot.mise.backend.readExif
 import pictures.reisishot.mise.backend.toXml
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap

@@ -4,13 +4,12 @@ import at.reisishot.mise.commons.FileExtension
 import at.reisishot.mise.commons.isHtml
 import at.reisishot.mise.commons.isJetbrainsTemp
 import at.reisishot.mise.commons.isMarkdown
-import pictures.reisishot.mise.backend.generator.gallery.ExifdataKey
+import at.reisishot.mise.exifdata.defaultExifReplaceFunction
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.categories.ConfigurableCategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ForceRegeneration
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
-
 import pictures.reisishot.mise.backend.generator.links.LinkGenerator
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
@@ -34,16 +33,7 @@ object Test {
                                         categoryBuilders = *arrayOf(
                                                 DateCategoryBuilder("Chronologisch"),
                                                 ConfigurableCategoryBuilder()
-                                        ), exifReplaceFunction = { cur ->
-                                    when (cur.first) {
-                                        ExifdataKey.LENS_MODEL -> when (cur.second) {
-                                            "105.0 mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM"
-                                            "147.0 mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM + 1.4 Sigma EX APO DG Telekonverter"
-                                            else -> cur
-                                        }
-                                        else -> cur
-                                    }
-                                }
+                                        ), exifReplaceFunction = defaultExifReplaceFunction
                                 ),
                                 ImageMagickThumbnailGenerator(
                                         ForceRegeneration(

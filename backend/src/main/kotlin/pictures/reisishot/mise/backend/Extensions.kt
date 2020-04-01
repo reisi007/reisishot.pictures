@@ -3,10 +3,7 @@ package pictures.reisishot.mise.backend
 
 import at.reisishot.mise.commons.exists
 import at.reisishot.mise.commons.isRegularFile
-import com.drew.imaging.ImageMetadataReader
 import com.thoughtworks.xstream.XStream
-import pictures.reisishot.mise.backend.generator.gallery.ExifInformation
-import pictures.reisishot.mise.backend.generator.gallery.ExifdataKey
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -28,17 +25,3 @@ internal inline fun <reified T> Path.fromXml(): T? =
             Files.newBufferedReader(this, Charsets.UTF_8).use { reader ->
                 xStrem.fromXML(reader) as? T
             }
-
-internal fun Path.readExif(exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }): Map<ExifdataKey, String> = mutableMapOf<ExifdataKey, String>().apply {
-    ExifInformation(ImageMetadataReader.readMetadata(this@readExif.toFile()))
-            .let { exifInformation ->
-                ExifdataKey.values().forEach { key ->
-                    val exifValue = key.getValue(exifInformation)
-                    exifReplaceFunction(key to exifValue)
-                            .also { (key, possibleValue) ->
-                                if (possibleValue != null)
-                                    put(key, possibleValue)
-                            }
-                }
-            }
-}

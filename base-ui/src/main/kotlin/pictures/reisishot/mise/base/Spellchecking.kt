@@ -1,4 +1,4 @@
-package pictures.reisishot.mise.configui
+package pictures.reisishot.mise.base
 
 import javafx.animation.KeyFrame
 import javafx.animation.PauseTransition

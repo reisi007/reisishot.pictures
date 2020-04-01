@@ -5,6 +5,7 @@ import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
 import javafx.scene.control.Dialog
 import javafx.util.Callback
+import pictures.reisishot.mise.base.enableSpellcheck
 import tornadofx.*
 
 class NewFilenameDialog : Dialog<FilenameData?>() {
@@ -44,7 +45,6 @@ class NewFilenameDialog : Dialog<FilenameData?>() {
                     numberField.selectedItem ?: throw IllegalStateException("Item count not selected")
             )
         }
-
         Platform.runLater { nameField.requestFocus() }
     }
 }

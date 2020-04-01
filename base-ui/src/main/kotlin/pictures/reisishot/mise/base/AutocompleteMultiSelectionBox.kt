@@ -1,4 +1,4 @@
-package pictures.reisishot.mise.configui
+package pictures.reisishot.mise.base
 
 import javafx.collections.FXCollections
 import javafx.collections.ListChangeListener

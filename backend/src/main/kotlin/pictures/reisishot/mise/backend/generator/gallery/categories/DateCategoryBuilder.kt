@@ -3,8 +3,12 @@ package pictures.reisishot.mise.backend.generator.gallery.categories
 import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.ComplexName
 import at.reisishot.mise.commons.FilenameWithoutExtension
+import at.reisishot.mise.exifdata.ExifdataKey
 import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.generator.gallery.*
+import pictures.reisishot.mise.backend.generator.gallery.CategoryBuilder
+import pictures.reisishot.mise.backend.generator.gallery.CategoryInformation
+import pictures.reisishot.mise.backend.generator.gallery.ImageInformationRepository
+import pictures.reisishot.mise.backend.generator.gallery.SubcategoryComputator
 import java.time.Month
 import java.time.ZonedDateTime
 import java.time.format.TextStyle

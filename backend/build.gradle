@@ -6,8 +6,6 @@ dependencies {
     implementation project(':image-access')
     // https://mvnrepository.com/artifact/org.apache.velocity/velocity-engine-core
     implementation group: 'org.apache.velocity', name: 'velocity-engine-core', version: '2.1'
-    // https://mvnrepository.com/artifact/com.drewnoakes/metadata-extractor
-    implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.11.0'
     // https://mvnrepository.com/artifact/com.thoughtworks.xstream/xstream
     implementation group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.+'
     // https://search.maven.org/artifact/com.atlassian.commonmark/commonmark/0.13.0/jar
