@@ -8,19 +8,19 @@ const define = (function () {
         let method, internalName, publicName = undefined, paramNames;
         switch (arguments.length) {
             case 1:
-                // Only factory function, cannot be reused
+                // A factory function without dependencies - cannot be built upon!
                 method = arguments[0];
                 internalName = calculateInternalName(undefined);
                 paramNames = [];
                 break;
             case 2:
-                // Anonymous factory, which eneds arguments
+                // A factory function with dependencies - cannot be built upon!
                 paramNames = arguments[0];
                 method = arguments[1];
                 internalName = calculateInternalName(undefined);
                 break;
             case 3:
-                // Full use
+                // A factory function with dependencies -  can be used to inject in pther modules!
                 publicName = internalName = calculateInternalName(arguments[0]);
                 paramNames = arguments[1];
                 method = arguments[2];
