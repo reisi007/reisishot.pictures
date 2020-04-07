@@ -3,8 +3,9 @@
   * Copyright 2011-2019 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
   */
-(function (global, factory) {
-}(window, (function (exports, $) {
+(function (factory) {
+    factory(window.bootstrap = {}, window.jQuery);
+}((function (exports, $) {
     'use strict';
 
     $ = $ && $.hasOwnProperty('default') ? $['default'] : $;
@@ -7130,4 +7131,3 @@
     Object.defineProperty(exports, '__esModule', {value: true});
 
 })));
-//# sourceMappingURL=bootstrap.bundle.js.map
