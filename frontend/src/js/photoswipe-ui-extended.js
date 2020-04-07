@@ -7,18 +7,8 @@
  * Built just using public methods/properties of PhotoSwipe.
  *
  */
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        define(factory);
-    } else if (typeof exports === 'object') {
-        module.exports = factory();
-    } else {
-        window.PhotoSwipeUI_Default = factory();
-    }
-})(this, function () {
-
+define('PhotoSwipeUI_Reisishot', [], function () {
     'use strict';
-
 
     var PhotoSwipeUI_Default =
         function (pswp, framework) {
@@ -490,6 +480,13 @@
                             _fullscrenAPI.enter();
                         }
                     }
+                },
+                {
+                    name: 'preloader',
+                    option: 'preloaderEl',
+                    onInit: function (el) {
+                        _loadingIndicator = el;
+                    }
                 }, {
                     name: 'button--details',
                     option: 'pictureDetailsEl',
@@ -498,12 +495,6 @@
                         const url = "/gallery/images/" + curItem.name.toLowerCase();
                         if (curItem.name)
                             window.location = url
-                    }
-                }, {
-                    name: 'preloader',
-                    option: 'preloaderEl',
-                    onInit: function (el) {
-                        _loadingIndicator = el;
                     }
                 }
 

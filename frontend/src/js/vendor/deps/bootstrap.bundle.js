@@ -3,9 +3,11 @@
   * Copyright 2011-2019 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
   */
-(function (factory) {
-    factory(window.bootstrap = {}, window.jQuery);
-}((function (exports, $) {
+(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('jquery')) :
+        typeof define === 'function' && define.amd ? define(['exports', 'jquery'], factory) :
+            (global = global || self, factory(global, global.jQuery));
+}(this, (function (exports, $) {
     'use strict';
 
     $ = $ && $.hasOwnProperty('default') ? $['default'] : $;

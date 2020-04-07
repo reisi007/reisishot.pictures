@@ -237,7 +237,7 @@ object PageGenerator {
     }
 
     @HtmlTagMarker
-    private fun BODY.cookieInfo() = script("text/javascript", "//cookieinfoscript.com/js/cookieinfo.min.js") {
+    private fun BODY.cookieInfo() = script("text/javascript", "/js/cookieinfo.min.js") {
         attributes.putAll(
                 sequenceOf(
                         "id" to "cookieinfo",

@@ -71,6 +71,13 @@ gulp.task('vendorScripts', function () {
         .pipe(browserSync.reload({stream: true}));
 });
 
+gulp.task('vendorScripts!!', function () {
+    gulp.src('./src/js/vendor/**/*.js')
+        .pipe($.concat('vendor.js'))
+        .pipe(gulp.dest('generated/js'))
+        .pipe(browserSync.reload({stream: true}));
+});
+
 
 gulp.task('copyStatic', function () {
     return gulp

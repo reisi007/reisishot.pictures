@@ -12,9 +12,32 @@
  * Date: 2019-05-01T21:04Z
  */
 (function (global, factory) {
+
     "use strict";
-    factory(global, false);
-})(window, function (window, noGlobal) {
+
+    if (typeof module === "object" && typeof module.exports === "object") {
+
+        // For CommonJS and CommonJS-like environments where a proper `window`
+        // is present, execute the factory and get jQuery.
+        // For environments that do not have a `window` with a `document`
+        // (such as Node.js), expose a factory as module.exports.
+        // This accentuates the need for the creation of a real `window`.
+        // e.g. var jQuery = require("jquery")(window);
+        // See ticket #14549 for more info.
+        module.exports = global.document ?
+            factory(global, true) :
+            function (w) {
+                if (!w.document) {
+                    throw new Error("jQuery requires a window with a document");
+                }
+                return factory(w);
+            };
+    } else {
+        factory(global);
+    }
+
+// Pass this if window is not defined yet
+})(typeof window !== "undefined" ? window : this, function (window, noGlobal) {
 
 // Edge <= 12 - 13+, Firefox <=18 - 45+, IE 10 - 11, Safari 5.1 - 9+, iOS 6 - 9.1
 // throw exceptions when non-strict code (e.g., ASP.NET 4.5) accesses strict mode
@@ -114,6 +137,7 @@
     /* global Symbol */
 // Defining this global in .eslintrc.json would create a danger of using the global
 // unguarded in another place, it seems safer to define global only for this module
+
 
 
     var
@@ -485,7 +509,6 @@
         return type === "array" || length === 0 ||
             typeof length === "number" && length > 0 && (length - 1) in obj;
     }
-
     var Sizzle =
         /*!
  * Sizzle CSS Selector Engine v2.3.4
@@ -858,7 +881,6 @@
                     }
                     return (cache[key + " "] = value);
                 }
-
                 return cache;
             }
 

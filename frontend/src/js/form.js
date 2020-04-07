@@ -1,5 +1,6 @@
-(function () {
+define(['jquery'], function (jquery) {
     'use strict';
+    $ = jquery;
     window.addEventListener('load', function () {
         // Fetch all the forms we want to apply custom Bootstrap validation styles to
         const forms = document.querySelectorAll('form[r-form]');
@@ -45,4 +46,4 @@
         const element = document.querySelector("[r-form-submitted=\"" + formName + "\"]");
         element.style = "";
     }
-})();
+});
