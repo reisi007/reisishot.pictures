@@ -21,10 +21,10 @@ define(['jquery', 'lozad', 'photoswipe', 'PhotoSwipeUI_Reisishot'], function ($,
         document.querySelectorAll("div.gallery").forEach(gallery => {
             gallery.querySelectorAll("picture").forEach(pictureElement => {
                 const galleryName = gallery.getAttribute("data-name");
-                const curGallery = galleries[galleryName] = galleries[galleryName] || [];
-                curGallery.push({picture: pictureElement});
-                const index = curGallery.length - 1;
-                pictureElement.onclick = () => openGallery(galleryName, index);
+                const pictureName = pictureElement.getAttribute("data-url");
+                const curGallery = galleries[galleryName] = galleries[galleryName] || {};
+                curGallery[pictureName] = {picture: pictureElement};
+                pictureElement.onclick = () => openGallery(galleryName, pictureName);
             })
         });
         if (!$.isEmptyObject(galleries))
@@ -32,8 +32,7 @@ define(['jquery', 'lozad', 'photoswipe', 'PhotoSwipeUI_Reisishot'], function ($,
         parseUrl();
     }
 
-    function openGallery(galleryName, realIndex) {
-
+    function openGallery(galleryName, pictureName) {
         const curGallery = galleries[galleryName];
         const options = {
             galleryUID: galleryName,
@@ -41,10 +40,11 @@ define(['jquery', 'lozad', 'photoswipe', 'PhotoSwipeUI_Reisishot'], function ($,
             galleryPIDs: true
         };
 
-        options.index = parseInt(realIndex);
+        options.index = Object.keys(curGallery).indexOf(pictureName);
+        console.log(options);
+        const photoswipeContainer = document.querySelector('.pswp');
 
-        const photoswipeContainer = document.querySelectorAll('.pswp')[0];
-        const gallery = new Photoswipe(photoswipeContainer, ui, curGallery, options);
+        const gallery = new Photoswipe(photoswipeContainer, ui, Object.values(curGallery), options);
 
         gallery.listen('beforeResize', function () {
             gallery.invalidateCurrItems();
@@ -61,8 +61,7 @@ define(['jquery', 'lozad', 'photoswipe', 'PhotoSwipeUI_Reisishot'], function ($,
             item.src = sourceElement.srcset;
             item.w = sourceElement.getAttribute("data-w");
             item.h = sourceElement.getAttribute("data-h");
-            item.pid = curGallery.length - index;
-            item.name = pictureTag.getAttribute("data-url");
+            item.pid = item.name = pictureTag.getAttribute("data-url");
         });
 
         gallery.init();
@@ -100,9 +99,9 @@ define(['jquery', 'lozad', 'photoswipe', 'PhotoSwipeUI_Reisishot'], function ($,
 
         const gid = params["gid"];
         const gallery = galleries[gid];
-        const pid = parseInt(params["pid"]);
+        const pid = params["pid"];
         if (gallery)
-            openGallery(gid, gallery.length - pid);
+            openGallery(gid, pid);
     }
 
     function appendGalleryHtml() {

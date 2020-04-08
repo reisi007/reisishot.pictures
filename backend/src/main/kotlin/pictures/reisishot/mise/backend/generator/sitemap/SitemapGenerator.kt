@@ -38,7 +38,7 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
             configuration.outPath.findIndexHtmlFiles()
                     .map { it.normalize().toString().replace('\\', '/') }
                     .map { configuration.websiteLocation + it }
-                    .map { if (it.endsWith('/')) it else "$it/" }
+                    .map { if (it.endsWith('/')) it.substringBeforeLast('/') else it }
                     .forEach { pageUrl ->
                         it.print("<url>")
                         it.print("<loc>$pageUrl</loc>")

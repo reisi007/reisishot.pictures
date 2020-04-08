@@ -51,7 +51,7 @@ class TemplateApi(
                     .map {
                         imageInformationData.getOrThrow(it)
                     }.toArray(filenameWithoutExtension.size).let { imageInformations ->
-                        kotlin.text.buildString {
+                        buildString {
                             appendHTML(prettyPrint = false, xhtmlCompatible = true).div {
                                 insertImageGallery(galleryName, *imageInformations)
                             }

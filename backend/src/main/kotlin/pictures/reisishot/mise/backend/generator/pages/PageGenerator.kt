@@ -38,7 +38,7 @@ class PageGenerator : WebsiteGenerator {
 
     private lateinit var filesToProcess: List<PageGeneratorInfo>
 
-    private val parseMarkdown: (SourcePath) -> Reader by lazy {
+    private val parseMarkdown by lazy {
         val extensions = listOf(
                 AutolinkExtension.create(),
                 TablesExtension.create(),
