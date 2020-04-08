@@ -1,7 +1,7 @@
 // Create a fake AMD environment, so that less libraries need fixes to work...
 const define = (function () {
-    let count = 0;
-    const global = window.__reisishotFakeAmd = {};
+    let unnamedCount = 0;
+    const global = {};
     let unresolvedDependencies = [];
 
     const fakeAmd = function () {
@@ -30,7 +30,7 @@ const define = (function () {
         }
 
         // Queue for creation
-        const creationRequest = {
+        unresolvedDependencies.push({
             unmetDependencies: paramNames.filter(name => {
                 if (name === 'exports')
                     return false;
@@ -42,37 +42,39 @@ const define = (function () {
                 global[internalName] = method(...params);
                 return publicName;
             }
-        };
-        if (creationRequest.unmetDependencies.length === 0)
-            createModule(creationRequest.creator);
-        else
-            unresolvedDependencies.push(creationRequest);
+        });
 
+        scanForCreatableModules();
     };
 
     function calculateInternalName(guess) {
         if (typeof guess === 'string')
             return guess;
         else {
-            const ret = 'famd' + count;
-            count++;
+            const ret = 'famd' + unnamedCount;
+            unnamedCount++;
             return ret;
         }
     }
 
     function createModule(creator) {
-        scanForUnusedModules(creator())
+        const moduleName = creator();
+        if (moduleName) {
+            unresolvedDependencies.forEach((dependency, idx, array) => {
+                    dependency.unmetDependencies = dependency.unmetDependencies.filter(d => d !== moduleName)
+                }
+            );
+            scanForCreatableModules()
+        }
     }
 
-    function scanForUnusedModules(moduleName) {
-        if (moduleName)
-            unresolvedDependencies.forEach((dependency, idx, array) => {
-                dependency.unmetDependencies = dependency.unmetDependencies.filter(d => d !== moduleName);
-                if (dependency.unmetDependencies.length === 0) {
-                    array.splice(idx, 1);
-                    createModule(dependency.creator);
-                }
-            })
+    function scanForCreatableModules() {
+        unresolvedDependencies.forEach((dependency, idx, array) => {
+            if (dependency.unmetDependencies.length === 0) {
+                array.splice(idx, 1);
+                createModule(dependency.creator);
+            }
+        });
     }
 
     fakeAmd.amd = true;

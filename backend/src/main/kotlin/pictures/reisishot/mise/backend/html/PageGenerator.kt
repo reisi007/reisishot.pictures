@@ -43,12 +43,8 @@ object PageGenerator {
 
                             title(title)
 
-                            vendorCss()
                             appCss()
-
                             polyfills()
-                            vendorJs()
-                            appJs()
 
                             additionalHeadContent(this)
                         }
@@ -174,16 +170,7 @@ object PageGenerator {
     private fun HEAD.script(src: String) = script(src = src) {}
 
     @HtmlTagMarker
-    private fun HEAD.appCss() = styleLink("/css/app.css")
-
-    @HtmlTagMarker
-    private fun HEAD.vendorCss() = styleLink("/css/vendor.css")
-
-    @HtmlTagMarker
-    private fun HEAD.appJs() = script("/js/app.min.js")
-
-    @HtmlTagMarker
-    private fun HEAD.vendorJs() = script("/js/vendor.js")
+    private fun HEAD.appCss() = styleLink("/css/styles.css")
 
     @HtmlTagMarker
     private fun HEAD.polyfills() {
@@ -237,7 +224,7 @@ object PageGenerator {
     }
 
     @HtmlTagMarker
-    private fun BODY.cookieInfo() = script("text/javascript", "/js/cookieinfo.min.js") {
+    private fun BODY.cookieInfo() = script("text/javascript", "/js/combined.min.js") {
         attributes.putAll(
                 sequenceOf(
                         "id" to "cookieinfo",

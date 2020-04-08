@@ -3,7 +3,7 @@
 * Copyright (c) 2019 Dmitry Semenov; */
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define('Photoswipe', [], factory);
+        define('photoswipe', [], factory);
     } else if (typeof exports === 'object') {
         module.exports = factory();
     } else {

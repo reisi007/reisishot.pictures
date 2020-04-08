@@ -1,6 +1,5 @@
-define(['jquery'], function (jquery) {
+define(['jquery'], function ($) {
     'use strict';
-    $ = jquery;
     window.addEventListener('load', function () {
         // Fetch all the forms we want to apply custom Bootstrap validation styles to
         const forms = document.querySelectorAll('form[r-form]');

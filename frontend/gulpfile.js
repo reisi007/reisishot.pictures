@@ -19,17 +19,9 @@ gulp.task('styles', function () {
         .pipe($.sass().on('error', $.sass.logError))
         .pipe(autoprefixCss())
         .pipe($.cleanCss())
-        .pipe($.concat('app.css'))
+        .pipe($.concat('styles.css'))
         .pipe(gulp.dest('generated/css'))
         .pipe(browserSync.reload({stream: true}));
-});
-
-gulp.task('vendorStyles', function () {
-    gulp.src('./src/css/**/*.css')
-        .pipe(autoprefixCss())
-        .pipe(cleanCss())
-        .pipe($.concat('vendor.css'))
-        .pipe(gulp.dest('generated/css'));
 });
 
 function babelify() {
@@ -39,45 +31,18 @@ function babelify() {
 gulp.task('scripts', function () {
     return gulp
         .src([
-            './src/js/!(vendor)**/!(app)*.js',
-            './src/js/!(app)*.js'
+            './src/js/bootstrap/*.js',
+            './src/js/bootstrap/**/*.js',
+            './src/js/modules/*.js',
+            './src/js/modules/**/*.js'
         ])
         .pipe(babelify())
         .pipe($.plumber())
-        .pipe($.concat('app.min.js'))
+        .pipe($.concat('combined.min.js'))
         .pipe($.uglify())
         .pipe(gulp.dest('generated/js'))
 
 });
-gulp.task('scripts!!', function () {
-    return gulp
-        .src([
-            './src/js/!(vendor)**/!(app)*.js',
-            './src/js/!(app)*.js'
-        ])
-        .pipe($.concat('app.min.js'))
-        .pipe(gulp.dest('generated/js'))
-
-});
-
-
-gulp.task('vendorScripts', function () {
-    gulp.src('./src/js/vendor/**/*.js')
-        .pipe(babelify())
-        .pipe($.plumber())
-        .pipe($.concat('vendor.js'))
-        .pipe($.uglify())
-        .pipe(gulp.dest('generated/js'))
-        .pipe(browserSync.reload({stream: true}));
-});
-
-gulp.task('vendorScripts!!', function () {
-    gulp.src('./src/js/vendor/**/*.js')
-        .pipe($.concat('vendor.js'))
-        .pipe(gulp.dest('generated/js'))
-        .pipe(browserSync.reload({stream: true}));
-});
-
 
 gulp.task('copyStatic', function () {
     return gulp
@@ -101,12 +66,8 @@ gulp.task('watch', function () {
     gulp.watch("generated/**/*.html").on('change', browserSync.reload);
     // Watch .sass files
     gulp.watch(['src/scss/**/*.scss', 'src/scss/**/*.css'], ['styles', browserSync.reload]);
-    // Watch .css files
-    gulp.watch('src/css/**/*.css', ['vendorStyles', browserSync.reload]);
     // Watch .js files
     gulp.watch('src/js/**/*.js', ['scripts', browserSync.reload]);
-    // Watch .js files
-    gulp.watch('src/js/vendor/**/*.js', ['vendorScripts', browserSync.reload]);
     // Watch static files
     gulp.watch('src/static/**/*.*', ['copyStatic', browserSync.reload]);
 });
@@ -114,9 +75,7 @@ gulp.task('watch', function () {
 gulp.task('default', function () {
     gulp.start(
         'copyStatic',
-        'vendorStyles',
         'styles',
-        'vendorScripts',
         'scripts',
         'browser-sync',
         'watch'
