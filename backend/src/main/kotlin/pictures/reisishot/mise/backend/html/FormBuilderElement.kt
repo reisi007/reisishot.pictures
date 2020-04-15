@@ -40,6 +40,13 @@ private fun FlowContent.buildForm(cur: FormBuilderElement): Unit = when (cur) {
                 placeholder = cur.placeholder
         }
     }
+    is HiddenFormInput -> input(InputType.hidden, classes = "form-control") {
+        id = cur.name
+        name = cur.name
+        required = cur.required
+        value = cur.value
+
+    }
     is FormSelect -> formElement(cur) {
         select("form-control") {
             required = cur.required
@@ -129,6 +136,9 @@ abstract class FormGroup(vararg val builderElements: FormBuilderElement)
 
 class FormInput(name: String, override val label: String, override val description: String, errorMessage: String, val type: InputType, val placeholder: String? = null, required: Boolean = true)
     : FormBuilderElement(name, label, description, errorMessage, required)
+
+class HiddenFormInput(name: String, val value: String)
+    : FormBuilderElement(name, null, null, null, false)
 
 class FormSelect(name: String, label: String, description: String, errorMessage: String, required: Boolean = true, val options: Array<FormSelectOption>)
     : FormBuilderElement(name, label, description, errorMessage, required)
