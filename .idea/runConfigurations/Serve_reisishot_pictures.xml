@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Run Website" type="js.build_tools.gulp">
+  <configuration default="false" name="Serve reisishot.pictures" type="js.build_tools.gulp">
     <node-interpreter>C:/Program Files/nodejs/node</node-interpreter>
     <node-options />
     <gulpfile>$PROJECT_DIR$/frontend/gulpfile.js</gulpfile>

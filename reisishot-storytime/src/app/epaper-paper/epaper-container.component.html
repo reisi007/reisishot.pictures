@@ -1,0 +1,7 @@
+<p>epaper-paper works! Page: {{currentPage}} / {{pages.length}}</p>
+
+<ng-content></ng-content>
+
+<a [routerLink]="['..', currentPage - 1]" *ngIf="currentPage > 1">Prev</a>
+<a [routerLink]="['..', currentPage + 1]" *ngIf="currentPage < pages.length">Next</a>
+<p>Footer</p>
