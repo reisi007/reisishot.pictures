@@ -7,8 +7,15 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {EpaperOverviewComponent} from './epaper-overview/epaper-overview.component';
 import {EPaperContainer} from './epaper-paper/epaper-container.component';
 import {ReisishotSampleMagazineComponent} from './epapers/reisishot-sample-magazine/reisishot-sample-magazine.component';
-import {EpaperPageComponent} from './epaper-paper/epaper-page/epaper-page.component';
 import {SampleMagazineSampleArticleComponent} from './epapers/reisishot-sample-magazine/sample-magazine-sample-article/sample-magazine-sample-article.component';
+import {EPaperPageDirective} from './epaper-paper/epaper-page/e-paper-page.directive';
+import {MatToolbarModule} from "@angular/material/toolbar";
+import {MatIconModule} from "@angular/material/icon";
+import {MatButtonModule} from "@angular/material/button";
+import {MatCardModule} from "@angular/material/card";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {FormsModule} from "@angular/forms";
+import {MatSelectModule} from "@angular/material/select";
 
 @NgModule({
   declarations: [
@@ -16,13 +23,20 @@ import {SampleMagazineSampleArticleComponent} from './epapers/reisishot-sample-m
     EpaperOverviewComponent,
     EPaperContainer,
     ReisishotSampleMagazineComponent,
-    EpaperPageComponent,
-    SampleMagazineSampleArticleComponent
+    SampleMagazineSampleArticleComponent,
+    EPaperPageDirective
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    MatCardModule,
+    MatFormFieldModule,
+    FormsModule,
+    MatSelectModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
