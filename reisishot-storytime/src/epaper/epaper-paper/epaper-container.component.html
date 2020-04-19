@@ -1,0 +1,62 @@
+<div class="fullHeight">
+    <div [class.hide]="isScrollDown" [class.show]="!isScrollDown" class="mat-toolbar mat-primary">
+        <div class="row">
+  <span *ngIf="kioskName">
+     <a class="invisible" [routerLink]="['../..']">{{kioskName}}</a>
+    &nbsp;-&nbsp;</span>
+            <a class="invisible" [routerLink]="['..', 1]">{{magazinTitle}}</a>
+        </div>
+        <div class="row smaller">
+            <ng-container *ngTemplateOutlet="firstPage"></ng-container>
+            <ng-container *ngTemplateOutlet="prevPage"></ng-container>
+            <mat-form-field>
+                <mat-select [value]="currentPageNumber" (valueChange)="onSelectPageChanged($event)">
+                    <mat-option *ngFor="let item of pages; let i= index" [value]="i+1">
+                        Seite {{i + 1}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <ng-container *ngTemplateOutlet="nextPage"></ng-container>
+            <ng-container *ngTemplateOutlet="lastPage"></ng-container>
+        </div>
+    </div>
+    <div class="content" #content (scroll)="onScroll()">
+        <h1>{{currentPageItem.articleTitle}}</h1>
+        <ng-content></ng-content>
+    </div>
+</div>
+<div [class.hide]="isScrollDown" [class.show]="!isScrollDown" class="button-row">
+    <mat-card>
+        <ng-container *ngTemplateOutlet="firstPage"></ng-container>
+        <ng-container *ngTemplateOutlet="prevPage"></ng-container>
+        <ng-container *ngTemplateOutlet="nextPage"></ng-container>
+        <ng-container *ngTemplateOutlet="lastPage"></ng-container>
+    </mat-card>
+</div>
+<!-- Templates -->
+<ng-container>
+    <ng-template #firstPage>
+        <a *ngIf="currentPageNumber > 1" [routerLink]="['..', 1]"
+           mat-icon-button aria-label="Zur ersten Seite">
+            <mat-icon>skip_previous</mat-icon>
+        </a>
+    </ng-template>
+    <ng-template #prevPage>
+        <a *ngIf="currentPageNumber > 1" [routerLink]="['..', currentPageNumber - 1]" mat-icon-button
+           aria-label="Zur vorherigen Seite">
+            <mat-icon>keyboard_arrow_left</mat-icon>
+        </a>
+    </ng-template>
+    <ng-template #nextPage>
+        <a *ngIf="currentPageNumber < pages.length" [routerLink]="['..', currentPageNumber + 1]"
+           mat-icon-button aria-label="Zur nächsten Seite">
+            <mat-icon>keyboard_arrow_right</mat-icon>
+        </a>
+    </ng-template>
+    <ng-template #lastPage>
+        <a *ngIf="currentPageNumber < pages.length" [routerLink]="['..', pages.length]" mat-icon-button
+           aria-label="Zur letzten Seite">
+            <mat-icon>skip_next</mat-icon>
+        </a>
+    </ng-template>
+</ng-container>

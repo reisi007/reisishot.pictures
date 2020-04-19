@@ -8,9 +8,9 @@ describe('EpaperOverviewComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [EpaperOverviewComponent]
-    })
-      .compileComponents();
+             declarations: [EpaperOverviewComponent],
+           })
+           .compileComponents();
   }));
 
   beforeEach(() => {

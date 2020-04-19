@@ -1,0 +1,106 @@
+.fill-remaining-space {
+  flex: 1 1 auto;
+}
+
+div.button-row {
+  z-index: 100;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  bottom: 0;
+  width: 100%;
+  margin-bottom: 1.5rem;
+
+  mat-card {
+    width: fit-content;
+    padding: unset;
+
+    button, a {
+      display: table-cell;
+      margin-right: 8px;
+    }
+  }
+
+  &.hide {
+    position: absolute;
+    bottom: -4rem;
+    opacity: 0;
+    transition: .5s ease-in-out all;
+  }
+
+  &.show {
+    opacity: 100;
+    bottom: 0;
+    transition: .4s ease-in-out all;
+  }
+}
+
+
+div.mat-toolbar, div.mat-primary {
+  display: flex;
+  width: 100vw;
+  align-items: center;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  flex-direction: row;
+  margin-bottom: 0rem;
+
+  & .mat-toolbar-single-row {
+    height: auto !important;
+  }
+
+  div.row {
+    display: inline-flex;
+    align-items: baseline;
+    width: fit-content;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+
+    &.smaller {
+      zoom: 0.75;
+    }
+  }
+
+  mat-form-field {
+    width: 100px;
+  }
+
+  &.hide {
+    position: absolute;
+    top: -5rem;
+    opacity: 0;
+    transition: .5s ease-out all;
+  }
+
+  &.show {
+    opacity: 100;
+    top: 0;
+
+  }
+}
+
+
+div.fullHeight {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+
+  mat-toolbar {
+    flex-grow: 0;
+  }
+
+  div.content {
+    margin-left: 1rem;
+    margin-right: 1rem;
+    padding-top: 1rem;
+    flex-grow: 1;
+    overflow-y: auto;
+    /*  @media (orientation: landscape) {
+        column-count: 2;
+        column-gap: 2rem;
+        column-rule-style: solid;
+        column-rule-width: 1px;
+      }*/
+  }
+}
+

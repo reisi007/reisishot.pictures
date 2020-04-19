@@ -8,9 +8,9 @@ describe('ReisishotSampleMagazineComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ReisishotSampleMagazineComponent]
-    })
-      .compileComponents();
+             declarations: [ReisishotSampleMagazineComponent],
+           })
+           .compileComponents();
   }));
 
   beforeEach(() => {

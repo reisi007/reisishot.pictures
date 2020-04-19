@@ -4,3 +4,27 @@ a {
     text-decoration: inherit;
   }
 }
+
+h1 {
+  @extend .mat-h1
+}
+
+h2 {
+  @extend .mat-h2
+}
+
+h3 {
+  @extend .mat-h3
+}
+
+h4 {
+  @extend .mat-h4
+}
+
+h1, h2, h3, h4 {
+  text-align: center;
+}
+
+p {
+
+}
