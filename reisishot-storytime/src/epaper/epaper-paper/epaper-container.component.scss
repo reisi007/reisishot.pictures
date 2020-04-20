@@ -1,3 +1,26 @@
+/// Stroke font-character
+/// @param  {Integer} $stroke - Stroke width
+/// @param  {Color}   $color  - Stroke color
+/// @return {List}            - text-shadow list
+@function stroke($stroke, $color) {
+  $shadow: ();
+  $from: $stroke*-1;
+  @for $i from $from through $stroke {
+    @for $j from $from through $stroke {
+      $shadow: append($shadow, $i*1px $j*1px 0 $color, comma);
+    }
+  }
+  @return $shadow;
+}
+
+/// Stroke font-character
+/// @param  {Integer} $stroke - Stroke width
+/// @param  {Color}   $color  - Stroke color
+/// @return {Style}           - text-shadow
+@mixin stroke($stroke, $color) {
+  text-shadow: stroke($stroke, $color);
+}
+
 .fill-remaining-space {
   flex: 1 1 auto;
 }
@@ -81,20 +104,26 @@ div.mat-toolbar, div.mat-primary {
 
 
 div.fullHeight {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
 
   mat-toolbar {
     flex-grow: 0;
   }
 
   div.content {
-    margin-left: 1rem;
-    margin-right: 1rem;
-    padding-top: 1rem;
+    padding: 1rem;
     flex-grow: 1;
     overflow-y: auto;
+
+    &.preview {
+      display: flex;
+      flex-direction: column;
+      overflow-y: hidden;
+
+      .previewMode {
+
+      }
+    }
+
     /*  @media (orientation: landscape) {
         column-count: 2;
         column-gap: 2rem;

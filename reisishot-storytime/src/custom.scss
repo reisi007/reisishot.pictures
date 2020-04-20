@@ -28,3 +28,17 @@ h1, h2, h3, h4 {
 p {
 
 }
+
+img, picture {
+  object-fit: contain;
+}
+
+html {
+  overflow-y: hidden;
+}
+
+div.fullHeight {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}

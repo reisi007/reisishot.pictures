@@ -1,5 +1,5 @@
 <div class="fullHeight">
-    <div [class.hide]="isScrollDown" [class.show]="!isScrollDown" class="mat-toolbar mat-primary">
+    <div *ngIf="!isPreview" [class.hide]="isScrollDown" [class.show]="!isScrollDown" class="mat-toolbar mat-primary">
         <div class="row">
   <span *ngIf="kioskName">
      <a class="invisible" [routerLink]="['../..']">{{kioskName}}</a>
@@ -20,12 +20,13 @@
             <ng-container *ngTemplateOutlet="lastPage"></ng-container>
         </div>
     </div>
-    <div class="content" #content (scroll)="onScroll()">
-        <h1>{{currentPageItem.articleTitle}}</h1>
+    <div class="content" [class.preview]="isPreview" #content (scroll)="onScroll()">
+        <h1 *ngIf="isPreview" class="previewMode">{{magazinTitle}}</h1>
+        <h1 *ngIf="!isPreview">{{currentPageItem.articleTitle}}</h1>
         <ng-content></ng-content>
     </div>
 </div>
-<div [class.hide]="isScrollDown" [class.show]="!isScrollDown" class="button-row">
+<div *ngIf="!isPreview" [class.hide]="isScrollDown" [class.show]="!isScrollDown" class="button-row">
     <mat-card>
         <ng-container *ngTemplateOutlet="firstPage"></ng-container>
         <ng-container *ngTemplateOutlet="prevPage"></ng-container>

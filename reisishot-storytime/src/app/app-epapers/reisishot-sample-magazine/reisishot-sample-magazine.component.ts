@@ -1,20 +1,16 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input} from '@angular/core';
 
 @Component({
-  selector: 'app-reisishot-sample-magazine',
+  selector: 'reisishot-sample-magazine',
   templateUrl: './reisishot-sample-magazine.component.html',
   styleUrls: ['./reisishot-sample-magazine.component.scss'],
 })
-export class ReisishotSampleMagazineComponent implements OnInit {
+export class ReisishotSampleMagazineComponent {
+
+  @Input()
+  previewMode: boolean;
 
   constructor() {
-  }
-
-  ngOnInit(): void {
-  }
-
-  getRoutePart(): string {
-    return 'sample';
   }
 
 }

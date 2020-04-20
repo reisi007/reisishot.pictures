@@ -12,6 +12,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {FormsModule} from '@angular/forms';
 import {MatSelectModule} from '@angular/material/select';
 import {RouterModule} from '@angular/router';
+import {EPaperDirective} from './epaper-overview/e-paper.directive';
 
 
 @NgModule({
@@ -19,10 +20,13 @@ import {RouterModule} from '@angular/router';
     EpaperOverviewComponent,
     EPaperContainer,
     EPaperPageDirective,
+    EPaperDirective,
   ],
   exports: [
     EPaperContainer,
     EPaperPageDirective,
+    EpaperOverviewComponent,
+    EPaperDirective,
   ],
   imports: [
     CommonModule,

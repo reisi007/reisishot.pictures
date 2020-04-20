@@ -1,4 +1,9 @@
-<e-paper-container [kioskName]="'Reisishot StoryTime'" [magazinTitle]="'Sample'">
+<e-paper-container [kioskName]="'Reisishot StoryTime'" [magazinTitle]="'Sample'" [previewMode]="previewMode">
+
+    <img *ePaperPage="'Titelseite'" alt="Sample titlepage"
+         width="100%" height="100%"
+         src="https://i.picsum.photos/id/392/1000/1500.jpg"/>
+
     <reisishot-sample-magazine-sample-article
             *ePaperPage="'Mein erster Artikel'"></reisishot-sample-magazine-sample-article>
     <div *ePaperPage="'Seite 2'">

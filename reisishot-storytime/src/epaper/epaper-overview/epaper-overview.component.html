@@ -1,1 +1,13 @@
-<p>epaper-overview works!</p>
+<mat-toolbar color="primary">
+    <mat-toolbar-row class="center">
+        <h1>{{kioskName}}</h1>
+    </mat-toolbar-row>
+</mat-toolbar>
+
+<div class="magazinContainer fullHeight">
+    <ng-container *ngFor="let item of contentChildren">
+        <div class="magazinHolder">
+            <ng-container *ngTemplateOutlet="item.template"></ng-container>
+        </div>
+    </ng-container>
+</div>

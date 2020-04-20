@@ -1,15 +1,14 @@
-import {AfterContentInit, Component, ElementRef, Input, OnDestroy, OnInit, Optional, ViewChild} from '@angular/core';
+import {AfterContentInit, Component, ElementRef, Input, Optional, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Subject} from 'rxjs';
 import {EPaperPageDirective} from './epaper-page/e-paper-page.directive';
-import {EpaperKioskService} from './epaper-kiosk.service';
 
 @Component({
   selector: 'e-paper-container',
   templateUrl: './epaper-container.component.html',
   styleUrls: ['./epaper-container.component.scss'],
 })
-export class EPaperContainer implements OnInit, OnDestroy, AfterContentInit {
+export class EPaperContainer implements AfterContentInit {
 
   public currentPageNumber: number = 1;
 
@@ -23,7 +22,7 @@ export class EPaperContainer implements OnInit, OnDestroy, AfterContentInit {
 
   @Input('previewMode')
   @Optional()
-  private isPreview: boolean | null;
+  public isPreview: boolean | null;
 
   @Input()
   public magazinTitle: string;
@@ -31,7 +30,6 @@ export class EPaperContainer implements OnInit, OnDestroy, AfterContentInit {
   @Optional()
   @Input()
   public kioskName: string | null;
-  private _kioskName: string | undefined;
 
   prevScrollY = 0;
   @ViewChild('content') contentRef: ElementRef;
@@ -40,16 +38,7 @@ export class EPaperContainer implements OnInit, OnDestroy, AfterContentInit {
   constructor(
     private router: Router,
     public route: ActivatedRoute,
-    private kiosk: EpaperKioskService,
   ) {
-  }
-
-  ngOnInit(): void {
-    if(this.kioskName) {
-      this.kiosk.putEPaper(this.kioskName, this);
-      this._kioskName = this.kioskName;
-    }
-
   }
 
   ngAfterContentInit(): void {
@@ -62,16 +51,15 @@ export class EPaperContainer implements OnInit, OnDestroy, AfterContentInit {
       this.pages[pageIndex].showPage(true);
       prevPageIndex = pageIndex;
     });
-    this.route.paramMap.subscribe(params => {
-      const pageNumber = params.get('page');
-      this.currentPageNumber = +pageNumber;
-      this.currentPageSubject.next(this.currentPageNumber);
-    });
-  }
-
-  ngOnDestroy(): void {
-    if(this._kioskName) {
-      this.kiosk.removeEpaper(this.kioskName);
+    if(this.isPreview) {
+      this.currentPageSubject.next(1);
+    }
+    else {
+      this.route.paramMap.subscribe(params => {
+        const pageNumber = params.get('page');
+        this.currentPageNumber = +pageNumber;
+        this.currentPageSubject.next(this.currentPageNumber);
+      });
     }
   }
 

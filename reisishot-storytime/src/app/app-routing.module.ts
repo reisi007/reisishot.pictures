@@ -1,11 +1,11 @@
 import {NgModule, Type} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {ReisishotSampleMagazineComponent} from './app-epapers/reisishot-sample-magazine/reisishot-sample-magazine.component';
-import {EpaperOverviewComponent} from '../epaper/epaper-overview/epaper-overview.component';
+import {RootComponent} from './root/root.component';
 
 
 const routes: Routes = [
-  {path: '', component: EpaperOverviewComponent},
+  {path: '', component: RootComponent},
   ...calculateMagazineRoutes(
     {'sample': ReisishotSampleMagazineComponent},
   ),
