@@ -6,8 +6,8 @@
 
 <div class="magazinContainer fullHeight">
     <ng-container *ngFor="let item of contentChildren">
-        <div class="magazinHolder">
+        <a class="invisible magazinHolder" [routerLink]="[item.route,1]">
             <ng-container *ngTemplateOutlet="item.template"></ng-container>
-        </div>
+        </a>
     </ng-container>
 </div>
