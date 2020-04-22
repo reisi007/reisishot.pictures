@@ -6,6 +6,7 @@ import com.vladsch.flexmark.ext.autolink.AutolinkExtension
 import com.vladsch.flexmark.ext.emoji.EmojiExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
 import com.vladsch.flexmark.ext.toc.TocExtension
+import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +29,7 @@ import kotlin.streams.asSequence
 
 class PageGenerator : WebsiteGenerator {
 
+    private val overviewPageGenerator = OverviewPageGenerator();
     override val executionPriority: Int = 30_000
     override val generatorName: String = "Reisishot Page"
 
@@ -58,12 +60,18 @@ class PageGenerator : WebsiteGenerator {
                 .builder()
                 .extensions(extensions)
                 .build()
-        return@lazy { sourceFile: SourcePath ->
+
+
+        return@lazy { sourceFile: SourcePath, targetPath: TargetPath ->
+            val yamlExtractor = AbstractYamlFrontMatterVisitor()
             Files.newBufferedReader(sourceFile).use { reader ->
+                val parseReader = parser.parseReader(reader)
+                yamlExtractor.visit(parseReader)
+                val data = extract(yamlExtractor, targetPath)
                 StringReader(
                         StringEscapeUtils.unescapeHtml4(
                                 htmlRenderer.render(
-                                        parser.parseReader(reader)
+                                        parseReader
                                 )
                         )
                 )
@@ -121,6 +129,15 @@ class PageGenerator : WebsiteGenerator {
                     filenameParts.menuItemDisplayName
             )
         }
+    }
+
+    fun extract(yaml: AbstractYamlFrontMatterVisitor, targetPath: TargetPath): OverviewEntry? {
+        val picture = yaml.data.getOrDefault("picture", null)?.firstOrNull()
+        val title = yaml.data.getOrDefault("title", null)?.firstOrNull()
+        if (picture == null || title == null)
+            return null
+        return OverviewEntry(title, picture, targetPath)
+
     }
 
     private fun Path.calculateFilenameParts(configuration: WebsiteConfiguration): FilenameParts {
@@ -260,7 +277,7 @@ class PageGenerator : WebsiteGenerator {
             targetFile: TargetPath,
             title: String
     ) = convertHtml(
-            parseMarkdown(soureFile),
+            parseMarkdown(soureFile, targetFile),
             soureFile.filenameWithoutExtension,
             websiteConfiguration,
             buildingCache,
