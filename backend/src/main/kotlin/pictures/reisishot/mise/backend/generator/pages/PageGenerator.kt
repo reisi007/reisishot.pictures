@@ -7,6 +7,7 @@ import com.vladsch.flexmark.ext.emoji.EmojiExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
 import com.vladsch.flexmark.ext.toc.TocExtension
 import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
+import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterExtension
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import kotlinx.coroutines.Dispatchers
@@ -46,7 +47,9 @@ class PageGenerator : WebsiteGenerator {
                 TablesExtension.create(),
                 TocExtension.create(),
                 EmojiExtension.create(),
-                AnchorLinkExtension.create()
+                AnchorLinkExtension.create(),
+                YamlFrontMatterExtension.create()
+
         )
 
         val parser = Parser.builder()
@@ -67,7 +70,7 @@ class PageGenerator : WebsiteGenerator {
             Files.newBufferedReader(sourceFile).use { reader ->
                 val parseReader = parser.parseReader(reader)
                 yamlExtractor.visit(parseReader)
-                val data = extract(yamlExtractor, targetPath)
+                extract(yamlExtractor, targetPath)?.let { overviewPageGenerator.addChange(it) }
                 StringReader(
                         StringEscapeUtils.unescapeHtml4(
                                 htmlRenderer.render(
@@ -132,11 +135,13 @@ class PageGenerator : WebsiteGenerator {
     }
 
     fun extract(yaml: AbstractYamlFrontMatterVisitor, targetPath: TargetPath): OverviewEntry? {
+        val group = yaml.data.getOrDefault("group", null)?.firstOrNull()
         val picture = yaml.data.getOrDefault("picture", null)?.firstOrNull()
         val title = yaml.data.getOrDefault("title", null)?.firstOrNull()
-        if (picture == null || title == null)
+        val order = yaml.data.getOrDefault("order", setOf("0"))?.firstOrNull()?.toInt()
+        if (group == null || picture == null || title == null || order == null)
             return null
-        return OverviewEntry(title, picture, targetPath)
+        return OverviewEntry(group, title, picture, targetPath.parent, order)
 
     }
 
@@ -213,7 +218,6 @@ class PageGenerator : WebsiteGenerator {
                             title,
                             websiteConfiguration = websiteConfiguration,
                             buildingCache = buildingCache,
-                            hasGallery = galleryObject.hasGallery,
                             pageContent = {
                                 raw(html.replace(compressHtml, " "))
                             }
@@ -223,8 +227,10 @@ class PageGenerator : WebsiteGenerator {
         }
     }
 
-    override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) =
-            filesToProcess.forEach { it.buildArtifact(configuration, cache) }
+    override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
+        filesToProcess.forEach { it.buildArtifact(configuration, cache) }
+        overviewPageGenerator.processChanges(configuration, cache, galleryGenerator)
+    }
 
 
     fun PageGeneratorInfo.buildArtifact(configuration: WebsiteConfiguration, cache: BuildingCache) = let { (soureFile, targetFile, title) ->
@@ -316,6 +322,7 @@ class PageGenerator : WebsiteGenerator {
 
     override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changeFiles: ChangeFileset): Boolean {
         buildInitialArtifacts(configuration, cache)
+        overviewPageGenerator.processChanges(configuration, cache, galleryGenerator)
         return false
     }
 
@@ -328,6 +335,7 @@ class PageGenerator : WebsiteGenerator {
                 .map { configuration.outPath.resolve("index.html") }
                 .forEach {
                     Files.deleteIfExists(it)
+                    overviewPageGenerator.removeChange(it.parent)
                 }
     }
 }

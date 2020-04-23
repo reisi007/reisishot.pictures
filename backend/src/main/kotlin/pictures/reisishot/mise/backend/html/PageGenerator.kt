@@ -21,7 +21,6 @@ object PageGenerator {
             locale: Locale = Locale.getDefault(),
             websiteConfiguration: WebsiteConfiguration,
             buildingCache: BuildingCache,
-            hasGallery: Boolean = true,
             additionalHeadContent: HEAD.() -> Unit = {},
             pageContent: DIV.() -> Unit
     ) = with(target) {

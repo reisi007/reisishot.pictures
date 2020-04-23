@@ -112,7 +112,7 @@ class BuildingCache {
         }
     }
 
-    internal fun saveCache(config: WebsiteConfiguration) {
+    internal fun saveCache() {
         internalMenuLinks.toList().toXml(menuLinkPath)
         linkCache.toXml(linkPath)
     }

@@ -190,7 +190,7 @@ class MainView : View("Main View") {
     private fun renameImageIfNeeded() {
         val newFilenameData = filenameChooser.selectedItems.first()
         val oldConfigPath = lastPath
-        val oldFilenameData = FilenameData.fromPath(oldConfigPath) ?: return
+        val oldFilenameData = FilenameData.fromPath(oldConfigPath)
         if (oldFilenameData == newFilenameData)
             return
 

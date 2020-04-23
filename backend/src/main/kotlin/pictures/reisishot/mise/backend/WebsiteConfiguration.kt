@@ -17,7 +17,7 @@ class WebsiteConfiguration(
         val cleanupGeneration: Boolean = false,
         val interactiveDelayMs: Long? = 2000,
         val generators: List<WebsiteGenerator> = emptyList(),
-        vararg val interactiveIgnoredFiles: ((FileExtension) -> Boolean) = arrayOf({ it: String -> false })
+        vararg val interactiveIgnoredFiles: ((FileExtension) -> Boolean) = arrayOf({ _: String -> false })
 ) {
     val websiteLocation: String = websiteLocation.let { if (websiteLocation.endsWith("/")) it else "$it/" }
     override fun equals(other: Any?): Boolean {

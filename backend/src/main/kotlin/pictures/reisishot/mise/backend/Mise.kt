@@ -21,7 +21,7 @@ object Mise {
     private suspend fun WebsiteConfiguration.execute() {
         val cache = loadCache()
 
-        setupEnvironment(cache)
+        setupEnvironment()
         val generators = setupGenerators(cache)
 
         generateWebsite(cache, generators)
@@ -31,7 +31,7 @@ object Mise {
         startIncrementalGeneration(cache, generators)
     }
 
-    private suspend fun WebsiteConfiguration.setupEnvironment(cache: BuildingCache) = doing("Preparing website build") {
+    private suspend fun WebsiteConfiguration.setupEnvironment() = doing("Preparing website build") {
         withContext(Dispatchers.IO) {
             Files.createDirectories(outPath)
             Files.createDirectories(tmpPath)
@@ -80,7 +80,7 @@ object Mise {
 
     private suspend fun BuildingCache.store(websiteConfiguration: WebsiteConfiguration, generatorMap: Map<Int, List<WebsiteGenerator>>) = doing("Writing cache...") {
         generatorMap.values.flatMap { it }.forEachParallel { it.saveCache(websiteConfiguration, this@store) }
-        saveCache(websiteConfiguration)
+        saveCache()
 
     }
 
@@ -120,7 +120,7 @@ object Mise {
                         changed.addAndGet(1)
                 }
                 if (changed.get() > 0)
-                    cache.saveCache(configuration)
+                    cache.saveCache()
             }
     }
 
@@ -133,7 +133,7 @@ object Mise {
             delay(1000)
             val nextEvents = pollEvents(configuration, watchedDir)
             nextEvents.forEach { (p, changeStates) ->
-                changedFileset.computeIfAbsent(p) { key -> mutableSetOf() } += changeStates
+                changedFileset.computeIfAbsent(p) { mutableSetOf() } += changeStates
             }
         }
         return changedFileset

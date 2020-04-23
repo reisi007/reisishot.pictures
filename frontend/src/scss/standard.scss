@@ -230,3 +230,27 @@ table {
     }
   }
 }
+
+a {
+  &.black {
+    color: black;
+    text-decoration: black;
+  }
+}
+
+div.card {
+  padding: 2px;
+  margin: 4px;
+
+  .card-img-top {
+    flex-grow: 3;
+  }
+
+  .card-title {
+    color: black;
+
+    & :hover {
+      text-decoration: underline;
+    }
+  }
+}
