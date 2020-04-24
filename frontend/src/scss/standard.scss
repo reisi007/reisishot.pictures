@@ -238,19 +238,32 @@ a {
   }
 }
 
-div.card {
-  padding: 2px;
-  margin: 4px;
+.overview {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
 
-  .card-img-top {
-    flex-grow: 3;
-  }
+  div.card {
+    padding: 2px;
+    margin: 4px;
+    width: 300px;
 
-  .card-title {
-    color: black;
+    .card-img-top {
+      flex-grow: 3;
+      @extend .gallery.single;
 
-    & :hover {
-      text-decoration: underline;
+    }
+
+    .card-title {
+      color: black;
+
+      & :hover {
+        text-decoration: underline;
+      }
     }
   }
+}
+
+.center {
+  text-align: center;
 }

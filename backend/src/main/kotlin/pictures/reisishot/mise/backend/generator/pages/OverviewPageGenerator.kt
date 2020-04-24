@@ -58,7 +58,7 @@ class OverviewPageGenerator {
                             buildingCache = buildingCache
                     ) {
                         h1(classes = "center") { text(name) }
-                        div(classes = "overview card-group") {
+                        div(classes = "overview") {
                             data[name]?.asSequence()
                                     ?.sortedByDescending { it.order }
                                     ?.forEachIndexed { i, entry ->
