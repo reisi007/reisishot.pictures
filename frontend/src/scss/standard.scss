@@ -243,16 +243,17 @@ a {
   flex-wrap: wrap;
   justify-content: space-evenly;
 
-  div.card {
+  .card {
     padding: 2px;
-    margin: 4px;
+    margin-top: 3rem;
+    margin-bottom: 3rem;
     width: 300px;
 
     .card-img-top {
       flex-grow: 3;
       @extend .gallery.single;
-
     }
+
 
     .card-title {
       color: black;
