@@ -1,8 +1,6 @@
 package pictures.reisishot.mise.backend.generator
 
 import at.reisishot.mise.commons.withChild
-import com.google.common.collect.SortedMultiset
-import com.google.common.collect.TreeMultiset
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.fromXml
 import pictures.reisishot.mise.backend.toXml
@@ -18,8 +16,7 @@ class BuildingCache {
     private val linkCache: MutableMap<String, MutableMap<String, Link>> = ConcurrentHashMap()
 
 
-    private val internalMenuLinks: SortedMultiset<MenuLink> =
-            TreeMultiset.create(Comparator.comparing<MenuLink, Int> { it.uniqueIndex })
+    private val internalMenuLinks: SortedSet<MenuLink> = TreeSet(compareBy(MenuLink::uniqueIndex, MenuLink::id))
 
     val menuLinks: Collection<MenuLink> get() = Collections.synchronizedCollection(internalMenuLinks)
 

@@ -135,10 +135,10 @@ class PageGenerator : WebsiteGenerator {
     }
 
     fun extract(yaml: AbstractYamlFrontMatterVisitor, targetPath: TargetPath): OverviewEntry? {
-        val group = yaml.data.getOrDefault("group", null)?.firstOrNull()
-        val picture = yaml.data.getOrDefault("picture", null)?.firstOrNull()
-        val title = yaml.data.getOrDefault("title", null)?.firstOrNull()
-        val order = yaml.data.getOrDefault("order", setOf("0"))?.firstOrNull()?.toInt()
+        val group = yaml.data.getOrDefault("group", null)?.firstOrNull()?.trim()
+        val picture = yaml.data.getOrDefault("picture", null)?.firstOrNull()?.trim()
+        val title = yaml.data.getOrDefault("title", null)?.firstOrNull()?.trim()
+        val order = yaml.data.getOrDefault("order", setOf("0"))?.firstOrNull()?.trim()?.toInt()
         if (group == null || picture == null || title == null || order == null)
             return null
         return OverviewEntry(group, title, picture, targetPath.parent, order)
