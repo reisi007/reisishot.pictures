@@ -3,14 +3,13 @@ package pictures.reisishot.mise.backend.generator.pages
 import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.commons.filenameWithoutExtension
-import at.reisishot.mise.commons.toArray
 import kotlinx.html.a
 import kotlinx.html.div
 import kotlinx.html.stream.appendHTML
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
-import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
+import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.insertCategoryThumbnails
 import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbnails
 import pictures.reisishot.mise.backend.html.insertImageGallery
@@ -27,7 +26,7 @@ class TemplateApi(
         get() = privateHasGallery
 
 
-    private fun Map<FilenameWithoutExtension, InternalImageInformation>.getOrThrow(key: FilenameWithoutExtension) =
+    private fun Map<FilenameWithoutExtension, ImageInformation>.getOrThrow(key: FilenameWithoutExtension) =
             this[key]
                     ?: throw IllegalStateException("Cannot find picture with filename \"$key\" (used in ${targetPath.filenameWithoutExtension})!")
 
@@ -50,10 +49,10 @@ class TemplateApi(
             filenameWithoutExtension.asSequence()
                     .map {
                         imageInformationData.getOrThrow(it)
-                    }.toArray(filenameWithoutExtension.size).let { imageInformations ->
+                    }.toList().let { imageInformations ->
                         buildString {
                             appendHTML(prettyPrint = false, xhtmlCompatible = true).div {
-                                insertImageGallery(galleryName, *imageInformations)
+                                insertImageGallery(galleryName, imageInformations)
                             }
                         }
                     }

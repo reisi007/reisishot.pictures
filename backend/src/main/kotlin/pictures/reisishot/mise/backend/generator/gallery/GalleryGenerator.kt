@@ -29,27 +29,32 @@ class GalleryGenerator(
     ) {
         val dateTimeFormatter = DateTimeFormatter.ofPattern("eeee 'den' dd.MM.YYYY 'um' HH:mm:ss z")
         (configuration.outPath withChild "gallery/images").let { baseHtmlPath ->
-            this.cache.imageInformationData.values.forEachLimitedParallel(50) { curImageInformation ->
-                PageGenerator.generatePage(
-                        websiteConfiguration = configuration,
-                        buildingCache = cache,
-                        target = baseHtmlPath withChild curImageInformation.filename.toLowerCase() withChild "index.html",
-                        title = curImageInformation.title,
-                        pageContent = {
-                            classes = classes + "singleImage"
-                            h1("text-center") {
-                                text(curImageInformation.title)
-                            }
-                            insertImageGallery("1", curImageInformation)
+            this.cache.imageInformationData.values
+                    .asSequence()
+                    .map { it as? InternalImageInformation }
+                    .filterNotNull()
+                    .asIterable()
+                    .forEachLimitedParallel(50) { curImageInformation ->
+                        PageGenerator.generatePage(
+                                websiteConfiguration = configuration,
+                                buildingCache = cache,
+                                target = baseHtmlPath withChild curImageInformation.filename.toLowerCase() withChild "index.html",
+                                title = curImageInformation.title,
+                                pageContent = {
+                                    classes = classes + "singleImage"
+                                    h1("text-center") {
+                                        text(curImageInformation.title)
+                                    }
+                                    insertImageGallery("1", curImageInformation)
 
-                            insertCategoryLinks(curImageInformation, configuration, cache)
+                                    insertCategoryLinks(curImageInformation, configuration, cache)
 
-                            insertTagLinks(curImageInformation, configuration, cache)
+                                    insertTagLinks(curImageInformation, configuration, cache)
 
-                            insertExifInformation(curImageInformation, dateTimeFormatter)
-                        }
-                )
-            }
+                                    insertExifInformation(curImageInformation, dateTimeFormatter)
+                                }
+                        )
+                    }
         }
     }
 
@@ -79,12 +84,14 @@ class GalleryGenerator(
                             val imageInformations = with(categoryImages) {
                                 asSequence()
                                         .map { imageInformationData.getValue(it) }
-                                        .toOrderedByTimeArray(size)
+                                        .map { it as? InternalImageInformation }
+                                        .filterNotNull()
+                                        .toOrderedByTime()
                             }
 
                             insertSubcategoryThumbnails(categoryMetaInformation.internalName)
 
-                            insertImageGallery("1", *imageInformations)
+                            insertImageGallery("1", imageInformations)
                         }
                 )
             }
@@ -113,7 +120,12 @@ class GalleryGenerator(
                                 }
                             }
 
-                            insertImageGallery("1", *tagImages.toOrderedByTimeArray())
+                            val imageInformations = tagImages.asSequence()
+                                    .map { it as? InternalImageInformation }
+                                    .filterNotNull()
+                                    .toOrderedByTime()
+                            insertImageGallery("1", imageInformations
+                            )
                         })
             }
         }

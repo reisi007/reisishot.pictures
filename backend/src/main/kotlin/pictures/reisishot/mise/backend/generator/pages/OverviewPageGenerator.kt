@@ -61,7 +61,7 @@ class OverviewPageGenerator {
                         div(classes = "overview") {
                             data[name]?.asSequence()
                                     ?.sortedByDescending { it.order }
-                                    ?.forEachIndexed { i, entry ->
+                                    ?.forEach { entry ->
                                         val image = galleryGenerator.cache.imageInformationData[entry.picture]
                                                 ?: throw IllegalStateException("Cannot find Image Information")
                                         div(classes = "card") {

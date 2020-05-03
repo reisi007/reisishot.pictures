@@ -6,22 +6,28 @@ import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThum
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ThumbnailInformation
 
 
-interface ImageInformation {
-    val filename: FilenameWithoutExtension
-    val href: String
-    val title: String
-    val tags: Set<String>
-    val exifInformation: Map<ExifdataKey, String>
-    val thumbnailSizes: Map<ImageSize, ThumbnailInformation>
+sealed class ImageInformation(
+        val filename: FilenameWithoutExtension,
+        val thumbnailSizes: Map<ImageSize, ThumbnailInformation>,
+        val href: String,
+        val title: String
+)
 
-}
-
-data class InternalImageInformation(
-        override val filename: FilenameWithoutExtension,
-        override val href: String,
-        override val title: String,
-        override val tags: Set<String>,
-        override val exifInformation: Map<ExifdataKey, String>,
-        override val thumbnailSizes: Map<ImageSize, ThumbnailInformation>,
+class InternalImageInformation(
+        filename: FilenameWithoutExtension,
+        thumbnailSizes: Map<ImageSize, ThumbnailInformation>,
+        href: String,
+        title: String,
+        val tags: Set<String>,
+        val exifInformation: Map<ExifdataKey, String>,
         val categories: MutableSet<CategoryInformation> = mutableSetOf()
-) : ImageInformation
+) : ImageInformation(filename, thumbnailSizes, href, title)
+
+class ExternalImageInformation(
+        filename: FilenameWithoutExtension,
+        thumbnailSizes: Map<ImageSize, ThumbnailInformation>,
+        href: String,
+        title: String
+) : ImageInformation(filename, thumbnailSizes, href, title)
+
+fun ImageInformation.toExternal() = ExternalImageInformation(filename, thumbnailSizes, href, title)

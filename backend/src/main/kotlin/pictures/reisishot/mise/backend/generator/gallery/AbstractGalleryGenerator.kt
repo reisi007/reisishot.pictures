@@ -50,12 +50,12 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
         }
 
     data class Cache(
-            val imageInformationData: MutableMap<FilenameWithoutExtension, InternalImageInformation> = concurrentSkipListMap(),
+            val imageInformationData: MutableMap<FilenameWithoutExtension, ImageInformation> = concurrentSkipListMap(),
             val categoryInformation: MutableMap<CategoryName, CategoryInformation> = concurrentSkipListMap(),
-            val computedTags: MutableMap<TagInformation, MutableSet<InternalImageInformation>> = concurrentSkipListMap(compareBy(TagInformation::name)),
+            val computedTags: MutableMap<TagInformation, MutableSet<ImageInformation>> = concurrentSkipListMap(compareBy(TagInformation::name)),
             val computedCategories: MutableMap<CategoryName, MutableSet<FilenameWithoutExtension>> = concurrentSkipListMap(),
             val computedSubcategories: MutableMap<CategoryName, Set<CategoryName>> = concurrentSkipListMap(),
-            val computedCategoryThumbnails: MutableMap<CategoryName, InternalImageInformation> = concurrentSkipListMap()
+            val computedCategoryThumbnails: MutableMap<CategoryName, ImageInformation> = concurrentSkipListMap()
     ) {
         companion object {
             private fun <K, V> concurrentSkipListMap(comparator: Comparator<in K>): MutableMap<K, V> = ConcurrentSkipListMap(comparator)
@@ -105,18 +105,21 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
         val shallAddToMenu = displayedMenuItems.contains(DisplayedMenuItems.TAGS)
         cache.clearMenuItems { LINKTYPE_TAGS == it.id }
         cache.resetLinkcacheFor(LINKTYPE_TAGS)
-        imageInformationData.values.forEach { imageInformation ->
-            imageInformation.tags.forEach { tagName ->
-                val tag = TagInformation(tagName)
-                computedTags.computeIfAbsent(tag) { mutableSetOf() } += imageInformation
-                // Add tag URLs to global cache
-                "gallery/tags/${tag.url}".let { link ->
-                    cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag.name, link)
-                    if (shallAddToMenu)
-                        cache.addMenuItemInContainerNoDupes(LINKTYPE_TAGS, "Tags", 300, tag.name, link, menuIemComperator)
+        imageInformationData.values.asSequence()
+                .map { it as? InternalImageInformation }
+                .filterNotNull()
+                .forEach { imageInformation ->
+                    imageInformation.tags.forEach { tagName ->
+                        val tag = TagInformation(tagName)
+                        computedTags.computeIfAbsent(tag) { mutableSetOf() } += imageInformation
+                        // Add tag URLs to global cache
+                        "gallery/tags/${tag.url}".let { link ->
+                            cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag.name, link)
+                            if (shallAddToMenu)
+                                cache.addMenuItemInContainerNoDupes(LINKTYPE_TAGS, "Tags", 300, tag.name, link, menuIemComperator)
+                        }
+                    }
                 }
-            }
-        }
     }
 
     // TODO Write cache files and use them instead of computing...
@@ -144,11 +147,11 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
 
                     InternalImageInformation(
                             filenameWithoutExtension,
-                            configuration.websiteLocation + "gallery/images/" + filenameWithoutExtension.toLowerCase(),
+                            thumbnailConfig,
+                            configuration.websiteLocation + SUBFOLDER_OUT + '/' + filenameWithoutExtension.toLowerCase(),
                             imageConfig.title,
                             imageConfig.tags,
-                            exifData,
-                            thumbnailConfig
+                            exifData
                     ).apply {
                         cache.imageInformationData.put(filenameWithoutExtension, this)
                         imageConfig.categoryThumbnail.forEach { category ->
@@ -195,7 +198,7 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
                                 mutableSetOf()
                             } += filename
 
-                            imageInformationData[filename]?.categories?.add(categoryInformation)
+                            (imageInformationData[filename] as? InternalImageInformation)?.categories?.add(categoryInformation)
                             this.categoryInformation.computeIfAbsent(categoryInformation.internalName) { categoryInformation }
                         }
                     }
@@ -259,9 +262,9 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
         }
     }
 
-    fun Collection<InternalImageInformation>.toOrderedByTimeArray() = asSequence().toOrderedByTimeArray(size)
-    fun Sequence<InternalImageInformation>.toOrderedByTimeArray(size: Int) = sortedByDescending { it.exifInformation[ExifdataKey.CREATION_TIME] }
-            .toArray(size)
+
+    fun Sequence<InternalImageInformation>.toOrderedByTime() = sortedByDescending { it.exifInformation[ExifdataKey.CREATION_TIME] }
+            .toList()
 
     override suspend fun loadCache(configuration: WebsiteConfiguration, cache: BuildingCache) {
         super.loadCache(configuration, cache)
@@ -276,10 +279,10 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
     }
 }
 
-fun Map<CategoryName, InternalImageInformation>.getThumbnailImageInformation(
+fun Map<CategoryName, ImageInformation>.getThumbnailImageInformation(
         name: CategoryName,
         generator: AbstractGalleryGenerator
-): InternalImageInformation? =
+): ImageInformation? =
         get(name)
                 ?: generator.cache.imageInformationData[generator.cache.computedCategories[name]?.first()]
                 ?: throw IllegalStateException("Could not find thumbnail for \"$name\"!")

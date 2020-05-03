@@ -2,7 +2,7 @@ package pictures.reisishot.mise.backend.html
 
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.generator.gallery.CategoryInformation
-import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
+import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.Companion.NAME_IMAGE_SUBFOLDER
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize.Companion.ORDERED
@@ -36,8 +36,7 @@ fun FlowContent.fluidContainer(block: DIV.() -> Unit = {}) = div("container-flui
 
 fun HtmlBlockTag.insertImageGallery(
         galleryName: String,
-        vararg imageInformation: InternalImageInformation
-) = with(imageInformation) {
+        imageInformation: List<ImageInformation>) = with(imageInformation) {
     if (isEmpty())
         return@with
     div {
@@ -49,8 +48,13 @@ fun HtmlBlockTag.insertImageGallery(
     }
 }
 
+fun HtmlBlockTag.insertImageGallery(
+        galleryName: String,
+        vararg imageInformation: ImageInformation
+) = insertImageGallery(galleryName, listOf(*imageInformation))
+
 internal fun FlowOrInteractiveOrPhrasingContent.insertLazyPicture(
-        curImageInfo: InternalImageInformation,
+        curImageInfo: ImageInformation,
         additionalClasses: List<String> = emptyList()
 ) {
     picture(PageGenerator.LAZYLOADER_CLASSNAME) {
@@ -78,7 +82,7 @@ internal fun FlowOrInteractiveOrPhrasingContent.insertLazyPicture(
 
 internal fun HtmlBlockTag.insertSubcategoryThumbnail(
         categoryInformation: CategoryInformation,
-        imageInformation: InternalImageInformation
+        imageInformation: ImageInformation
 ) {
     div("card") {
         a(href = "/gallery/categories/${categoryInformation.urlFragment}") {
@@ -111,7 +115,7 @@ fun PICTURE.source(srcset: String, mediaQuery: String? = null, classes: String? 
         ).visit(block)
 
 private fun PICTURE.generateSourceTag(
-        curImageInformation: InternalImageInformation,
+        curImageInformation: ImageInformation,
         curSize: ImageSize
 ) {
     val curSizeInfo = curImageInformation.thumbnailSizes[curSize] ?: return

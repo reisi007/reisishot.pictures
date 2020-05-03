@@ -5,10 +5,7 @@ import at.reisishot.mise.commons.ComplexName
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.exifdata.ExifdataKey
 import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.generator.gallery.CategoryBuilder
-import pictures.reisishot.mise.backend.generator.gallery.CategoryInformation
-import pictures.reisishot.mise.backend.generator.gallery.ImageInformationRepository
-import pictures.reisishot.mise.backend.generator.gallery.SubcategoryComputator
+import pictures.reisishot.mise.backend.generator.gallery.*
 import java.time.Month
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
@@ -26,6 +23,8 @@ class DateCategoryBuilder(val rootCategoryName: String) : CategoryBuilder {
             websiteConfiguration: WebsiteConfiguration
     ): Sequence<Pair<FilenameWithoutExtension, CategoryInformation>> =
             imageInformationRepository.imageInformationData.asSequence()
+                    .map { it as? InternalImageInformation }
+                    .filterNotNull()
                     .flatMap {
                         val captureDate = it.exifInformation.get(ExifdataKey.CREATION_TIME)?.let { ZonedDateTime.parse(it) }
                         if (captureDate == null)
