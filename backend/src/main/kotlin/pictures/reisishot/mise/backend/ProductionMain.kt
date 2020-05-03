@@ -11,7 +11,7 @@ import pictures.reisishot.mise.backend.generator.pages.PageGenerator
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
 import java.nio.file.Paths
 
-object Production {
+object ProductionMain {
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -20,9 +20,9 @@ object Production {
                         shortTitle = "Reisishot",
                         longTitle = "Reisishot - Fotograf Florian Reisinger",
                         websiteLocation = "https://reisishot.pictures",
-                        inPath = Paths.get("input").toAbsolutePath(),
-                        tmpPath = Paths.get("tmp").toAbsolutePath(),
-                        outPath = Paths.get("frontend/generated").toAbsolutePath(),
+                        inPath = Paths.get("input-main").toAbsolutePath(),
+                        tmpPath = Paths.get("tmp-main").toAbsolutePath(),
+                        outPath = Paths.get("frontend-main/generated").toAbsolutePath(),
                         interactiveIgnoredFiles = *arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         cleanupGeneration = false,
                         generators = listOf(

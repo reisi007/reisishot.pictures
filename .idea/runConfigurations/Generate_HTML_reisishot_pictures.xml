@@ -1,12 +1,12 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Converter" type="JetRunConfigurationType" factoryName="Kotlin">
-    <module name="My_website_(reisishot.pictures).piwigo-converter.main" />
-    <option name="VM_PARAMETERS" value="" />
+  <configuration default="false" name="Generate HTML reisishot.pictures" type="JetRunConfigurationType">
+    <module name="My_website_(reisishot.pictures).backend.main" />
+    <option name="VM_PARAMETERS" value="-Xms4G -Xmx9G" />
     <option name="PROGRAM_PARAMETERS" value="" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <option name="PASS_PARENT_ENVS" value="true" />
-    <option name="MAIN_CLASS_NAME" value="pictures.reisishot.mise.converter.piwigo.Converter" />
+    <option name="MAIN_CLASS_NAME" value="pictures.reisishot.mise.backend.ProductionMain" />
     <option name="WORKING_DIRECTORY" value="" />
     <method v="2">
       <option name="Make" enabled="true" />
