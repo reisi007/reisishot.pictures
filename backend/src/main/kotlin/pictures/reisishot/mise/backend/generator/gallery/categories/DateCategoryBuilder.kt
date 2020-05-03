@@ -31,7 +31,7 @@ class DateCategoryBuilder(val rootCategoryName: String) : CategoryBuilder {
                         if (captureDate == null)
                             emptySequence()
                         else
-                            (it.filenameWithoutExtension to DateCategoryData(
+                            (it.filename to DateCategoryData(
                                     rootCategoryName,
                                     captureDate.year.toString(),
                                     captureDate.month,

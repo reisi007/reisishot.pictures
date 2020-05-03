@@ -45,13 +45,13 @@ class ConfigurableCategoryBuilder() : CategoryBuilder {
                 categoryImages += curCategory.includedTagNames.asSequence()
                         .flatMap { tagName ->
                             imageInformationRepository.computedTags[TagInformation(tagName)]?.asSequence()
-                                    ?.map { it.filenameWithoutExtension } ?: emptySequence()
+                                    ?.map { it.filename } ?: emptySequence()
                         }
 
                 categoryImages -= curCategory.excludedTagNames.asSequence()
                         .flatMap { tagName ->
                             imageInformationRepository.computedTags[TagInformation(tagName)]?.asSequence()
-                                    ?.map { it.filenameWithoutExtension } ?: emptySequence()
+                                    ?.map { it.filename } ?: emptySequence()
                         }
 
                 computedCategories.put(curCategory, categoryImages)

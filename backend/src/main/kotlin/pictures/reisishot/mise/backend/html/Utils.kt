@@ -63,7 +63,8 @@ internal fun FlowOrInteractiveOrPhrasingContent.insertLazyPicture(
         attributes["style"] = "width: ${thumbnailInformation.width}px; height: ${thumbnailInformation.height}px;"
         attributes["data-iesrc"] = largeImageUrl
         attributes["data-alt"] = curImageInfo.title
-        attributes["data-url"] = curImageInfo.url
+        attributes["data-id"] = curImageInfo.filename
+        attributes["data-url"] = curImageInfo.href
 
         ORDERED.forEach { curSize ->
             generateSourceTag(curImageInfo, curSize)

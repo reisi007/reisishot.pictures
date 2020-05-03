@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /picture/*
+Disallow: /index/*
+Disallow: search.php*

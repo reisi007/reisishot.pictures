@@ -15,13 +15,11 @@ class BuildingCache {
 
     private val linkCache: MutableMap<String, MutableMap<String, Link>> = ConcurrentHashMap()
 
-
     private val internalMenuLinks: SortedSet<MenuLink> = TreeSet(compareBy(MenuLink::uniqueIndex, MenuLink::id))
 
     val menuLinks: Collection<MenuLink> get() = Collections.synchronizedCollection(internalMenuLinks)
 
     fun resetLinkcacheFor(linkType: String) = linkCache.computeIfAbsent(linkType) { ConcurrentHashMap() }.clear()
-
 
     fun addLinkcacheEntryFor(linkType: String, linkKey: String, link: Link) = synchronized(linkCache) {
         linkCache.computeIfAbsent(linkType) { ConcurrentHashMap() }.put(linkKey, link)

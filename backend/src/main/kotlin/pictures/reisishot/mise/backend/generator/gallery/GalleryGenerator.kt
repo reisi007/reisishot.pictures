@@ -33,7 +33,7 @@ class GalleryGenerator(
                 PageGenerator.generatePage(
                         websiteConfiguration = configuration,
                         buildingCache = cache,
-                        target = baseHtmlPath withChild curImageInformation.url.toLowerCase() withChild "index.html",
+                        target = baseHtmlPath withChild curImageInformation.filename.toLowerCase() withChild "index.html",
                         title = curImageInformation.title,
                         pageContent = {
                             classes = classes + "singleImage"
