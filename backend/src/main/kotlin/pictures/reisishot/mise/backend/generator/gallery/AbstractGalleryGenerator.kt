@@ -144,7 +144,7 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
 
                     InternalImageInformation(
                             filenameWithoutExtension,
-                            configuration.websiteLocation + "gallery/images/" + filenameWithoutExtension,
+                            configuration.websiteLocation + "gallery/images/" + filenameWithoutExtension.toLowerCase(),
                             imageConfig.title,
                             imageConfig.tags,
                             exifData,
