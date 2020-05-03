@@ -3,11 +3,9 @@ package pictures.reisishot.mise.backend.html
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.generator.gallery.CategoryInformation
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
-import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.Companion.NAME_IMAGE_SUBFOLDER
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize.Companion.ORDERED
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize.Companion.getSize
-import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ThumbnailInformation
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.scaleToHeight
 
 
@@ -62,7 +60,8 @@ internal fun FlowOrInteractiveOrPhrasingContent.insertLazyPicture(
             classes = classes + additionalClasses
         val desiredHeight = 300
         val imageSize = getSize(desiredHeight)
-        val largeImageUrl = curImageInfo.thumbnailSizes.getHtmlUrl(imageSize)
+
+        val largeImageUrl = curImageInfo.getHtmlUrl(imageSize)
         val thumbnailInformation = curImageInfo.thumbnailSizes.getValue(imageSize).scaleToHeight(desiredHeight)
         attributes["style"] = "width: ${thumbnailInformation.width}px; height: ${thumbnailInformation.height}px;"
         attributes["data-iesrc"] = largeImageUrl
@@ -78,6 +77,10 @@ internal fun FlowOrInteractiveOrPhrasingContent.insertLazyPicture(
             img(alt = curImageInfo.title, src = largeImageUrl)
         }
     }
+}
+
+private fun ImageInformation.getHtmlUrl(imageSize: ImageSize): String {
+    return href.substringBefore("gallery/images") + "images/" + filename + '_' + imageSize.identifier + ".jpg"
 }
 
 internal fun HtmlBlockTag.insertSubcategoryThumbnail(
@@ -120,10 +123,10 @@ private fun PICTURE.generateSourceTag(
 ) {
     val curSizeInfo = curImageInformation.thumbnailSizes[curSize] ?: return
     val smallerSizeInfo = curSize.smallerSize?.let { curImageInformation.thumbnailSizes[it] }
-    curSizeInfo.let { (location1, width1, height1) ->
+    curSizeInfo.let { (_, width1, height1) ->
 
         source(
-                srcset = getThumbnailUrlFromFilename(location1)
+                srcset = curImageInformation.getHtmlUrl(curSize)
         ) {
             smallerSizeInfo?.let { (_, width2, height2) ->
                 attributes["media"] = "(min-width: ${width2 + 1}px),(min-height: ${height2 + 1}px)"
@@ -133,16 +136,6 @@ private fun PICTURE.generateSourceTag(
         }
     }
 }
-
-private fun Map<ImageSize, ThumbnailInformation>.getHtmlUrl(imageSize: ImageSize): String =
-        with(this[imageSize]?.filename) {
-            if (this == null)
-                throw IllegalStateException("Cannot get Url for this Thumbnail!")
-            getThumbnailUrlFromFilename(this)
-        }
-
-private fun getThumbnailUrlFromFilename(filename: String): String =
-        "/${NAME_IMAGE_SUBFOLDER}/$filename"
 
 @HtmlTagMarker
 fun FlowOrInteractiveOrPhrasingContent.smallButtonLink(text: String, href: String, target: String = "_blank") = a(href, target, classes = "btn btn-primary btn-sm active") {

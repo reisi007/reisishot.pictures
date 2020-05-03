@@ -41,7 +41,6 @@ define(['jquery', 'lozad', 'photoswipe', 'PhotoSwipeUI_Reisishot'], function ($,
         };
 
         options.index = Object.keys(curGallery).indexOf(pictureName);
-        console.log(options);
         const photoswipeContainer = document.querySelector('.pswp');
 
         const gallery = new Photoswipe(photoswipeContainer, ui, Object.values(curGallery), options);

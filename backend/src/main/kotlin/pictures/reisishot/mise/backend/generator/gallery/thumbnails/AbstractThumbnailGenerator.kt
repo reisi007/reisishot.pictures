@@ -35,7 +35,7 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
     }
 
     enum class ImageSize(
-            private val identifier: String,
+            val identifier: String,
             val longestSidePx: Int,
             val quality: Float,
             val interpolation: Interpolation

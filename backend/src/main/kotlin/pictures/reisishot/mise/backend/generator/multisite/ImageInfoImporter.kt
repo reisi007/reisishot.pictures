@@ -1,4 +1,4 @@
-package pictures.reisishot.mise.backend.generator.imageInfoImporter
+package pictures.reisishot.mise.backend.generator.multisite
 
 import at.reisishot.mise.commons.withChild
 import pictures.reisishot.mise.backend.WebsiteConfiguration
@@ -10,8 +10,8 @@ import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerato
 import pictures.reisishot.mise.backend.generator.gallery.toExternal
 import java.nio.file.Path
 
-class ImageInfoImporter(private val baseUrl: String, private val otherCacheDir: Path) : WebsiteGenerator {
-
+class ImageInfoImporter(private val otherCacheDir: Path) : WebsiteGenerator {
+    override val executionPriority: Int = 25_000
     override val generatorName: String = "ImageInfoImport"
 
     private fun execute(alreadyRunGenerators: List<WebsiteGenerator>) {

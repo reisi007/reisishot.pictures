@@ -45,6 +45,7 @@ object PageGenerator {
                             appCss()
                             polyfills()
 
+                            analyticsJs(websiteConfiguration)
                             additionalHeadContent(this)
                         }
                         body("d-flex flex-column h-100") {
@@ -100,6 +101,7 @@ object PageGenerator {
                                 }
                             }
                             cookieInfo()
+                            analyticsImage(websiteConfiguration)
                         }
                     }
         }
@@ -236,5 +238,31 @@ object PageGenerator {
                 )
         )
 
+    }
+
+    @HtmlTagMarker
+    private fun HEAD.analyticsJs(websiteConfiguration: WebsiteConfiguration) = websiteConfiguration.analyticsSiteId?.let {
+        raw("""
+        <!-- Matomo -->
+        <script type="text/javascript">
+          var _paq = window._paq || [];
+          /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+          _paq.push(['trackPageView']);
+          _paq.push(['enableLinkTracking']);
+          (function() {
+            var u="//analytics.reisishot.pictures/";
+            _paq.push(['setTrackerUrl', u+'matomo.php']);
+            _paq.push(['setSiteId', '${it}']);
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+          })();
+        </script>
+        <!-- End Matomo Code -->
+    """.trimIndent())
+    }
+
+    @HtmlTagMarker
+    private fun BODY.analyticsImage(websiteConfiguration: WebsiteConfiguration) = websiteConfiguration.analyticsSiteId?.let {
+        img(src = """https://analytics.reisishot.pictures/matomo.php?idsite=$it&amp;rec=1""")
     }
 }

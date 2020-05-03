@@ -16,6 +16,7 @@ class WebsiteConfiguration(
         val locale: Locale = Locale.getDefault(),
         val cleanupGeneration: Boolean = false,
         val interactiveDelayMs: Long? = 2000,
+        val analyticsSiteId: String? = null,
         val generators: List<WebsiteGenerator> = emptyList(),
         vararg val interactiveIgnoredFiles: ((FileExtension) -> Boolean) = arrayOf({ _: String -> false })
 ) {

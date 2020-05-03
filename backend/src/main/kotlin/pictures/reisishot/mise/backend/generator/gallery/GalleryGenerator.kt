@@ -21,7 +21,6 @@ class GalleryGenerator(
 ) : AbstractGalleryGenerator(*categoryBuilders, displayedMenuItems = displayedMenuItems, exifReplaceFunction = exifReplaceFunction) {
 
     override val generatorName: String = "Reisishot Gallery"
-    override val executionPriority: Int = 20_000
 
     override suspend fun generateImagePages(
             configuration: WebsiteConfiguration,

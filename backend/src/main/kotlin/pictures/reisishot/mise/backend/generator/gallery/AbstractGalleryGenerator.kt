@@ -31,6 +31,7 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
         CATEGORIES,
         TAGS;
     }
+    override val executionPriority: Int = 20_000
 
     internal var cache = Cache()
     protected lateinit var cachePath: Path
