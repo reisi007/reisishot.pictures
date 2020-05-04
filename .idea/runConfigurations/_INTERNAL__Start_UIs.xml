@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="[INTERNAL] Start UIs" type="CompoundRunConfigurationType">
+    <toRun name="Main Website" type="js.build_tools.gulp" />
+    <toRun name="People Website" type="js.build_tools.gulp" />
+    <method v="2" />
+  </configuration>
+</component>

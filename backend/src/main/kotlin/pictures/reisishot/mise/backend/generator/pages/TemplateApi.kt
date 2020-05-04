@@ -31,10 +31,12 @@ class TemplateApi(
                     ?: throw IllegalStateException("Cannot find picture with filename \"$key\" (used in ${targetPath.filenameWithoutExtension})!")
 
     @SuppressWarnings("unused")
-    fun insertPicture(filenameWithoutExtension: FilenameWithoutExtension) = buildString {
+    @JvmOverloads
+    fun insertPicture(filenameWithoutExtension: FilenameWithoutExtension, classNames: String? = null) = buildString {
         appendHTML(prettyPrint = false, xhtmlCompatible = true).div {
+            val classNames = classNames?.split(" ") ?: listOf()
             with(galleryGenerator.cache) {
-                insertLazyPicture(imageInformationData.getOrThrow(filenameWithoutExtension))
+                insertLazyPicture(imageInformationData.getOrThrow(filenameWithoutExtension), classNames)
             }
         }
     }
