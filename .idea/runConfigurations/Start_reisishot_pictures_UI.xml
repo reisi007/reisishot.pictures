@@ -1,7 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Start reisishot.pictures UI" type="CompoundRunConfigurationType">
     <toRun name="About me" type="JavascriptDebugType" />
-    <toRun name="Serve reisishot.pictures" type="js.build_tools.gulp" />
     <method v="2" />
   </configuration>
 </component>

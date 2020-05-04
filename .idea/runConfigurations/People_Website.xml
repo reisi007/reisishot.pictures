@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="People Website" type="js.build_tools.gulp">
+    <node-interpreter>project</node-interpreter>
+    <node-options />
+    <gulpfile>$PROJECT_DIR$/frontend-people/gulpfile.js</gulpfile>
+    <tasks>
+      <task>default</task>
+    </tasks>
+    <arguments />
+    <envs />
+    <method v="2" />
+  </configuration>
+</component>
