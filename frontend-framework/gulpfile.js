@@ -35,7 +35,7 @@ gulp.task('scripts', function () {
         .pipe(babelify())
         .pipe($.plumber())
         .pipe($.concat('combined.min.js'))
-        //    .pipe($.uglify())
+        .pipe($.uglify())
         .pipe(gulp.dest('out/js'))
 
 });
