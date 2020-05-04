@@ -258,7 +258,7 @@ object PageGenerator {
           })();
         </script>
         <!-- End Matomo Code -->
-    """.trimIndent())
+    """.trimIndent().replace("[\n\r]", ""))
     }
 
     @HtmlTagMarker

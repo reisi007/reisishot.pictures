@@ -4,14 +4,6 @@
 
   &.single {
     align-content: center;
-
-    picture {
-      margin: 0 auto;
-
-      img {
-        max-height: $maxImageHeight;
-      }
-    }
   }
 
   &.overview {
@@ -34,6 +26,13 @@
   }
 }
 
+picture {
+  margin: 0 auto;
+
+  img {
+    max-height: $maxImageHeight;
+  }
+}
 
 // Ensure correct dimensions of a lazy loaded image
 .lazy {
@@ -43,7 +42,7 @@
 
   img {
     max-width: 100%;
-    max-height: 100%;
+
     object-fit: contain;
   }
 }

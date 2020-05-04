@@ -268,3 +268,22 @@ a {
 .center {
   text-align: center;
 }
+
+a, a:hover, a:active, a:visited {
+  .white {
+    color: white;
+  }
+}
+
+div{
+  .grower{
+    flex-grow: 1000;
+  }
+}
+
+.card-deck{
+  .card-body{
+    display: flex;
+    flex-direction: column;
+  }
+}

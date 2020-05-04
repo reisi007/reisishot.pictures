@@ -31,7 +31,7 @@ class ImageInfoImporter(private val otherCacheDir: Path) : WebsiteGenerator {
     }
 
     override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changeFiles: ChangeFileset): Boolean {
-        execute(alreadyRunGenerators)
+        //TODO enable  execute(alreadyRunGenerators)
         return false
     }
 
