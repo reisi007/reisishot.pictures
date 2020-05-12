@@ -17,6 +17,7 @@ class WebsiteConfiguration(
         val cleanupGeneration: Boolean = false,
         val interactiveDelayMs: Long? = 2000,
         val analyticsSiteId: String? = null,
+        val socialMediaLinks: SocialMediaAccounts? = null,
         val generators: List<WebsiteGenerator> = emptyList(),
         vararg val interactiveIgnoredFiles: ((FileExtension) -> Boolean) = arrayOf({ _: String -> false })
 ) {
@@ -61,3 +62,9 @@ class WebsiteConfiguration(
         return "WebsiteConfiguration(shortTitle='$shortTitle', longTitle='$longTitle', inPath=$inPath, tmpPath=$tmpPath, outPath=$outPath, locale=$locale, cleanupGeneration=$cleanupGeneration, interactiveDelayMs=$interactiveDelayMs, generators=$generators, interactiveIgnoredFiles=${interactiveIgnoredFiles.contentToString()}, websiteLocation='$websiteLocation')"
     }
 }
+
+data class SocialMediaAccounts(
+        val facebook: String?,
+        val instagram: String?,
+        val mail: String?
+)

@@ -26,6 +26,7 @@ object ProductionMain {
                         interactiveIgnoredFiles = *arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         cleanupGeneration = false,
                         analyticsSiteId = "1",
+                        socialMediaLinks = SocialMediaAccounts("reisishot", "reisishot", "florian@reisishot.pictures"),
                         generators = listOf(
                                 PageGenerator(),
                                 GalleryGenerator(

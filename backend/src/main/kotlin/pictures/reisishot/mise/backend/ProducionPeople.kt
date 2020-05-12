@@ -22,6 +22,7 @@ object ProducionPeople {
                         outPath = Paths.get("frontend-people/generated").toAbsolutePath(),
                         interactiveIgnoredFiles = *arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         cleanupGeneration = false,
+                        socialMediaLinks = SocialMediaAccounts("reisishot.people", "reisishot_people", "florian@reisishot.pictures"),
                         analyticsSiteId = "4",
                         generators = listOf(
                                 PageGenerator(),

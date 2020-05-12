@@ -3,8 +3,9 @@ package pictures.reisishot.mise.backend.generator.pages
 import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.commons.filenameWithoutExtension
-import kotlinx.html.a
-import kotlinx.html.div
+import at.reisishot.mise.commons.withChild
+import at.reisishot.mise.config.parseConfig
+import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
@@ -24,6 +25,10 @@ class TemplateApi(
     private var privateHasGallery = false
     val hasGallery
         get() = privateHasGallery
+    private val testimonials by lazy {
+        (websiteConfiguration.inPath withChild "testimonials.conf").parseConfig<List<Testimonal>>("testimonials")
+                ?: throw IllegalStateException("Could not load testimonials")
+    }
 
 
     private fun Map<FilenameWithoutExtension, ImageInformation>.getOrThrow(key: FilenameWithoutExtension) =
@@ -87,5 +92,43 @@ class TemplateApi(
                     .toCollection(LinkedHashSet())
             insertCategoryThumbnails(albums, galleryGenerator);
         }
+    }
+
+    @SuppressWarnings("unused")
+    fun insertTestimonials(vararg testimonialTypes: String) = buildString {
+        val testimonialsToDisplay = computeMatchingTestimonials(testimonialTypes)
+        if (testimonialsToDisplay.isEmpty())
+            return@buildString
+        appendHTML(false, true).div {
+            h2 { text("Empfehlungen") }
+            div("container reviews") {
+                testimonialsToDisplay.forEach { testimonial ->
+                    div("col-12 col-md-6 card border-dark") {
+                        with(galleryGenerator.cache) {
+                            insertLazyPicture(imageInformationData.getOrThrow(testimonial.image), listOf("card-img-top"))
+                        }
+                        div("card-body text-dark") {
+                            h5("card-title") {
+                                text(testimonial.name)
+                                br()
+                                small("text-muted") { text(testimonial.dateFormatted()) }
+                            }
+                            p("card-text") {
+                                text(testimonial.text)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun computeMatchingTestimonials(testimonialTypes: Array<out String>): List<Testimonal> {
+        var tmpTestimonials = testimonials.asSequence()
+        if (testimonialTypes.isNotEmpty())
+            tmpTestimonials = tmpTestimonials.filter { testimonialTypes.contains(it.type) }
+        return tmpTestimonials
+                .sortedBy { it.date }
+                .toList()
     }
 }

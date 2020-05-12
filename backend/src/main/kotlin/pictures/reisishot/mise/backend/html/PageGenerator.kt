@@ -84,18 +84,28 @@ object PageGenerator {
                                     span("text-muted") {
                                         text("© ${websiteConfiguration.longTitle}")
                                     }
-                                    span("socialIcons") {
-                                        a("https://fb.me/reisishot", "_blank") {
-                                            insertIcon(ReisishotIcons.FB)
-                                        }
-                                        a("https://www.instagram.com/reisishot/", "_blank") {
-                                            insertIcon(ReisishotIcons.INSTAGRAM)
-                                        }
-                                        a("https://m.me/reisishot", "_blank") {
-                                            insertIcon(ReisishotIcons.FB_MESSENGER)
-                                        }
-                                        a("mailto:florian@reisishot.pictures", "_blank") {
-                                            insertIcon(ReisishotIcons.MAIL)
+                                    websiteConfiguration.socialMediaLinks?.let { accounts ->
+                                        span("socialIcons") {
+                                            accounts.facebook?.let {
+                                                a("https://fb.me/$it", "_blank") {
+                                                    insertIcon(ReisishotIcons.FB)
+                                                }
+                                            }
+                                            accounts.instagram?.let {
+                                                a("https://www.instagram.com/$it/", "_blank") {
+                                                    insertIcon(ReisishotIcons.INSTAGRAM)
+                                                }
+                                            }
+                                            accounts.facebook?.let {
+                                                a("https://m.me/$it", "_blank") {
+                                                    insertIcon(ReisishotIcons.FB_MESSENGER)
+                                                }
+                                            }
+                                            accounts.mail?.let { mail ->
+                                                a("mailto:$mail", "_blank") {
+                                                    insertIcon(ReisishotIcons.MAIL)
+                                                }
+                                            }
                                         }
                                     }
                                 }
