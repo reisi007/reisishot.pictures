@@ -39,9 +39,9 @@ class TemplateApi(
     @JvmOverloads
     fun insertPicture(filenameWithoutExtension: FilenameWithoutExtension, classNames: String? = null) = buildString {
         appendHTML(prettyPrint = false, xhtmlCompatible = true).div {
-            val classNames = classNames?.split(" ") ?: listOf()
+            val cssClasses = classNames?.split(" ") ?: listOf()
             with(galleryGenerator.cache) {
-                insertLazyPicture(imageInformationData.getOrThrow(filenameWithoutExtension), classNames)
+                insertLazyPicture(imageInformationData.getOrThrow(filenameWithoutExtension), cssClasses)
             }
         }
     }
@@ -67,7 +67,7 @@ class TemplateApi(
     }
 
     @SuppressWarnings("unused")
-    fun insertLink(type: String, key: String): String = websiteConfiguration.websiteLocation + cache.getLinkcacheEntryFor(type, key)
+    fun insertLink(type: String, key: String): String = cache.getLinkcacheEntryFor(websiteConfiguration, type, key)
 
     @SuppressWarnings("unused")
     fun insertLink(linktext: String, type: String, key: String): String = buildString {

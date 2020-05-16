@@ -137,7 +137,7 @@ class GalleryGenerator(
             }
             div("card-body btn-flex") {
                 curImageInformation.tags.forEach { category ->
-                    smallButtonLink(category, configuration.websiteLocation + cache.getLinkcacheEntryFor(LINKTYPE_TAGS, category))
+                    smallButtonLink(category, cache.getLinkcacheEntryFor(configuration, LINKTYPE_TAGS, category))
                 }
             }
         }
@@ -150,7 +150,7 @@ class GalleryGenerator(
             }
             div("card-body btn-flex") {
                 curImageInformation.categories.forEach { category ->
-                    smallButtonLink(category.displayName, configuration.websiteLocation + cache.getLinkcacheEntryFor(LINKTYPE_CATEGORIES, category.complexName))
+                    smallButtonLink(category.displayName, cache.getLinkcacheEntryFor(configuration, LINKTYPE_CATEGORIES, category.complexName))
                 }
             }
         }

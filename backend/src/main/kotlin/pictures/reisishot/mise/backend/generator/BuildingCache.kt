@@ -25,8 +25,12 @@ class BuildingCache {
         linkCache.computeIfAbsent(linkType) { ConcurrentHashMap() }.put(linkKey, link)
     }
 
-    fun getLinkcacheEntryFor(linkType: String, linkKey: String): Link = linkCache[linkType]?.get(linkKey)
-            ?: throw IllegalStateException("Menu link with type $linkType and key $linkKey not found!")
+    fun getLinkcacheEntryFor(config: WebsiteConfiguration, linkType: String, linkKey: String): Link = linkCache[linkType]?.get(linkKey)?.let {
+        if (it.startsWith("http", true))
+            it
+        else
+            config.websiteLocation + it
+    } ?: throw IllegalStateException("Menu link with type $linkType and key $linkKey not found!")
 
     fun getLinkcacheEntriesFor(linkType: String): Map<String, Link> = linkCache[linkType] ?: emptyMap()
 

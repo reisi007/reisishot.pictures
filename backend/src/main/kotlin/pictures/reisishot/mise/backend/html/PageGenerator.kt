@@ -156,7 +156,7 @@ object PageGenerator {
                                     curItem.children.forEach { entry ->
                                         a(
                                                 classes = "dropdown-item",
-                                                href = websiteConfiguration.websiteLocation + entry.href
+                                                href = entry.href
                                         ) {
                                             text(entry.text)
                                         }
@@ -166,7 +166,7 @@ object PageGenerator {
                             } else {
                                 a(
                                         classes = "nav-link",
-                                        href = websiteConfiguration.websiteLocation + curItem.href
+                                        href = curItem.href
                                 ) {
                                     text(curItem.text)
                                 }
