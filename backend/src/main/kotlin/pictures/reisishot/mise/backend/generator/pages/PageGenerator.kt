@@ -12,9 +12,12 @@ import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.html.HEAD
 import org.apache.commons.text.StringEscapeUtils
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.Velocity
+
+
 import org.apache.velocity.app.VelocityEngine
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.*
@@ -28,9 +31,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.streams.asSequence
 
-class PageGenerator : WebsiteGenerator {
+class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) : WebsiteGenerator {
 
-    private val overviewPageGenerator = OverviewPageGenerator();
     override val executionPriority: Int = 30_000
     override val generatorName: String = "Reisishot Page"
 
@@ -65,25 +67,30 @@ class PageGenerator : WebsiteGenerator {
                 .build()
 
 
-        return@lazy { sourceFile: SourcePath, targetPath: TargetPath ->
+        return@lazy { configuration: WebsiteConfiguration, cache: BuildingCache, sourceFile: SourcePath, targetPath: TargetPath ->
             val yamlExtractor = AbstractYamlFrontMatterVisitor()
             Files.newBufferedReader(sourceFile).use { reader ->
                 val parseReader = parser.parseReader(reader)
                 yamlExtractor.visit(parseReader)
-                extract(yamlExtractor, targetPath)?.let { overviewPageGenerator.addChange(it) }
+                val headManipulator: HEAD.() -> Unit = {
+                    metaDataConsumers.asSequence()
+                            .map { it.processFrontMatter(configuration, cache, targetPath, yamlExtractor.data, this@PageGenerator) }
+                            .forEach { it(this) }
+                }
+
                 StringReader(
                         StringEscapeUtils.unescapeHtml4(
                                 htmlRenderer.render(
                                         parseReader
                                 )
                         )
-                )
+                ) to headManipulator
             }
         }
     }
 
-    private lateinit var speedupHtml: (Reader, FilenameWithoutExtension, WebsiteConfiguration, BuildingCache, TargetPath, String) -> Unit
-    private lateinit var galleryGenerator: AbstractGalleryGenerator
+    private lateinit var speedupHtml: (Pair<Reader, HEAD.() -> Unit>, FilenameWithoutExtension, WebsiteConfiguration, BuildingCache, TargetPath, String) -> Unit
+    internal lateinit var galleryGenerator: AbstractGalleryGenerator
     private val displayReplacePattern = Regex("[\\-_]")
 
     data class FilenameParts(val menuContainerName: String, val destinationPath: Path, val globalPriority: Int,
@@ -134,17 +141,6 @@ class PageGenerator : WebsiteGenerator {
         }
     }
 
-    fun extract(yaml: AbstractYamlFrontMatterVisitor, targetPath: TargetPath): OverviewEntry? {
-        val group = yaml.data.getOrDefault("group", null)?.firstOrNull()?.trim()
-        val picture = yaml.data.getOrDefault("picture", null)?.firstOrNull()?.trim()
-        val title = yaml.data.getOrDefault("title", null)?.firstOrNull()?.trim()
-        val order = yaml.data.getOrDefault("order", setOf("0"))?.firstOrNull()?.trim()?.toInt()
-        if (group == null || picture == null || title == null || order == null)
-            return null
-        return OverviewEntry(group, title, picture, targetPath.parent, order)
-
-    }
-
     private fun Path.calculateFilenameParts(configuration: WebsiteConfiguration): FilenameParts {
         var inFilename = filenameWithoutExtension
 
@@ -180,6 +176,7 @@ class PageGenerator : WebsiteGenerator {
             alreadyRunGenerators: List<WebsiteGenerator>
     ) {
         withContext(Dispatchers.IO) {
+            metaDataConsumers.forEach { it.init(configuration, cache) }
             galleryGenerator = alreadyRunGenerators.find { it is AbstractGalleryGenerator } as? AbstractGalleryGenerator
                     ?: throw IllegalStateException("Gallery generator is needed for this generator!")
 
@@ -199,7 +196,7 @@ class PageGenerator : WebsiteGenerator {
             val velocity = VelocityEngine()
 
             val compressHtml = """[\s\n\r]{2,}""".toRegex()
-            return@run { templateData, originalFilename, websiteConfiguration, buildingCache, targetPath, title ->
+            return@run { (templateData, headManipulator), originalFilename, websiteConfiguration, buildingCache, targetPath, title ->
                 val velocityContext = VelocityContext()
                 val galleryObject = TemplateApi(targetPath, galleryGenerator, buildingCache, websiteConfiguration)
                 // Make objects available in Velocity templates
@@ -218,6 +215,7 @@ class PageGenerator : WebsiteGenerator {
                             title,
                             websiteConfiguration = websiteConfiguration,
                             buildingCache = buildingCache,
+                            additionalHeadContent = headManipulator,
                             pageContent = {
                                 raw(html.replace(compressHtml, " "))
                             }
@@ -229,7 +227,7 @@ class PageGenerator : WebsiteGenerator {
 
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
         filesToProcess.forEach { it.buildArtifact(configuration, cache) }
-        overviewPageGenerator.processChanges(configuration, cache, galleryGenerator)
+        metaDataConsumers.forEach { it.processChanges(configuration, cache, this) }
     }
 
 
@@ -256,9 +254,10 @@ class PageGenerator : WebsiteGenerator {
             targetFile: TargetPath,
             title: String
     ) =
-            Files.newBufferedReader(soureFile).use { reader ->
+            Files.newBufferedReader(soureFile).use { reader: Reader ->
+                val nothing: HEAD.() -> Unit = { }
                 convertHtml(
-                        reader,
+                        reader to nothing,
                         soureFile.filenameWithoutExtension,
                         websiteConfiguration,
                         buildingCache,
@@ -268,7 +267,7 @@ class PageGenerator : WebsiteGenerator {
             }
 
     private fun convertHtml(
-            soureData: Reader,
+            soureData: Pair<Reader, HEAD.() -> Unit>,
             sourceFileName: FilenameWithoutExtension,
             websiteConfiguration: WebsiteConfiguration,
             buildingCache: BuildingCache,
@@ -283,7 +282,7 @@ class PageGenerator : WebsiteGenerator {
             targetFile: TargetPath,
             title: String
     ) = convertHtml(
-            parseMarkdown(soureFile, targetFile),
+            parseMarkdown(websiteConfiguration, buildingCache, soureFile, targetFile),
             soureFile.filenameWithoutExtension,
             websiteConfiguration,
             buildingCache,
@@ -322,7 +321,6 @@ class PageGenerator : WebsiteGenerator {
 
     override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changeFiles: ChangeFileset): Boolean {
         buildInitialArtifacts(configuration, cache)
-        overviewPageGenerator.processChanges(configuration, cache, galleryGenerator)
         return false
     }
 
@@ -335,10 +333,13 @@ class PageGenerator : WebsiteGenerator {
                 .map { configuration.outPath.resolve("index.html") }
                 .forEach {
                     Files.deleteIfExists(it)
-                    overviewPageGenerator.removeChange(it.parent)
+                    metaDataConsumers.forEach { consumer ->
+                        consumer.processDelete(configuration, cache, it.parent)
+                    }
                 }
     }
 }
 typealias SourcePath = Path;
 typealias TargetPath = Path;
 typealias PageGeneratorInfo = Triple<SourcePath, TargetPath, String/*Title*/>
+typealias Yaml = Map<String, List<String>>
