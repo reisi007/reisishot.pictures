@@ -38,9 +38,9 @@ class BuildingCache {
         internalMenuLinks.removeIf(removePredicate)
     }
 
-    fun addMenuItem(id: String = UUID.randomUUID().toString(), index: Int, href: Link, text: LinkText) =
+    fun addMenuItem(id: String = UUID.randomUUID().toString(), index: Int, href: Link, text: LinkText, target: String? = null) =
             synchronized(internalMenuLinks) {
-                val item = MenuLinkContainerItem(id, index, href, text)
+                val item = MenuLinkContainerItem(id, index, href, text, target)
                 internalMenuLinks.add(item)
             }
 
@@ -50,6 +50,7 @@ class BuildingCache {
             containerIndex: Int,
             text: LinkText,
             link: Link,
+            target: String? = null,
             comperator: Comparator<MenuLinkContainerItem> = Comparator.comparing<MenuLinkContainerItem, Int> { it.uniqueIndex },
             elementIndex: Int = 0
     ): Unit = synchronized(internalMenuLinks) {
@@ -60,7 +61,7 @@ class BuildingCache {
             }
         }.let {
             if (it == null)
-                addMenuItemInContainer(containerId, containerText, containerIndex, text, link, comperator, elementIndex)
+                addMenuItemInContainer(containerId, containerText, containerIndex, text, link, target, comperator, elementIndex)
         }
     }
 
@@ -70,7 +71,8 @@ class BuildingCache {
             containerIndex: Int,
             text: LinkText,
             link: Link,
-            comperator: Comparator<MenuLinkContainerItem> = Comparator.comparing<MenuLinkContainerItem, Int> { it.uniqueIndex },
+            target: String? = null,
+            comparator: Comparator<MenuLinkContainerItem> = Comparator.comparing<MenuLinkContainerItem, Int> { it.uniqueIndex },
             elementIndex: Int = 0
     ) = synchronized(internalMenuLinks) {
         val menuLinkContainer = internalMenuLinks.find {
@@ -80,7 +82,7 @@ class BuildingCache {
                     containerId,
                     containerIndex,
                     containerText,
-                    comperator
+                    comparator
             )
             internalMenuLinks.add(newContainer)
             newContainer
@@ -89,7 +91,8 @@ class BuildingCache {
                 UUID.randomUUID().toString(),
                 elementIndex,
                 link,
-                text
+                text,
+                target
         )
 
     }

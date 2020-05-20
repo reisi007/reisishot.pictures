@@ -158,6 +158,7 @@ object PageGenerator {
                                                 classes = "dropdown-item",
                                                 href = entry.href
                                         ) {
+                                            entry.target?.let { target = it }
                                             text(entry.text)
                                         }
                                     }
@@ -168,6 +169,7 @@ object PageGenerator {
                                         classes = "nav-link",
                                         href = curItem.href
                                 ) {
+                                    curItem.target?.let { target = it }
                                     text(curItem.text)
                                 }
                             }

@@ -31,6 +31,7 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
         CATEGORIES,
         TAGS;
     }
+
     override val executionPriority: Int = 20_000
 
     internal var cache = Cache()
@@ -117,7 +118,7 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
                         "gallery/tags/${tag.url}".let { link ->
                             cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag.name, link)
                             if (shallAddToMenu)
-                                cache.addMenuItemInContainerNoDupes(LINKTYPE_TAGS, "Tags", 300, tag.name, link, menuIemComperator)
+                                cache.addMenuItemInContainerNoDupes(LINKTYPE_TAGS, "Tags", 300, tag.name, link, comperator = menuIemComperator)
                         }
                     }
                 }
@@ -193,7 +194,7 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
                                 if (shallAddToMenu && categoryInformation.visible) {
                                     cache.addMenuItemInContainer(
                                             LINKTYPE_CATEGORIES, "Kategorien", 200, categoryInformation.displayName,
-                                            link, menuIemComperator
+                                            link, comparator = menuIemComperator
                                     )
                                 }
                                 mutableSetOf()

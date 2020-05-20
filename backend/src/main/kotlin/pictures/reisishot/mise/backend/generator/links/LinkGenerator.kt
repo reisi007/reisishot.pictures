@@ -22,13 +22,13 @@ class LinkGenerator : WebsiteGenerator {
             val data: ManualLinks = configFile.parseConfig() ?: ManualLinks(emptyList())
             if (data.menuItems.isNotEmpty()) {
                 cache.clearMenuItems { it.id.startsWith(LINK_TYPE) }
-                data.menuItems.forEach { (name, index, value) ->
-                    cache.addMenuItem(LINK_TYPE + "_" + name, index, value.let {
+                data.menuItems.forEach { (name, index, value, target) ->
+                    val url = value.let {
                         if (value.startsWith("/"))
                             it.substringAfter("/")
                         else it
-                    }, name)
-
+                    }
+                    cache.addMenuItem(LINK_TYPE + "_" + name, index, url, name, target)
                 }
             }
         }
@@ -59,6 +59,6 @@ class LinkGenerator : WebsiteGenerator {
     }
 }
 
-data class ManualLink(val name: String, val index: Int, val value: String)
+data class ManualLink(val name: String, val index: Int, val value: String, val target: String?)
 
 data class ManualLinks(val menuItems: List<ManualLink>)

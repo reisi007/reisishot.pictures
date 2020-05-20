@@ -6,14 +6,15 @@ import java.util.*
 typealias  Link = String
 typealias  LinkText = String
 
-sealed class MenuLink(val id: String, val uniqueIndex: Int, val href: Link?, val text: LinkText)
+sealed class MenuLink(val id: String, val uniqueIndex: Int, val href: Link?, val text: LinkText, val target: String?)
 
 class MenuLinkContainerItem(
         id: String,
         uniqueIndex: Int,
         href: Link,
-        text: LinkText
-) : MenuLink(id, uniqueIndex, href, text)
+        text: LinkText,
+        target: String?
+) : MenuLink(id, uniqueIndex, href, text, target)
 
 class MenuLinkContainer(
         id: String,
@@ -21,7 +22,7 @@ class MenuLinkContainer(
         text: LinkText,
         childComperator: Comparator<MenuLinkContainerItem>,
         addChildren: MenuLinkContainer.() -> Unit = {}
-) : MenuLink(id, uniqueIndex, null, text) {
+) : MenuLink(id, uniqueIndex, null, text, null) {
     private val internalChildren = TreeMultiset.create(childComperator)
     val children: Collection<MenuLinkContainerItem> get() = internalChildren
 
