@@ -1,29 +1,27 @@
 <?php include '_cors.php'; ?>
-<p>
+
+<div>
     <?php
-    $session_fee = 24.99;
-    $wage = 65;
-    $commercial = 0.5;
-    $private_noads = 0.1;
-    $commercial_noads = 0.5;
+    $wage = 65; // Angepeilter Stundenlohn
+    $session_fee_h = 0.5; // Fixkosten (Beratung / Vorbereitung Upload)
+    $commercial = 0.35; // Aufpreis für kommerzielle Nutzung
+    $noads = 0.10; // Aufpreis, wenn ich die Bilder nicht verwenden darf
+    $nachbestellung = .9; // Aufpreis für Leistungen, die nicht im Paket inkludiert sind
 
-    $pics1h = [
-        "s" => 5,
-        "m" => 3,
-        "l" => 2
-    ];
-
-    $picsRest = [
-        "s" => 15,
-        "m" => 5,
+    $pics = [
+        "m" => 6,
         "l" => 3
     ];
 
     $level = [
-        "s" => "einfacher",
         "m" => "erweiteter",
         "l" => "professioneller"
     ];
+
+    function formatPrice($price)
+    {
+        return round($price);
+    }
 
     $stunden = max(0, doubleval($_GET['stunden'] ?? '0'));
     $bilder = max(0, intval($_GET['bilder'] ?? '0'));
@@ -31,27 +29,18 @@
     $kommerziell = boolval($_GET['kommerziell'] ?? '0');
     $editLevel = ($_GET['editLevel'] ?? '')[0];
 
-    if (!in_array($editLevel, array_keys($level))) {
+    if (!array_search($editLevel, array_keys($level)))
         $editLevel = 'm';
-    }
-
-    if ($editLevel == 's') $oeffentlich = '0';
-
     ?>
     Kosten für das ausgewählte Paket (<?php echo $stunden; ?>h Shootingzeit /
     <?php echo $bilder . ' Bild' . ($bilder != 1 ? 'er' : ''); ?> mit <?php echo $level[$editLevel]; ?>
     Bearbeitung):<br/>
     <?php
-    $price = 0;
-
-    if ($bilder > 0 || $stunden > 0)
-        $price += $session_fee;
+    $price = $session_fee_h * $wage;
 
     // Bilder in Stunden umrechnen
-    if ($bilder > $pics1h[$editLevel])
-        $stunden += 1 + ($bilder - $pics1h[$editLevel]) / $picsRest[$editLevel];
-    else
-        $stunden += $bilder / $pics1h[$editLevel];
+    $pics1h = $pics[$editLevel];
+    $stunden += $bilder / $pics1h;
 
     // Preis berechnen
     $price += $wage * $stunden;
@@ -61,20 +50,36 @@
     if ($kommerziell)
         $fees += $commercial;
     if (!$oeffentlich)
-        if ($kommerziell)
-            $fees += $commercial_noads;
-        else
-            $fees += $private_noads;
+        $fees += $noads;
     $price *= $fees;
 
-    echo '<p><b style="font-size:1.5rem">' . round($price, 2) . ' €</b></p><ul>';
 
-    if ($oeffentlich)
-        echo '<li><small>Der Fotograf darf die Bilder kommerziell verwenden</small></li>';
-
-    if (!$kommerziell)
-        echo '<li><small>Kommerzielle Nutzung (z.B. Verwendung auf Firmenwebseite) ist nicht gestattet!</small></li>';
-
-    echo '</ul>';
     ?>
-</p>
+    <p><b style="font-size:1.5rem"><?php echo formatPrice($price) ?> €</b></p>
+    <ul>
+        <?php
+        if ($oeffentlich)
+            echo '<li><small>Der Fotograf darf die Bilder kommerziell verwenden</small></li>';
+
+        if (!$kommerziell)
+            echo '<li><small>Kommerzielle Nutzung (z.B. Verwendung auf Firmenwebseite) ist nicht gestattet!</small></li>';
+        ?>
+    </ul>
+    <small>Weitere Bilder pro Stück:
+        <?php
+        foreach ($pics as $key => $value) {
+            echo formatPrice($wage / $value * ($fees + $nachbestellung)) . ' €';
+            echo ' inklusive ' . $level[$key] . ' Bearbeitung';
+            if ($key !== array_key_last($pics))
+                echo ' / ';
+        } ?>
+    </small><br/>
+    <small>Je weiterer 15 Minuten Shootingzeit:
+        <?php
+        echo formatPrice($wage / 4 * ($fees + $nachbestellung));
+        ?>
+        €</small><br/>
+    <small><a href="<?php
+        echo 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        ?>" target="_blank">Angebot in neuem Tab öffnen</a></small>
+</div>
