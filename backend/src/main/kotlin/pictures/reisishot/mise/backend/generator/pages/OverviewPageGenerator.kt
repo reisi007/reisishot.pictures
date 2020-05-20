@@ -83,7 +83,7 @@ private fun Map<String, List<String>>.extract(targetPath: TargetPath): OverviewE
     val group = getOrDefault("group", null)?.firstOrNull()?.trim()
     val picture = getOrDefault("picture", null)?.firstOrNull()?.trim()
     val title = getOrDefault("title", null)?.firstOrNull()?.trim()
-    val order = getOrDefault("order", setOf("0"))?.firstOrNull()?.trim()?.toInt()
+    val order = getOrDefault("order", setOf("0")).firstOrNull()?.trim()?.toInt()
     if (group == null || picture == null || title == null || order == null)
         return null
     return OverviewEntry(group, title, picture, targetPath.parent, order)

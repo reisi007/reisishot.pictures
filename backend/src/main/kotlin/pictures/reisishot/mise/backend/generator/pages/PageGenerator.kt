@@ -253,18 +253,17 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
             buildingCache: BuildingCache,
             targetFile: TargetPath,
             title: String
-    ) =
-            Files.newBufferedReader(soureFile).use { reader: Reader ->
-                val nothing: HEAD.() -> Unit = { }
-                convertHtml(
-                        reader to nothing,
-                        soureFile.filenameWithoutExtension,
-                        websiteConfiguration,
-                        buildingCache,
-                        targetFile,
-                        title
-                )
-            }
+    ) = Files.newBufferedReader(soureFile).use { reader: Reader ->
+        val noop: HEAD.() -> Unit = { }
+        convertHtml(
+                reader to noop,
+                soureFile.filenameWithoutExtension,
+                websiteConfiguration,
+                buildingCache,
+                targetFile,
+                title
+        )
+    }
 
     private fun convertHtml(
             soureData: Pair<Reader, HEAD.() -> Unit>,

@@ -7,6 +7,7 @@ import pictures.reisishot.mise.backend.generator.gallery.categories.Configurable
 import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.links.LinkGenerator
+import pictures.reisishot.mise.backend.generator.pages.OverviewPageGenerator
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
 import java.nio.file.Paths
@@ -28,7 +29,7 @@ object ProductionMain {
                         analyticsSiteId = "1",
                         socialMediaLinks = SocialMediaAccounts("reisishot", "reisishot", "florian@reisishot.pictures"),
                         generators = listOf(
-                                PageGenerator(),
+                                PageGenerator(OverviewPageGenerator()),
                                 GalleryGenerator(
                                         categoryBuilders = *arrayOf(
                                                 DateCategoryBuilder("Chronologisch"),

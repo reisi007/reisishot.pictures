@@ -154,23 +154,17 @@ object PageGenerator {
                                 div(classes = "dropdown-menu") {
                                     attributes["aria-labelledby"] = dropDownId
                                     curItem.children.forEach { entry ->
-                                        a(
-                                                classes = "dropdown-item",
-                                                href = entry.href
-                                        ) {
-                                            entry.target?.let { target = it }
-                                            text(entry.text)
+                                        a(classes = "dropdown-item") {
+                                            accept(entry, websiteConfiguration)
                                         }
                                     }
                                 }
 
                             } else {
                                 a(
-                                        classes = "nav-link",
-                                        href = curItem.href
+                                        classes = "nav-link"
                                 ) {
-                                    curItem.target?.let { target = it }
-                                    text(curItem.text)
+                                    accept(curItem, websiteConfiguration)
                                 }
                             }
                         }
@@ -178,6 +172,12 @@ object PageGenerator {
                 }
             }
         }
+    }
+
+    private fun A.accept(curItem: MenuLink, websiteConfiguration: WebsiteConfiguration) {
+        curItem.target?.let { target = it }
+        curItem.href?.let { href = BuildingCache.getLinkFromFragment(websiteConfiguration, it) }
+        text(curItem.text)
     }
 
     @HtmlTagMarker

@@ -13,6 +13,14 @@ class BuildingCache {
     private lateinit var menuLinkPath: Path
     private lateinit var linkPath: Path
 
+    companion object {
+        fun getLinkFromFragment(config: WebsiteConfiguration, it: Link): Link =
+                if (it.startsWith("http", true))
+                    it
+                else
+                    config.websiteLocation + it
+    }
+
     private val linkCache: MutableMap<String, MutableMap<String, Link>> = ConcurrentHashMap()
 
     private val internalMenuLinks: SortedSet<MenuLink> = TreeSet(compareBy(MenuLink::uniqueIndex, MenuLink::id))
@@ -26,10 +34,7 @@ class BuildingCache {
     }
 
     fun getLinkcacheEntryFor(config: WebsiteConfiguration, linkType: String, linkKey: String): Link = linkCache[linkType]?.get(linkKey)?.let {
-        if (it.startsWith("http", true))
-            it
-        else
-            config.websiteLocation + it
+        getLinkFromFragment(config, it)
     } ?: throw IllegalStateException("Menu link with type $linkType and key $linkKey not found!")
 
     fun getLinkcacheEntriesFor(linkType: String): Map<String, Link> = linkCache[linkType] ?: emptyMap()
