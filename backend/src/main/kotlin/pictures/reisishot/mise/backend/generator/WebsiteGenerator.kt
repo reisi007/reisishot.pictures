@@ -77,9 +77,10 @@ enum class ChangeState {
 
 typealias ChangeFileset = Map<Path, Set<ChangeState>>
 typealias MutableChangedFileset = MutableMap<Path, MutableSet<ChangeState>>
-typealias ChangeFilesetEntry = Map.Entry<Path, Set<ChangeState>>
+typealias ChangeFilesetEntry = Pair<Path, Set<ChangeState>>
 
 fun ChangeFileset.hasDeletions(vararg predicates: (FileExtension) -> Boolean) = asSequence()
+        .map { (k, v) -> k to v }
         .filter { changedStates -> changedStates.isStateDeleted() }
         .any { (file, _) -> file.hasExtension(*predicates) }
 

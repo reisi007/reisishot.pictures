@@ -1,5 +1,6 @@
 package pictures.reisishot.mise.backend.generator.pages
 
+
 import at.reisishot.mise.commons.*
 import com.vladsch.flexmark.ext.anchorlink.AnchorLinkExtension
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension
@@ -16,8 +17,6 @@ import kotlinx.html.HEAD
 import org.apache.commons.text.StringEscapeUtils
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.Velocity
-
-
 import org.apache.velocity.app.VelocityEngine
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.*
@@ -254,9 +253,16 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
             targetFile: TargetPath,
             title: String
     ) = Files.newBufferedReader(soureFile).use { reader: Reader ->
-        val noop: HEAD.() -> Unit = { }
+        val processHeadFile: HEAD.() -> Unit = {
+            val headFile = soureFile.parent withChild soureFile.filenameWithoutExtension + ".head"
+            if (headFile.exists()) {
+                val headContent = headFile.useBufferedReader { it.readText() }
+                raw(headContent)
+            }
+
+        }
         convertHtml(
-                reader to noop,
+                reader to processHeadFile,
                 soureFile.filenameWithoutExtension,
                 websiteConfiguration,
                 buildingCache,
@@ -299,7 +305,7 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
         return relevantFiles.any { changeState -> !changeState.isStateEdited() }
     }
 
-    private fun computeFilesToProcess(relevantFiles: Set<Map.Entry<Path, Set<ChangeState>>>, configuration: WebsiteConfiguration, cache: BuildingCache): List<PageGeneratorInfo> {
+    private fun computeFilesToProcess(relevantFiles: Set<Pair<Path, Set<ChangeState>>>, configuration: WebsiteConfiguration, cache: BuildingCache): List<PageGeneratorInfo> {
         return relevantFiles.asSequence()
                 .filter { changeStates -> !changeStates.isStateDeleted() }
                 .map { (file, _) -> configuration.inPath.resolve(file) }
@@ -307,7 +313,7 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
                 .toList()
     }
 
-    private fun cleanupOutDir(relevantFiles: Set<Map.Entry<Path, Set<ChangeState>>>, configuration: WebsiteConfiguration, cache: BuildingCache) {
+    private fun cleanupOutDir(relevantFiles: Set<Pair<Path, Set<ChangeState>>>, configuration: WebsiteConfiguration, cache: BuildingCache) {
         relevantFiles.asSequence()
                 .filter { changedStates -> changedStates.isStateDeleted() }
                 .forEach { (sourcePath, _) ->
@@ -323,9 +329,21 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
         return false
     }
 
-    private fun ChangeFileset.relevantFiles() = asSequence()
-            .filter { (file, _) -> file.hasExtension(FileExtension::isHtml, FileExtension::isMarkdown) }
-            .toSet()
+    private fun ChangeFileset.relevantFiles(): Set<Pair<Path, Set<ChangeState>>> {
+        val data = mutableMapOf<Path, MutableSet<ChangeState>>()
+        entries.asSequence()
+                .filter { (file, _) -> file.hasExtension(FileExtension::isHtml, FileExtension::isMarkdown, FileExtension::isHead) }
+                .map { (file, changedState) ->
+                    if (file.hasExtension(FileExtension::isHead))
+                        file.parent withChild file.filenameWithoutExtension + ".html" to changedState
+                    else file to changedState
+
+                }.forEach { (k, v) ->
+                    data.computeIfAbsent(k) { mutableSetOf() }.addAll(v)
+                }
+
+        return data.entries.mapTo(mutableSetOf()) { (k, v) -> k to v }
+    }
 
     override suspend fun cleanup(configuration: WebsiteConfiguration, cache: BuildingCache): Unit = withContext(Dispatchers.IO) {
         cache.getLinkcacheEntriesFor(LINKTYPE_PAGE).values.asSequence()

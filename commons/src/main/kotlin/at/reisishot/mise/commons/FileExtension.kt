@@ -8,11 +8,13 @@ fun FileExtension.isJpeg() = equals("jpg", true) || equals("jpeg", true)
 
 fun FileExtension.isMarkdown() = equals("md", true)
 
+fun FileExtension.isHead() = equals("head", true)
+
 fun FileExtension.isConf() = equals("conf", true)
 
 fun FileExtension.isJson() = equals("json", true)
 
-fun FileExtension.isHtml() = equals("html", true) || equals("htm", true)
+fun FileExtension.isHtml() = equals("html", true)
 
 fun FileExtension.isJetbrainsTemp() = contains("__jb_")
 

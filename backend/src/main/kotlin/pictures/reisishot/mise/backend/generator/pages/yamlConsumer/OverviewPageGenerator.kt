@@ -1,9 +1,12 @@
-package pictures.reisishot.mise.backend.generator.pages
+package pictures.reisishot.mise.backend.generator.pages.yamlConsumer
 
 import at.reisishot.mise.commons.withChild
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
+import pictures.reisishot.mise.backend.generator.pages.TargetPath
+import pictures.reisishot.mise.backend.generator.pages.Yaml
+import pictures.reisishot.mise.backend.generator.pages.YamlMetaDataConsumer
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertLazyPicture
 import java.nio.file.Path

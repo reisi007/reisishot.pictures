@@ -6,6 +6,7 @@ import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.multisite.ImageInfoImporter
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
+import pictures.reisishot.mise.backend.generator.pages.yamlConsumer.KeywordConsumer
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
 import java.nio.file.Paths
 
@@ -25,7 +26,9 @@ object ProducionPeople {
                         socialMediaLinks = SocialMediaAccounts("reisishot.people", "reisishot_people", "florian@reisishot.pictures"),
                         analyticsSiteId = "4",
                         generators = listOf(
-                                PageGenerator(),
+                                PageGenerator(
+                                        KeywordConsumer()
+                                ),
                                 GalleryGenerator(
                                         categoryBuilders = *emptyArray(),
                                         exifReplaceFunction = defaultExifReplaceFunction

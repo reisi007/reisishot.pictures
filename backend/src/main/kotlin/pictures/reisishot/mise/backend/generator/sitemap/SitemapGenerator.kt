@@ -57,8 +57,8 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
             .map { relativize(it) }
 
     override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changeFiles: ChangeFileset): Boolean {
-        val fixNoChange = changeFiles.all { changeState ->
-            changeState.component1().hasExtension(*noChangedFileExtensions) && changeState.isStateEdited()
+        val fixNoChange = changeFiles.entries.asSequence().map { (k, v) -> k to v }.all { changeState ->
+            changeState.first.hasExtension(*noChangedFileExtensions) && changeState.isStateEdited()
         }
         if (!fixNoChange)
             buildInitialArtifacts(configuration, cache)
