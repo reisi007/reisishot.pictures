@@ -64,7 +64,8 @@ class WebsiteConfiguration(
 }
 
 data class SocialMediaAccounts(
-        val facebook: String?,
-        val instagram: String?,
-        val mail: String?
+        val facebook: String? = null,
+        val instagram: String? = null,
+        val mail: String? = null,
+        val whatsapp: String? = null
 )

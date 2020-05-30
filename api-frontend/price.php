@@ -3,9 +3,9 @@
     <?php
     $wage = 70; // Angepeilter Stundenlohn
     $session_fee_h = 1; // Fixkosten (Beratung / Vorbereitung Upload)
-    $album_fee_h = 0.5; // Fixkosten Erstellung Fotobuch
+    $album_fee_h = 0; // Fixkosten Erstellung Fotobuch
     $commercial = 1 / 3; // Aufpreis kommerzielle Nutzung
-    $nachbestellung_bilder = 2.4; // Aufpreis für Leistungen, die nicht im Paket inkludiert sind
+    $nachbestellung_bilder = 1.5; // Aufpreis für Leistungen, die nicht im Paket inkludiert sind
     $nachbestellung_stunden = 0.5; // Aufpreis für Leistungen, die nicht im Paket inkludiert sind
     $nachbestellung_alben = 1; // Aufpreis für Leistungen, die nicht im Paket inkludiert sind
 
@@ -17,15 +17,15 @@
 
     $albums = [
         'q14' => [9.99, 0, 0.1, 10, "Gute Qualität circa 14x14, 16 Seiten (Ringbindung)"], // Fotoheft 14x14
-        'qA5' => [29.99, 0, 0.1, 20, "Hohe Qualität, 26 Seiten circa A5 hoch , A5 quer oder 15x15"], // Saal Digital Fotobuch 15x21 bzw. 15x15
-        'qA4' => [29.99, 0, 0.1, 35, "Hohe Qualität, 26 Seiten circa A4 hoch, A4 quern oder 19x19"], // Saal Digital 28 x 28
-        'q28' => [39.99, 0, 0.1, 30, "Hohe Qualität, 26 Seiten circa 28x28"], // Saal Digital 28 x 28
-        'l21' => [64.99, 0, 0.1, 40, "Luxoriöse Qualität, 26 Seiten circa 21x21"], // Professional Line 21x21
-        'l21b' => [104.99, 0, 0.1, 50, "Luxoriöse Qualität, 26 Seiten circa 21x21 inklusive Box"], // Professional Line 21x21
-        'lA4' => [74.99, 0, 0.1, 40, "Luxoriöse Qualität, 26 Seiten circa A4 hoch oder A4 quer"], // Professional Line 22x30 / 30x21
-        'lA4b' => [119.99, 0, 0.1, 50, "Luxoriöse Qualität, 26 Seiten circa A4 hoch oder A4 quer inklusive Box"], // Professional Line 22x30 / 30x21
-        'l30' => [89.99, 0, 0.1, 40, "Luxoriöse Qualität, 26 Seiten circa 30x30"], // Professional Line 30x30
-        'l30b' => [139.99, 0, 0.1, 50, "Luxoriöse Qualität, 26 Seiten circa 30x30 inklusive Box"], // Professional Line 30x30
+        'qA5' => [29.99, 0, 0.1, 30, "Hohe Qualität, 26 Seiten circa A5 hoch , A5 quer oder 15x15"], // Saal Digital Fotobuch 15x21 bzw. 15x15
+        'qA4' => [29.99, 0, 0.1, 45, "Hohe Qualität, 26 Seiten circa A4 hoch, A4 quern oder 19x19"], // Saal Digital 28 x 28
+        'q28' => [39.99, 0, 0.1, 45, "Hohe Qualität, 26 Seiten circa 28x28"], // Saal Digital 28 x 28
+        'l21' => [64.99, 0, 0.1, 60, "Luxoriöse Qualität, 26 Seiten circa 21x21"], // Professional Line 21x21
+        'l21b' => [104.99, 0, 0.1, 70, "Luxoriöse Qualität, 26 Seiten circa 21x21 inklusive Box"], // Professional Line 21x21
+        'lA4' => [74.99, 0, 0.1, 60, "Luxoriöse Qualität, 26 Seiten circa A4 hoch oder A4 quer"], // Professional Line 22x30 / 30x21
+        'lA4b' => [119.99, 0, 0.1, 70, "Luxoriöse Qualität, 26 Seiten circa A4 hoch oder A4 quer inklusive Box"], // Professional Line 22x30 / 30x21
+        'l30' => [89.99, 0, 0.1, 70, "Luxoriöse Qualität, 26 Seiten circa 30x30"], // Professional Line 30x30
+        'l30b' => [139.99, 0, 0.1, 80, "Luxoriöse Qualität, 26 Seiten circa 30x30 inklusive Box"], // Professional Line 30x30
     ];
 
     $level = [
@@ -68,7 +68,7 @@
         if ($rabatt == 0)
             echo formatPrice($price);
         else
-            echo '<s>' . formatPrice($price) . '</s> <b>' . formatPrice($price - $rabatt) . '</b>';
+            echo '<b>' . formatPrice($price - $rabatt) . '</b> <small><s>' . formatPrice($price) . '</s></small>';
 
     }
 
@@ -90,20 +90,21 @@
 
     if ($standalone) {
         ?>
-        Kosten für das ausgewählte Paket (<?php echo $stunden; ?>h Shootingzeit /
+        Kosten für das ausgewählte Paket (<?php echo $stunden; ?>h Shootingzeit / bis zu
         <?php echo $bilder . ' Bild' . ($bilder != 1 ? 'er' : ''); ?> mit <?php echo $level[$editLevel]; ?>
         Bearbeitung):<br/>
         <?php
         if ($rabatt_prozent > 0 || $rabatt_stunden > 0) {
+            echo '<small>';
             $rabattEur = $rabatt_stunden * $fees * $wage;
             echo 'Rabatt in der Höhe von ';
             if ($rabatt_stunden > 0)
                 echo formatPrice($rabattEur) . ' ';
             if ($rabatt_prozent > 0 && $rabatt_stunden > 0)
-                echo 'und anschließend noch ';
+                echo 'und zusätzlich noch ';
             if ($rabatt_prozent)
                 echo 'circa ' . $rabatt_prozent * 100 . '% Rabatt auf die Dienstleistungen';
-
+            echo '</small>';
         }
     }
 
@@ -122,16 +123,18 @@
 
 
     // Preis berechnen
-    $hPreis = $wage * $stunden;
+    $hPreis = $wage * $stunden * $fees;
     if ($rabatt_prozent > 0)
         $rabatt += $hPreis * $rabatt_prozent;
     $price += $hPreis;
 
-    $price *= $fees;
-
     $price += $aPrice;
     ?>
-    <p><b style="font-size:1.5rem"><?php formatPriceEur($price, $rabatt); ?></b></p>
+    <p><span style="font-size:1.5rem"><?php formatPriceEur($price, $rabatt); ?></span> <small>sofort fällig:
+            <i><?php
+                echo formatPrice(max($wage, $price / 2));
+                ?>
+            </i></small></p>
     <ul>
         <?php
         if ($album != "")
@@ -151,6 +154,7 @@
             if ($pp > 0) {
                 echo ' (Upgrade ';
                 formatPricePercent($cp - $pp, $rabatt_prozent);
+                echo ') ';
             }
             echo ' inklusive ' . $level[$key] . ' Bearbeitung';
             if ($key !== array_key_last($pics))
@@ -158,6 +162,7 @@
             $pp = $cp;
         } ?>
     </small><br/>
+    <br/>
     <small>Je weiterer 15 Minuten Shootingzeit:
         <?php formatPricePercent($wage / 4 * ($fees + $nachbestellung_stunden), $rabatt_prozent); ?>
     </small><br/>
@@ -181,7 +186,7 @@
         </ul>
     </small>
     <?php
-    if (!boolval($standalone)) { ?>
+    if (!$standalone) { ?>
         <small>
             <a href="<?php
             echo 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . '&standalone=1';

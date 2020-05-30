@@ -8,8 +8,10 @@ enum class ReisishotIcons(internal val cssName: String) {
     FB_MESSENGER("messenger"),
     FB("facebook"),
     INSTAGRAM("instagram"),
-    INFO("info"),
-    MAIL("mail")
+    WHATSAPP("whatsapp"),
+    SKYPE("skype"),
+    MAIL("mail"),
+
 }
 
 @HtmlTagMarker
