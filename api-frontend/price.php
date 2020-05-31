@@ -12,10 +12,27 @@
 
     $edits_per_hour = [
         "m" => 8,
-        "l" => 4
+        "l" => 3
     ];
 
-    // $base,$includedPages,$perPage, $shipping,$discount
+    $available_albums = [
+        'q14' => new Album(9.99, 0, 0.1, 20, "Gute Qualität circa 14x14, 16 Seiten (Ringbindung)"), // Fotoheft 14x14
+        'qA5' => new Album(29.99, 0, 0.1, 30, "Hohe Qualität, 26 Seiten circa A5 hoch , A5 quer oder 15x15"), // Saal Digital Fotobuch 15x21 bzw. 15x15
+        'qA4' => new Album(29.99, 0, 0.1, 45, "Hohe Qualität, 26 Seiten circa A4 hoch, A4 quern oder 19x19"), // Saal Digital 28 x 28
+        'q28' => new Album(39.99, 0, 0.1, 45, "Hohe Qualität, 26 Seiten circa 28x28"), // Saal Digital 28 x 28
+        'l21' => new Album(64.99, 0, 0.1, 60, "Luxoriöse Qualität, 26 Seiten circa 21x21"), // Professional Line 21x21
+        'l21b' => new Album(104.99, 0, 0.1, 70, "Luxoriöse Qualität, 26 Seiten circa 21x21 inklusive Box"), // Professional Line 21x21
+        'lA4' => new Album(74.99, 0, 0.1, 60, "Luxoriöse Qualität, 26 Seiten circa A4 hoch oder A4 quer"), // Professional Line 22x30 / 30x21
+        'lA4b' => new Album(119.99, 0, 0.1, 70, "Luxoriöse Qualität, 26 Seiten circa A4 hoch oder A4 quer inklusive Box"), // Professional Line 22x30 / 30x21
+        'l30' => new Album(89.99, 0, 0.1, 70, "Luxoriöse Qualität, 26 Seiten circa 30x30"), // Professional Line 30x30
+        'l30b' => new Album(139.99, 0, 0.1, 80, "Luxoriöse Qualität, 26 Seiten circa 30x30 inklusive Box"), // Professional Line 30x30
+    ];
+
+    $edit_level_name = [
+        "m" => "erweiteter",
+        "l" => "umfassender"
+    ];
+
     class Album
     {
         private $product_price;
@@ -80,27 +97,7 @@
         {
             return $this->description;
         }
-
-
     }
-
-    $available_albums = [
-        'q14' => new Album(9.99, 0, 0.1, 10, "Gute Qualität circa 14x14, 16 Seiten (Ringbindung)"), // Fotoheft 14x14
-        'qA5' => new Album(29.99, 0, 0.1, 30, "Hohe Qualität, 26 Seiten circa A5 hoch , A5 quer oder 15x15"), // Saal Digital Fotobuch 15x21 bzw. 15x15
-        'qA4' => new Album(29.99, 0, 0.1, 45, "Hohe Qualität, 26 Seiten circa A4 hoch, A4 quern oder 19x19"), // Saal Digital 28 x 28
-        'q28' => new Album(39.99, 0, 0.1, 45, "Hohe Qualität, 26 Seiten circa 28x28"), // Saal Digital 28 x 28
-        'l21' => new Album(64.99, 0, 0.1, 60, "Luxoriöse Qualität, 26 Seiten circa 21x21"), // Professional Line 21x21
-        'l21b' => new Album(104.99, 0, 0.1, 70, "Luxoriöse Qualität, 26 Seiten circa 21x21 inklusive Box"), // Professional Line 21x21
-        'lA4' => new Album(74.99, 0, 0.1, 60, "Luxoriöse Qualität, 26 Seiten circa A4 hoch oder A4 quer"), // Professional Line 22x30 / 30x21
-        'lA4b' => new Album(119.99, 0, 0.1, 70, "Luxoriöse Qualität, 26 Seiten circa A4 hoch oder A4 quer inklusive Box"), // Professional Line 22x30 / 30x21
-        'l30' => new Album(89.99, 0, 0.1, 70, "Luxoriöse Qualität, 26 Seiten circa 30x30"), // Professional Line 30x30
-        'l30b' => new Album(139.99, 0, 0.1, 80, "Luxoriöse Qualität, 26 Seiten circa 30x30 inklusive Box"), // Professional Line 30x30
-    ];
-
-    $edit_level_name = [
-        "m" => "erweiteter",
-        "l" => "professioneller"
-    ];
 
     $package_hours = max(0, doubleval($_GET['stunden'] ?? '0'));
     $package_images = max(0, intval($_GET['bilder'] ?? '0'));
