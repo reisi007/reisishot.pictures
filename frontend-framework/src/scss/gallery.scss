@@ -6,17 +6,21 @@
     align-content: center;
   }
 
-  &.overview {
-    justify-content: space-around;
-    flex-wrap: wrap;
+  &.multiple {
+    $thumbnailSize: 300px;
 
     picture {
-      margin: 1rem;
-      max-height: 300px;
+      max-width: $thumbnailSize;
+      max-height: $thumbnailSize;
+      $margin: 0.4rem;
+      margin-top: $margin;
+      margin-bottom: $margin;
 
       img {
-        //TODO make responsive
-        max-height: 300px;
+        max-height: $thumbnailSize;
+        top: 50%;
+        position: relative;
+        transform: translate(0, -50%);
       }
     }
   }

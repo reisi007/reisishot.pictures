@@ -9,7 +9,7 @@ import pictures.reisishot.mise.backend.generator.gallery.*
 import java.util.concurrent.ConcurrentHashMap
 
 class ConfigurableCategoryBuilder() : CategoryBuilder {
-    override val builderName: String = "Configurable Categorybuilder"
+    override val builderName: String = "Configurable Category Builder"
 
     private lateinit var categoryConfigs: List<CategoryConfig>
 

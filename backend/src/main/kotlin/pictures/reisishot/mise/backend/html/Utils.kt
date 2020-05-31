@@ -38,10 +38,13 @@ fun HtmlBlockTag.insertImageGallery(
     if (isEmpty())
         return@with
     div {
-        classes = classes + "gallery" + if (imageInformation.size == 1) "single" else "overview"
+        val isSingleImageGallery = imageInformation.size == 1
+        classes = classes + "gallery " + if (isSingleImageGallery) "single" else "row multiple"
         attributes["data-name"] = galleryName
+        val additionalClasses = if (isSingleImageGallery) listOf()
+        else listOf("col-12", "col-sm-6", "col-lg-4", "col-xl-3")
         imageInformation.forEach { curImageInfo ->
-            insertLazyPicture(curImageInfo)
+            insertLazyPicture(curImageInfo, additionalClasses)
         }
     }
 }
