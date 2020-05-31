@@ -268,7 +268,7 @@ object PageGenerator {
           _paq.push(['enableLinkTracking']);
           (function() {
             var u="//analytics.reisishot.pictures/";
-            _paq.push(['setTrackerUrl', u+'matomo.php']);
+            _paq.push(['setTrackerUrl', u+'performance_api.php']);
             _paq.push(['setSiteId', '${it}']);
             var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
             g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'performance.php'; s.parentNode.insertBefore(g,s);
@@ -280,6 +280,6 @@ object PageGenerator {
 
     @HtmlTagMarker
     private fun BODY.analyticsImage(websiteConfiguration: WebsiteConfiguration) = websiteConfiguration.analyticsSiteId?.let {
-        img(src = """https://analytics.reisishot.pictures/matomo.php?idsite=$it&amp;rec=1""")
+        img(src = """https://analytics.reisishot.pictures/performance_api.php?idsite=$it&amp;rec=1""")
     }
 }
