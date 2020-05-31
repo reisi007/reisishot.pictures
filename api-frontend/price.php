@@ -65,10 +65,13 @@
 
     function formatPriceEur($price, $rabatt)
     {
-        if ($rabatt == 0)
-            echo formatPrice($price);
-        else
-            echo '<b>' . formatPrice($price - $rabatt) . '</b> <small><s>' . formatPrice($price) . '</s></small>';
+        $fullPrice = formatPrice($price);
+        $rabattPrice = formatPrice($price - $rabatt);
+        if ($fullPrice == $rabattPrice)
+            echo $fullPrice;
+        else {
+            echo '<b>' . $rabattPrice . '</b> <small><s>' . $fullPrice . '</s></small>';
+        }
 
     }
 
