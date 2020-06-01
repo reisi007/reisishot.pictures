@@ -16,20 +16,11 @@ private val spellchecker by lazy { JLanguageTool(AustrianGerman()) }
 
 private val isSpellCheckerInitialized = AtomicBoolean(false)
 
-fun <T : TextInputControl> T.enableSpellcheck() = apply {
+fun <T : TextInputControl> T.enableSpellcheck(consumer: T.(List<String>) -> Unit = { spellcheckTooltipConsumer(it) }) = apply {
     val debouncing = PauseTransition(Duration(500.0))
             .apply {
                 onFinished = EventHandler {
-                    val spellingErrors = performSpellcheck()
-                    if (spellingErrors.isEmpty())
-                        tooltip = null
-                    else
-                        tooltip {
-                            text = spellingErrors.joinToString(System.lineSeparator()) { it }
-                            println(text)
-                            hackTooltipStartTiming()
-                            show()
-                        }
+                    consumer(performSpellcheck())
                 }
             }
     if (!isSpellCheckerInitialized.get()) {
@@ -45,6 +36,18 @@ fun <T : TextInputControl> T.enableSpellcheck() = apply {
     onKeyReleased = EventHandler {
         debouncing.playFromStart()
     }
+}
+
+private fun <T : TextInputControl> T.spellcheckTooltipConsumer(spellingErrors: List<String>) {
+    if (spellingErrors.isEmpty())
+        tooltip = null
+    else
+        tooltip {
+            text = spellingErrors.joinToString(System.lineSeparator()) { it }
+            println(text)
+            hackTooltipStartTiming()
+            show()
+        }
 }
 
 private fun TextInputControl.performSpellcheck(): List<String> = performSpellCheck(text)

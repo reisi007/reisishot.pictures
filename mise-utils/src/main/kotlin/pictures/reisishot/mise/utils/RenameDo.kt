@@ -16,13 +16,14 @@ object RenameDo {
         val targetFilenames = mutableSetOf<String>()
 
         Files.newBufferedReader(csvPath, Charsets.UTF_8).useLines {
-            it.map { it.split(',', limit = 2) }
+            val entiesToChange = it.map { it.split(',', limit = 2) }
                     .map { it[0] to it[1] }
                     .peek { (_, targetFilename) ->
                         if (!targetFilenames.add(targetFilename))
                             throw IllegalStateException("Cannot perform rename -> $targetFilename is duplicated")
                     }.filter { it.first != it.second }
-                    .toList().asSequence()
+                    .toList()
+            entiesToChange.asSequence()
                     .flatMap { (sourceName, targetName) ->
                         sequenceOf(
                                 prepareRename(inputFolder, sourceName, targetName, "jpg"),

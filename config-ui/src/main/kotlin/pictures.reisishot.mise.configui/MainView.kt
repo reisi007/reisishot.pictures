@@ -8,12 +8,14 @@ import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.control.Button
+import javafx.scene.control.Label
 import javafx.scene.control.TextField
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
+import javafx.scene.paint.Color
 import javafx.stage.DirectoryChooser
 import javafx.stage.FileChooser
 import pictures.reisishot.mise.base.AutocompleteMultiSelectionBox
@@ -32,7 +34,11 @@ class MainView : View("Main View") {
         maxWidth(Double.POSITIVE_INFINITY)
     }
     private lateinit var lastPath: Path
-    private val titleField = TextField().enableSpellcheck()
+    private val titleField = TextField().enableSpellcheck {
+        val message = it.joinToString(System.lineSeparator()) { it }
+        println(message)
+        errorLabel.text = message
+    }
     private val tagField = AutocompleteMultiSelectionBox { it }
     private val filenameChooser = FilenameChooser()
     private val saveButton = Button("Speichern").apply {
@@ -43,9 +49,13 @@ class MainView : View("Main View") {
         }
     }
 
+    private val errorLabel = Label().apply {
+        textFill = Color.DARKRED
+    }
+
     private val knownTags = mutableSetOf<String>()
     private val imageConfigs = LinkedList<Pair<Path, ImageConfig>>()
-    private var initialDirectory: File = File("D:\\Reisishot\\MiSe\\input\\images")
+    private var initialDirectory: File = File("D:\\Reisishot\\MiSe\\input-main\\images")
 
     override val root = vbox(5) {
 
@@ -59,13 +69,16 @@ class MainView : View("Main View") {
                         menuBar.heightProperty() -
                         form.heightProperty() -
                         saveButton.heightProperty() -
+                        errorLabel.heightProperty() -
                         ((children.size) * spacing)
         )
 
         add(menuBar)
         addInHBox(imageView)
         addInHBox(filenameChooser)
+        addInHBox(errorLabel)
         addInHBox(form)
+
     }
 
     private fun VBox.addInHBox(child: Node, spacing: Double = 5.0) {
