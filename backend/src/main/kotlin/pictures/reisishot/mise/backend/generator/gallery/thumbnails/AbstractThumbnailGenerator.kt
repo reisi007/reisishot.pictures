@@ -109,13 +109,17 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
                     .map { it.filenameWithoutExtension }
                     .collect(Collectors.toSet())
 
-            Files.list(configuration.tmpPath.withChild(NAME_THUMBINFO_SUBFOLDER))
-                    .filter { !existingFiles.contains(it.filenameWithoutExtension.substringBeforeLast('.')) }
-                    .forEach(Files::delete)
+            val thumbInfoPath = configuration.tmpPath.withChild(NAME_THUMBINFO_SUBFOLDER)
+            if (thumbInfoPath.exists())
+                Files.list(thumbInfoPath)
+                        .filter { !existingFiles.contains(it.filenameWithoutExtension.substringBeforeLast('.')) }
+                        .forEach(Files::delete)
 
-            Files.list(configuration.outPath.withChild(NAME_IMAGE_SUBFOLDER))
-                    .filter { !existingFiles.contains(computeOriginalFilename(it.filenameWithoutExtension)) }
-                    .forEach(Files::delete)
+            val imagesPath = configuration.outPath.withChild(NAME_IMAGE_SUBFOLDER)
+            if (imagesPath.exists())
+                Files.list(imagesPath)
+                        .filter { !existingFiles.contains(computeOriginalFilename(it.filenameWithoutExtension)) }
+                        .forEach(Files::delete)
         }
     }
 
