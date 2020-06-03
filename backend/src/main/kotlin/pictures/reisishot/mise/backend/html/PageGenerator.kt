@@ -81,8 +81,13 @@ object PageGenerator {
                                                         FormCheckbox("Zustimmung", "Ich akzeptiere, dass der Inhalt dieses Formulars per Mail an den Fotografen zugestellt wird", "Natürlich wird diese E-Mail-Adresse nur zum Zwecke deiner Anfrage verwendet und nicht mit Dritten geteilt", "Leider benötige ich deine Einwilligung, damit du mir eine Nachricht schicken darfst")
                                                 )
                                             })
-                                    span("text-muted") {
+                                    p("text-muted center") {
                                         text("© ${websiteConfiguration.longTitle}")
+                                    }
+                                    p("text-muted center") {
+                                        a(buildingCache.getLinkcacheEntryFor(websiteConfiguration, "PAGE", "Impressum")) {
+                                            text("Impressum & Datenschutz")
+                                        }
                                     }
                                     websiteConfiguration.socialMediaLinks?.let { accounts ->
                                         span("socialIcons") {
