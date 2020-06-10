@@ -199,9 +199,11 @@
     $price += $aPrice;
     $rabatt_total = min($rabatt_total, $price);
     ?>
-    <p><span style="font-size:1.5rem"><?php format_price_eur($price, $rabatt_total); ?></span> <small>sofort fällig:
+    <p><span style="font-size:1.5rem"><?php $price_total = max($rabatt_total + $wage_h / 2, $price);
+            format_price_eur($price_total, $rabatt_total); ?></span> <small>sofort
+            fällig:
             <i><?php
-                $reservation_fee = max(1.25 * $wage_h, ($price - $rabatt_total) / 2);
+                $reservation_fee = max(1 * $wage_h, ($price_total - $rabatt_total) / 2);
                 echo format_price($reservation_fee);
                 ?>
             </i></small></p>
