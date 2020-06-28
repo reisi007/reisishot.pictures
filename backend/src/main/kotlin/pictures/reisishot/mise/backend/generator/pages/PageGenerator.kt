@@ -145,6 +145,7 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
 
         val globalPriority = inFilename.substringBefore(FILENAME_SEPERATOR).toIntOrNull() ?: 0
         inFilename = inFilename.substringAfter(FILENAME_SEPERATOR)
+                .replace('❔', '?')
 
         val menuContainerName =
                 inFilename.substringBefore(FILENAME_SEPERATOR).replace(displayReplacePattern, " ")

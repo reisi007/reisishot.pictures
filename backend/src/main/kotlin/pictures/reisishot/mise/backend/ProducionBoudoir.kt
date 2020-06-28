@@ -6,37 +6,39 @@ import kotlinx.html.InputType
 import kotlinx.html.h2
 import kotlinx.html.h3
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
-import pictures.reisishot.mise.backend.generator.gallery.categories.ConfigurableCategoryBuilder
-import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
-import pictures.reisishot.mise.backend.generator.links.LinkGenerator
+import pictures.reisishot.mise.backend.generator.multisite.ImageInfoImporter
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
-import pictures.reisishot.mise.backend.generator.pages.yamlConsumer.OverviewPageGenerator
+import pictures.reisishot.mise.backend.generator.pages.yamlConsumer.KeywordConsumer
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
 import pictures.reisishot.mise.backend.html.*
 import java.nio.file.Path
 import java.nio.file.Paths
 
-object ProductionMain {
-
+object ProducionBoudoir {
     @JvmStatic
     fun main(args: Array<String>) {
         Mise.build(
                 WebsiteConfiguration(
-                        shortTitle = "Reisishot",
-                        longTitle = "Reisishot - Fotograf Florian Reisinger",
-                        websiteLocation = "https://reisishot.pictures",
-                        inPath = Paths.get("input-main").toAbsolutePath(),
-                        tmpPath = Paths.get("tmp-main").toAbsolutePath(),
-                        outPath = Paths.get("frontend-main/generated").toAbsolutePath(),
+                        shortTitle = "Reisishot Boudoir",
+                        longTitle = "Reisishot Boudoir - Florian Reisinger, Linz Österreich",
+                        websiteLocation = "https://boudoir.reisishot.pictures",
+                        inPath = Paths.get("input-boudoir").toAbsolutePath(),
+                        tmpPath = Paths.get("tmp-boudoir").toAbsolutePath(),
+                        outPath = Paths.get("frontend-boudoir/generated").toAbsolutePath(),
                         interactiveIgnoredFiles = *arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         cleanupGeneration = false,
-                        analyticsSiteId = "1",
-                        socialMediaLinks = SocialMediaAccounts("reisishot", "reisishot", "florian@reisishot.pictures"),
+                        socialMediaLinks = SocialMediaAccounts(
+                                "reisishot.boudoir",
+                                "reisishot_boudoir",
+                                "florian@reisishot.pictures",
+                                "436702017710"
+                        ),
+                        analyticsSiteId = "4",
                         form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
                             buildForm(
-                                    title = { h2 { text("Kontaktiere mich") } },
-                                    thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich schnellstmöglich!") } },
+                                    title = { h2 { text("Möchtest du selbst ein Boudoir Shooting haben?") } },
+                                    thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich schnellstmöglich bei dir!") } },
                                     formStructure = {
                                         FormRoot("footer",
                                                 HiddenFormInput("Seite", websiteConfiguration.websiteLocation + websiteConfiguration.outPath.relativize(target.parent).toString()),
@@ -44,23 +46,21 @@ object ProductionMain {
                                                         FormInput("Name", "Name", "Dein Name", "Bitte sag mir, wie du heißt", InputType.text),
                                                         FormInput("E-Mail", "E-Mail Adresse", "Deine E-Mail-Adresse, auf die du deine Antwort bekommst", "Ich kann dich ohne deine E-Mail Adresse nicht kontaktieren", InputType.email)
                                                 ),
-                                                FormTextArea("Freitext", "Deine Nachricht an mich", "Anfragen für Zusammenarbeit (Bitte gib auch einen Link zu deinen Bildern in die Nachricht dazu :D), Feedback zu meinen Bildern oder was dir sonst so am Herzen liegt", "Bitte vergiss nicht mir eine Nachricht zu hinterlassen"),
+                                                FormTextArea("Freitext", "Deine Nachricht an mich", "Warum hast du Lust Boudoir Fotos zu machen? Gibt es noch was, wo du dich unsicher fühlst / was dich abhält..?", errorMessage = "Damit ich dir das bestmögliche Erlebnis anbieten kann, brauche ich diese Informationen."),
                                                 FormCheckbox("Zustimmung", "Ich akzeptiere, dass der Inhalt dieses Formulars per Mail an den Fotografen zugestellt wird", "Natürlich wird diese E-Mail-Adresse nur zum Zwecke deiner Anfrage verwendet und nicht mit Dritten geteilt", "Leider benötige ich deine Einwilligung, damit du mir eine Nachricht schicken darfst")
                                         )
                                     })
                         },
                         generators = listOf(
-                                PageGenerator(OverviewPageGenerator()),
+                                PageGenerator(
+                                        KeywordConsumer()
+                                ),
                                 GalleryGenerator(
-                                        categoryBuilders = *arrayOf(
-                                                DateCategoryBuilder("Chronologisch"),
-                                                ConfigurableCategoryBuilder()
-                                        ),
-                                        displayedMenuItems = emptySet(),
+                                        categoryBuilders = *emptyArray(),
                                         exifReplaceFunction = defaultExifReplaceFunction
                                 ),
                                 ImageMagickThumbnailGenerator(),
-                                LinkGenerator(),
+                                ImageInfoImporter(Paths.get("tmp-main").toAbsolutePath()),
                                 SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
                         )
                 )

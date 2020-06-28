@@ -1,6 +1,7 @@
 package pictures.reisishot.mise.backend
 
 import at.reisishot.mise.commons.FileExtension
+import kotlinx.html.DIV
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -10,6 +11,7 @@ class WebsiteConfiguration(
         val shortTitle: String,
         val longTitle: String,
         websiteLocation: String,
+        private val form: DIV.(target: Path, websiteConfiguration: WebsiteConfiguration) -> Unit,
         val inPath: Path = Paths.get("./src/main/resources"),
         val tmpPath: Path = Paths.get("./src/main/resources/cache"),
         val outPath: Path = Paths.get("./generated"),
@@ -19,8 +21,10 @@ class WebsiteConfiguration(
         val analyticsSiteId: String? = null,
         val socialMediaLinks: SocialMediaAccounts? = null,
         val generators: List<WebsiteGenerator> = emptyList(),
+
         vararg val interactiveIgnoredFiles: ((FileExtension) -> Boolean) = arrayOf({ _: String -> false })
 ) {
+    fun createForm(parent: DIV, target: Path) = form(parent, target, this@WebsiteConfiguration)
     val websiteLocation: String = websiteLocation.let { if (websiteLocation.endsWith("/")) it else "$it/" }
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

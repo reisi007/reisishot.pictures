@@ -100,7 +100,6 @@ class TemplateApi(
         if (testimonialsToDisplay.isEmpty())
             return@buildString
         appendHTML(false, true).div {
-            h2 { text("Empfehlungen") }
             div("container reviews") {
                 testimonialsToDisplay.forEach { testimonial ->
                     div("col-12 col-md-6 card border-dark") {
