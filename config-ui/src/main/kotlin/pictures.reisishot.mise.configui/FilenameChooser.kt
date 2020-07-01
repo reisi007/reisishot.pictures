@@ -5,24 +5,10 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import pictures.reisishot.mise.base.AutocompleteMultiSelectionBox
 import tornadofx.*
-import java.nio.file.Path
-import java.util.function.Consumer
 
-class FilenameChooser : HBox(5.0), Consumer<Path> {
+class FilenameChooser : HBox(5.0) {
 
-    private val input = AutocompleteMultiSelectionBox<FilenameData>(2) { FilenameData(it) }
-
-    var items: MutableCollection<FilenameData> = input.suggestions
-
-    var selectedItems: List<FilenameData>
-        get() = input.tags
-        set(value) {
-            with(input.tags) {
-                clear()
-                addAll(value)
-            }
-        }
-
+    val input = AutocompleteMultiSelectionBox<FilenameData>(2)
 
     init {
         vgrow = Priority.NEVER
@@ -32,20 +18,11 @@ class FilenameChooser : HBox(5.0), Consumer<Path> {
         button("Neuer Name") {
             setOnAction {
                 NewFilenameDialog().showAndWait().ifPresent {
-                    input.accept(it)
+                    input.chooser.sourceItems.add(it)
                 }
             }
         }
     }
 
-    override fun accept(t: Path) {
-        FilenameData.fromPath(t).let { input.accept(it) }
-    }
 
-    private fun AutocompleteMultiSelectionBox<FilenameData>.accept(filenameData: FilenameData) {
-        with(input.suggestions) {
-            add(filenameData)
-        }
-        selectedItems = listOf(filenameData)
-    }
 }

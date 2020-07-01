@@ -4,6 +4,8 @@ import at.reisishot.mise.commons.*
 import at.reisishot.mise.config.ImageConfig
 import at.reisishot.mise.config.parseConfig
 import at.reisishot.mise.config.writeConfig
+import javafx.collections.FXCollections
+import javafx.event.EventHandler
 import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.Node
@@ -39,7 +41,9 @@ class MainView : View("Main View") {
         println(message)
         errorLabel.text = message
     }
-    private val tagField = AutocompleteMultiSelectionBox { it }
+    private val tagField = AutocompleteMultiSelectionBox<String>()
+
+
     private val filenameChooser = FilenameChooser()
     private val saveButton = Button("Speichern").apply {
         hgrow = Priority.ALWAYS
@@ -53,7 +57,7 @@ class MainView : View("Main View") {
         textFill = Color.DARKRED
     }
 
-    private val knownTags = mutableSetOf<String>()
+    private val knownTags = TreeSet<String>()
     private val imageConfigs = LinkedList<Pair<Path, ImageConfig>>()
     private var initialDirectory: File = File("D:\\Reisishot\\MiSe\\input-main\\images")
 
@@ -100,7 +104,25 @@ class MainView : View("Main View") {
                 add(titleField)
             }
             field("Tags") {
-                add(tagField)
+                hbox {
+                    add(tagField)
+                    val textfield = TextField().apply { }
+
+                    add(textfield)
+
+                    button("Hinzufügen") {
+                        onAction = EventHandler {
+                            val data = textfield.text
+                            textfield.clear()
+
+                            val items = tagField.chooser.sourceItems
+                            if (!items.contains(data)) {
+                                items.add(data)
+                                FXCollections.sort(items, Comparator.comparing<String, String> { it.toLowerCase() })
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -184,13 +206,13 @@ class MainView : View("Main View") {
             knownTags.clear()
             knownTags.addAll(first.loadTagList())
             first.loadFilenameData()
-            filenameChooser.accept(first)
+            filenameChooser.input.chooser.targetItems.add(FilenameData.fromPath(first))
         }
         loadNextImage()
     }
 
     private fun saveImageConfig() {
-        val tags = tagField.tags.toSet()
+        val tags = tagField.chooser.targetItems.toSet()
         val title = titleField.text
         knownTags += tags
         renameImageIfNeeded()
@@ -201,7 +223,7 @@ class MainView : View("Main View") {
     }
 
     private fun renameImageIfNeeded() {
-        val newFilenameData = filenameChooser.selectedItems.first()
+        val newFilenameData = filenameChooser.input.chooser.targetItems.first()
         val oldConfigPath = lastPath
         val oldFilenameData = FilenameData.fromPath(oldConfigPath)
         if (oldFilenameData == newFilenameData)
@@ -224,20 +246,20 @@ class MainView : View("Main View") {
         imageConfigs.removeFirst()
         lastPath = path
         imageView.image = Image(Files.newInputStream(path.let { it.resolveSibling(it.filenameWithoutExtension + ".jpg") }))
-        with(tagField.suggestions) {
+        with(tagField.chooser.sourceItems) {
             clear()
             addAll(knownTags)
         }
-        with(tagField.tags) {
-            clear()
-            addAll(imageConfig.tags)
-        }
+
+
+        val itemsToAdd: Collection<String> = imageConfig.tags
+        tagField.chooser.targetItems.addAll(itemsToAdd)
         titleField.text = imageConfig.title
         FilenameData.fromPath(path).let {
-            filenameChooser.selectedItems = filenameChooser.selectedItems
+            filenameChooser.input.chooser.targetItems = FXCollections.observableList(filenameChooser.input.chooser.targetItems
                     .firstOrNull()
                     ?.let { sel -> listOf(sel, it).distinct() }
-                    ?: listOf(it)
+                    ?: listOf(it))
         }
     }
 
@@ -245,11 +267,17 @@ class MainView : View("Main View") {
         if (!Files.isDirectory(this))
             parent?.loadFilenameData()
         else {
-            filenameChooser.items.clear()
+            val chooser = filenameChooser.input.chooser
             Files.list(this)
+                    .asSequence()
                     .filter { it.isRegularFile() }
                     .filter { it.fileExtension.isJpeg() }
-                    .forEach { filenameChooser.accept(it) }
+                    .map { FilenameData.fromPath(it) }
+                    .distinctBy { it.name }
+                    .forEach {
+                        chooser.sourceItems.add(it)
+                    }
+            FXCollections.sort(chooser.sourceItems, Comparator.comparing<FilenameData, String> { it.name.toLowerCase() })
         }
     }
 

@@ -2,10 +2,9 @@
 <div>
     <?php
     $inflation = 1;
-    $wage_h = 70 * $inflation; // Angepeilter Stundenlohn
-    $session_fee_duration = 1; // Fixkosten (Beratung / Vorbereitung Upload)
+    $wage_h = 80 * $inflation; // Angepeilter Stundenlohn
+    $session_fee_duration = 0.75; // Fixkosten (Beratung / Vorbereitung Upload)
     $album_preparation_duration = 0; // Fixkosten Erstellung Fotobuch
-    $fee_commercial_usage = 1 / 3; // Aufpreis kommerzielle Nutzung
     $nopackage_images = 1.5; // Aufpreis für Leistungen, die nicht im Paket inkludiert sind
     $nopackage_wage = 0.5; // Aufpreis für Leistungen, die nicht im Paket inkludiert sind
     $nopackage_album = 1; // Aufpreis für Leistungen, die nicht im Paket inkludiert sind
@@ -101,7 +100,6 @@
 
     $package_hours = max(0, doubleval($_GET['stunden'] ?? '0'));
     $package_images = max(0, intval($_GET['bilder'] ?? '0'));
-    $is_kommerziell = boolval($_GET['kommerziell'] ?? '0');
     $edit_level = ($_GET['editLevel'] ?? '')[0];
     $package_album = ($_GET['album'] ?? '');
     $standalone = boolval($_GET['standalone'] ?? '0');
@@ -110,8 +108,6 @@
 
     // Calculate Fee amount
     $fees = 1;
-    if ($is_kommerziell)
-        $fees += $fee_commercial_usage;
 
     $rabatt_total = $rabatt_hours * $fees * $wage_h * (1 - $rabatt_service);
 
@@ -201,19 +197,20 @@
     $price += $hPreis;
 
     $price += $aPrice;
+    $rabatt_total = min($rabatt_total, $price);
     ?>
-    <p><span style="font-size:1.5rem"><?php format_price_eur($price, $rabatt_total); ?></span> <small>sofort fällig:
+    <p><span style="font-size:1.5rem"><?php $price_total = max($rabatt_total + $wage_h / 2, $price);
+            format_price_eur($price_total, $rabatt_total); ?></span> <small>sofort
+            fällig:
             <i><?php
-                echo format_price(max($wage_h, $price / 2));
+                $reservation_fee = max(1 * $wage_h, ($price_total - $rabatt_total) / 2);
+                echo format_price($reservation_fee);
                 ?>
             </i></small></p>
     <ul>
         <?php
         if ($package_album != "")
             echo '<li><small>Inklusive Album "' . $available_albums[$package_album]->getDescription() . '"</small><br/></li>';
-
-        if (!$is_kommerziell)
-            echo '<li><small>Kommerzielle Nutzung (z.B. Verwendung auf Firmenwebseite) ist nicht gestattet!</small></li>';
         ?>
     </ul>
     <small>Weitere Bilder pro Stück:
