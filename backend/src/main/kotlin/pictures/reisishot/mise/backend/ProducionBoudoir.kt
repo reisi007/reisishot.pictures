@@ -21,7 +21,7 @@ object ProducionBoudoir {
         Mise.build(
                 WebsiteConfiguration(
                         shortTitle = "Reisishot Boudoir",
-                        longTitle = "Reisishot Boudoir - Florian Reisinger, Linz Österreich",
+                        longTitle = "Reisishot Boudoir - Intime Portraits für dich aus Leidenschaft",
                         websiteLocation = "https://boudoir.reisishot.pictures",
                         inPath = Paths.get("input-boudoir").toAbsolutePath(),
                         tmpPath = Paths.get("tmp-boudoir").toAbsolutePath(),
