@@ -94,7 +94,7 @@ private fun FlowContent.buildForm(cur: FormBuilderElement): Unit = when (cur) {
     }
     is FormHGroup -> div("form-row") {
         cur.builderElements.forEach { child ->
-            div("col") {
+            div("col-md") {
                 buildForm(child)
             }
         }
