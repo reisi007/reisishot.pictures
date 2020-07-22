@@ -18,9 +18,7 @@
 
       img {
         max-height: $thumbnailSize;
-        top: 50%;
-        position: relative;
-        transform: translate(0, -50%);
+        height: 100%;
       }
     }
   }

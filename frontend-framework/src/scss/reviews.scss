@@ -1,5 +1,11 @@
 .reviews {
   display: flex;
-  justify-content: space-evenly;
   padding-bottom: 1rem;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: space-evenly;
+
+  .card {
+    margin-top: 1rem;
+  }
 }

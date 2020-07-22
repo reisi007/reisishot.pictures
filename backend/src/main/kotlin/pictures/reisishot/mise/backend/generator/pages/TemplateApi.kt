@@ -15,6 +15,7 @@ import pictures.reisishot.mise.backend.generator.gallery.insertCategoryThumbnail
 import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbnails
 import pictures.reisishot.mise.backend.html.insertImageGallery
 import pictures.reisishot.mise.backend.html.insertLazyPicture
+import pictures.reisishot.mise.backend.html.raw
 
 class TemplateApi(
         private val targetPath: TargetPath,
@@ -100,9 +101,9 @@ class TemplateApi(
         if (testimonialsToDisplay.isEmpty())
             return@buildString
         appendHTML(false, true).div {
-            div("container reviews") {
+            div("container-flex reviews") {
                 testimonialsToDisplay.forEach { testimonial ->
-                    div("col-12 col-md-6 card border-dark") {
+                    div("col-12 col-lg-5 card border-dark") {
                         with(galleryGenerator.cache) {
                             insertLazyPicture(imageInformationData.getOrThrow(testimonial.image), listOf("card-img-top"))
                         }
@@ -113,7 +114,7 @@ class TemplateApi(
                                 small("text-muted") { text(testimonial.dateFormatted()) }
                             }
                             p("card-text") {
-                                text(testimonial.text)
+                                raw(testimonial.text.replace("\n", "<br/>"))
                             }
                         }
                     }
@@ -127,7 +128,7 @@ class TemplateApi(
         if (testimonialTypes.isNotEmpty())
             tmpTestimonials = tmpTestimonials.filter { testimonialTypes.contains(it.type) }
         return tmpTestimonials
-                .sortedBy { it.date }
+                .sortedByDescending { it.date }
                 .toList()
     }
 }
