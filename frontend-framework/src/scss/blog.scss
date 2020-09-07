@@ -1,0 +1,9 @@
+.shootings {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  .holder {
+    margin: 4px;
+  }
+}

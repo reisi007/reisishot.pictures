@@ -29,7 +29,7 @@ object ProductionMain {
                         inPath = Paths.get("input-main").toAbsolutePath(),
                         tmpPath = Paths.get("tmp-main").toAbsolutePath(),
                         outPath = Paths.get("frontend-main/generated").toAbsolutePath(),
-                        interactiveIgnoredFiles = *arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
+                        interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         cleanupGeneration = false,
                         analyticsSiteId = "1",
                         socialMediaLinks = SocialMediaAccounts("reisishot", "reisishot", "florian@reisishot.pictures"),
@@ -52,7 +52,7 @@ object ProductionMain {
                         generators = listOf(
                                 PageGenerator(OverviewPageGenerator()),
                                 GalleryGenerator(
-                                        categoryBuilders = *arrayOf(
+                                        categoryBuilders = arrayOf(
                                                 DateCategoryBuilder("Chronologisch"),
                                                 ConfigurableCategoryBuilder()
                                         ),
