@@ -9,7 +9,7 @@ import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 
 class LinkGenerator : WebsiteGenerator {
 
-    override val generatorName: String = "Link generator"
+    override val generatorName: String = "Link Generator"
 
     companion object {
         const val LINK_TYPE = "MANUAL"
