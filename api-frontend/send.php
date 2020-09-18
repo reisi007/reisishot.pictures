@@ -12,6 +12,7 @@ if (sendMail($inputJSON)) {
 function sendMail($inputJSON)
 {
     $from = utf8_decode($inputJSON["E-Mail"]);
+    $betreff = utf8_decode($inputJSON["Betreff"]);
     $to = "florian@reisishot.pictures";
     // To send HTML mail, the Content-type header must be set
     $headers = 'MIME-Version: 1.0' . "\r\n";
@@ -28,7 +29,7 @@ function sendMail($inputJSON)
             . utf8_decode($value) . "<br/>\n";
     }
     $message .= '</body></html>';
-    return mail($to, "[reisishot.pictures] Neue Anfrage:", $message, $headers);
+    return mail($to, "[Kontaktformular] Neue Anfrage: " . $betreff, $message, $headers);
 }
 
 ?>

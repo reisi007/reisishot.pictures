@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <script src="jquery-3.4.1.slim.min.js"></script>
+    <script src="popper.min.js"></script>
+    <script src="bootstrap.min.js"></script>
+    <meta charset="utf-8">
+    <title>Test</title>
+    <script>
+        (function () {
+            'use strict';
+
+            function submitForm(pics) {
+                let el = document.querySelector("#priceOut");
+                let data = [
+                    ["Shooting Gebühr (vor Termin-Reservierung fällig).<br/>" +
+                    "<small>Inkludiert bis zu 0,5h Gespräch zur Vorbereitung 1-3h Shooting Zeit und 1h auswählen der finalen Fotos. Inkludiert keine Bilder</small>", 1, 250],
+                    ["Preis für 1 Bild", pics, 5]
+                ];
+
+                let text = "<ol><li>" + data.map(e => e[0] + ":<br/><i>" + e[1] + "x zu je " + e[2] + "€</i>").join("</li><br/><li>") + "</li></ol>";
+                let amount = data.map(e => e[1] * e[2]).reduce((p, c) => p + c);
+
+                el.innerHTML = text + "<br/><br><p><b>Gesamt: " + amount + "€</b></p>";
+            }
+
+            window.addEventListener('load', function () {
+                const forms = document.querySelectorAll('form[p-form]');
+                Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        } else {
+                            submitForm(document.querySelector("#count").value);
+                            event.preventDefault();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+</head>
+
+<body class="container">
+<h1>Berechnungshilfe Fotoshooting</h1>
+<div class="formContainer">
+    <form class="needs-validation" novalidate p-form="">
+        <div class="form-row">
+            <div class="col">
+                <div class="form-group">
+                    <label for="count" aria-describedby="CountHelp">Anzahl Bilder</label>
+                    <input type="number"
+                           step="1"
+                           min="1"
+                           value="5"
+                           max="50"
+                           class="form-control"
+                           id="count"
+                           name="count"
+                           required="required">
+                    <div class="invalid-feedback">Bitte sag mir wie du heißt</div>
+                    <small id="CountHelp">Wie viele Bilder möchtest du haben?</small></div>
+            </div>
+        </div>
+        <div>
+            <button class="btn btn-primary">Absenden</button>
+        </div>
+    </form>
+</div>
+<br/>
+<p id="priceOut">
+    Preis.
+</p>
+</body>
+
+</html>
