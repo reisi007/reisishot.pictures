@@ -1,12 +1,12 @@
 define(function () {
     function initComparisons() {
-        var x, i;
-        /* Find all elements with an "overlay" class: */
-        x = document.getElementsByClassName("img-comp-overlay");
-        for (i = 0; i < x.length; i++) {
+        var overlays;
+        /* Find all overlays with an "overlay" class: */
+        overlays = document.getElementsByClassName("img-comp-overlay");
+        for (let i = 0; i < overlays.length; i++) {
             /* Once for each "overlay" element:
             pass the "overlay" element as a parameter when executing the compareImages function: */
-            let e = x[i];
+            let e = overlays[i];
             let initialScale = e.getAttribute("data-initial");
             if (!initialScale)
                 initialScale = 0.5;
@@ -21,6 +21,7 @@ define(function () {
             /* Set the width of the img element to 50%: */
             // img.style.width = (w / 2) + "px";
             img.style.width = w * initialScale + "px";
+            img.parentElement.style.width = w + "px";
             /* Create slider: */
             slider = document.createElement("DIV");
             slider.setAttribute("class", "img-comp-slider");

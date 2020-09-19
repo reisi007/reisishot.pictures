@@ -4,8 +4,8 @@
 
 .img-comp-container {
   position: relative;
-  display: block;
-  left: 25%;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .img-comp-img {
