@@ -1,0 +1,33 @@
+* {
+  box-sizing: border-box;
+}
+
+.img-comp-container {
+  position: relative;
+  display: block;
+  left: 25%;
+}
+
+.img-comp-img {
+  position: absolute;
+  width: auto;
+  height: auto;
+  overflow: hidden;
+}
+
+.img-comp-img img {
+  display: block;
+  vertical-align: middle;
+}
+
+.img-comp-slider {
+  position: absolute;
+  z-index: 9;
+  cursor: ew-resize;
+  /*set the appearance of the slider:*/
+  width: 40px;
+  height: 40px;
+  background-color: $primaryColor;
+  opacity: 0.7;
+  border-radius: 50%;
+}
