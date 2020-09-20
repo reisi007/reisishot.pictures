@@ -6,6 +6,19 @@
   position: relative;
   left: 50%;
   transform: translateX(-50%);
+
+  @media (max-width: 500px) {
+    transform: translateX(-50%) scale(0.9);
+  }
+  @media (max-width: 400px) {
+    transform: translateX(-50%) scale(0.8);
+  }
+  @media (max-width: 360px) {
+    transform: translateX(-50%) scale(0.7);
+  }
+  @media (max-width: 300px) {
+    transform: translateX(-50%) scale(0.6);
+  }
 }
 
 .img-comp-img {
@@ -30,4 +43,8 @@
   background-color: $primaryColor;
   opacity: 0.7;
   border-radius: 50%;
+}
+
+.img-comp-container {
+  margin: 12px;
 }
