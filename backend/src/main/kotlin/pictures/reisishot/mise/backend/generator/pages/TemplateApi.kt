@@ -131,4 +131,30 @@ class TemplateApi(
                 .sortedByDescending { it.date }
                 .toList()
     }
+
+
+    @SuppressWarnings("unused")
+    fun insertSlidingImages(filename: String, w: Int, h: Int) = buildString {
+        appendHTML(false, true).div("bal-container") {
+            attributes["style"] = "width: 400px;height:${Math.round(400 * (h / w.toFloat()))}px"
+            div("bal-after") {
+                img("Bearbeitet", "https://images.reisishot.pictures/?url=${filename}b.jpg&w=400&q=70")
+                div("bal-afterPosition afterLabel") {
+                    text("Bearbeitet")
+                }
+            }
+            div("bal-before") {
+                div("bal-before-inset") {
+                    img("Bearbeitet", "https://images.reisishot.pictures/?url=${filename}o.jpg&w=400&q=70")
+                    div("bal-beforePosition beforeLabel") {
+                        text("Aus der Kamera")
+                    }
+                }
+            }
+            div("bal-handle") {
+                span("handle-left-arrow")
+                span("handle-right-arrow")
+            }
+        }
+    }
 }
