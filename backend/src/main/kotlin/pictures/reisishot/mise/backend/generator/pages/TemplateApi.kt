@@ -136,9 +136,11 @@ class TemplateApi(
     @SuppressWarnings("unused")
     fun insertSlidingImages(filename: String, w: Int, h: Int) = buildString {
         appendHTML(false, true).div("bal-container") {
-            attributes["style"] = "width: 400px;height:${Math.round(400 * (h / w.toFloat()))}px"
+            val ratio = (h / w.toFloat())
+            attributes["style"] = "width: 550px;height:${Math.round(550 * ratio)}px"
+            attributes["data-ratio"] = ratio.toString()
             div("bal-after") {
-                img("Bearbeitet", "https://images.reisishot.pictures/?url=${filename}b.jpg&w=400&q=70")
+                img("Bearbeitet", "https://images.reisishot.pictures/?url=${filename}b.jpg&w=550&q=70")
                 div("bal-afterPosition afterLabel") {
                     text("Bearbeitet")
                 }
