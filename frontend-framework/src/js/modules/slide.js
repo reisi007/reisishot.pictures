@@ -62,7 +62,7 @@ define(function () {
     function resize() {
         const all = document.querySelectorAll('.bal-container');
         const margin = 2 * 12;
-        const ww = window.innerWidth - margin, wh = window.innerHeight - margin;
+        const ww = 0.9 * window.innerWidth - margin, wh = 0.9 * window.innerHeight - margin;
         for (let i = 0; i < all.length; i++) {
             const beforeAfterContainer = all[i];
             const ratio = parseFloat(beforeAfterContainer.getAttribute("data-ratio"));
