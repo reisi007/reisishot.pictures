@@ -82,14 +82,24 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
 
 }
 
-private fun Map<String, List<String>>.extract(targetPath: TargetPath): OverviewEntry? {
-    val group = getOrDefault("group", null)?.firstOrNull()?.trim()
-    val picture = getOrDefault("picture", null)?.firstOrNull()?.trim()
-    val title = getOrDefault("title", null)?.firstOrNull()?.trim()
-    val order = getOrDefault("order", setOf("0")).firstOrNull()?.trim()?.toInt()
+private fun Map<String, Any>.extract(targetPath: TargetPath): OverviewEntry? {
+    val group = getString("group")
+    val picture = getString("picture")
+    val title = getString("title")
+    val order = getString("order")?.toInt()
     if (group == null || picture == null || title == null || order == null)
         return null
     return OverviewEntry(group, title, picture, targetPath.parent, order)
+}
+
+fun Map<String, Any>.getString(key: String): String? {
+    val value = getOrDefault(key, null)
+    return when (value) {
+        is String -> value
+        is List<*> -> (value.firstOrNull() as? String)
+        is Number -> value.toString()
+        else -> null
+    }?.trim()
 }
 
 

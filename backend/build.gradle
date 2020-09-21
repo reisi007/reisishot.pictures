@@ -1,6 +1,9 @@
 dependencies {
     def flexmark_version = "0.61.16"
 
+    // https://mvnrepository.com/artifact/org.yaml/snakeyaml
+    implementation group: 'org.yaml', name: 'snakeyaml', version: '1.27'
+
     // https://mvnrepository.com/artifact/net.coobird/thumbnailator
     implementation group: 'net.coobird', name: 'thumbnailator', version: '0.4.8'
     implementation project(':image-access')

@@ -18,6 +18,7 @@ import org.apache.commons.text.StringEscapeUtils
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.Velocity
 import org.apache.velocity.app.VelocityEngine
+import org.yaml.snakeyaml.Yaml
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.*
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
@@ -41,6 +42,7 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
     }
 
     private lateinit var filesToProcess: List<PageGeneratorInfo>
+    private val yamlParser by lazy { Yaml() }
 
     private val parseMarkdown by lazy {
         val extensions = listOf(
@@ -260,7 +262,19 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
                 val headContent = headFile.useBufferedReader { it.readText() }
                 raw(headContent)
             }
-
+            val yamlFile = soureFile.parent withChild soureFile.filenameWithoutExtension + ".yaml"
+            if (yamlFile.exists()) {
+                yamlFile.useBufferedReader {
+                    (yamlParser.loadAs(it, Map::class.java) as? Map<String, Any>)?.let { data ->
+                        val headManipulator: HEAD.() -> Unit = {
+                            metaDataConsumers.asSequence()
+                                    .map { it.processFrontMatter(websiteConfiguration, buildingCache, targetFile, data, this@PageGenerator) }
+                                    .forEach { it(this) }
+                        }
+                        headManipulator(this)
+                    }
+                }
+            }
         }
         convertHtml(
                 reader to processHeadFile,
@@ -360,4 +374,4 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
 typealias SourcePath = Path;
 typealias TargetPath = Path;
 typealias PageGeneratorInfo = Triple<SourcePath, TargetPath, String/*Title*/>
-typealias Yaml = Map<String, List<String>>
+typealias Yaml = Map<String, Any>
