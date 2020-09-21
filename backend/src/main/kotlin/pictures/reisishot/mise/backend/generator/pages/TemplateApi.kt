@@ -13,9 +13,8 @@ import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerato
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.insertCategoryThumbnails
 import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbnails
-import pictures.reisishot.mise.backend.html.insertImageGallery
-import pictures.reisishot.mise.backend.html.insertLazyPicture
-import pictures.reisishot.mise.backend.html.raw
+import pictures.reisishot.mise.backend.html.*
+import pictures.reisishot.mise.backend.html.PageGenerator
 
 class TemplateApi(
         private val targetPath: TargetPath,
@@ -135,21 +134,37 @@ class TemplateApi(
 
     @SuppressWarnings("unused")
     fun insertSlidingImages(filename: String, w: Int, h: Int) = buildString {
+        fun DIV.insertPictureFromImagesSubDomain(filename: String, alt: String, ratio: Float) {
+            picture(PageGenerator.LAZYLOADER_CLASSNAME) {
+                val imageSizes = listOf(2500, 2200, 1920, 1600, 1200, 1000, 950, 900, 800, 700, 600, 550, 500, 400, 360, 340, 320, 300, 250, 200)
+                imageSizes.forEachIndexed { idx, it ->
+                    source("https://images.reisishot.pictures/?url=${filename}.jpg&w=$it&q=70") {
+                        imageSizes.getOrNull(idx + 1)?.let {
+                            attributes["media"] = "(min-width: ${it + 1}px),(min-height: ${it * ratio + 1}px)"
+                        }
+                    }
+                }
+                noScript {
+                    img(alt, "https://images.reisishot.pictures/?url=${filename}.jpg&w=2000&q=70")
+                }
+            }
+        }
+
         appendHTML(false, true).div("bal-container") {
             val ratio = (h / w.toFloat())
             attributes["style"] = "width: 550px;height:${Math.round(550 * ratio)}px"
             attributes["data-ratio"] = ratio.toString()
             div("bal-after") {
-                img("Bearbeitet", "https://images.reisishot.pictures/?url=${filename}b.jpg&w=550&q=70")
+                insertPictureFromImagesSubDomain(filename + 'b', "Bearbeitet", ratio)
                 div("bal-afterPosition afterLabel") {
                     text("Bearbeitet")
                 }
             }
             div("bal-before") {
                 div("bal-before-inset") {
-                    img("Bearbeitet", "https://images.reisishot.pictures/?url=${filename}o.jpg&w=400&q=70")
+                    insertPictureFromImagesSubDomain(filename + 'o', "Original", ratio)
                     div("bal-beforePosition beforeLabel") {
-                        text("Aus der Kamera")
+                        text("Original")
                     }
                 }
             }

@@ -132,7 +132,7 @@ private fun PICTURE.generateSourceTag(
                 srcset = curImageInformation.getHtmlUrl(curSize)
         ) {
             smallerSizeInfo?.let { (_, width2, height2) ->
-                attributes["media"] = "(min-width: ${width2 + 1}px),(min-height: ${height2 + 1}px)"
+                attributes["media"] = "(min-width: ${width2}px),(min-height: ${height2}px)"
             }
             attributes["data-w"] = width1.toString()
             attributes["data-h"] = height1.toString()

@@ -50,7 +50,12 @@ gulp.task('watch', function () {
     // Watch .sass files
     gulp.watch(['src/scss/**/*.scss', 'src/scss/**/*.css'], ['styles']);
     // Watch .js files
-    gulp.watch('src/js/**/*.js', ['scripts']);
+    gulp.watch([
+        './src/js/bootstrap/*.js',
+        './src/js/bootstrap/**/*.js',
+        './src/js/modules/*.js',
+        './src/js/modules/**/*.js'
+    ], ['scripts']);
     // Watch static files
     gulp.watch('src/static/**/*.*', ['copyStatic']);
 });

@@ -1,7 +1,7 @@
 define(function () {
     class BeforeAfter {
-        constructor(enteryObject) {
-            const all = document.querySelectorAll(enteryObject.class);
+        constructor() {
+            const all = document.querySelectorAll('.bal-container');
             for (let i = 0; i < all.length; i++) {
                 const beforeAfterContainer = all[i];
                 const before = beforeAfterContainer.querySelector('.bal-before');
@@ -59,9 +59,30 @@ define(function () {
         }
     }
 
+    function resize() {
+        const all = document.querySelectorAll('.bal-container');
+        const margin = 2 * 12;
+        const ww = window.innerWidth - margin, wh = window.innerHeight - margin;
+        for (let i = 0; i < all.length; i++) {
+            const beforeAfterContainer = all[i];
+            const ratio = parseFloat(beforeAfterContainer.getAttribute("data-ratio"));
+            let w, h;
+            if (wh < ratio * ww) {
+                // Too high, calculate based on hight
+                h = wh;
+                w = wh / ratio
+            } else {
+                w = ww;
+                h = ww * ratio;
+            }
+            beforeAfterContainer.style.width = w + "px"
+            beforeAfterContainer.style.height = h + "px"
+        }
+    }
+
+    window.addEventListener("resize", resize);
+    resize();
     window.addEventListener('load', function () {
-        new BeforeAfter({
-            class: '.bal-container'
-        });
+        new BeforeAfter();
     });
 });
