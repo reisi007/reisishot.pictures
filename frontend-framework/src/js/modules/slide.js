@@ -1,5 +1,30 @@
 define(function () {
-    function init() {
+    window.addEventListener("resize", resize);
+    resize();
+
+    function resize() {
+        const all = document.querySelectorAll('.bal-container');
+        const margin = 2 * 12;
+        const ww = 0.9 * window.innerWidth - margin, wh = 0.9 * window.innerHeight - margin;
+        for (let i = 0; i < all.length; i++) {
+            const beforeAfterContainer = all[i];
+            const ratio = parseFloat(beforeAfterContainer.getAttribute("data-ratio"));
+            let w, h;
+            if (wh < ratio * ww) {
+                // Too high, calculate based on hight
+                h = wh;
+                w = wh / ratio
+            } else {
+                w = ww;
+                h = ww * ratio;
+            }
+            beforeAfterContainer.style.width = Math.round(w) + "px"
+            beforeAfterContainer.style.height = Math.round(h) + "px"
+        }
+        buildSlider();
+    }
+
+    function buildSlider() {
         const all = document.querySelectorAll('.bal-container');
         for (let i = 0; i < all.length; i++) {
             const beforeAfterContainer = all[i];
@@ -56,32 +81,4 @@ define(function () {
             })
         }
     }
-
-    function resize() {
-        const all = document.querySelectorAll('.bal-container');
-        const margin = 2 * 12;
-        const ww = 0.9 * window.innerWidth - margin, wh = 0.9 * window.innerHeight - margin;
-        for (let i = 0; i < all.length; i++) {
-            const beforeAfterContainer = all[i];
-            const ratio = parseFloat(beforeAfterContainer.getAttribute("data-ratio"));
-            let w, h;
-            if (wh < ratio * ww) {
-                // Too high, calculate based on hight
-                h = wh;
-                w = wh / ratio
-            } else {
-                w = ww;
-                h = ww * ratio;
-            }
-            beforeAfterContainer.style.width = Math.round(w) + "px"
-            beforeAfterContainer.style.height = Math.round(h) + "px"
-        }
-        init();
-    }
-
-    window.addEventListener("resize", resize);
-    resize();
-    window.addEventListener('load', function () {
-        init();
-    });
 });
