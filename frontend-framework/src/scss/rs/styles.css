@@ -1,22 +1,21 @@
 @font-face {
     font-family: 'reisishotpictures';
-    src: url('fonts/reisishotpictures.eot');
-    src: url('fonts/reisishotpictures.eot#iefix') format('embedded-opentype'),
-    url('fonts/reisishotpictures.woff2') format('woff2'),
-    url('fonts/reisishotpictures.woff') format('woff'),
-    url('fonts/reisishotpictures.ttf') format('truetype'),
-    url('fonts/reisishotpictures.svg#reisishotpictures') format('svg');
+    src: url('fonts/reisishotpictures.eot?15087266');
+    src: url('fonts/reisishotpictures.eot?15087266#iefix') format('embedded-opentype'),
+    url('fonts/reisishotpictures.woff2?15087266') format('woff2'),
+    url('fonts/reisishotpictures.woff?15087266') format('woff'),
+    url('fonts/reisishotpictures.ttf?15087266') format('truetype'),
+    url('fonts/reisishotpictures.svg?15087266#reisishotpictures') format('svg');
     font-weight: normal;
     font-style: normal;
 }
-
 /* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
 /* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
 /*
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'reisishotpictures';
-    src: url('fonts/reisishotpictures.svg#reisishotpictures') format('svg');
+    src: url('fonts/reisishotpictures.svg?15087266#reisishotpictures') format('svg');
   }
 }
 */
@@ -25,7 +24,7 @@
     font-family: "reisishotpictures";
     font-style: normal;
     font-weight: normal;
-    speak: none;
+    speak: never;
 
     display: inline-block;
     text-decoration: inherit;
@@ -76,6 +75,11 @@
 }
 
 /* '' */
+.rs-link-ext:before {
+    content: '\f14c';
+}
+
+/* '' */
 .rs-instagram:before {
     content: '\f16d';
 }
