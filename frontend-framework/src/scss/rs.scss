@@ -12,11 +12,9 @@
   color: $primaryColor
 }
 
-a {
-  i {
-    &.icon {
-      color: $primaryColor
-    }
+i {
+  &.icon {
+    color: $primaryColor
   }
 }
 

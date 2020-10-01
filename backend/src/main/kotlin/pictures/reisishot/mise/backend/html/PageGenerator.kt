@@ -57,7 +57,8 @@ object PageGenerator {
                             main("flex-shrink-0") {
                                 attributes["role"] = "main"
                                 fluidContainer {
-                                    divId("content") {
+                                    div("container") {
+                                        id = "content"
                                         pageContent(this)
                                     }
                                 }

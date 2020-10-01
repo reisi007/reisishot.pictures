@@ -9,7 +9,7 @@ enum class ReisishotIcons(internal val cssName: String) {
     FB("facebook"),
     INSTAGRAM("instagram"),
     WHATSAPP("whatsapp"),
-    SKYPE("skype"),
+    LINK("link-ext"),
     MAIL("mail"),
 
 }
