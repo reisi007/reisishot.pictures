@@ -98,7 +98,7 @@ object Mise {
             try {
                 watchKey.processEvents(this, inPath, cache, generators, coroutineDispatcher)
             } catch (e: Exception) {
-                System.err.println(e.javaClass.canonicalName + ": " + e.message)
+                e.printStackTrace()
             }
         }
     }
