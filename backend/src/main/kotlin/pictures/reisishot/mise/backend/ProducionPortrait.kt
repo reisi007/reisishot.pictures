@@ -21,7 +21,7 @@ object ProducionPortrait {
         Mise.build(
                 WebsiteConfiguration(
                         shortTitle = "Reisishot Porträt",
-                        longTitle = "Reisishot Porträts - Immer im besten Licht",
+                        longTitle = "Reisishot Porträt - Immer im besten Licht",
                         websiteLocation = "https://portrait.reisishot.pictures",
                         inPath = Paths.get("input-portrait").toAbsolutePath(),
                         tmpPath = Paths.get("tmp-portrait").toAbsolutePath(),

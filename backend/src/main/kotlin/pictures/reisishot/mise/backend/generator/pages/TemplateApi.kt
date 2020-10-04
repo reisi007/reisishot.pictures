@@ -131,6 +131,46 @@ class TemplateApi(
                 .toList()
     }
 
+    @SuppressWarnings("unused")
+    fun insertCarousel(changeMs: Int, vararg filename: String) = buildString {
+        appendHTML(false, true).div("carousel slide") {
+            id = "carousel"
+            attributes["data-interval"] = changeMs.toString()
+            attributes["data-ride"] = "carousel"
+            div("carousel-inner") {
+                filename.forEachIndexed { idx, filename ->
+                    div {
+                        classes = classes + "carousel-item"
+                        if (idx == 0)
+                            classes = classes + "active"
+
+                        with(galleryGenerator.cache) {
+                            insertLazyPicture(imageInformationData.getOrThrow(filename), listOf("d-block", "w-100"))
+                        }
+                    }
+                }
+            }
+
+            a("#carousel", classes = "carousel-control-prev") {
+                role = "button"
+                attributes["data-slide"] = "prev"
+                span("carousel-control-prev-icon") {
+                    attributes["aria-hidden"] = "true"
+                }
+                span("sr-only") { text("Vorheriges Bild") }
+            }
+
+            a("#carousel", classes = "carousel-control-next") {
+                role = "button"
+                attributes["data-slide"] = "next"
+                span("carousel-control-next-icon") {
+                    attributes["aria-hidden"] = "true"
+                }
+                span("sr-only") { text("Nächstes Bild") }
+            }
+        }
+    }
+
 
     @SuppressWarnings("unused")
     fun insertSlidingImages(filename: String, w: Int, h: Int) = buildString {
