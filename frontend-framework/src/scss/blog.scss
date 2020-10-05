@@ -1,4 +1,4 @@
-.shootings {
+.sparkGrid {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -6,7 +6,7 @@
   margin: 0 auto;
   max-width: 1200px;
 
-  .holder {
+  .sparkGridElement {
     width: 350px;
     margin: 4px;
   }
