@@ -30,22 +30,18 @@
 
 picture {
   margin: 0 auto;
-
-  img {
-    width: 100%;
-    max-height: $maxImageHeight;
-  }
-}
-
-// Ensure correct dimensions of a lazy loaded image
-.lazy {
-  min-height: 1rem;
-  display: inline-block;
-  max-width: 100%;
-
-  img {
+  // Ensure correct dimensions of a lazy loaded image
+  &.lazy {
+    min-height: 1rem;
+    display: inline-block;
     max-width: 100%;
 
-    object-fit: contain;
+    img {
+      max-width: 100%;
+      width: 100%;
+      max-height: $maxImageHeight;
+      object-fit: contain;
+    }
   }
 }
+

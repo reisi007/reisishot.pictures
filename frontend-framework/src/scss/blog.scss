@@ -7,7 +7,24 @@
   max-width: 1200px;
 
   .sparkGridElement {
-    width: 350px;
     margin: 4px;
+
+    .asp-embed-link {
+      width: 350px;
+      height: 200px;
+      display: flex;
+      position: relative;
+      cursor: pointer;
+
+      img {
+        object-fit: contain;
+        vertical-align: middle;
+        width: 100%;
+      }
+    }
+
+    iframe {
+      width: 100%;
+    }
   }
 }
