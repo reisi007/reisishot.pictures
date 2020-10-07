@@ -1,4 +1,4 @@
-/*! lozad.js - v1.14.0 - 2020-01-25
+/*! lozad.js - v1.16.0 - 2020-09-10
 * https://github.com/ApoorvSaxena/lozad.js
 * Copyright (c) 2020 Apoorv Saxena; Licensed MIT */
 
@@ -17,12 +17,31 @@
      */
     var isIE = typeof document !== 'undefined' && document.documentMode;
 
+    /**
+     *
+     * @param {string} type
+     *
+     */
+    var support = function support(type) {
+        return window && window[type];
+    };
+
+    var validAttribute = ['data-iesrc', 'data-alt', 'data-src', 'data-srcset', 'data-background-image', 'data-toggle-class'];
+
     var defaultConfig = {
         rootMargin: '0px',
         threshold: 0,
+        enableAutoReload: false,
         load: function load(element) {
             if (element.nodeName.toLowerCase() === 'picture') {
-                var img = document.createElement('img');
+                var img = element.querySelector('img');
+                var append = false;
+
+                if (img === null) {
+                    img = document.createElement('img');
+                    append = true;
+                }
+
                 if (isIE && element.getAttribute('data-iesrc')) {
                     img.src = element.getAttribute('data-iesrc');
                 }
@@ -31,7 +50,9 @@
                     img.alt = element.getAttribute('data-alt');
                 }
 
-                element.append(img);
+                if (append) {
+                    element.append(img);
+                }
             }
 
             if (element.nodeName.toLowerCase() === 'video' && !element.getAttribute('data-src')) {
@@ -61,10 +82,15 @@
                 element.setAttribute('srcset', element.getAttribute('data-srcset'));
             }
 
+            var backgroundImageDelimiter = ',';
+            if (element.getAttribute('data-background-delimiter')) {
+                backgroundImageDelimiter = element.getAttribute('data-background-delimiter');
+            }
+
             if (element.getAttribute('data-background-image')) {
-                element.style.backgroundImage = 'url(\'' + element.getAttribute('data-background-image').split(',').join('\'),url(\'') + '\')';
+                element.style.backgroundImage = 'url(\'' + element.getAttribute('data-background-image').split(backgroundImageDelimiter).join('\'),url(\'') + '\')';
             } else if (element.getAttribute('data-background-image-set')) {
-                var imageSetLinks = element.getAttribute('data-background-image-set').split(',');
+                var imageSetLinks = element.getAttribute('data-background-image-set').split(backgroundImageDelimiter);
                 var firstUrlLink = imageSetLinks[0].substr(0, imageSetLinks[0].indexOf(' ')) || imageSetLinks[0]; // Substring before ... 1x
                 firstUrlLink = firstUrlLink.indexOf('url(') === -1 ? 'url(' + firstUrlLink + ')' : firstUrlLink;
                 if (imageSetLinks.length === 1) {
@@ -86,6 +112,12 @@
         element.setAttribute('data-loaded', true);
     }
 
+    function preLoad(element) {
+        if (element.getAttribute('data-placeholder-background')) {
+            element.style.background = element.getAttribute('data-placeholder-background');
+        }
+    }
+
     var isLoaded = function isLoaded(element) {
         return element.getAttribute('data-loaded') === 'true';
     };
@@ -101,6 +133,16 @@
                         markAsLoaded(entry.target);
                         loaded(entry.target);
                     }
+                }
+            });
+        };
+    };
+
+    var onMutation = function onMutation(load) {
+        return function (entries) {
+            entries.forEach(function (entry) {
+                if (isLoaded(entry.target) && entry.type === 'attributes' && validAttribute.indexOf(entry.attributeName) > -1) {
+                    load(entry.target);
                 }
             });
         };
@@ -128,12 +170,13 @@
             root = _Object$assign.root,
             rootMargin = _Object$assign.rootMargin,
             threshold = _Object$assign.threshold,
+            enableAutoReload = _Object$assign.enableAutoReload,
             load = _Object$assign.load,
             loaded = _Object$assign.loaded;
 
         var observer = void 0;
-
-        if (typeof window !== 'undefined' && window.IntersectionObserver) {
+        var mutationObserver = void 0;
+        if (support('IntersectionObserver')) {
             observer = new IntersectionObserver(onIntersection(load, loaded), {
                 root: root,
                 rootMargin: rootMargin,
@@ -141,23 +184,40 @@
             });
         }
 
+        if (support('MutationObserver') && enableAutoReload) {
+            mutationObserver = new MutationObserver(onMutation(load, loaded));
+        }
+
+        var elements = getElements(selector, root);
+        for (var i = 0; i < elements.length; i++) {
+            preLoad(elements[i]);
+        }
+
         return {
             observe: function observe() {
                 var elements = getElements(selector, root);
 
-                for (var i = 0; i < elements.length; i++) {
-                    if (isLoaded(elements[i])) {
+                for (var _i = 0; _i < elements.length; _i++) {
+                    if (isLoaded(elements[_i])) {
                         continue;
                     }
 
                     if (observer) {
-                        observer.observe(elements[i]);
+                        if (mutationObserver && enableAutoReload) {
+                            mutationObserver.observe(elements[_i], {
+                                subtree: true,
+                                attributes: true,
+                                attributeFilter: validAttribute
+                            });
+                        }
+
+                        observer.observe(elements[_i]);
                         continue;
                     }
 
-                    load(elements[i]);
-                    markAsLoaded(elements[i]);
-                    loaded(elements[i]);
+                    load(elements[_i]);
+                    markAsLoaded(elements[_i]);
+                    loaded(elements[_i]);
                 }
             },
             triggerLoad: function triggerLoad(element) {
@@ -170,7 +230,8 @@
                 loaded(element);
             },
 
-            observer: observer
+            observer: observer,
+            mutationObserver: mutationObserver
         };
     }
 

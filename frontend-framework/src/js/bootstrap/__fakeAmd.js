@@ -1,4 +1,4 @@
-// Create a fake AMD environment, so that less libraries need fixes to work...
+// Create a fake AMD environment, so that less libraries need fixes to work... Needs to be included first
 const define = (function () {
     let unnamedCount = 0;
     const global = {};
