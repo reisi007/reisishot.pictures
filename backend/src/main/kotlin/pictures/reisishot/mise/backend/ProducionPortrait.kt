@@ -37,7 +37,7 @@ object ProducionPortrait {
                         analyticsSiteId = "5",
                         form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
                             buildForm(
-                                    title = { h2 { text("Möchtest du mit mir ein Portrait Shooting haben?") } },
+                                    title = { h2 { text("Möchtest du mit mir ein Porträt Shooting haben?") } },
                                     thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich schnellstmöglich bei dir!") } },
                                     formStructure = {
                                         FormRoot("footer",

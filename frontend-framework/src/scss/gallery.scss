@@ -45,3 +45,52 @@ picture {
   }
 }
 
+// Align the subcategories view
+.category-thumbnails {
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+
+  .card {
+    $h: 33vh;
+    min-height: $h;
+    max-height: $h;
+
+    .lazy {
+      display: inline;
+    }
+
+    img {
+      max-height: $h - 10vh;
+      margin: 0 auto;
+      display: block;
+    }
+  }
+
+  div {
+    max-width: 33.33%;
+    min-width: 300px;
+    @media (max-width: 660px) {
+      min-width: 80%;
+    }
+
+    margin: 0.5rem;
+
+    picture {
+      margin: 0 auto;
+    }
+  }
+}
+
+// Photoswipe added additional button
+.pswp__button {
+  &.pswp__button--details {
+    background-image: url("/static/info-circle.svg");
+    background-size: contain;
+    transform: scale(0.5);
+  }
+}
+
+.pswp__button--share {
+  background-position: -44px -44px;
+}

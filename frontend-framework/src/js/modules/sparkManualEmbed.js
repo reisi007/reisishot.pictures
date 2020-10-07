@@ -4,9 +4,10 @@ define(['lazyLoader'], function (lazyLoader) {
     for (let idx = 0, e = a.length; idx < e; idx++) {
         let cur = a[idx];
         cur.onclick = () => {
-            const url = cur.getAttribute("data-target");
-            console.log("go to " + url)
-            window.AdobeSparkPage.showFeature(url)
+            const url = cur.getAttribute("href");
+            cur.removeAttribute("href");
+            console.log("go to " + url);
+            window.AdobeSparkPage.showFeature(url);
         }
     }
     lazyLoader.observe();
