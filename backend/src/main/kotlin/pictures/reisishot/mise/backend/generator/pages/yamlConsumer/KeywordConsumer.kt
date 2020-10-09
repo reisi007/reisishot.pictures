@@ -13,7 +13,7 @@ class KeywordConsumer : YamlMetaDataConsumer {
 
     override fun processFrontMatter(configuration: WebsiteConfiguration, cache: BuildingCache, targetPath: TargetPath, frontMatter: Yaml, galleryGenerator: AbstractGalleryGenerator): HEAD.() -> Unit {
         return {
-            (frontMatter["keywords"] as? List<String>)?.joinToString(", ")?.let {
+            (frontMatter["keywords"] as? List<String>)?.joinToString(",")?.let {
                 meta("keywords", it)
             }
         }

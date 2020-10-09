@@ -5,14 +5,12 @@ import at.reisishot.mise.commons.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.HEAD
-import org.yaml.snakeyaml.Yaml
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.*
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.raw
 import pictures.reisishot.mise.backend.htmlparsing.*
-import java.io.Reader
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.streams.asSequence
@@ -28,8 +26,6 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
     }
 
     private lateinit var filesToProcess: List<PageGeneratorInfo>
-    private val yamlParser by lazy { Yaml() }
-
 
     internal lateinit var galleryGenerator: AbstractGalleryGenerator
     private val displayReplacePattern = Regex("[\\-_]")
@@ -162,30 +158,8 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
             buildingCache: BuildingCache,
             targetFile: TargetPath,
             title: String
-    ) = Files.newBufferedReader(soureFile).use { reader: Reader ->
-        val processHeadFile: HEAD.() -> Unit = {
-            val headFile = soureFile.parent withChild soureFile.filenameWithoutExtension + ".head"
-            if (headFile.exists()) {
-                val headContent = headFile.useBufferedReader { it.readText() }
-                raw(headContent)
-            }
-            val yamlFile = soureFile.parent withChild soureFile.filenameWithoutExtension + ".yaml"
-            if (yamlFile.exists()) {
-                yamlFile.useBufferedReader {
-                    @Suppress("UNCHECKED_CAST")
-                    (yamlParser.loadAs(it, Map::class.java) as? Map<String, Any>)?.let { data ->
-                        val headManipulator: HEAD.() -> Unit = {
-                            metaDataConsumers.asSequence()
-                                    .map { it.processFrontMatter(websiteConfiguration, buildingCache, targetFile, data, galleryGenerator) }
-                                    .forEach { it(this) }
-                        }
-                        headManipulator(this)
-                    }
-                }
-            }
-        }
-
-        val body = VelocityApplier.runVelocity(reader, soureFile.filenameWithoutExtension, targetFile, galleryGenerator, buildingCache, websiteConfiguration)
+    ) {
+        val (processHeadFile, body) = HtmlParser.parse(websiteConfiguration, buildingCache, soureFile, targetFile, galleryGenerator, *metaDataConsumers)
         buildPage(
                 body,
                 processHeadFile,
