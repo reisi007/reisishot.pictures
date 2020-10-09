@@ -4,6 +4,8 @@ package pictures.reisishot.mise.backend
 import at.reisishot.mise.commons.exists
 import at.reisishot.mise.commons.isRegularFile
 import com.thoughtworks.xstream.XStream
+import java.io.StringWriter
+import java.io.Writer
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -25,3 +27,5 @@ internal inline fun <reified T> Path.fromXml(): T? =
             Files.newBufferedReader(this, Charsets.UTF_8).use { reader ->
                 xStrem.fromXML(reader) as? T
             }
+
+internal fun writeToString(action: (Writer) -> Unit) = StringWriter().apply(action).toString()

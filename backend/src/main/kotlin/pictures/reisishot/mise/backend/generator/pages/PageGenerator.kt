@@ -2,31 +2,17 @@ package pictures.reisishot.mise.backend.generator.pages
 
 
 import at.reisishot.mise.commons.*
-import com.vladsch.flexmark.ext.anchorlink.AnchorLinkExtension
-import com.vladsch.flexmark.ext.autolink.AutolinkExtension
-import com.vladsch.flexmark.ext.emoji.EmojiExtension
-import com.vladsch.flexmark.ext.tables.TablesExtension
-import com.vladsch.flexmark.ext.toc.TocExtension
-import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
-import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterExtension
-import com.vladsch.flexmark.html.HtmlRenderer
-import com.vladsch.flexmark.parser.Parser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.HEAD
-import org.apache.commons.text.StringEscapeUtils
-import org.apache.velocity.VelocityContext
-import org.apache.velocity.app.Velocity
-import org.apache.velocity.app.VelocityEngine
 import org.yaml.snakeyaml.Yaml
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.*
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.raw
+import pictures.reisishot.mise.backend.htmlparsing.*
 import java.io.Reader
-import java.io.StringReader
-import java.io.StringWriter
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.streams.asSequence
@@ -44,53 +30,7 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
     private lateinit var filesToProcess: List<PageGeneratorInfo>
     private val yamlParser by lazy { Yaml() }
 
-    private val parseMarkdown by lazy {
-        val extensions = listOf(
-                AutolinkExtension.create(),
-                TablesExtension.create(),
-                TocExtension.create(),
-                EmojiExtension.create(),
-                AnchorLinkExtension.create(),
-                YamlFrontMatterExtension.create()
 
-        )
-
-        val parser = Parser.builder()
-                .extensions(extensions)
-                .apply {
-                    set(Parser.SPACE_IN_LINK_ELEMENTS, true)
-                    set(Parser.SPACE_IN_LINK_URLS, true)
-                }
-                .build()
-        val htmlRenderer = HtmlRenderer
-                .builder()
-                .extensions(extensions)
-                .build()
-
-
-        return@lazy { configuration: WebsiteConfiguration, cache: BuildingCache, sourceFile: SourcePath, targetPath: TargetPath ->
-            val yamlExtractor = AbstractYamlFrontMatterVisitor()
-            Files.newBufferedReader(sourceFile).use { reader ->
-                val parseReader = parser.parseReader(reader)
-                yamlExtractor.visit(parseReader)
-                val headManipulator: HEAD.() -> Unit = {
-                    metaDataConsumers.asSequence()
-                            .map { it.processFrontMatter(configuration, cache, targetPath, yamlExtractor.data, this@PageGenerator) }
-                            .forEach { it(this) }
-                }
-
-                StringReader(
-                        StringEscapeUtils.unescapeHtml4(
-                                htmlRenderer.render(
-                                        parseReader
-                                )
-                        )
-                ) to headManipulator
-            }
-        }
-    }
-
-    private lateinit var speedupHtml: (Pair<Reader, HEAD.() -> Unit>, FilenameWithoutExtension, WebsiteConfiguration, BuildingCache, TargetPath, String) -> Unit
     internal lateinit var galleryGenerator: AbstractGalleryGenerator
     private val displayReplacePattern = Regex("[\\-_]")
 
@@ -192,44 +132,11 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
                         it.computePageGeneratorInfo(configuration, cache)
                     }.toList()
         }
-
-        speedupHtml = run {
-            Velocity.init()
-            val velocity = VelocityEngine()
-
-            val compressHtml = """[\s\n\r]{2,}""".toRegex()
-            return@run { (templateData, headManipulator), originalFilename, websiteConfiguration, buildingCache, targetPath, title ->
-                val velocityContext = VelocityContext()
-                val galleryObject = TemplateApi(targetPath, galleryGenerator, buildingCache, websiteConfiguration)
-                // Make objects available in Velocity templates
-                velocityContext.put("please", galleryObject)
-
-                StringWriter().let {
-                    try {
-                        velocity.evaluate(velocityContext, it, "Velocity", templateData)
-                    } catch (e: Exception) {
-                        throw IllegalStateException("Could not parse \"$originalFilename!\"", e)
-                    }
-                    it.toString()
-                }.let { html ->
-                    PageGenerator.generatePage(
-                            targetPath,
-                            title,
-                            websiteConfiguration = websiteConfiguration,
-                            buildingCache = buildingCache,
-                            additionalHeadContent = headManipulator,
-                            pageContent = {
-                                raw(html.replace(compressHtml, " "))
-                            }
-                    )
-                }
-            }
-        }
     }
 
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
         filesToProcess.forEach { it.buildArtifact(configuration, cache) }
-        metaDataConsumers.forEach { it.processChanges(configuration, cache, this) }
+        metaDataConsumers.forEach { it.processChanges(configuration, cache, galleryGenerator) }
     }
 
 
@@ -265,10 +172,11 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
             val yamlFile = soureFile.parent withChild soureFile.filenameWithoutExtension + ".yaml"
             if (yamlFile.exists()) {
                 yamlFile.useBufferedReader {
+                    @Suppress("UNCHECKED_CAST")
                     (yamlParser.loadAs(it, Map::class.java) as? Map<String, Any>)?.let { data ->
                         val headManipulator: HEAD.() -> Unit = {
                             metaDataConsumers.asSequence()
-                                    .map { it.processFrontMatter(websiteConfiguration, buildingCache, targetFile, data, this@PageGenerator) }
+                                    .map { it.processFrontMatter(websiteConfiguration, buildingCache, targetFile, data, galleryGenerator) }
                                     .forEach { it(this) }
                         }
                         headManipulator(this)
@@ -276,9 +184,11 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
                 }
             }
         }
-        convertHtml(
-                reader to processHeadFile,
-                soureFile.filenameWithoutExtension,
+
+        val body = VelocityApplier.runVelocity(reader, soureFile.filenameWithoutExtension, targetFile, galleryGenerator, buildingCache, websiteConfiguration)
+        buildPage(
+                body,
+                processHeadFile,
                 websiteConfiguration,
                 buildingCache,
                 targetFile,
@@ -286,14 +196,26 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
         )
     }
 
-    private fun convertHtml(
-            soureData: Pair<Reader, HEAD.() -> Unit>,
-            sourceFileName: FilenameWithoutExtension,
+    private fun buildPage(
+            body: String,
+            headManipulator: HEAD.() -> Unit,
             websiteConfiguration: WebsiteConfiguration,
             buildingCache: BuildingCache,
-            targetFile: TargetPath,
+            targetPath: TargetPath,
             title: String
-    ) = speedupHtml(soureData, sourceFileName, websiteConfiguration, buildingCache, targetFile, title)
+    ) {
+
+        PageGenerator.generatePage(
+                targetPath,
+                title,
+                websiteConfiguration = websiteConfiguration,
+                buildingCache = buildingCache,
+                additionalHeadContent = headManipulator,
+                pageContent = { raw(body) }
+        )
+
+    }
+
 
     private fun convertMarkdown(
             soureFile: SourcePath,
@@ -301,14 +223,17 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
             buildingCache: BuildingCache,
             targetFile: TargetPath,
             title: String
-    ) = convertHtml(
-            parseMarkdown(websiteConfiguration, buildingCache, soureFile, targetFile),
-            soureFile.filenameWithoutExtension,
-            websiteConfiguration,
-            buildingCache,
-            targetFile,
-            title
-    )
+    ) {
+        val (headManipulator, htmlInput) = MarkdownParser.parse(websiteConfiguration, buildingCache, soureFile, targetFile, galleryGenerator, *metaDataConsumers)
+        return buildPage(
+                htmlInput,
+                headManipulator,
+                websiteConfiguration,
+                buildingCache,
+                targetFile,
+                title
+        )
+    }
 
     override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changeFiles: ChangeFileset): Boolean {
         val relevantFiles = changeFiles.relevantFiles()
@@ -371,7 +296,3 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
                 }
     }
 }
-typealias SourcePath = Path;
-typealias TargetPath = Path;
-typealias PageGeneratorInfo = Triple<SourcePath, TargetPath, String/*Title*/>
-typealias Yaml = Map<String, Any>

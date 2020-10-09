@@ -4,11 +4,12 @@ import at.reisishot.mise.commons.withChild
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
-import pictures.reisishot.mise.backend.generator.pages.TargetPath
-import pictures.reisishot.mise.backend.generator.pages.Yaml
+import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.pages.YamlMetaDataConsumer
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertLazyPicture
+import pictures.reisishot.mise.backend.htmlparsing.TargetPath
+import pictures.reisishot.mise.backend.htmlparsing.Yaml
 import java.nio.file.Path
 
 class OverviewPageGenerator : YamlMetaDataConsumer {
@@ -18,14 +19,14 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
     private val changeSetAdd = mutableListOf<OverviewEntry>()
     private val changeSetRemove = mutableListOf<Path>()
 
-    override fun processFrontMatter(configuration: WebsiteConfiguration, cache: BuildingCache, targetPath: TargetPath, frontMatter: Yaml, host: pictures.reisishot.mise.backend.generator.pages.PageGenerator): HEAD.() -> Unit {
+    override fun processFrontMatter(configuration: WebsiteConfiguration, cache: BuildingCache, targetPath: TargetPath, frontMatter: Yaml, galleryGenerator: AbstractGalleryGenerator): HEAD.() -> Unit {
         frontMatter.extract(targetPath)?.let {
             changeSetAdd += it
         }
         return {}
     }
 
-    override fun processChanges(configuration: WebsiteConfiguration, cache: BuildingCache, host: pictures.reisishot.mise.backend.generator.pages.PageGenerator) {
+    override fun processChanges(configuration: WebsiteConfiguration, cache: BuildingCache, galleryGenerator: AbstractGalleryGenerator) {
         if (changeSetAdd.isEmpty() && changeSetRemove.isEmpty())
             return
         val changedGroups = mutableMapOf<String, Path>()
@@ -60,7 +61,7 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
                             data[name]?.asSequence()
                                     ?.sortedByDescending { it.order }
                                     ?.forEach { entry ->
-                                        val image = host.galleryGenerator.cache.imageInformationData[entry.picture]
+                                        val image = galleryGenerator.cache.imageInformationData[entry.picture]
                                                 ?: throw IllegalStateException("Cannot find Image Information")
                                         div(classes = "card") {
                                             div(classes = "card-img-top") {

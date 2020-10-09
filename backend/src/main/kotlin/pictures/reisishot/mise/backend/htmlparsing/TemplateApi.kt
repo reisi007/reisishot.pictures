@@ -1,4 +1,4 @@
-package pictures.reisishot.mise.backend.generator.pages
+package pictures.reisishot.mise.backend.htmlparsing
 
 import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.FilenameWithoutExtension
@@ -13,8 +13,11 @@ import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerato
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.insertCategoryThumbnails
 import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbnails
+import pictures.reisishot.mise.backend.generator.pages.Testimonal
+import pictures.reisishot.mise.backend.generator.pages.dateFormatted
 import pictures.reisishot.mise.backend.html.*
 import pictures.reisishot.mise.backend.html.PageGenerator
+import java.nio.file.Path
 
 class TemplateApi(
         private val targetPath: TargetPath,
@@ -215,3 +218,7 @@ class TemplateApi(
         }
     }
 }
+typealias SourcePath = Path;
+typealias TargetPath = Path;
+typealias PageGeneratorInfo = Triple<SourcePath, TargetPath, String/*Title*/>
+typealias Yaml = Map<String, Any>
