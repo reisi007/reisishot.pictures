@@ -40,33 +40,23 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
             val quality: Float,
             val interpolation: Interpolation
     ) {
-        SMALL("icon", 300, 0.35f, Interpolation.LOW),
-        EMBED("embed", 700, 0.45f, Interpolation.HIGH),
-        MEDIUM("medium", 1200, 0.45f, Interpolation.MEDIUM),
-        LARGE("large", 2050, 0.45f, Interpolation.HIGH),
-        XLARGE("xlarge", 3000, 0.55f, Interpolation.MEDIUM);
+        SMALL("icon", 300, 0.2f, Interpolation.HIGH),
+        EMBED("embed", 350, 0.2f, Interpolation.HIGH),
+        THUMB("thumb", 700, 0.35f, Interpolation.HIGH),
+        MEDIUM("medium", 1200, 0.35f, Interpolation.HIGH),
+        LARGE("large", 2050, 0.4f, Interpolation.HIGH),
+        XLARGE("xlarge", 3000, 0.5f, Interpolation.HIGH);
 
         companion object {
-            val ORDERED = listOf(XLARGE, LARGE, MEDIUM, EMBED, SMALL)
-            val SMALLEST = ORDERED.last()
-            val LARGEST = ORDERED.first()
 
-            fun getSize(minSize: Int) = ORDERED.asReversed()
+            fun getSize(minSize: Int) = values()
                     .asSequence()
-                    .firstOrNull { it.longestSidePx > minSize } ?: LARGEST
+                    .firstOrNull { it.longestSidePx > minSize } ?: XLARGE
         }
 
         fun decoratePath(p: Path): Path = with(p) {
             parent withChild fileName.filenameWithoutExtension + '_' + identifier + ".jpg"
         }
-
-
-        val smallerSize: ImageSize?
-            get() = ORDERED.listIterator().find(this)?.nextOrNull() ?: SMALLEST
-
-
-        val biggerSize: ImageSize?
-            get() = ORDERED.listIterator().find(this)?.previousOrNull() ?: LARGEST
 
 
         private fun <T> ListIterator<T>.find(imageSize: ImageSize): ListIterator<T>? {
@@ -133,7 +123,7 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
                     withContext(Dispatchers.IO) {
                         Files.createDirectories(baseOutPath.parent)
                     }
-                    ImageSize.ORDERED.asSequence().map { size ->
+                    ImageSize.values().asSequence().map { size ->
                         val outFile = size.decoratePath(baseOutPath)
 
                         (forceRegeneration.thumbnails || !outFile.exists() || jpegImage.isNewerThan(outFile)).let { actionNeeded ->

@@ -13,10 +13,13 @@ import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerato
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.insertCategoryThumbnails
 import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbnails
+import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.pages.Testimonal
 import pictures.reisishot.mise.backend.generator.pages.dateFormatted
-import pictures.reisishot.mise.backend.html.*
 import pictures.reisishot.mise.backend.html.PageGenerator
+import pictures.reisishot.mise.backend.html.insertImageGallery
+import pictures.reisishot.mise.backend.html.insertLazyPicture
+import pictures.reisishot.mise.backend.html.raw
 import java.nio.file.Path
 
 class TemplateApi(
@@ -28,7 +31,8 @@ class TemplateApi(
     private var privateHasGallery = false
     val hasGallery
         get() = privateHasGallery
-    private val testimonials by lazy {
+
+    private val testimonials: List<Testimonal> by lazy {
         (websiteConfiguration.inPath withChild "testimonials.conf").parseConfig<List<Testimonal>>("testimonials")
                 ?: throw IllegalStateException("Could not load testimonials")
     }
@@ -177,21 +181,18 @@ class TemplateApi(
 
     @SuppressWarnings("unused")
     fun insertSlidingImages(filename: String, w: Int, h: Int) = buildString {
+
+        fun getJpgUrl(filename: String, size: Int) = "https://images.reisishot.pictures/jpg.php?url=${filename}.jpg&w=$size&h=$size&q=40"
+        fun getWebPUrl(filename: String, size: Int) = "https://images.reisishot.pictures/webp.php?url=${filename}.jpg&w=$size&h=$size&q=40"
         fun DIV.insertPictureFromImagesSubDomain(filename: String, alt: String, ratio: Float) {
-            picture(PageGenerator.LAZYLOADER_CLASSNAME) {
-                val imageSizes = listOf(2500, 2200, 1920, 1600, 1200, 1000, 950, 900, 800, 700, 600, 550, 500, 400, 360, 340, 320, 300, 250, 200)
-                imageSizes.forEachIndexed { idx, it ->
-                    source("https://images.reisishot.pictures/?url=${filename}.jpg&w=$it&q=70") {
-                        imageSizes.getOrNull(idx + 1)?.let {
-                            attributes["media"] = "(min-width: ${it + 1}px),(min-height: ${it * ratio + 1}px)"
-                        }
-                    }
-                }
-                noScript {
-                    img(alt, "https://images.reisishot.pictures/?url=${filename}.jpg&w=2000&q=70")
+            img(alt, classes = PageGenerator.LAZYLOADER_CLASSNAME) {
+                AbstractThumbnailGenerator.ImageSize.values().forEach { curSize ->
+                    val size = curSize.longestSidePx
+                    attributes["data-" + curSize.toString().toLowerCase()] = """{"jpg":"${getJpgUrl(filename, size)}","webp":"${getWebPUrl(filename, size)}","w":$size}"""
                 }
             }
         }
+
 
         appendHTML(false, true).div("bal-container") {
             val ratio = (h / w.toFloat())
@@ -217,7 +218,9 @@ class TemplateApi(
             }
         }
     }
+
 }
+
 typealias SourcePath = Path;
 typealias TargetPath = Path;
 typealias PageGeneratorInfo = Triple<SourcePath, TargetPath, String/*Title*/>

@@ -4,7 +4,6 @@ import kotlinx.html.*
 import pictures.reisishot.mise.backend.generator.gallery.CategoryInformation
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
-import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize.Companion.ORDERED
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize.Companion.getSize
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.scaleToHeight
 
@@ -54,36 +53,35 @@ fun HtmlBlockTag.insertImageGallery(
         vararg imageInformation: ImageInformation
 ) = insertImageGallery(galleryName, listOf(*imageInformation))
 
-internal fun FlowOrInteractiveOrPhrasingContent.insertLazyPicture(
+internal fun HtmlBlockTag.insertLazyPicture(
         curImageInfo: ImageInformation,
         additionalClasses: List<String> = emptyList()
 ) {
-    picture(PageGenerator.LAZYLOADER_CLASSNAME) {
+    img(curImageInfo.title, classes = PageGenerator.LAZYLOADER_CLASSNAME) {
         if (additionalClasses.isNotEmpty())
             classes = classes + additionalClasses
         val desiredHeight = 300
         val imageSize = getSize(desiredHeight)
 
-        val largeImageUrl = curImageInfo.getHtmlUrl(imageSize)
         val thumbnailInformation = curImageInfo.thumbnailSizes.getValue(imageSize).scaleToHeight(desiredHeight)
         attributes["style"] = "width: ${thumbnailInformation.width}px; height: ${thumbnailInformation.height}px;"
-        attributes["data-iesrc"] = largeImageUrl
-        attributes["data-alt"] = curImageInfo.title
+
         attributes["data-id"] = curImageInfo.filename
         attributes["data-url"] = curImageInfo.href
 
-        ORDERED.forEach { curSize ->
-            generateSourceTag(curImageInfo, curSize)
-        }
-
-        noScript {
-            img(alt = curImageInfo.title, src = largeImageUrl)
+        ImageSize.values().forEach { curSize ->
+            val thumbnailSize = curImageInfo.thumbnailSizes.getValue(curSize)
+            attributes["data-" + curSize.toString().toLowerCase()] = """{"jpg":"${curImageInfo.getJpgUrl(curSize)}","webp":"${curImageInfo.getWebPUrl(curSize)}","w":${thumbnailSize.width}}"""
         }
     }
 }
 
-private fun ImageInformation.getHtmlUrl(imageSize: ImageSize): String {
+private fun ImageInformation.getJpgUrl(imageSize: ImageSize): String {
     return href.substringBefore("gallery/images") + "images/" + filename + '_' + imageSize.identifier + ".jpg"
+}
+
+private fun ImageInformation.getWebPUrl(imageSize: ImageSize): String {
+    return href.substringBefore("gallery/images") + "images/" + filename + '_' + imageSize.identifier + ".webp"
 }
 
 internal fun HtmlBlockTag.insertSubcategoryThumbnail(
@@ -119,26 +117,6 @@ fun PICTURE.source(srcset: String, mediaQuery: String? = null, classes: String? 
                         "classes", classes
                 ), consumer
         ).visit(block)
-
-private fun PICTURE.generateSourceTag(
-        curImageInformation: ImageInformation,
-        curSize: ImageSize
-) {
-    val curSizeInfo = curImageInformation.thumbnailSizes[curSize] ?: return
-    val smallerSizeInfo = curSize.smallerSize?.let { curImageInformation.thumbnailSizes[it] }
-    curSizeInfo.let { (_, width1, height1) ->
-
-        source(
-                srcset = curImageInformation.getHtmlUrl(curSize)
-        ) {
-            smallerSizeInfo?.let { (_, width2, height2) ->
-                attributes["media"] = "(min-width: ${width2}px),(min-height: ${height2}px)"
-            }
-            attributes["data-w"] = width1.toString()
-            attributes["data-h"] = height1.toString()
-        }
-    }
-}
 
 @HtmlTagMarker
 fun FlowOrInteractiveOrPhrasingContent.smallButtonLink(text: String, href: String, target: String = "_blank") = a(href, target, classes = "btn btn-primary btn-sm active") {

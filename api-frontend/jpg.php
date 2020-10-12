@@ -38,8 +38,8 @@ function imageResize($url, $width, $height, $q)
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method == 'GET') {
-    imageResize('images/' . $_GET['url'], $_GET['w'] ?? PHP_INT_MAX, $_GET['h'] ?? PHP_INT_MAX, $_GET['q'] ?? -1);
+    imageResize('../images.data/' . $_GET['url'], $_GET['w'] ?? PHP_INT_MAX, $_GET['h'] ?? PHP_INT_MAX, $_GET['q'] ?? -1);
 } elseif ($method == 'POST') {
-    imageResize('images/' . $_POST['url'], $_POST['w'] ?? PHP_INT_MAX, $_POST['h'] ?? PHP_INT_MAX, $_POST['q'] ?? -1);
+    imageResize('../images.data/' . $_POST['url'], $_POST['w'] ?? PHP_INT_MAX, $_POST['h'] ?? PHP_INT_MAX, $_POST['q'] ?? -1);
 }
 ?>

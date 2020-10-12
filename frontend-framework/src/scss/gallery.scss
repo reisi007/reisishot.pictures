@@ -60,10 +60,14 @@ picture {
       display: inline;
     }
 
-    img {
-      max-height: $h - 10vh;
-      margin: 0 auto;
-      display: block;
+    picture {
+      height: 300px;
+
+      img {
+        max-height: $h - 10vh;
+        margin: 0 auto;
+        display: block;
+      }
     }
   }
 
@@ -94,3 +98,4 @@ picture {
 .pswp__button--share {
   background-position: -44px -44px;
 }
+

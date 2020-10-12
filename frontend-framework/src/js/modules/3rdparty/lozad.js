@@ -235,6 +235,8 @@
         };
     }
 
+    lozad.defaultConfig = defaultConfig;
+
     return lozad;
 
 })));

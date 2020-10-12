@@ -1,11 +1,11 @@
 @font-face {
     font-family: 'reisishotpictures';
-    src: url('fonts/reisishotpictures.eot?15087266');
-    src: url('fonts/reisishotpictures.eot?15087266#iefix') format('embedded-opentype'),
-    url('fonts/reisishotpictures.woff2?15087266') format('woff2'),
-    url('fonts/reisishotpictures.woff?15087266') format('woff'),
-    url('fonts/reisishotpictures.ttf?15087266') format('truetype'),
-    url('fonts/reisishotpictures.svg?15087266#reisishotpictures') format('svg');
+    src: url('fonts/reisishotpictures.eot');
+    src: url('fonts/reisishotpictures.eot#iefix') format('embedded-opentype'),
+    url('fonts/reisishotpictures.woff2') format('woff2'),
+    url('fonts/reisishotpictures.woff') format('woff'),
+    url('fonts/reisishotpictures.ttf') format('truetype'),
+    url('fonts/reisishotpictures.svg#reisishotpictures') format('svg');
     font-weight: normal;
     font-style: normal;
 }
@@ -15,7 +15,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'reisishotpictures';
-    src: url('fonts/reisishotpictures.svg?15087266#reisishotpictures') format('svg');
+    src: url('fonts/reisishotpictures.svg#reisishotpictures') format('svg');
   }
 }
 */

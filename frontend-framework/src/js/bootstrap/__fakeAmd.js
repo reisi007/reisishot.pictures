@@ -78,5 +78,6 @@ const define = (function () {
     }
 
     fakeAmd.amd = true;
+    fakeAmd.unresolved = unresolvedDependencies;
     return fakeAmd;
 })();
