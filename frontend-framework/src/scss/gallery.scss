@@ -9,26 +9,22 @@
   &.multiple {
     $thumbnailSize: 300px;
 
-    picture {
+    img {
       max-width: $thumbnailSize;
       max-height: $thumbnailSize;
       $margin: 0.4rem;
       margin-top: $margin;
       margin-bottom: $margin;
-
-      img {
-        max-height: $thumbnailSize;
-        height: 100%;
-      }
+      height: 100%;
     }
   }
 
-  picture {
+  img {
     cursor: pointer;
   }
 }
 
-picture {
+img {
   margin: 0 auto;
   // Ensure correct dimensions of a lazy loaded image
   &.lazy {
@@ -36,12 +32,10 @@ picture {
     display: inline-block;
     max-width: 100%;
 
-    img {
-      max-width: 100%;
-      width: 100%;
-      max-height: $maxImageHeight;
-      object-fit: contain;
-    }
+    width: 100%;
+    max-height: $maxImageHeight;
+    object-fit: contain;
+
   }
 }
 
@@ -60,15 +54,13 @@ picture {
       display: inline;
     }
 
-    picture {
+    img {
       height: 300px;
-
-      img {
-        max-height: $h - 10vh;
-        margin: 0 auto;
-        display: block;
-      }
+      max-height: $h - 10vh;
+      margin: 0 auto;
+      display: block;
     }
+
   }
 
   div {
