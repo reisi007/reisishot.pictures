@@ -4,8 +4,6 @@ import kotlinx.html.*
 import pictures.reisishot.mise.backend.generator.gallery.CategoryInformation
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
-import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize.Companion.getSize
-import pictures.reisishot.mise.backend.generator.gallery.thumbnails.scaleToHeight
 
 
 @HtmlTagMarker
@@ -57,15 +55,11 @@ internal fun HtmlBlockTag.insertLazyPicture(
         curImageInfo: ImageInformation,
         additionalClasses: List<String> = emptyList()
 ) {
-    img(curImageInfo.title, classes = PageGenerator.LAZYLOADER_CLASSNAME) {
+    div(PageGenerator.LAZYLOADER_CLASSNAME) {
         if (additionalClasses.isNotEmpty())
             classes = classes + additionalClasses
-        val desiredHeight = 300
-        val imageSize = getSize(desiredHeight)
 
-        val thumbnailInformation = curImageInfo.thumbnailSizes.getValue(imageSize).scaleToHeight(desiredHeight)
-        attributes["style"] = "width: ${thumbnailInformation.width}px; height: ${thumbnailInformation.height}px;"
-
+        attributes["data-alt"] = curImageInfo.title
         attributes["data-id"] = curImageInfo.filename
         attributes["data-url"] = curImageInfo.href
 

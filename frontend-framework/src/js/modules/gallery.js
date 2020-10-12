@@ -10,7 +10,7 @@ define(['jquery', 'canUseWebP', 'loadImage', 'photoswipe', 'PhotoSwipeUI_Reisish
     function initGallery() {
         // Save all galleries to the window
         document.querySelectorAll("div.gallery").forEach(gallery => {
-            gallery.querySelectorAll("img").forEach(pictureElement => {
+            gallery.querySelectorAll("div.lazy").forEach(pictureElement => {
                 const galleryName = gallery.getAttribute("data-name");
                 const pictureName = pictureElement.getAttribute("data-id");
                 const curGallery = galleries[galleryName] = galleries[galleryName] || {};

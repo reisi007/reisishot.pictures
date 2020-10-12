@@ -20,10 +20,13 @@ define('lazyLoader', ['lozad', 'canUseWebP', 'loadImage'], function (lozad, webp
     }
 
     function loadImage(elem) {
+        const img = document.createElement("img")
         new ResizeObserver(function () {
-            elem.src = getImageUrl(loadImageInternally(elem, elem.parentElement.offsetWidth))
+            img.src = getImageUrl(loadImageInternally(elem, elem.offsetWidth))
         }).observe(elem)
-        elem.src = getImageUrl(loadImageInternally(elem, elem.parentElement.offsetWidth))
+        img.src = getImageUrl(loadImageInternally(elem, elem.offsetWidth))
+        img.alt = elem.getAttribute("data-alt")
+        elem.append(img)
     }
 
 
