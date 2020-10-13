@@ -9,7 +9,7 @@ define('loadImage', ['lozad'], function (lozad) {
         "data-xlarge"
     ]
 
-    function loadImageInternally(elem, width) {
+    function loadImageInternally(elem, width, height) {
         const cur = parseAttribute(elem, "cur") || {w: -1}
         if (cur.w >= width)
             return;
@@ -17,7 +17,8 @@ define('loadImage', ['lozad'], function (lozad) {
         for (let size of sizes) {
             const data = parseAttribute(elem, size);
             let cW = data.w;
-            if (cW >= width) {
+            let cH = data.h;
+            if (cW >= width || (height != null && cH >= height)) {
                 return data
 
             }

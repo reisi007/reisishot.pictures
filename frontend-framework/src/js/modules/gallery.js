@@ -48,7 +48,7 @@ define(['jquery', 'canUseWebP', 'loadImage', 'photoswipe', 'PhotoSwipeUI_Reisish
             const pic = item.picture;
 
 
-            const data = loadImage(pic, realViewportWidth);
+            const data = loadImage(pic, realViewportWidth, realViewportHeight);
             item.src = canUseWebP() ? data.webp : data.jpg;
             item.w = data.w;
             item.h = data.h;

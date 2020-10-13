@@ -41,7 +41,7 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
             val interpolation: Interpolation
     ) {
         SMALL("icon", 300, 0.2f, Interpolation.HIGH),
-        EMBED("embed", 350, 0.2f, Interpolation.HIGH),
+        EMBED("embed", 400, 0.2f, Interpolation.HIGH),
         THUMB("thumb", 700, 0.35f, Interpolation.HIGH),
         MEDIUM("medium", 1200, 0.35f, Interpolation.HIGH),
         LARGE("large", 2050, 0.4f, Interpolation.HIGH),
