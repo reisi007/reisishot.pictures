@@ -2,7 +2,10 @@
   display: flex;
 
   &.single {
-    align-content: center;
+    .lazy {
+      max-height: 80vh;
+      width: 100%;
+    }
   }
 
   &.multiple {

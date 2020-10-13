@@ -38,8 +38,10 @@ fun HtmlBlockTag.insertImageGallery(
         val isSingleImageGallery = imageInformation.size == 1
         classes = classes + "gallery " + if (isSingleImageGallery) "single" else "row multiple"
         attributes["data-name"] = galleryName
-        val additionalClasses = if (isSingleImageGallery) listOf()
-        else listOf("col-12", "col-sm-6", "col-lg-4", "col-xl-3")
+        val additionalClasses = if (isSingleImageGallery)
+            listOf("only-w")
+        else
+            listOf("col-12", "col-sm-6", "col-lg-4", "col-xl-3")
         imageInformation.forEach { curImageInfo ->
             insertLazyPicture(curImageInfo, additionalClasses)
         }

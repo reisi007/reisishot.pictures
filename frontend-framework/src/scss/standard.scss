@@ -45,7 +45,6 @@ main {
 }
 
 
-
 // Image overview page
 #content {
   &.singleImage {
@@ -145,4 +144,12 @@ a, a:hover, a:active, a:visited {
   .white {
     color: white;
   }
+}
+
+.sup {
+  vertical-align: super;
+}
+
+.sub {
+  vertical-align: sub;
 }
