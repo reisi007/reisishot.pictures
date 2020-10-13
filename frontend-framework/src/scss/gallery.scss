@@ -74,10 +74,6 @@ img {
     }
 
     margin: 0.5rem;
-
-    picture {
-      margin: 0 auto;
-    }
   }
 }
 
@@ -100,6 +96,7 @@ div {
 
     img {
       object-fit: contain;
+      max-width: 100%;
     }
   }
 }

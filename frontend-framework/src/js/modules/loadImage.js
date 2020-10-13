@@ -13,7 +13,6 @@ define('loadImage', ['lozad'], function (lozad) {
         const cur = parseAttribute(elem, "cur") || {w: -1}
         if (cur.w >= width)
             return;
-
         for (let size of sizes) {
             const data = parseAttribute(elem, size);
             let cW = data.w;

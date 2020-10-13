@@ -185,7 +185,8 @@ class TemplateApi(
         fun getJpgUrl(filename: String, size: Int) = "https://images.reisishot.pictures/jpg.php?url=${filename}.jpg&w=$size&h=$size&q=40"
         fun getWebPUrl(filename: String, size: Int) = "https://images.reisishot.pictures/webp.php?url=${filename}.jpg&w=$size&h=$size&q=40"
         fun DIV.insertPictureFromImagesSubDomain(filename: String, alt: String, ratio: Float) {
-            img(alt, classes = PageGenerator.LAZYLOADER_CLASSNAME) {
+            div(classes = PageGenerator.LAZYLOADER_CLASSNAME) {
+                attributes["data-alt"] = alt
                 AbstractThumbnailGenerator.ImageSize.values().forEach { curSize ->
                     val size = curSize.longestSidePx
                     attributes["data-" + curSize.toString().toLowerCase()] = """{"jpg":"${getJpgUrl(filename, size)}","webp":"${getWebPUrl(filename, size)}","w":$size}"""
