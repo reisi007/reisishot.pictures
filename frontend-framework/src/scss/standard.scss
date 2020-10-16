@@ -44,6 +44,10 @@ main {
   }
 }
 
+.card {
+  margin: 4px;
+}
+
 
 // Image overview page
 #content {
@@ -121,7 +125,6 @@ a {
 
     .card-img-top {
       flex-grow: 3;
-      @extend .gallery.single;
     }
 
 

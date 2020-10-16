@@ -1,13 +1,6 @@
 .gallery {
   display: flex;
 
-  &.single {
-    .lazy {
-      max-height: 80vh;
-      width: 100%;
-    }
-  }
-
   &.multiple {
     $thumbnailSize: 300px;
     $margin: 8px;
@@ -30,21 +23,6 @@
 
   img {
     cursor: pointer;
-  }
-}
-
-img {
-  margin: 0 auto;
-  // Ensure correct dimensions of a lazy loaded image
-  &.lazy {
-    min-height: 1rem;
-    display: inline-block;
-    max-width: 100%;
-
-    width: 100%;
-    max-height: $maxImageHeight;
-    object-fit: contain;
-
   }
 }
 
@@ -96,6 +74,8 @@ img {
 div {
   &.lazy {
     display: flex;
+    max-height: 80vh;
+    width: 100%;
 
     img {
       object-fit: contain;
