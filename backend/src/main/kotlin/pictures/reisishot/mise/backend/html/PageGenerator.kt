@@ -281,6 +281,6 @@ object PageGenerator {
 
     @HtmlTagMarker
     private fun BODY.analyticsImage(websiteConfiguration: WebsiteConfiguration) = websiteConfiguration.analyticsSiteId?.let {
-        img(src = """https://analytics.reisishot.pictures/performance_api.php?idsite=$it&amp;rec=1""")
+        img(src = """https://analytics.reisishot.pictures/matomo.php?idsite=$it&amp;rec=1""")
     }
 }
