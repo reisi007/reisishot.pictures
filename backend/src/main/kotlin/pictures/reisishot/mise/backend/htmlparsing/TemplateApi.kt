@@ -187,10 +187,11 @@ class TemplateApi(
         fun DIV.insertPictureFromImagesSubDomain(filename: String, alt: String, ratio: Float) {
             div(classes = PageGenerator.LAZYLOADER_CLASSNAME) {
                 attributes["data-alt"] = alt
-                AbstractThumbnailGenerator.ImageSize.values().forEach { curSize ->
+                AbstractThumbnailGenerator.ImageSize.values().forEachIndexed { idx, curSize ->
                     val size = curSize.longestSidePx
-                    attributes["data-" + curSize.toString().toLowerCase()] = """{"jpg":"${getJpgUrl(filename, size)}","webp":"${getWebPUrl(filename, size)}","w":$size}"""
+                    attributes["data-$idx"] = """{"jpg":"${getJpgUrl(filename, size)}","webp":"${getWebPUrl(filename, size)}","w":$size}"""
                 }
+                attributes["data-sizes"] = AbstractThumbnailGenerator.ImageSize.values().size.toString()
             }
         }
 

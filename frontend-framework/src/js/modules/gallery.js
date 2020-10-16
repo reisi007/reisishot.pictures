@@ -44,10 +44,7 @@ define(['jquery', 'canUseWebP', 'loadImage', 'photoswipe', 'PhotoSwipeUI_Reisish
         gallery.listen('gettingData', function (index, item) {
             const realViewportWidth = gallery.viewportSize.x * window.devicePixelRatio,
                 realViewportHeight = gallery.viewportSize.y * window.devicePixelRatio;
-            console.log(item)
             const pic = item.picture;
-
-
             const data = loadImage(pic, realViewportWidth, realViewportHeight);
             item.src = canUseWebP() ? data.webp : data.jpg;
             item.w = data.w;

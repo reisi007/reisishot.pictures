@@ -5,7 +5,7 @@ const define = (function () {
     let unresolvedDependencies = [];
 
     const fakeAmd = function () {
-        let method, internalName, publicName = undefined, paramNames;
+        let method, internalName, publicName, paramNames;
         switch (arguments.length) {
             case 1:
                 // A factory function without dependencies - cannot be built upon!
@@ -28,6 +28,8 @@ const define = (function () {
             default:
                 throw new Error("Unknown call... ")
         }
+        if (typeof paramNames === 'undefined' || typeof paramNames.filter !== 'function')
+            console.log("Cannot load module defined as:", arguments)
 
         // Queue for creation
         unresolvedDependencies.push({

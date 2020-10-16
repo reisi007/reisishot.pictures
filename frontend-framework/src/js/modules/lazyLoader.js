@@ -3,7 +3,7 @@ define('lazyLoader', ['lozad', 'canUseWebP', 'loadImage'], function (lozad, webp
     const observer = lozad('.lazy', {
         rootMargin: "540px 0px 0px 1620px",
         load: function (elem) {
-            if (elem.getAttribute("data-small"))
+            if (elem.getAttribute("data-sizes"))
                 loadImage(elem)
             else
                 lozad.defaultConfig.load(elem)
@@ -37,5 +37,7 @@ define('lazyLoader', ['lozad', 'canUseWebP', 'loadImage'], function (lozad, webp
     document.addEventListener('DOMContentLoaded', function () {
         observer.observe();
     });
-    return observer;
+    return function () {
+        observer.observe();
+    }
 });

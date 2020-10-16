@@ -65,10 +65,11 @@ internal fun HtmlBlockTag.insertLazyPicture(
         attributes["data-id"] = curImageInfo.filename
         attributes["data-url"] = curImageInfo.href
 
-        ImageSize.values().forEach { curSize ->
+        ImageSize.values().forEachIndexed { idx, curSize ->
             val thumbnailSize = curImageInfo.thumbnailSizes.getValue(curSize)
-            attributes["data-" + curSize.toString().toLowerCase()] = """{"jpg":"${curImageInfo.getJpgUrl(curSize)}","webp":"${curImageInfo.getWebPUrl(curSize)}","w":${thumbnailSize.width},"h":${thumbnailSize.height}}"""
+            attributes["data-$idx"] = """{"jpg":"${curImageInfo.getJpgUrl(curSize)}","webp":"${curImageInfo.getWebPUrl(curSize)}","w":${thumbnailSize.width},"h":${thumbnailSize.height}}"""
         }
+        attributes["data-sizes"] = ImageSize.values().size.toString()
     }
 }
 

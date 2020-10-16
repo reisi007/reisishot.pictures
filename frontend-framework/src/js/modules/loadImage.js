@@ -1,20 +1,12 @@
-define('loadImage', ['lozad'], function (lozad) {
-
-    const sizes = [
-        "data-small",
-        "data-embed",
-        "data-thumb",
-        "data-medium",
-        "data-large",
-        "data-xlarge"
-    ]
+define('loadImage', [], function () {
 
     function loadImageInternally(elem, width, height) {
         const cur = parseAttribute(elem, "cur") || {w: -1}
-        if (cur.w >= width)
-            return;
-        for (let size of sizes) {
-            const data = parseAttribute(elem, size);
+        if (cur.w >= width || (height != null && cur.h >= height))
+            return cur;
+        const sizes = elem.getAttribute("data-sizes")
+        for (let i = 0; i < sizes; i++) {
+            const data = parseAttribute(elem, "data-" + i);
             let cW = data.w;
             let cH = data.h;
             if (cW >= width || (height != null && cH >= height)) {
@@ -22,7 +14,7 @@ define('loadImage', ['lozad'], function (lozad) {
 
             }
         }
-        return parseAttribute(elem, sizes[sizes.length - 1]);
+        return parseAttribute(elem, "data-" + sizes - 1);
     }
 
     function parseAttribute(elem, attr) {

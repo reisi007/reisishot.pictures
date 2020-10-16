@@ -1,4 +1,4 @@
-define(['lazyLoader'], function (lazyLoader) {
+define(function () {
 
     let a = document.querySelectorAll(".asp-embed-link")
     for (let idx = 0, e = a.length; idx < e; idx++) {
@@ -6,18 +6,15 @@ define(['lazyLoader'], function (lazyLoader) {
         cur.onclick = () => {
             const url = cur.getAttribute("href");
             cur.removeAttribute("href");
-            console.log("go to " + url);
             window.AdobeSparkPage.showFeature(url);
         }
     }
-    lazyLoader.observe();
 
     var d = "SparkPage-feature-overlay";
     var e = "SparkPage-feature-iframe";
 
     var g = window.AdobeSparkPage = {
         showFeature: function (c) {
-            console.log("show", c)
             let overlay = document.getElementById(d);
             let iframe = document.getElementById(e);
             if (!overlay) {
@@ -42,7 +39,6 @@ define(['lazyLoader'], function (lazyLoader) {
                     a.target === overlay && g.hideFeatureFrame()
                 });
                 close.addEventListener("click", function (a) {
-                    console.log("close listener click");
                     g.hideFeatureFrame();
                 });
             }

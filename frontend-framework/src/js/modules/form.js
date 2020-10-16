@@ -11,7 +11,6 @@ define(['jquery'], function ($) {
                     event.stopPropagation();
                 } else {
                     const formName = form.getAttribute("r-form");
-                    console.log(formName);
                     submitForm(formName);
                     event.preventDefault();
                 }
