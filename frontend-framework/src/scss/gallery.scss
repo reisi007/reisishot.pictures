@@ -13,9 +13,6 @@
       img {
         max-width: 100%;
         max-height: $thumbnailSize;
-        $margin: 0.4rem;
-        margin-top: $margin;
-        margin-bottom: $margin;
         height: 100%;
       }
     }
@@ -80,6 +77,7 @@ div {
     img {
       object-fit: contain;
       max-width: 100%;
+      margin: 0 auto;
     }
   }
 }
