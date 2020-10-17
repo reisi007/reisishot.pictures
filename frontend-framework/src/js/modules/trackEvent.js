@@ -1,9 +1,7 @@
 define('trackAction', [], function () {
-    const matomo = _paq;
-
     return function (input) {
         if (typeof input.value === 'undefined')
-            matomo.push([
+            _paq.push([
                 'trackEvent',
                 input.group,
                 input.action,
@@ -11,7 +9,7 @@ define('trackAction', [], function () {
                 input.value
             ])
         else
-            matomo.push([
+            _paq.push([
                 'trackEvent',
                 input.group,
                 input.action,
