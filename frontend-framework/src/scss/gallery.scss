@@ -58,6 +58,7 @@
 // Photoswipe added additional button
 .pswp__button {
   &.pswp__button--details {
+    //noinspection CssUnknownTarget
     background-image: url("/static/info-circle.svg");
     background-size: contain;
     transform: scale(0.5);
