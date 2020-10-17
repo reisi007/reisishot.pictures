@@ -23,16 +23,17 @@ define('lazyLoader', ['lozad', 'canUseWebP', 'loadImage'], function (lozad, webp
         const img = document.createElement("img")
         const ignoreHeight = elem.classList.contains("only-w");
         new ResizeObserver(function () {
-            img.src = getImageUrl(loadImageInternally(elem, elem.offsetWidth, calcHeight(elem.offsetHeight, ignoreHeight)))
-        }).observe(elem)
+            const w = img.width;
+            const h = calcHeight(img.height, ignoreHeight);
+            img.src = getImageUrl(loadImageInternally(elem, w, h))
+        }).observe(img)
 
         img.src = getImageUrl(loadImageInternally(elem, elem.offsetWidth, calcHeight(elem.offsetHeight, ignoreHeight)))
         img.alt = elem.getAttribute("data-alt")
         elem.append(img)
     }
 
-    function calcHeight(elem, ignoreHeight) {
-        let height = elem.offsetHeight;
+    function calcHeight(height, ignoreHeight) {
         if (height < 50 || ignoreHeight)
             height = null
         return height

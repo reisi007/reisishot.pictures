@@ -56,7 +56,6 @@ define(['jquery', 'canUseWebP', 'loadImage', 'photoswipe', 'trackAction', 'Photo
 
         gallery.listen('afterChange', function () {
             const item = gallery.currItem;
-            console.log(item)
             trackAction({group: "gallery", action: "imageView", id: item.name, value: item.w + 'x' + item.h})
         })
 

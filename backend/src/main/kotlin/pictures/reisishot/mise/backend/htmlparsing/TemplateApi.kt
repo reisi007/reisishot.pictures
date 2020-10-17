@@ -21,6 +21,7 @@ import pictures.reisishot.mise.backend.html.insertImageGallery
 import pictures.reisishot.mise.backend.html.insertLazyPicture
 import pictures.reisishot.mise.backend.html.raw
 import java.nio.file.Path
+import kotlin.math.roundToInt
 
 class TemplateApi(
         private val targetPath: TargetPath,
@@ -181,15 +182,15 @@ class TemplateApi(
 
     @SuppressWarnings("unused")
     fun insertSlidingImages(filename: String, w: Int, h: Int) = buildString {
-
-        fun getJpgUrl(filename: String, size: Int) = "https://images.reisishot.pictures/jpg.php?url=${filename}.jpg&w=$size&h=$size&q=40"
-        fun getWebPUrl(filename: String, size: Int) = "https://images.reisishot.pictures/webp.php?url=${filename}.jpg&w=$size&h=$size&q=40"
+        fun getJpgUrl(filename: String, size: Int) = "https://images.reisishot.pictures/${filename}_${size}.jpg"
+        fun getWebPUrl(filename: String, size: Int) = "https://images.reisishot.pictures/${filename}_${size}.webp"
         fun DIV.insertPictureFromImagesSubDomain(filename: String, alt: String, ratio: Float) {
             div(classes = PageGenerator.LAZYLOADER_CLASSNAME) {
                 attributes["data-alt"] = alt
-                AbstractThumbnailGenerator.ImageSize.values().forEachIndexed { idx, curSize ->
-                    val size = curSize.longestSidePx
-                    attributes["data-$idx"] = """{"jpg":"${getJpgUrl(filename, size)}","webp":"${getWebPUrl(filename, size)}","w":$size}"""
+                sequenceOf(300, 400, 700, 1200, 2050, 3000).forEachIndexed { idx, size ->
+                    val iw = if (ratio < 1) size else (size * ratio).roundToInt()
+                    val ih = if (ratio > 1) size else (size * ratio).roundToInt()
+                    attributes["data-$idx"] = """{"jpg":"${getJpgUrl(filename, size)}","webp":"${getWebPUrl(filename, size)}","w":$iw,"h":$ih}"""
                 }
                 attributes["data-sizes"] = AbstractThumbnailGenerator.ImageSize.values().size.toString()
             }
