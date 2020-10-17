@@ -9,10 +9,36 @@ import javafx.scene.control.Tooltip
 import javafx.util.Duration
 import org.languagetool.JLanguageTool
 import org.languagetool.language.AustrianGerman
+import org.languagetool.rules.spelling.SpellingCheckRule
 import tornadofx.*
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.streams.toList
 
-private val spellchecker by lazy { JLanguageTool(AustrianGerman()) }
+private val spellchecker by lazy {
+    val spellchecker = JLanguageTool(AustrianGerman())
+
+    val ignoredWords by lazy {
+        val ignoredWords = ClassLoader.getSystemClassLoader()
+                .getResourceAsStream("ignore.txt")
+                ?.bufferedReader(Charsets.UTF_8)
+                ?.use { it.lines().toList() }
+                ?: emptyList()
+
+        println("${ignoredWords.size} Wörter werden ignoriert")
+        ignoredWords
+    }
+
+    spellchecker.allRules
+            .asSequence()
+            .map { it as? SpellingCheckRule }
+            .filterNotNull()
+            .forEach {
+                it.addIgnoreTokens(ignoredWords)
+
+            }
+
+    spellchecker
+}
 
 private val isSpellCheckerInitialized = AtomicBoolean(false)
 

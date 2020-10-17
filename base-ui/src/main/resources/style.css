@@ -6,7 +6,7 @@
 }
 
 .tag-bar .tag {
-    -fx-background-color: -fx-selection-bar;
+    -fx-background-color: #27ae60;
     -fx-border-radius: 5 5 5 5;
 }
 
@@ -15,6 +15,6 @@
 }
 
 .tag-bar .tag .button {
-    -fx-text-fill: orange;
+    -fx-text-fill: white;
     -fx-font-weight: bold;
 }
