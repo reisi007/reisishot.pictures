@@ -141,6 +141,13 @@ a {
 .center {
   text-align: center;
   justify-content: center;
+  margin: 0 auto;
+}
+
+iframe {
+  &.center {
+    display: block;
+  }
 }
 
 a, a:hover, a:active, a:visited {
