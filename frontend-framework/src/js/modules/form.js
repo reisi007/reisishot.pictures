@@ -1,4 +1,4 @@
-define(['jquery'], function ($) {
+define(['trackAction'], function (trackAction) {
     'use strict';
     window.addEventListener('load', function () {
         // Fetch all the forms we want to apply custom Bootstrap validation styles to
@@ -43,5 +43,7 @@ define(['jquery'], function ($) {
         form.style = "display: none";
         const element = document.querySelector("[r-form-submitted=\"" + formName + "\"]");
         element.style = "";
+
+        trackAction({group: "contactForm", action: "send", id: formName})
     }
 });

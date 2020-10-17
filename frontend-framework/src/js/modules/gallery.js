@@ -1,4 +1,4 @@
-define(['jquery', 'canUseWebP', 'loadImage', 'photoswipe', 'PhotoSwipeUI_Reisishot'], function ($, canUseWebP, loadImage, Photoswipe, ui) {
+define(['jquery', 'canUseWebP', 'loadImage', 'photoswipe', 'trackAction', 'PhotoSwipeUI_Reisishot'], function ($, canUseWebP, loadImage, Photoswipe, trackAction, ui) {
     'use strict';
     const galleries = {};
     const galleyHtml = '<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true"><div class="pswp__bg"></div><div class="pswp__scroll-wrap"><div class="pswp__container"><div class="pswp__item"></div><div class="pswp__item"></div><div class="pswp__item"></div></div><div class="pswp__ui pswp__ui--hidden"><div class="pswp__top-bar"><div class="pswp__counter"></div><button class="pswp__button pswp__button--close" shorttitle="Schließen (Esc)"></button><button class="pswp__button pswp__button--fs" shorttitle="Fullscreen anzeigen"></button><button class="pswp__button pswp__button--zoom" shorttitle="Zoomen"></button><button class="pswp__button pswp__button--details" shorttitle="Details"></button><div class="pswp__preloader"><div class="pswp__preloader__icn"><div class="pswp__preloader__cut"><div class="pswp__preloader__donut"></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class="pswp__share-tooltip"></div></div><button class="pswp__button pswp__button--arrow--left" shorttitle="Vorheriges Bild"></button><button class="pswp__button pswp__button--arrow--right" shorttitle="Nächstes Bild"></button><div class="pswp__caption"><div class="pswp__caption__center"></div></div></div></div></div>';
@@ -30,6 +30,7 @@ define(['jquery', 'canUseWebP', 'loadImage', 'photoswipe', 'PhotoSwipeUI_Reisish
             history: true,
             galleryPIDs: true
         };
+        trackAction({group: "gallery", action: "open", id: galleryName})
 
         options.index = Object.keys(curGallery).indexOf(pictureName);
         const photoswipeContainer = document.querySelector('.pswp');
@@ -51,8 +52,13 @@ define(['jquery', 'canUseWebP', 'loadImage', 'photoswipe', 'PhotoSwipeUI_Reisish
             item.h = data.h;
             item.pid = item.name = pic.getAttribute("data-id");
             item.url = pic.getAttribute("data-url");
-
         });
+
+        gallery.listen('afterChange', function () {
+            const item = gallery.currItem;
+            console.log(item)
+            trackAction({group: "gallery", action: "imageView", id: item.name, value: item.w + 'x' + item.h})
+        })
 
         gallery.init();
     }

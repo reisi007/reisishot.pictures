@@ -23,7 +23,6 @@ private fun FlowContent.buildForm(cur: FormBuilderElement): Unit = when (cur) {
     is FormRoot -> form(classes = "needs-validation") {
         attributes["r-form"] = cur.name
         novalidate = true
-        onSubmit = "submitForm('${cur.name}'); return false;"
         cur.builderElements.forEach { buildForm(it) }
         div {
             button(classes = "btn btn-primary") {
