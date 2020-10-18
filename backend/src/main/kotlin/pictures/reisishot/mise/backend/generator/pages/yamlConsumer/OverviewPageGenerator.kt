@@ -69,7 +69,7 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
                 .forEach { (name, b) ->
                     val target = b withChild "index.html"
 
-                    val additionalTopContent = loadFromFile(configuration, cache, configuration.inPath withChild name.toLowerCase(), target, galleryGenerator)
+                    val additionalTopContent = loadFromFile(configuration, cache, configuration.inPath withChild b.fileName, target, galleryGenerator)
 
                     PageGenerator.generatePage(
                             target,
@@ -78,7 +78,9 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
                             additionalHeadContent = additionalTopContent?.first ?: {},
                             buildingCache = cache
                     ) {
-                        h1(classes = "center") { text(name) }
+                        p {
+                            h1(classes = "center") { text(name) }
+                        }
                         additionalTopContent?.second?.let { raw(it) }
                         div(classes = "row center") {
                             data[name]?.asSequence()
@@ -86,8 +88,8 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
                                     ?.forEach { entry ->
                                         val image = galleryGenerator.cache.imageInformationData[entry.picture]
                                                 ?: throw IllegalStateException("Cannot find Image Information")
-                                        div(classes = "col-lg-4") {
-                                            div(classes = "card") {
+                                        div(classes = "col-lg-4 mt-3") {
+                                            div(classes = "card h-100") {
                                                 div(classes = "card-img-top only-w") {
                                                     insertLazyPicture(image)
                                                 }
@@ -98,10 +100,11 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
                                                             text(it)
                                                         }
                                                     }
-                                                    footer("card-footer") {
-                                                        a(configuration.websiteLocation + configuration.outPath.relativize(entry.entryOutUrl), classes = "btn btn-primary") {
-                                                            text("Mehr erfahren")
-                                                        }
+                                                }
+
+                                                footer("card-footer") {
+                                                    a(configuration.websiteLocation + configuration.outPath.relativize(entry.entryOutUrl), classes = "btn btn-primary") {
+                                                        text("Mehr erfahren")
                                                     }
                                                 }
                                             }

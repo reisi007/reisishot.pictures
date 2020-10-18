@@ -68,18 +68,3 @@
 .pswp__button--share {
   background-position: -44px -44px;
 }
-
-div {
-  &.lazy {
-    display: flex;
-    max-height: 80vh;
-    width: 100%;
-
-    img {
-      object-fit: contain;
-      max-width: 100%;
-      margin: 0 auto;
-    }
-  }
-}
-
