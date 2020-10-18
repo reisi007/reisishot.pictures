@@ -19,7 +19,7 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
 
     private val data = mutableMapOf<String, MutableSet<OverviewEntry>>()
     private var dirty = false
-    private val changeSetAdd = mutableListOf<OverviewEntry>()
+    private val changeSetAdd = mutableSetOf<OverviewEntry>()
     private val changeSetRemove = mutableListOf<Path>()
 
     override fun interestingFileExtensions(): Sequence<(FileExtension) -> Boolean> {
@@ -31,18 +31,17 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
 
     override fun processFrontMatter(configuration: WebsiteConfiguration, cache: BuildingCache, targetPath: TargetPath, frontMatter: Yaml, galleryGenerator: AbstractGalleryGenerator): HEAD.() -> Unit {
         frontMatter.extract(targetPath)?.let {
-            dirty = true
-            changeSetAdd += it
+            dirty = changeSetAdd.add(it)
         }
         return {}
     }
 
-    override fun processChanges(configuration: WebsiteConfiguration, cache: BuildingCache, galleryGenerator: AbstractGalleryGenerator) {
+    override fun processChanges(configuration: WebsiteConfiguration, cache: BuildingCache, galleryGenerator: AbstractGalleryGenerator, metaDataConsumers: Array<out YamlMetaDataConsumer>) {
         val changedGroups = mutableMapOf<String, Path>()
         changeSetAdd.forEach {
-            data.computeIfAbsent(it.groupName)
+            data.computeIfAbsent(it.id)
             { _ -> mutableSetOf() }.add(it, true)
-            changedGroups[it.groupName] = it.entryOutUrl.parent
+            changedGroups[it.id] = it.entryOutUrl.parent
         }
         changeSetRemove.forEach {
             val entry = data.values
@@ -51,10 +50,10 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
                     .filterNotNull()
                     .firstOrNull()
                     ?: return@forEach
-            data[entry.groupName]?.remove(entry)
-            if (data[entry.groupName].isNullOrEmpty())
-                data.remove(entry.groupName)
-            changedGroups[entry.groupName] = entry.entryOutUrl.parent
+            data[entry.id]?.remove(entry)
+            if (data[entry.id].isNullOrEmpty())
+                data.remove(entry.id)
+            changedGroups[entry.id] = entry.entryOutUrl.parent
         }
         dirty = false
 
@@ -66,10 +65,18 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
                 else changedGroups.asSequence()
                         .map { it.toPair() }
                 )
-                .forEach { (name, b) ->
+                .map { (name, b) -> data.getValue(name).first() to b }
+                .forEach { (data, b) ->
+                    val name = data.id //TODO group config files using name only
                     val target = b withChild "index.html"
 
-                    val additionalTopContent = loadFromFile(configuration, cache, configuration.inPath withChild b.fileName, target, galleryGenerator)
+                    val additionalContentSubPath = b.fileName.let {
+                        if (name == "index")
+                            configuration.inPath
+                        else configuration.inPath withChild it
+                    }
+
+                    val additionalTopContent = loadFromFile(configuration, cache, additionalContentSubPath, target, galleryGenerator, metaDataConsumers)
 
                     PageGenerator.generatePage(
                             target,
@@ -79,11 +86,11 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
                             buildingCache = cache
                     ) {
                         p {
-                            h1(classes = "center") { text(name) }
+                            h1(classes = "center") { text(data.groupName ?: name) }
                         }
                         additionalTopContent?.second?.let { raw(it) }
                         div(classes = "row center") {
-                            data[name]?.asSequence()
+                            this@OverviewPageGenerator.data[name]?.asSequence()
                                     ?.sortedByDescending { it.order }
                                     ?.forEach { entry ->
                                         val image = galleryGenerator.cache.imageInformationData[entry.picture]
@@ -113,8 +120,10 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
                         }
                     }
                 }
-        if (dirty)
-            processChanges(configuration, cache, galleryGenerator)
+        if (dirty) {
+            processChanges(configuration, cache, galleryGenerator, metaDataConsumers)
+            return
+        }
         changeSetAdd.clear()
         changeSetRemove.clear()
         dirty = false
@@ -137,6 +146,7 @@ private fun loadFromFile(
         sourcePath: SourcePath,
         targetPath: TargetPath,
         galleryGenerator: AbstractGalleryGenerator,
+        metaDataConsumers: Array<out YamlMetaDataConsumer>
 ) = sequenceOf(
         "top.overview.md",
         "top.overview.html"
@@ -149,7 +159,8 @@ private fun loadFromFile(
                     cache,
                     it,
                     targetPath,
-                    galleryGenerator
+                    galleryGenerator,
+                    *metaDataConsumers
             )
         }
 
@@ -160,9 +171,10 @@ private fun Map<String, Any>.extract(targetPath: TargetPath): OverviewEntry? {
     val title = getString("title")
     val order = getString("order")?.toInt()
     val description = getString("description")
+    val groupName = getString("groupName")
     if (group == null || picture == null || title == null || order == null)
         return null
-    return OverviewEntry(group, title, description, picture, targetPath.parent, order)
+    return OverviewEntry(group, title, description, picture, targetPath.parent, order, groupName)
 }
 
 fun Map<String, Any>.getString(key: String): String? {
@@ -176,21 +188,21 @@ fun Map<String, Any>.getString(key: String): String? {
 }
 
 
-data class OverviewEntry(val groupName: String, val title: String, val description: String?, val picture: String, val entryOutUrl: Path, val order: Int) {
+data class OverviewEntry(val id: String, val title: String, val description: String?, val picture: String, val entryOutUrl: Path, val order: Int, val groupName: String?) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
         other as OverviewEntry
 
-        if (groupName != other.groupName) return false
+        if (id != other.id) return false
         if (entryOutUrl != other.entryOutUrl) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = groupName.hashCode()
+        var result = id.hashCode()
         result = 31 * result + entryOutUrl.hashCode()
         return result
     }

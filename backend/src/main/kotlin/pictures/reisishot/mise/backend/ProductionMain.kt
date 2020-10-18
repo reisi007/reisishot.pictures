@@ -51,7 +51,9 @@ object ProductionMain {
                                     })
                         },
                         generators = listOf(
-                                PageGenerator(OverviewPageGenerator()),
+                                PageGenerator(
+                                        OverviewPageGenerator()
+                                ),
                                 GalleryGenerator(
                                         categoryBuilders = arrayOf(
                                                 DateCategoryBuilder("Chronologisch"),

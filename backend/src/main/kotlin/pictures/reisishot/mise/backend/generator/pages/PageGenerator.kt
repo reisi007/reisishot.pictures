@@ -144,7 +144,7 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
         filesToProcess
                 .filter { (path) -> path.hasExtension(FileExtension::isMarkdown, FileExtension::isHtml) }
                 .forEach { it.buildArtifact(configuration, cache) }
-        metaDataConsumers.forEach { it.processChanges(configuration, cache, galleryGenerator) }
+        metaDataConsumers.forEach { it.processChanges(configuration, cache, galleryGenerator, metaDataConsumers) }
     }
 
 

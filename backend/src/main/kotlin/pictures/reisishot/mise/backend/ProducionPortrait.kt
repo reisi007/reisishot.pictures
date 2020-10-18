@@ -10,6 +10,7 @@ import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickT
 import pictures.reisishot.mise.backend.generator.multisite.ImageInfoImporter
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
 import pictures.reisishot.mise.backend.generator.pages.yamlConsumer.KeywordConsumer
+import pictures.reisishot.mise.backend.generator.pages.yamlConsumer.OverviewPageGenerator
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
 import pictures.reisishot.mise.backend.html.*
 import java.nio.file.Path
@@ -26,7 +27,7 @@ object ProducionPortrait {
                         inPath = Paths.get("input-portrait").toAbsolutePath(),
                         tmpPath = Paths.get("tmp-portrait").toAbsolutePath(),
                         outPath = Paths.get("frontend-portrait/generated").toAbsolutePath(),
-                        interactiveIgnoredFiles = *arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
+                        interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         cleanupGeneration = false,
                         socialMediaLinks = SocialMediaAccounts(
                                 "reisishot",
@@ -54,6 +55,7 @@ object ProducionPortrait {
                         },
                         generators = listOf(
                                 PageGenerator(
+                                        OverviewPageGenerator(),
                                         KeywordConsumer()
                                 ),
                                 GalleryGenerator(

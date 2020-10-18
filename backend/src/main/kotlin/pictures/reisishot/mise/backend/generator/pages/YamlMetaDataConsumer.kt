@@ -19,7 +19,7 @@ interface YamlMetaDataConsumer {
     fun processDelete(configuration: WebsiteConfiguration, cache: BuildingCache, targetPath: TargetPath) {
     }
 
-    fun processChanges(configuration: WebsiteConfiguration, cache: BuildingCache, galleryGenerator: AbstractGalleryGenerator) {
+    fun processChanges(configuration: WebsiteConfiguration, cache: BuildingCache, galleryGenerator: AbstractGalleryGenerator, metaDataConsumers: Array<out YamlMetaDataConsumer>) {
     }
 
     fun cleanup(configuration: WebsiteConfiguration, cache: BuildingCache) {
