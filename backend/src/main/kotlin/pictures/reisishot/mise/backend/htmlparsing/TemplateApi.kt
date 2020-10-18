@@ -227,4 +227,4 @@ class TemplateApi(
 typealias SourcePath = Path;
 typealias TargetPath = Path;
 typealias PageGeneratorInfo = Triple<SourcePath, TargetPath, String/*Title*/>
-typealias Yaml = Map<String, Any>
+typealias Yaml = Map<String, List<String>>

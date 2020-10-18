@@ -10,7 +10,10 @@ import pictures.reisishot.mise.backend.generator.*
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.raw
-import pictures.reisishot.mise.backend.htmlparsing.*
+import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
+import pictures.reisishot.mise.backend.htmlparsing.PageGeneratorInfo
+import pictures.reisishot.mise.backend.htmlparsing.SourcePath
+import pictures.reisishot.mise.backend.htmlparsing.TargetPath
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.streams.asSequence
@@ -23,6 +26,13 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
     companion object {
         const val FILENAME_SEPERATOR = "--"
         const val LINKTYPE_PAGE = "PAGE"
+    }
+
+    private val metaDataConsumerFileExtensions by lazy {
+        metaDataConsumers.asSequence()
+                .flatMap { it.interestingFileExtensions() }
+                .toList()
+                .toTypedArray()
     }
 
     private lateinit var filesToProcess: List<PageGeneratorInfo>
@@ -131,40 +141,18 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
     }
 
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
-        filesToProcess.forEach { it.buildArtifact(configuration, cache) }
+        filesToProcess
+                .filter { (path) -> path.hasExtension(FileExtension::isMarkdown, FileExtension::isHtml) }
+                .forEach { it.buildArtifact(configuration, cache) }
         metaDataConsumers.forEach { it.processChanges(configuration, cache, galleryGenerator) }
     }
 
 
     fun PageGeneratorInfo.buildArtifact(configuration: WebsiteConfiguration, cache: BuildingCache) = let { (soureFile, targetFile, title) ->
-        if (soureFile.fileExtension.isMarkdown()) convertMarkdown(
+        convertMarkdown(
                 soureFile,
                 configuration,
                 cache,
-                targetFile,
-                title
-        ) else convertHtml(
-                soureFile,
-                configuration,
-                cache,
-                targetFile,
-                title
-        )
-    }
-
-    private fun convertHtml(
-            soureFile: SourcePath,
-            websiteConfiguration: WebsiteConfiguration,
-            buildingCache: BuildingCache,
-            targetFile: TargetPath,
-            title: String
-    ) {
-        val (processHeadFile, body) = HtmlParser.parse(websiteConfiguration, buildingCache, soureFile, targetFile, galleryGenerator, *metaDataConsumers)
-        buildPage(
-                body,
-                processHeadFile,
-                websiteConfiguration,
-                buildingCache,
                 targetFile,
                 title
         )
@@ -245,14 +233,12 @@ class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) 
 
     private fun ChangeFileset.relevantFiles(): Set<Pair<Path, Set<ChangeState>>> {
         val data = mutableMapOf<Path, MutableSet<ChangeState>>()
-        entries.asSequence()
-                .filter { (file, _) -> file.hasExtension(FileExtension::isHtml, FileExtension::isMarkdown, FileExtension::isHead) }
-                .map { (file, changedState) ->
-                    if (file.hasExtension(FileExtension::isHead))
-                        file.parent withChild file.filenameWithoutExtension + ".html" to changedState
-                    else file to changedState
 
-                }.forEach { (k, v) ->
+        entries.asSequence()
+                .filter { (file, _) ->
+                    file.hasExtension(FileExtension::isHtml, FileExtension::isMarkdown, *metaDataConsumerFileExtensions)
+                }
+                .forEach { (k, v) ->
                     data.computeIfAbsent(k) { mutableSetOf() }.addAll(v)
                 }
 

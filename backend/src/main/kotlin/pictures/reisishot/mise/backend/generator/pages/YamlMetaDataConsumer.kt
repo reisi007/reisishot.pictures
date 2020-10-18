@@ -1,5 +1,6 @@
 package pictures.reisishot.mise.backend.generator.pages
 
+import at.reisishot.mise.commons.FileExtension
 import kotlinx.html.HEAD
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
@@ -24,4 +25,6 @@ interface YamlMetaDataConsumer {
     fun cleanup(configuration: WebsiteConfiguration, cache: BuildingCache) {
         // Nothing to do
     }
+
+    fun interestingFileExtensions(): Sequence<(FileExtension) -> Boolean> = emptySequence()
 }

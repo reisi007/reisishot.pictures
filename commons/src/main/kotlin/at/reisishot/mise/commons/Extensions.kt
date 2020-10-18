@@ -71,7 +71,7 @@ val String.filenameWithoutExtension: FilenameWithoutExtension
 
 val Path.fileExtension: FileExtension
     get() = with(fileName.toString()) {
-        substring(lastIndexOf('.') + 1)
+        substring(indexOf('.') + 1)
     }
 
 fun Path.list(): Sequence<Path> = Files.list(this).asSequence()
