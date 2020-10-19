@@ -36,7 +36,7 @@ fun HtmlBlockTag.insertImageGallery(
         return@with
     div {
         val isSingleImageGallery = imageInformation.size == 1
-        classes = classes + "gallery mt-3" + if (isSingleImageGallery) "single" else "row multiple"
+        classes = classes + "gallery center mt-3" + if (isSingleImageGallery) "single" else "row multiple"
         attributes["data-name"] = galleryName
         val additionalClasses = if (isSingleImageGallery)
             "only-w"

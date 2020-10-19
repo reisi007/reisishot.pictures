@@ -1,9 +1,9 @@
 .gallery {
   display: flex;
+  $margin: 8px;
 
   &.multiple {
     $thumbnailSize: 270px;
-    $margin: 8px;
 
     .pic-holder {
       max-height: $thumbnailSize;
@@ -28,9 +28,19 @@
     }
   }
 
+  &.single {
+    .pic-holder {
+      width: 100%;
+      position: relative;
+      margin-top: $margin;
+      margin-bottom: $margin;
+    }
+  }
+
   img {
     cursor: pointer;
   }
+
 }
 
 // Align the subcategories view
