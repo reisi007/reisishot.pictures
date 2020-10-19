@@ -1,7 +1,7 @@
 div {
   &.lazy {
     box-sizing: border-box;
-    max-height: 80vh;
+    max-height: $maxImageHeight;
     width: 100%;
     max-width: 100%;
 
@@ -11,6 +11,7 @@ div {
       left: 0;
       bottom: 0;
       right: 0;
+      max-height: $maxImageHeight;
       object-fit: contain;
       width: 100%;
       max-width: 100%;

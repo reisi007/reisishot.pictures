@@ -34,6 +34,8 @@
       position: relative;
       margin-top: $margin;
       margin-bottom: $margin;
+      max-height: $maxImageHeight;
+      overflow: hidden;
     }
   }
 
