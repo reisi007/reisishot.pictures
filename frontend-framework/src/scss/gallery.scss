@@ -12,17 +12,15 @@
       margin-top: $margin;
       margin-bottom: $margin;
 
-      div {
-        &.lazy {
+      div.lazy {
+        position: initial;
+        display: inline-block;
+
+        img {
+          max-width: calc(100% - 2 * 15px); // Fill parent minus padding
+
           height: 100%;
-          display: inline-block;
-
-          img {
-            max-width: calc(100% - 2 * 15px); // Fill parent minus padding
-
-            height: 100%;
-            vertical-align: middle;
-          }
+          vertical-align: middle;
         }
       }
     }
