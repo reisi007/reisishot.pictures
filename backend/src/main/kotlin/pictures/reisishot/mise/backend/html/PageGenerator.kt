@@ -6,6 +6,7 @@ import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.MenuLink
 import pictures.reisishot.mise.backend.generator.MenuLinkContainer
+import java.io.BufferedWriter
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -14,7 +15,7 @@ import java.util.*
 object PageGenerator {
 
     const val LAZYLOADER_CLASSNAME = "lazy"
-
+    private const val polyfillUrl = "https://polyfill.io/v3/polyfill.min.js?flags=gated&features=Object.assign%2CIntersectionObserver"
 
     fun generatePage(
             target: Path,
@@ -24,7 +25,7 @@ object PageGenerator {
             buildingCache: BuildingCache,
             additionalHeadContent: HEAD.() -> Unit = {},
             pageContent: DIV.() -> Unit
-    ) = with(target) {
+    ): BufferedWriter = with(target) {
         target.parent?.let {
             Files.createDirectories(it)
         }
@@ -186,7 +187,7 @@ object PageGenerator {
 
     @HtmlTagMarker
     private fun BODY.polyfills() {
-        scriptJs("https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver")
+        scriptJs(polyfillUrl)
     }
 
     @HtmlTagMarker
@@ -208,7 +209,8 @@ object PageGenerator {
             attributes["as"] = "font"
             attributes["crossorigin"] = ""
         }
-        link("https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver", "preload") {
+
+        link(polyfillUrl, "preload") {
             attributes["as"] = "script"
         }
         link("/js/combined.min.js", "preload") {
