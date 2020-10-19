@@ -10,7 +10,6 @@ define('lazyLoader', ['lozad', 'canUseWebP', 'loadImage'], function (lozad, webp
         },
         loaded: function (el) {
             el.parentElement.parentElement.classList.contains('single');
-            el.style = "";
             el.classList.add('loaded');
         }
     });

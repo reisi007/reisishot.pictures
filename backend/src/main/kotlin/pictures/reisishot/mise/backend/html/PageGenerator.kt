@@ -40,13 +40,8 @@ object PageGenerator {
                             metaViewport()
                             linkCanonnical(websiteConfiguration, target)
                             favicon()
-
                             title(title)
-
                             appCss()
-                            polyfills()
-
-                            analyticsJs(websiteConfiguration)
                             additionalHeadContent(this)
                         }
                         body("d-flex flex-column h-100") {
@@ -109,6 +104,8 @@ object PageGenerator {
                                     }
                                 }
                             }
+                            polyfills()
+                            analyticsJs(websiteConfiguration)
                             cookieInfo()
                             analyticsImage(websiteConfiguration)
                         }
@@ -180,14 +177,16 @@ object PageGenerator {
     }
 
     @HtmlTagMarker
-    private fun HEAD.script(src: String) = script(src = src) {}
+    private fun BODY.scriptJs(src: String) = script(src = src) {}
 
     @HtmlTagMarker
-    private fun HEAD.appCss() = styleLink("/css/styles.css")
+    private fun HEAD.appCss() {
+        styleLink("/css/styles.css")
+    }
 
     @HtmlTagMarker
-    private fun HEAD.polyfills() {
-        script("https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver")
+    private fun BODY.polyfills() {
+        scriptJs("https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver")
     }
 
     @HtmlTagMarker
@@ -208,6 +207,15 @@ object PageGenerator {
         link("/css/rs/fonts/reisishotpictures.woff2", "preload") {
             attributes["as"] = "font"
             attributes["crossorigin"] = ""
+        }
+        link("https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver", "preload") {
+            attributes["as"] = "script"
+        }
+        link("/js/combined.min.js", "preload") {
+            attributes["as"] = "script"
+        }
+        link("/css/styles.css", "preload") {
+            attributes["as"] = "style"
         }
     }
 
@@ -260,7 +268,7 @@ object PageGenerator {
     }
 
     @HtmlTagMarker
-    private fun HEAD.analyticsJs(websiteConfiguration: WebsiteConfiguration) = websiteConfiguration.analyticsSiteId?.let {
+    private fun BODY.analyticsJs(websiteConfiguration: WebsiteConfiguration) = websiteConfiguration.analyticsSiteId?.let {
         raw("""
         <!-- Matomo -->
         <script type="text/javascript">

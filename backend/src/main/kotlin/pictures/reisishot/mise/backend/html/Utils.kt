@@ -36,14 +36,16 @@ fun HtmlBlockTag.insertImageGallery(
         return@with
     div {
         val isSingleImageGallery = imageInformation.size == 1
-        classes = classes + "gallery " + if (isSingleImageGallery) "single" else "row multiple"
+        classes = classes + "gallery mt-3" + if (isSingleImageGallery) "single" else "row multiple"
         attributes["data-name"] = galleryName
         val additionalClasses = if (isSingleImageGallery)
-            listOf("only-w")
+            "only-w"
         else
-            listOf("col-12", "col-sm-6", "col-lg-4", "col-xl-3")
+            "col-12 col-sm-6 col-lg-4 col-xl-3"
         imageInformation.forEach { curImageInfo ->
-            insertLazyPicture(curImageInfo, additionalClasses)
+            div("pic-holder $additionalClasses") {
+                insertLazyPicture(curImageInfo)
+            }
         }
     }
 }
@@ -64,7 +66,9 @@ internal fun HtmlBlockTag.insertLazyPicture(
         attributes["data-alt"] = curImageInfo.title
         attributes["data-id"] = curImageInfo.filename
         attributes["data-url"] = curImageInfo.href
-
+        curImageInfo.thumbnailSizes.values.first().let {
+            style = "padding-top: ${(it.height * 100f) / it.width}%"
+        }
         ImageSize.values().forEachIndexed { idx, curSize ->
             val thumbnailSize = curImageInfo.thumbnailSizes.getValue(curSize)
             attributes["data-$idx"] = """{"jpg":"${curImageInfo.getJpgUrl(curSize)}","webp":"${curImageInfo.getWebPUrl(curSize)}","w":${thumbnailSize.width},"h":${thumbnailSize.height}}"""
@@ -85,13 +89,13 @@ internal fun HtmlBlockTag.insertSubcategoryThumbnail(
         categoryInformation: CategoryInformation,
         imageInformation: ImageInformation
 ) {
-    div("card") {
-        a(href = "/gallery/categories/${categoryInformation.urlFragment}") {
-            insertLazyPicture(imageInformation, listOf("card-img-top"))
-            div("card-body") {
-                h4("card-title") {
-                    text(categoryInformation.displayName)
-                }
+    a("/gallery/categories/${categoryInformation.urlFragment}", classes = "card") {
+        div("card-img-top") {
+            insertLazyPicture(imageInformation)
+        }
+        div("card-body") {
+            h4("card-title") {
+                text(categoryInformation.displayName)
             }
         }
     }

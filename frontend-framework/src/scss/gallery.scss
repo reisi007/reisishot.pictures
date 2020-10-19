@@ -2,18 +2,29 @@
   display: flex;
 
   &.multiple {
-    $thumbnailSize: 300px;
+    $thumbnailSize: 270px;
     $margin: 8px;
 
-    .lazy {
+    .pic-holder {
+      max-height: $thumbnailSize;
       height: $thumbnailSize;
-      margin-bottom: $margin;
-      margin-top: $margin;
 
-      img {
-        max-width: 100%;
-        max-height: $thumbnailSize;
-        height: 100%;
+      margin-top: $margin;
+      margin-bottom: $margin;
+
+      div {
+        &.lazy {
+          height: 100%;
+          display: inline-block;
+
+          img {
+            //   max-height: $thumbnailSize;
+            max-width: calc(100% - 2 * 15px); // Fill parent minus padding
+
+            height: 100%;
+            vertical-align: middle;
+          }
+        }
       }
     }
   }
@@ -30,28 +41,22 @@
   flex-wrap: wrap;
 
   .card {
-    $h: 33vh;
-    min-height: $h;
-    max-height: $h;
+    width: 300px;
 
-    .lazy {
-      display: inline;
+    .card-img-top {
+      $h: 200px;
+      max-height: $h;
+
+      img {
+        max-height: $h;
+      }
+
     }
 
-    img {
-      max-height: $h - 10vh;
-      margin: 0 auto;
-      display: block;
+    a {
+      display: contents;
     }
 
-
-    max-width: 33.33%;
-    min-width: 300px;
-    @media (max-width: 660px) {
-      min-width: 80%;
-    }
-
-    margin: 0.5rem;
   }
 }
 

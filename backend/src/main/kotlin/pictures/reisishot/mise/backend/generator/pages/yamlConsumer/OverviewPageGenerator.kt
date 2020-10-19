@@ -78,15 +78,16 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
 
                     val additionalTopContent = loadFromFile(configuration, cache, additionalContentSubPath, target, galleryGenerator, metaDataConsumers)
 
+                    val displayName = data.groupName ?: name
                     PageGenerator.generatePage(
                             target,
-                            name,
+                            displayName,
                             websiteConfiguration = configuration,
                             additionalHeadContent = additionalTopContent?.first ?: {},
                             buildingCache = cache
                     ) {
                         p {
-                            h1(classes = "center") { text(data.groupName ?: name) }
+                            h1(classes = "center") { text(displayName) }
                         }
                         additionalTopContent?.second?.let { raw(it) }
                         div(classes = "row center") {

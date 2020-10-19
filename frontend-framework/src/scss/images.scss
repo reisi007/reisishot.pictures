@@ -1,13 +1,19 @@
 div {
   &.lazy {
-    display: flex;
+    box-sizing: border-box;
     max-height: 80vh;
     width: 100%;
+    max-width: 100%;
 
     img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
       object-fit: contain;
-      max-width: 100%;
       width: 100%;
+      max-width: 100%;
       margin: 0 auto;
     }
   }
