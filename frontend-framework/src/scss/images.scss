@@ -1,21 +1,40 @@
 div {
-  &.lazy {
-    box-sizing: border-box;
-    max-height: $maxImageHeight;
-    width: 100%;
-    max-width: 100%;
+  $margin: 8px;
 
-    img {
-      position: absolute;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      right: 0;
+  .pic-holder {
+    width: 100%;
+    position: relative;
+    margin-top: $margin;
+    margin-bottom: $margin;
+    max-height: $maxImageHeight;
+    overflow: hidden;
+
+    div.lazy {
+      position: relative;
+      box-sizing: border-box;
       max-height: $maxImageHeight;
-      object-fit: contain;
       width: 100%;
       max-width: 100%;
-      margin: 0 auto;
+
+      img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        max-height: $maxImageHeight;
+        object-fit: contain;
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+      }
     }
+  }
+}
+
+p {
+  & > img {
+    display: block;
+    margin: 0 auto;
   }
 }

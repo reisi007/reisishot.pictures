@@ -6,8 +6,7 @@ define('loadImage', [], function () {
         }
 
         const cur = parseAttribute(elem, "cur") || {w: -1, h: -1}
-        if (fits(cur))
-            return cur;
+        if (fits(cur)) return cur;
 
 
         if (cur.w >= width || (height != null && cur.h >= height))
@@ -15,16 +14,13 @@ define('loadImage', [], function () {
         const sizes = elem.getAttribute("data-sizes")
         for (let i = 0; i < sizes; i++) {
             const data = parseAttribute(elem, "data-" + i);
-            if (fits(data)) {
-                return data
-
-            }
+            if (fits(data)) return elem["cur"] = data
         }
-        return parseAttribute(elem, "data-" + sizes - 1);
+        return elem["cur"] = parseAttribute(elem, "data-" + sizes - 1);
     }
 
     function parseAttribute(elem, attr) {
-        if (elem[attr])
+        if (typeof elem[attr] === "object")
             return elem[attr];
         return elem[attr] = JSON.parse(elem.getAttribute(attr));
     }

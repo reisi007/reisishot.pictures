@@ -43,9 +43,7 @@ fun HtmlBlockTag.insertImageGallery(
         else
             "col-12 col-sm-6 col-lg-4 col-xl-3"
         imageInformation.forEach { curImageInfo ->
-            div("pic-holder $additionalClasses") {
-                insertLazyPicture(curImageInfo)
-            }
+            insertLazyPicture(curImageInfo, additionalClasses)
         }
     }
 }
@@ -57,23 +55,22 @@ fun HtmlBlockTag.insertImageGallery(
 
 internal fun HtmlBlockTag.insertLazyPicture(
         curImageInfo: ImageInformation,
-        additionalClasses: List<String> = emptyList()
+        additionalClasses: String? = null
 ) {
-    div(PageGenerator.LAZYLOADER_CLASSNAME) {
-        if (additionalClasses.isNotEmpty())
-            classes = classes + additionalClasses
-
-        attributes["data-alt"] = curImageInfo.title
-        attributes["data-id"] = curImageInfo.filename
-        attributes["data-url"] = curImageInfo.href
-        curImageInfo.thumbnailSizes.values.first().let {
-            style = "padding-top: ${(it.height * 100f) / it.width}%"
+    div("pic-holder " + (additionalClasses ?: "")) {
+        div(PageGenerator.LAZYLOADER_CLASSNAME) {
+            attributes["data-alt"] = curImageInfo.title
+            attributes["data-id"] = curImageInfo.filename
+            attributes["data-url"] = curImageInfo.href
+            curImageInfo.thumbnailSizes.values.first().let {
+                style = "padding-top: ${(it.height * 100f) / it.width}%"
+            }
+            ImageSize.values().forEachIndexed { idx, curSize ->
+                val thumbnailSize = curImageInfo.thumbnailSizes.getValue(curSize)
+                attributes["data-$idx"] = """{"jpg":"${curImageInfo.getJpgUrl(curSize)}","webp":"${curImageInfo.getWebPUrl(curSize)}","w":${thumbnailSize.width},"h":${thumbnailSize.height}}"""
+            }
+            attributes["data-sizes"] = ImageSize.values().size.toString()
         }
-        ImageSize.values().forEachIndexed { idx, curSize ->
-            val thumbnailSize = curImageInfo.thumbnailSizes.getValue(curSize)
-            attributes["data-$idx"] = """{"jpg":"${curImageInfo.getJpgUrl(curSize)}","webp":"${curImageInfo.getWebPUrl(curSize)}","w":${thumbnailSize.width},"h":${thumbnailSize.height}}"""
-        }
-        attributes["data-sizes"] = ImageSize.values().size.toString()
     }
 }
 

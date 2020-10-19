@@ -47,9 +47,8 @@ class TemplateApi(
     @JvmOverloads
     fun insertPicture(filenameWithoutExtension: FilenameWithoutExtension, classNames: String? = null) = buildString {
         appendHTML(prettyPrint = false, xhtmlCompatible = true).div {
-            val cssClasses = classNames?.split(" ") ?: listOf()
             with(galleryGenerator.cache) {
-                insertLazyPicture(imageInformationData.getOrThrow(filenameWithoutExtension), cssClasses)
+                insertLazyPicture(imageInformationData.getOrThrow(filenameWithoutExtension), classNames)
             }
         }
     }
@@ -112,7 +111,7 @@ class TemplateApi(
                 testimonialsToDisplay.forEach { testimonial ->
                     div("col-12 col-lg-5 card border-dark") {
                         with(galleryGenerator.cache) {
-                            insertLazyPicture(imageInformationData.getOrThrow(testimonial.image), listOf("card-img-top"))
+                            insertLazyPicture(imageInformationData.getOrThrow(testimonial.image), "card-img-top")
                         }
                         div("card-body text-dark") {
                             h5("card-title") {
@@ -153,7 +152,7 @@ class TemplateApi(
                             classes = classes + "active"
 
                         with(galleryGenerator.cache) {
-                            insertLazyPicture(imageInformationData.getOrThrow(filename), listOf("d-block", "w-100"))
+                            insertLazyPicture(imageInformationData.getOrThrow(filename), "d-block w-100")
                         }
                     }
                 }
