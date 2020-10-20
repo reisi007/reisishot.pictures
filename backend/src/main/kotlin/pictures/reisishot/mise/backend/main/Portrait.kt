@@ -35,7 +35,7 @@ object Portrait {
                         websiteLocation = "https://$folderName",
                         inPath = Paths.get("input", folderName).toAbsolutePath(),
                         tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
-                        outPath = Paths.get("frontend", folderName).toAbsolutePath(),
+                        outPath = Paths.get("frontend", folderName, "generated").toAbsolutePath(),
                         interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         cleanupGeneration = false,
                         socialMediaLinks = SocialMediaAccounts(
@@ -74,7 +74,7 @@ object Portrait {
                                         exifReplaceFunction = defaultExifReplaceFunction
                                 ),
                                 ImageMagickThumbnailGenerator(),
-                                ImageInfoImporter(Paths.get("tmp-main").toAbsolutePath()),
+                                ImageInfoImporter(Main.tmpPath),
                                 SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
                         )
                 )

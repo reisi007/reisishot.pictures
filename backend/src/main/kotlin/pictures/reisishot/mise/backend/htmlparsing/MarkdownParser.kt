@@ -15,7 +15,6 @@ import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.pages.YamlMetaDataConsumer
-import java.io.StringReader
 import java.nio.file.Files
 
 object MarkdownParser {
@@ -51,21 +50,22 @@ object MarkdownParser {
                     .forEach { it(this) }
         }
         val htmlInput = Files.newBufferedReader(sourceFile).use { reader ->
-            val parseReader = markdownParser.parseReader(reader)
-            yamlExtractor.visit(parseReader)
-            StringReader(
-                    htmlRenderer.render(
-                            parseReader
-                    )
+            VelocityApplier.runVelocity(
+                    reader,
+                    sourceFile.filenameWithoutExtension,
+                    targetPath,
+                    galleryGenerator,
+                    cache,
+                    configuration
             )
         }
-        return headManipulator to VelocityApplier.runVelocity(
-                htmlInput,
-                sourceFile.filenameWithoutExtension,
-                targetPath,
-                galleryGenerator,
-                cache,
-                configuration
-        )
+
+        return headManipulator to htmlInput.markdown2Html(yamlExtractor)
+    }
+
+    private fun String.markdown2Html(yamlExtractor: AbstractYamlFrontMatterVisitor): String {
+        val parseReader = markdownParser.parse(this)
+        yamlExtractor.visit(parseReader)
+        return htmlRenderer.render(parseReader)
     }
 }

@@ -21,6 +21,8 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 object Main {
+    private val folderName = "reisishot.pictures"
+    val tmpPath = Paths.get("tmp", folderName).toAbsolutePath()
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -28,7 +30,7 @@ object Main {
     }
 
     fun build(isDevMode: Boolean) {
-        val folderName = "reisishot.pictures"
+
         Mise.build(
                 WebsiteConfiguration(
                         shortTitle = "Reisishot",
@@ -36,8 +38,8 @@ object Main {
                         isDevMode = isDevMode,
                         websiteLocation = "https://$folderName",
                         inPath = Paths.get("input", folderName).toAbsolutePath(),
-                        tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
-                        outPath = Paths.get("frontend", folderName).toAbsolutePath(),
+                        tmpPath = tmpPath,
+                        outPath = Paths.get("frontend", folderName, "generated").toAbsolutePath(),
                         interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         cleanupGeneration = false,
                         analyticsSiteId = "1",
