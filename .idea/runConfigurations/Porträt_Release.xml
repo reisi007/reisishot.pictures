@@ -1,10 +1,10 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Framework" type="js.build_tools.gulp">
+  <configuration default="false" name="Porträt Release" type="js.build_tools.gulp">
     <node-interpreter>project</node-interpreter>
     <node-options />
-    <gulpfile>$PROJECT_DIR$/frontend-framework/gulpfile.js</gulpfile>
+    <gulpfile>$PROJECT_DIR$/frontend-portrait/gulpfile.js</gulpfile>
     <tasks>
-      <task>default</task>
+      <task>release</task>
     </tasks>
     <arguments />
     <envs />

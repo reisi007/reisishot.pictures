@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Boudoir Website" type="js.build_tools.gulp">
+  <configuration default="false" name="Main Dev" type="js.build_tools.gulp">
     <node-interpreter>project</node-interpreter>
     <node-options />
-    <gulpfile>$PROJECT_DIR$/frontend-boudoir/gulpfile.js</gulpfile>
+    <gulpfile>$PROJECT_DIR$/frontend-main/gulpfile.js</gulpfile>
     <tasks>
       <task>default</task>
     </tasks>

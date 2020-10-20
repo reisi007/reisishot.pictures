@@ -3,7 +3,8 @@ const
     browserSync = require('browser-sync'),
     $ = require('gulp-load-plugins')({lazy: true}),
     serveStatic = require('serve-static'),
-    frontend = './../frontend-framework/out/**/*';
+    frameworkStatic = './../frontend-framework/out/**/*',
+    frameworkJsCss = './../frontend-framework/generated/**/*';
 
 gulp.task('copyStatic', function () {
     return gulp
@@ -11,9 +12,15 @@ gulp.task('copyStatic', function () {
         .pipe(gulp.dest('generated'))
 });
 
-gulp.task('copyFramework', function () {
+gulp.task('copyFrameworkStatic', function () {
     return gulp
-        .src(frontend, {dot: true})
+        .src(frameworkStatic, {dot: true})
+        .pipe(gulp.dest('generated'))
+});
+
+gulp.task('copyFrameworkJsCss', function () {
+    return gulp
+        .src(frameworkJsCss, {dot: true})
         .pipe(gulp.dest('generated'))
 });
 
@@ -31,8 +38,10 @@ gulp.task('browser-sync', function () {
 gulp.task('watch', function () {
     // Watch framework
     gulp.watch("generated/**/*.html").on('change', browserSync.reload);
-    // Watch .html files
-    gulp.watch(frontend, ['copyFramework', browserSync.reload]);
+    // Watch static files
+    gulp.watch(frameworkStatic, ['copyFrameworkStatic', browserSync.reload]);
+    // Watch .js / .css  files
+    gulp.watch(frameworkJsCss, ['copyFrameworkJsCss', browserSync.reload]);
     // Watch static files
     gulp.watch('src/static/**/*.*', ['copyStatic', browserSync.reload]);
 });
@@ -40,8 +49,16 @@ gulp.task('watch', function () {
 gulp.task('default', function () {
     gulp.start(
         'copyStatic',
-        'copyFramework',
+        'copyFrameworkStatic',
+        'copyFrameworkJsCss',
         'browser-sync',
         'watch'
+    );
+});
+
+gulp.task('release', function () {
+    gulp.start(
+        'copyStatic',
+        'copyFrameworkStatic'
     );
 });

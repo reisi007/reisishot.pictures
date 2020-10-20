@@ -17,7 +17,7 @@ gulp.task('styles', function () {
         .pipe(autoprefixCss())
         .pipe($.cleanCss())
         .pipe($.concat('styles.css'))
-        .pipe(gulp.dest('out/css'));
+        .pipe(gulp.dest('generated/css'));
 });
 
 function babelify() {
@@ -36,7 +36,7 @@ gulp.task('scripts', function () {
         .pipe($.plumber())
         .pipe($.concat('combined.min.js'))
         .pipe($.uglify())
-        .pipe(gulp.dest('out/js'))
+        .pipe(gulp.dest('generated/js'))
 
 });
 
@@ -66,5 +66,13 @@ gulp.task('default', function () {
         'styles',
         'scripts',
         'watch'
+    );
+});
+
+gulp.task('release', function () {
+    gulp.start(
+        'copyStatic',
+        'styles',
+        'scripts'
     );
 });
