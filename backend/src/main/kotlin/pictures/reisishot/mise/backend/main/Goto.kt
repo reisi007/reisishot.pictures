@@ -20,7 +20,7 @@ object Goto {
     fun build(isDevMode: Boolean) {
         Mise.build(
                 WebsiteConfiguration(
-                        shortTitle = "Reisishot Links",
+                        shortTitle = "Reisishot Projektübersicht",
                         longTitle = "Reisishot Goto - Übersicht über meine Projekte",
                         isDevMode = isDevMode,
                         websiteLocation = "https://goto.reisishot.pictures",

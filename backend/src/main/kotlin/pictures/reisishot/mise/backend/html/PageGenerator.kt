@@ -126,15 +126,16 @@ object PageGenerator {
             a(classes = "navbar-brand", href = "/") {
                 text(websiteConfiguration.shortTitle)
             }
-            button(classes = "navbar-toggler") {
-                attributes["type"] = "button"
-                attributes["data-toggle"] = "collapse"
-                attributes["data-target"] = "#$navId"
-                attributes["aria-controls"] = navId
-                attributes["aria-expanded"] = "false"
-                attributes["aria-label"] = "Toggle navigation"
-                span("navbar-toggler-icon")
-            }
+            if (items.isNotEmpty())
+                button(classes = "navbar-toggler") {
+                    attributes["type"] = "button"
+                    attributes["data-toggle"] = "collapse"
+                    attributes["data-target"] = "#$navId"
+                    attributes["aria-controls"] = navId
+                    attributes["aria-expanded"] = "false"
+                    attributes["aria-label"] = "Toggle navigation"
+                    span("navbar-toggler-icon")
+                }
 
             var dropdownCount = 0;
             divId("navbarCollapse", "navbar-collapse collapse") {
