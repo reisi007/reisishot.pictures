@@ -6,7 +6,7 @@
     <tasks>
       <task>default</task>
     </tasks>
-    <arguments>--target &quot;frontend-portrait&quot;</arguments>
+    <arguments>--target &quot;portrait.reisishot.pictures&quot;</arguments>
     <envs />
     <method v="2" />
   </configuration>

@@ -12,7 +12,6 @@ import java.io.Reader
 import java.nio.file.Path
 
 object VelocityApplier {
-    private val compressHtmlRegex = """[\s\n\r]{2,}""".toRegex()
     private val velocity by lazy {
         Velocity.init()
         return@lazy VelocityEngine()
@@ -46,5 +45,4 @@ object VelocityApplier {
             throw IllegalStateException("Could not parse \"$srcPath!\"", e)
         }
     }
-            .replace(compressHtmlRegex, " ")
 }

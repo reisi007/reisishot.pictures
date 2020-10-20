@@ -23,33 +23,34 @@ const
     browserSync = require('browser-sync'),
     $ = require('gulp-load-plugins')({lazy: true}),
     serveStatic = require('serve-static'),
-    base = './../' + arg.target + '/',
+    inBase = './../' + arg.target + '/',
+    outBase = './../frontend/' + arg.target + '/generated',
     frameworkStatic = './../frontend-framework/out/**/*',
     frameworkJsCss = './../frontend-framework/generated/**/*';
 
 gulp.task('copyStatic', function () {
     return gulp
-        .src(base + 'src/static/**/*', {dot: true})
-        .pipe(gulp.dest(base + 'generated'))
+        .src(inBase + 'src/static/**/*', {dot: true})
+        .pipe(gulp.dest(outBase))
 });
 
 gulp.task('copyFrameworkStatic', function () {
     return gulp
         .src(frameworkStatic, {dot: true})
-        .pipe(gulp.dest(base + 'generated'))
+        .pipe(gulp.dest(outBase))
 });
 
 gulp.task('copyFrameworkJsCss', function () {
     return gulp
         .src(frameworkJsCss, {dot: true})
-        .pipe(gulp.dest(base + 'generated'))
+        .pipe(gulp.dest(outBase))
 });
 
 gulp.task('browser-sync', function () {
     browserSync({
         server: {
             middleware: [
-                serveStatic(base + "generated/")
+                serveStatic(outBase)
             ],
             injectChanges: true
         }
@@ -58,13 +59,13 @@ gulp.task('browser-sync', function () {
 
 gulp.task('watch', function () {
     // Watch framework
-    gulp.watch(base + "generated/**/*.html").on('change', browserSync.reload);
+    gulp.watch(outBase + '/**/*.html').on('change', browserSync.reload);
     // Watch static files
     gulp.watch(frameworkStatic, ['copyFrameworkStatic', browserSync.reload]);
     // Watch .js / .css  files
     gulp.watch(frameworkJsCss, ['copyFrameworkJsCss', browserSync.reload]);
     // Watch static files
-    gulp.watch(base + 'src/static/**/*.*', ['copyStatic', browserSync.reload]);
+    gulp.watch(inBase + 'src/static/**/*.*', ['copyStatic', browserSync.reload]);
 });
 
 gulp.task('default', function () {

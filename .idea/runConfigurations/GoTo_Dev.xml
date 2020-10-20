@@ -6,7 +6,7 @@
     <tasks>
       <task>default</task>
     </tasks>
-    <arguments>--target &quot;frontend-goto&quot;</arguments>
+    <arguments>--target &quot;goto.reisishot.pictures&quot;</arguments>
     <envs />
     <method v="2" />
   </configuration>

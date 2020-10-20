@@ -6,7 +6,7 @@
     <tasks>
       <task>release</task>
     </tasks>
-    <arguments>--target &quot;frontend-main&quot;</arguments>
+    <arguments>--target &quot;reisishot.pictures&quot;</arguments>
     <envs />
     <method v="2" />
   </configuration>

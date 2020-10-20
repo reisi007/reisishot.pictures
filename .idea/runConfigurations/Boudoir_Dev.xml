@@ -6,7 +6,7 @@
     <tasks>
       <task>default</task>
     </tasks>
-    <arguments>--target &quot;frontend-boudoir&quot;</arguments>
+    <arguments>--target &quot;boudoir.reisishot.pictures&quot;</arguments>
     <envs />
     <method v="2" />
   </configuration>
