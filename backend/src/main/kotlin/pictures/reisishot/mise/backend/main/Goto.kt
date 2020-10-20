@@ -21,7 +21,7 @@ object Goto {
         Mise.build(
                 WebsiteConfiguration(
                         shortTitle = "Reisishot Links",
-                        longTitle = "Reisishot Links - Übersicht über meine Projekte",
+                        longTitle = "Reisishot Goto - Übersicht über meine Projekte",
                         isDevMode = isDevMode,
                         websiteLocation = "https://goto.reisishot.pictures",
                         inPath = Paths.get("input-goto").toAbsolutePath(),
