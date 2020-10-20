@@ -11,7 +11,6 @@ import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterExtension
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import kotlinx.html.HEAD
-import org.apache.commons.text.StringEscapeUtils
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
@@ -55,10 +54,8 @@ object MarkdownParser {
             val parseReader = markdownParser.parseReader(reader)
             yamlExtractor.visit(parseReader)
             StringReader(
-                    StringEscapeUtils.unescapeHtml4(
-                            htmlRenderer.render(
-                                    parseReader
-                            )
+                    htmlRenderer.render(
+                            parseReader
                     )
             )
         }
