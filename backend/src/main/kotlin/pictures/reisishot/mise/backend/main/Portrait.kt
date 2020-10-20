@@ -26,15 +26,16 @@ object Portrait {
     }
 
     fun build(isDevMode: Boolean) {
+        val folderName = "portrait.reisishot.pictures"
         Mise.build(
                 WebsiteConfiguration(
-                        websiteLocation = "https://portrait.reisishot.pictures",
                         shortTitle = "Reisishot Porträt",
                         longTitle = "Reisishot Porträt - Immer im besten Licht",
                         isDevMode = isDevMode,
-                        inPath = Paths.get("input-portrait").toAbsolutePath(),
-                        tmpPath = Paths.get("tmp-portrait").toAbsolutePath(),
-                        outPath = Paths.get("frontend-portrait/generated").toAbsolutePath(),
+                        websiteLocation = "https://$folderName",
+                        inPath = Paths.get("input", folderName).toAbsolutePath(),
+                        tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
+                        outPath = Paths.get("frontend", folderName).toAbsolutePath(),
                         interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         cleanupGeneration = false,
                         socialMediaLinks = SocialMediaAccounts(

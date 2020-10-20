@@ -2,11 +2,11 @@
   <configuration default="false" name="Boudoir Dev" type="js.build_tools.gulp">
     <node-interpreter>project</node-interpreter>
     <node-options />
-    <gulpfile>$PROJECT_DIR$/frontend-boudoir/gulpfile.js</gulpfile>
+    <gulpfile>$PROJECT_DIR$/frontend-build/gulpfile.js</gulpfile>
     <tasks>
       <task>default</task>
     </tasks>
-    <arguments />
+    <arguments>--target &quot;frontend-boudoir&quot;</arguments>
     <envs />
     <method v="2" />
   </configuration>

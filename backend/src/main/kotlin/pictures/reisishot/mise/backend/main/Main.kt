@@ -28,15 +28,16 @@ object Main {
     }
 
     fun build(isDevMode: Boolean) {
+        val folderName = "reisishot.pictures"
         Mise.build(
                 WebsiteConfiguration(
                         shortTitle = "Reisishot",
                         longTitle = "Reisishot - Fotograf Florian Reisinger",
                         isDevMode = isDevMode,
-                        websiteLocation = "https://reisishot.pictures",
-                        inPath = Paths.get("input-main").toAbsolutePath(),
-                        tmpPath = Paths.get("tmp-main").toAbsolutePath(),
-                        outPath = Paths.get("frontend-main/generated").toAbsolutePath(),
+                        websiteLocation = "https://$folderName",
+                        inPath = Paths.get("input", folderName).toAbsolutePath(),
+                        tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
+                        outPath = Paths.get("frontend", folderName).toAbsolutePath(),
                         interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         cleanupGeneration = false,
                         analyticsSiteId = "1",

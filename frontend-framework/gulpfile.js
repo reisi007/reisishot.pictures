@@ -46,6 +46,12 @@ gulp.task('copyStatic', function () {
         .pipe(gulp.dest('out'))
 });
 
+gulp.task('copyRelease', function () {
+    return gulp
+        .src('./generated/**/*', {dot: true})
+        .pipe(gulp.dest('./../frontend/static.reisishot.pictures'))
+});
+
 gulp.task('watch', function () {
     // Watch .sass files
     gulp.watch(['src/scss/**/*.scss', 'src/scss/**/*.css'], ['styles']);

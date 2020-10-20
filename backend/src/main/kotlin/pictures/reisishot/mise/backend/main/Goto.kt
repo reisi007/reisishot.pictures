@@ -18,15 +18,16 @@ object Goto {
     }
 
     fun build(isDevMode: Boolean) {
+        val folderName = "goto.reisishot.pictures"
         Mise.build(
                 WebsiteConfiguration(
                         shortTitle = "Reisishot Projektübersicht",
                         longTitle = "Reisishot Goto - Übersicht über meine Projekte",
                         isDevMode = isDevMode,
-                        websiteLocation = "https://goto.reisishot.pictures",
-                        inPath = Paths.get("input-goto").toAbsolutePath(),
-                        tmpPath = Paths.get("tmp-goto").toAbsolutePath(),
-                        outPath = Paths.get("frontend-goto/generated").toAbsolutePath(),
+                        websiteLocation = "https://$folderName",
+                        inPath = Paths.get("input", folderName).toAbsolutePath(),
+                        tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
+                        outPath = Paths.get("frontend", folderName).toAbsolutePath(),
                         interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         cleanupGeneration = false,
                         analyticsSiteId = "6",

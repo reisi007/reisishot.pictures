@@ -25,15 +25,16 @@ object Boudoir {
     }
 
     fun build(isDevMode: Boolean) {
+        val folderName = "boudoir.reisishot.pictures"
         Mise.build(
                 WebsiteConfiguration(
                         shortTitle = "Reisishot Boudoir",
                         longTitle = "Reisishot Boudoir - Intime Portraits für dich aus Leidenschaft",
                         isDevMode = isDevMode,
-                        websiteLocation = "https://boudoir.reisishot.pictures",
-                        inPath = Paths.get("input-boudoir").toAbsolutePath(),
-                        tmpPath = Paths.get("tmp-boudoir").toAbsolutePath(),
-                        outPath = Paths.get("frontend-boudoir/generated").toAbsolutePath(),
+                        websiteLocation = "https://$folderName",
+                        inPath = Paths.get("input", folderName).toAbsolutePath(),
+                        tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
+                        outPath = Paths.get("frontend", folderName).toAbsolutePath(),
                         interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         cleanupGeneration = false,
                         socialMediaLinks = SocialMediaAccounts(

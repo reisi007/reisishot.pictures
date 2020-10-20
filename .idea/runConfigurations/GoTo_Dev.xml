@@ -2,11 +2,11 @@
   <configuration default="false" name="GoTo Dev" type="js.build_tools.gulp">
     <node-interpreter>project</node-interpreter>
     <node-options />
-    <gulpfile>$PROJECT_DIR$/frontend-goto/gulpfile.js</gulpfile>
+    <gulpfile>$PROJECT_DIR$/frontend-build/gulpfile.js</gulpfile>
     <tasks>
       <task>default</task>
     </tasks>
-    <arguments />
+    <arguments>--target &quot;frontend-goto&quot;</arguments>
     <envs />
     <method v="2" />
   </configuration>
