@@ -11,19 +11,22 @@ class WebsiteConfiguration(
         val shortTitle: String,
         val longTitle: String,
         websiteLocation: String,
-        private val form: DIV.(target: Path, websiteConfiguration: WebsiteConfiguration) -> Unit,
         val inPath: Path = Paths.get("./src/main/resources"),
         val tmpPath: Path = Paths.get("./src/main/resources/cache"),
         val outPath: Path = Paths.get("./generated"),
         val locale: Locale = Locale.getDefault(),
         val cleanupGeneration: Boolean = false,
-        val interactiveDelayMs: Long? = 2000,
+        private val _interactiveDelayMs: Long? = 2000L,
+        private val form: DIV.(target: Path, websiteConfiguration: WebsiteConfiguration) -> Unit = { _, _ -> },
         val analyticsSiteId: String? = null,
         val socialMediaLinks: SocialMediaAccounts? = null,
         val generators: List<WebsiteGenerator> = emptyList(),
-
+        val isDevMode: Boolean = false,
         vararg val interactiveIgnoredFiles: ((FileExtension) -> Boolean) = arrayOf({ _: String -> false })
 ) {
+    val interactiveDelayMs: Long?
+        get() = if (isDevMode) _interactiveDelayMs else null
+
     fun createForm(parent: DIV, target: Path) = form(parent, target, this@WebsiteConfiguration)
     val websiteLocation: String = websiteLocation.let { if (websiteLocation.endsWith("/")) it else "$it/" }
     override fun equals(other: Any?): Boolean {
@@ -71,5 +74,6 @@ data class SocialMediaAccounts(
         val facebook: String? = null,
         val instagram: String? = null,
         val mail: String? = null,
-        val whatsapp: String? = null
+        val whatsapp: String? = null,
+        val podcast: String? = null
 )

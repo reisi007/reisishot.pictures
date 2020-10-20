@@ -1,10 +1,13 @@
-package pictures.reisishot.mise.backend
+package pictures.reisishot.mise.backend.main
 
 import at.reisishot.mise.commons.*
 import at.reisishot.mise.exifdata.defaultExifReplaceFunction
 import kotlinx.html.InputType
 import kotlinx.html.h2
 import kotlinx.html.h3
+import pictures.reisishot.mise.backend.Mise
+import pictures.reisishot.mise.backend.SocialMediaAccounts
+import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.multisite.ImageInfoImporter
@@ -16,14 +19,19 @@ import pictures.reisishot.mise.backend.html.*
 import java.nio.file.Path
 import java.nio.file.Paths
 
-object ProducionPortrait {
+object Portrait {
     @JvmStatic
     fun main(args: Array<String>) {
+        build(true)
+    }
+
+    fun build(isDevMode: Boolean) {
         Mise.build(
                 WebsiteConfiguration(
+                        websiteLocation = "https://portrait.reisishot.pictures",
                         shortTitle = "Reisishot Porträt",
                         longTitle = "Reisishot Porträt - Immer im besten Licht",
-                        websiteLocation = "https://portrait.reisishot.pictures",
+                        isDevMode = isDevMode,
                         inPath = Paths.get("input-portrait").toAbsolutePath(),
                         tmpPath = Paths.get("tmp-portrait").toAbsolutePath(),
                         outPath = Paths.get("frontend-portrait/generated").toAbsolutePath(),
@@ -55,11 +63,13 @@ object ProducionPortrait {
                         },
                         generators = listOf(
                                 PageGenerator(
-                                        OverviewPageGenerator(),
-                                        KeywordConsumer()
+                                        metaDataConsumers = arrayOf(
+                                                OverviewPageGenerator(),
+                                                KeywordConsumer()
+                                        )
                                 ),
                                 GalleryGenerator(
-                                        categoryBuilders = *emptyArray(),
+                                        categoryBuilders = emptyArray(),
                                         exifReplaceFunction = defaultExifReplaceFunction
                                 ),
                                 ImageMagickThumbnailGenerator(),

@@ -93,8 +93,9 @@ object Mise {
         val coroutineDispatcher = newFixedThreadPoolContext(
                 Runtime.getRuntime().availableProcessors(), "Incremental pool"
         )
-        while (interactiveDelayMs != null) {
-            delay(interactiveDelayMs)
+        val loopMs = interactiveDelayMs
+        while (loopMs != null) {
+            delay(loopMs)
             try {
                 watchKey.processEvents(this, inPath, cache, generators, coroutineDispatcher)
             } catch (e: Exception) {

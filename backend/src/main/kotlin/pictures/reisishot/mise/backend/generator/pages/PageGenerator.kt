@@ -18,7 +18,11 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.streams.asSequence
 
-class PageGenerator(private vararg val metaDataConsumers: YamlMetaDataConsumer) : WebsiteGenerator {
+class PageGenerator(
+        private val generateHeader: Boolean = true,
+        private val generateFooter: Boolean = true,
+        private vararg val metaDataConsumers: YamlMetaDataConsumer
+) : WebsiteGenerator {
 
     override val executionPriority: Int = 30_000
     override val generatorName: String = "Reisishot Page"

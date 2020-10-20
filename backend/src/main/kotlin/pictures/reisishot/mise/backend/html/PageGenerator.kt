@@ -86,6 +86,11 @@ object PageGenerator {
                                                     insertIcon(ReisishotIcons.INSTAGRAM)
                                                 }
                                             }
+                                            accounts.podcast?.let {
+                                                a(it, "_blank") {
+                                                    insertIcon(ReisishotIcons.PODCAST)
+                                                }
+                                            }
                                             accounts.whatsapp?.let {
                                                 a("https://wa.me/$it", "_blank") {
                                                     insertIcon(ReisishotIcons.WHATSAPP)

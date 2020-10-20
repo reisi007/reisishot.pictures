@@ -1,10 +1,13 @@
-package pictures.reisishot.mise.backend
+package pictures.reisishot.mise.backend.main
 
 import at.reisishot.mise.commons.*
 import at.reisishot.mise.exifdata.defaultExifReplaceFunction
 import kotlinx.html.InputType
 import kotlinx.html.h2
 import kotlinx.html.h3
+import pictures.reisishot.mise.backend.Mise
+import pictures.reisishot.mise.backend.SocialMediaAccounts
+import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.multisite.ImageInfoImporter
@@ -15,18 +18,23 @@ import pictures.reisishot.mise.backend.html.*
 import java.nio.file.Path
 import java.nio.file.Paths
 
-object ProducionBoudoir {
+object Boudoir {
     @JvmStatic
     fun main(args: Array<String>) {
+        build(true)
+    }
+
+    fun build(isDevMode: Boolean) {
         Mise.build(
                 WebsiteConfiguration(
                         shortTitle = "Reisishot Boudoir",
                         longTitle = "Reisishot Boudoir - Intime Portraits für dich aus Leidenschaft",
+                        isDevMode = isDevMode,
                         websiteLocation = "https://boudoir.reisishot.pictures",
                         inPath = Paths.get("input-boudoir").toAbsolutePath(),
                         tmpPath = Paths.get("tmp-boudoir").toAbsolutePath(),
                         outPath = Paths.get("frontend-boudoir/generated").toAbsolutePath(),
-                        interactiveIgnoredFiles = *arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
+                        interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         cleanupGeneration = false,
                         socialMediaLinks = SocialMediaAccounts(
                                 "reisishot.boudoir",
@@ -54,10 +62,12 @@ object ProducionBoudoir {
                         },
                         generators = listOf(
                                 PageGenerator(
-                                        KeywordConsumer()
+                                        metaDataConsumers = arrayOf(
+                                                KeywordConsumer()
+                                        )
                                 ),
                                 GalleryGenerator(
-                                        categoryBuilders = *emptyArray(),
+                                        categoryBuilders = emptyArray(),
                                         exifReplaceFunction = defaultExifReplaceFunction
                                 ),
                                 ImageMagickThumbnailGenerator(),
