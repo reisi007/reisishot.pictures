@@ -27,7 +27,7 @@ object Goto {
                         websiteLocation = "https://$folderName",
                         inPath = Paths.get("input", folderName).toAbsolutePath(),
                         tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
-                        outPath = Paths.get("frontend", folderName, "generated").toAbsolutePath(),
+                        outPath = Paths.get("upload", folderName).toAbsolutePath(),
                         interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         cleanupGeneration = false,
                         analyticsSiteId = "6",

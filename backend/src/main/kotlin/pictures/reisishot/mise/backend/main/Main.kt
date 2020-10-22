@@ -39,7 +39,7 @@ object Main {
                         websiteLocation = "https://$folderName",
                         inPath = Paths.get("input", folderName).toAbsolutePath(),
                         tmpPath = tmpPath,
-                        outPath = Paths.get("frontend", folderName, "generated").toAbsolutePath(),
+                        outPath = Paths.get("upload", folderName).toAbsolutePath(),
                         interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         cleanupGeneration = false,
                         analyticsSiteId = "1",

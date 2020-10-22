@@ -144,3 +144,4 @@ gradle-app.setting
 **/.gradle/**
 notepad++.session
 **/node_modules/**
+upload/**

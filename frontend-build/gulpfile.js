@@ -24,7 +24,7 @@ const
     $ = require('gulp-load-plugins')({lazy: true}),
     serveStatic = require('serve-static'),
     inBase = './../' + arg.target + '/',
-    outBase = './../frontend/' + arg.target + '/generated',
+    outBase = './../upload/' + arg.target + '',
     frameworkStatic = './../frontend-framework/out/**/*',
     frameworkJsCss = './../frontend-framework/generated/**/*';
 

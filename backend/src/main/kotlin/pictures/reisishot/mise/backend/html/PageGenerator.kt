@@ -38,13 +38,13 @@ object PageGenerator {
                         classes = classes + "h-100"
                         head {
                             lang = locale.toLanguageTag()
-                            preload()
+                            preload(websiteConfiguration.isDevMode)
                             metaUTF8()
                             metaViewport()
                             linkCanonnical(url)
                             favicon()
                             title(title)
-                            appCss()
+                            appCss(websiteConfiguration.isDevMode)
                             additionalHeadContent(this)
                         }
                         body("d-flex flex-column h-100") {
@@ -116,7 +116,7 @@ object PageGenerator {
                             }
                             polyfills()
                             analyticsJs(websiteConfiguration)
-                            cookieInfo()
+                            cookieInfo(websiteConfiguration.isDevMode)
                             analyticsImage(websiteConfiguration)
                         }
                     }
@@ -191,8 +191,9 @@ object PageGenerator {
     private fun BODY.scriptJs(src: String) = script(src = src) {}
 
     @HtmlTagMarker
-    private fun HEAD.appCss() {
-        styleLink("/css/styles.css")
+    private fun HEAD.appCss(devMode: Boolean) {
+        val prefix = getRessourceUrlPrefix(devMode)
+        styleLink("$prefix/css/styles.css")
     }
 
     @HtmlTagMarker
@@ -214,8 +215,9 @@ object PageGenerator {
             meta(name = "viewport", content = "width=device-width, initial-scale=1, shrink-to-fit=no")
 
     @HtmlTagMarker
-    private fun HEAD.preload() {
-        link("/css/rs/fonts/reisishotpictures.woff2", "preload") {
+    private fun HEAD.preload(devMode: Boolean) {
+        val prefix = getRessourceUrlPrefix(devMode)
+        link("$prefix/css/rs/fonts/reisishotpictures.woff2", "preload") {
             attributes["as"] = "font"
             attributes["crossorigin"] = ""
         }
@@ -223,13 +225,15 @@ object PageGenerator {
         link(polyfillUrl, "preload") {
             attributes["as"] = "script"
         }
-        link("/js/combined.min.js", "preload") {
+        link("$prefix/js/combined.min.js", "preload") {
             attributes["as"] = "script"
         }
-        link("/css/styles.css", "preload") {
+        link("$prefix/css/styles.css", "preload") {
             attributes["as"] = "style"
         }
     }
+
+    private fun getRessourceUrlPrefix(devMode: Boolean) = if (devMode) "" else "https://static.reisishot.pictures"
 
     @HtmlTagMarker
     private fun HEAD.favicon() {
@@ -283,18 +287,21 @@ object PageGenerator {
     private fun String.encoded() = URLEncoder.encode(this, Charsets.UTF_8.displayName())
 
     @HtmlTagMarker
-    private fun BODY.cookieInfo() = script("text/javascript", "/js/combined.min.js") {
-        attributes.putAll(
-                sequenceOf(
-                        "id" to "cookieinfo",
-                        "data-message" to "Hier werden Cookies verwendet. Wenn Sie fortfahren akzeptieren Sie die Verwendung von Cookies",
-                        "data-linkmsg" to "Weitere Informationen zum Datenschutz",
-                        "data-moreinfo" to "https://reisishot.pictures/datenschutz",
-                        "data-close-text" to "Akzeptieren",
-                        "data-accept-on-scroll" to "true"
-                )
-        )
+    private fun BODY.cookieInfo(devMode: Boolean) {
+        val prefix = getRessourceUrlPrefix(devMode)
+        script("text/javascript", "$prefix/js/combined.min.js") {
+            attributes.putAll(
+                    sequenceOf(
+                            "id" to "cookieinfo",
+                            "data-message" to "Hier werden Cookies verwendet. Wenn Sie fortfahren akzeptieren Sie die Verwendung von Cookies",
+                            "data-linkmsg" to "Weitere Informationen zum Datenschutz",
+                            "data-moreinfo" to "https://reisishot.pictures/datenschutz",
+                            "data-close-text" to "Akzeptieren",
+                            "data-accept-on-scroll" to "true"
+                    )
+            )
 
+        }
     }
 
     @HtmlTagMarker
