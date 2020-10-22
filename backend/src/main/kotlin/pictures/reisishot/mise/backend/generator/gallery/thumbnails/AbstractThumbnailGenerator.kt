@@ -49,6 +49,8 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
 
         companion object {
 
+            val LARGEST = XLARGE
+
             fun getSize(minSize: Int) = values()
                     .asSequence()
                     .firstOrNull { it.longestSidePx > minSize } ?: XLARGE

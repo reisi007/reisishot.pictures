@@ -1,0 +1,18 @@
+.socialShare {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 1rem;
+
+  .content {
+    @extend .text-secondary
+  }
+}
+
+footer {
+  .socialShare {
+    $margin: 4px;
+    justify-content: center;
+    margin-top: $margin;
+    margin-bottom: $margin;
+  }
+}

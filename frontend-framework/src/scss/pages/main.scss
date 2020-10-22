@@ -2,5 +2,14 @@
   .card {
     margin-left: 0;
     margin-right: 0;
+
+    .card-img-top.only-w {
+      $maxHeight: 50vh;
+      max-height: $maxHeight;
+
+      img {
+        max-height: $maxHeight;
+      }
+    }
   }
 }

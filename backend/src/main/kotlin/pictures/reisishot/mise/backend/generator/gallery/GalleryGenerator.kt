@@ -40,17 +40,18 @@ class GalleryGenerator(
                                 target = baseHtmlPath withChild curImageInformation.filename.toLowerCase() withChild "index.html",
                                 title = curImageInformation.title,
                                 pageContent = {
-                                    classes = classes + "singleImage"
-                                    h1("text-center") {
-                                        text(curImageInformation.title)
+                                    div("singleImage") {
+                                        h1("text-center") {
+                                            text(curImageInformation.title)
+                                        }
+                                        insertImageGallery("1", curImageInformation)
+
+                                        insertCategoryLinks(curImageInformation, configuration, cache)
+
+                                        insertTagLinks(curImageInformation, configuration, cache)
+
+                                        insertExifInformation(curImageInformation, dateTimeFormatter)
                                     }
-                                    insertImageGallery("1", curImageInformation)
-
-                                    insertCategoryLinks(curImageInformation, configuration, cache)
-
-                                    insertTagLinks(curImageInformation, configuration, cache)
-
-                                    insertExifInformation(curImageInformation, dateTimeFormatter)
                                 }
                         )
                     }

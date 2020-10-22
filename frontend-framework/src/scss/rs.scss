@@ -14,7 +14,33 @@
 
 i {
   &.icon {
-    color: $primaryColor
+    color: $primaryColor;
+
+    &.rs-facebook {
+      color: #3b5998;
+    }
+
+    &.rs-instagram {
+      color: #E1306C;
+    }
+
+    &.rs-whatsapp {
+      color: #25D366;
+    }
+
+    &.rs-messenger {
+      color: #00C6FF;
+    }
+
+    &.rs-mail {
+      color: black;
+    }
+
+    &.rs-podcast {
+      color: white;
+      background: #8940fa;
+      border-radius: 50%;
+    }
   }
 }
 
@@ -39,3 +65,46 @@ i {
 .rs-2x {
   font-size: 2em;
 }
+
+// Display icons
+
+.rs-mail:before {
+  content: '\e800';
+}
+
+/* '' */
+.rs-messenger:before {
+  content: '\e801';
+}
+
+/* '' */
+.rs-facebook:before {
+  content: '\e802';
+}
+
+/* '' */
+.rs-skype:before {
+  content: '\e804';
+}
+
+/* '' */
+.rs-podcast:before {
+  content: '\e805';
+}
+
+/* '' */
+.rs-link-ext:before {
+  content: '\f14c';
+}
+
+/* '' */
+.rs-instagram:before {
+  content: '\f16d';
+}
+
+/* '' */
+.rs-whatsapp:before {
+  content: '\f232';
+}
+
+/* '' */

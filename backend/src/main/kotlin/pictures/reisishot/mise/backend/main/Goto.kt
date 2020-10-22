@@ -21,7 +21,7 @@ object Goto {
         val folderName = "goto.reisishot.pictures"
         Mise.build(
                 WebsiteConfiguration(
-                        shortTitle = "Reisishot Projektübersicht",
+                        shortTitle = "Reisishot - Herzlich Willkommen",
                         longTitle = "Reisishot Goto - Übersicht über meine Projekte",
                         isDevMode = isDevMode,
                         websiteLocation = "https://$folderName",

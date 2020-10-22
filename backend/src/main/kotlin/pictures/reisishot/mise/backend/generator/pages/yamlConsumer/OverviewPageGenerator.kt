@@ -96,8 +96,9 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
                                     ?.forEach { entry ->
                                         val image = galleryGenerator.cache.imageInformationData[entry.picture]
                                                 ?: throw IllegalStateException("Cannot find Image Information")
+                                        val url = configuration.getUrl(entry.entryOutUrl withChild "index.html")
                                         div(classes = "col-lg-4 mt-3") {
-                                            div(classes = "card h-100") {
+                                            a(url, classes = "card black h-100") {
                                                 div(classes = "card-img-top only-w") {
                                                     insertLazyPicture(image)
                                                 }
@@ -111,7 +112,7 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
                                                 }
 
                                                 footer("card-footer") {
-                                                    a(configuration.websiteLocation + configuration.outPath.relativize(entry.entryOutUrl), classes = "btn btn-primary") {
+                                                    div(classes = "btn btn-primary") {
                                                         text("Mehr erfahren")
                                                     }
                                                 }

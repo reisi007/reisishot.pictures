@@ -68,6 +68,8 @@ class WebsiteConfiguration(
     override fun toString(): String {
         return "WebsiteConfiguration(shortTitle='$shortTitle', longTitle='$longTitle', inPath=$inPath, tmpPath=$tmpPath, outPath=$outPath, locale=$locale, cleanupGeneration=$cleanupGeneration, interactiveDelayMs=$interactiveDelayMs, generators=$generators, interactiveIgnoredFiles=${interactiveIgnoredFiles.contentToString()}, websiteLocation='$websiteLocation')"
     }
+
+    fun getUrl(target: Path) = websiteLocation + (outPath.relativize(target).parent?.toString() ?: "")
 }
 
 data class SocialMediaAccounts(

@@ -7,6 +7,7 @@ import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.MenuLink
 import pictures.reisishot.mise.backend.generator.MenuLinkContainer
 import java.io.BufferedWriter
+import java.net.URLEncoder
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -33,13 +34,14 @@ object PageGenerator {
             it.write("<!doctype html>")
             it.appendHTML(prettyPrint = false, xhtmlCompatible = true)
                     .html(namespace = "http://www.w3.org/1999/xhtml") {
+                        val url = websiteConfiguration.getUrl(target)
                         classes = classes + "h-100"
                         head {
                             lang = locale.toLanguageTag()
                             preload()
                             metaUTF8()
                             metaViewport()
-                            linkCanonnical(websiteConfiguration, target)
+                            linkCanonnical(url)
                             favicon()
                             title(title)
                             appCss()
@@ -55,6 +57,7 @@ object PageGenerator {
                                 fluidContainer {
                                     div("container") {
                                         id = "content"
+                                        socialSharing(url, title)
                                         pageContent(this)
                                     }
                                 }
@@ -65,6 +68,7 @@ object PageGenerator {
                                     a {
                                         attributes["name"] = "footer"
                                     }
+                                    //  socialSharing(url, title)
                                     websiteConfiguration.createForm(this, target)
                                     p("text-muted center") {
                                         text("© ${websiteConfiguration.longTitle}")
@@ -200,10 +204,10 @@ object PageGenerator {
     private fun HEAD.metaUTF8() = meta(charset = "UTF8")
 
     @HtmlTagMarker
-    private fun HEAD.linkCanonnical(websiteConfiguration: WebsiteConfiguration, target: Path) = link(
+    private fun HEAD.linkCanonnical(url: String) = link(
             rel = "canonical",
-            href = websiteConfiguration.websiteLocation + (websiteConfiguration.outPath.relativize(target).parent?.toString()
-                    ?: ""))
+            href = url
+    )
 
     @HtmlTagMarker
     private fun HEAD.metaViewport() =
@@ -259,6 +263,24 @@ object PageGenerator {
         meta("msapplication-TileColor", "#ffffff")
         meta("msapplication-TileColor", "#ffffff")
     }
+
+    @HtmlTagMarker
+    private fun DIV.socialSharing(url: String, title: String) = div("socialShare") {
+        div("content") {
+            text("Diese Seite teilen:")
+            a("https://www.facebook.com/sharer.php?u=$url", "_blank") {
+                insertIcon(ReisishotIcons.FB)
+            }
+            a("https://api.whatsapp.com/send?&text=${"$title $url".encoded()}", "_blank") {
+                insertIcon(ReisishotIcons.WHATSAPP)
+            }
+            a("mailto:?subject=$title&body=$url", "_blank") {
+                insertIcon(ReisishotIcons.MAIL)
+            }
+        }
+    }
+
+    private fun String.encoded() = URLEncoder.encode(this, Charsets.UTF_8.displayName())
 
     @HtmlTagMarker
     private fun BODY.cookieInfo() = script("text/javascript", "/js/combined.min.js") {

@@ -70,6 +70,9 @@ internal fun HtmlBlockTag.insertLazyPicture(
                 attributes["data-$idx"] = """{"jpg":"${curImageInfo.getJpgUrl(curSize)}","webp":"${curImageInfo.getWebPUrl(curSize)}","w":${thumbnailSize.width},"h":${thumbnailSize.height}}"""
             }
             attributes["data-sizes"] = ImageSize.values().size.toString()
+            noScript {
+                img(curImageInfo.title, curImageInfo.getJpgUrl(ImageSize.LARGEST))
+            }
         }
     }
 }
