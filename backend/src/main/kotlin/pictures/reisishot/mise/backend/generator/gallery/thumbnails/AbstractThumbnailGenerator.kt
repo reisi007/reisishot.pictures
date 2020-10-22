@@ -40,20 +40,18 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
             val quality: Float,
             val interpolation: Interpolation
     ) {
-        SMALL("icon", 300, 0.2f, Interpolation.HIGH),
-        EMBED("embed", 400, 0.2f, Interpolation.HIGH),
-        THUMB("thumb", 700, 0.35f, Interpolation.HIGH),
-        MEDIUM("medium", 1200, 0.35f, Interpolation.HIGH),
-        LARGE("large", 2050, 0.4f, Interpolation.HIGH),
-        XLARGE("xlarge", 3000, 0.5f, Interpolation.HIGH);
+        EMBED("embed", 400, 0.5f, Interpolation.MEDIUM),
+        THUMB("thumb", 700, 0.5f, Interpolation.MEDIUM),
+        MEDIUM("medium", 1200, 0.5f, Interpolation.MEDIUM),
+        LARGE("large", 2050, 0.6f, Interpolation.MEDIUM);
 
         companion object {
 
-            val LARGEST = XLARGE
+            val LARGEST = LARGE
 
             fun getSize(minSize: Int) = values()
                     .asSequence()
-                    .firstOrNull { it.longestSidePx > minSize } ?: XLARGE
+                    .firstOrNull { it.longestSidePx > minSize } ?: LARGEST
         }
 
         fun decoratePath(p: Path): Path = with(p) {
