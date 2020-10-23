@@ -108,6 +108,9 @@ class TemplateApi(
             return@buildString
         appendHTML(false, true).div {
             div("container-flex reviews") {
+                attributes["data-partial"] = ""
+                attributes["data-initial"] = "4"
+                attributes["data-step"] = "2"
                 testimonialsToDisplay.forEach { testimonial ->
                     div("col-12 col-lg-5 card border-dark") {
                         with(galleryGenerator.cache) {

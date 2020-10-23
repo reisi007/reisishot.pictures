@@ -13,23 +13,29 @@ define(function () {
                 loadMoreButton.style.display = "block"
                 loadMoreButton.style.margin = "0 auto"
                 loadMoreButton.onclick = () => {
+                    const oldShowCount = showCount;
                     showCount += step;
-                    showUntil(showCount)
+                    showUntil(oldShowCount, showCount)
                 }
-                cur.insertAdjacentElement("afterend", loadMoreButton)
-                showUntil(showCount)
+            cur.insertAdjacentElement("afterend", loadMoreButton)
+            showUntil(null, showCount)
 
-                function showUntil(idx) {
-                    for (let i = 0; i < children.length; i++) {
-                        const el = children[i];
-                        if (i >= idx)
-                            el.style.display = "none"
-                        else
-                            el.style.display = ""
-                    }
-                    if (idx >= children.length)
-                        loadMoreButton.style.display = "none";
+            function showUntil(oldIdx, idx) {
+                for (let i = 0; i < children.length; i++) {
+                    const el = children[i];
+                    if (i >= idx)
+                        el.style.display = "none"
+                    else
+                        el.style.display = ""
                 }
+                if (idx >= children.length)
+                    loadMoreButton.style.display = "none";
+                if (oldIdx != null && oldIdx > 0) {
+                    const child = children[oldIdx - 1];
+                    child.focus()
+                    child.scrollIntoView()
+                }
+            }
             }
         )
     })
