@@ -21,7 +21,7 @@ import java.nio.file.Paths
 object Boudoir {
     @JvmStatic
     fun main(args: Array<String>) {
-        build(true)
+        build(args.isEmpty())
     }
 
     fun build(isDevMode: Boolean) {

@@ -7,5 +7,26 @@
 
   .card {
     margin-top: 1rem;
+    padding: 0;
+
+    .pic-holder {
+      $maxH: 50vh;
+      height: $maxH;
+
+      div.lazy {
+        height: $maxH;
+
+        img {
+          max-height: $maxH;
+          height: 100%;
+          vertical-align: middle;
+        }
+      }
+    }
+
+    .card-text {
+      overflow-y: auto;
+      max-height: 25vh;
+    }
   }
 }

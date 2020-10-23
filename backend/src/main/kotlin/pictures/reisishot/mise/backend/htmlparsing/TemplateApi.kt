@@ -122,8 +122,8 @@ class TemplateApi(
                                 br()
                                 small("text-muted") { text(testimonial.dateFormatted()) }
                             }
-                            p("card-text") {
-                                raw(testimonial.text.replace("\n", "<br/>"))
+                            div("card-text") {
+                                raw("<p>" + testimonial.text.replace("\n", "</p><p>") + "</p>")
                             }
                         }
                     }

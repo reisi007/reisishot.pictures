@@ -14,7 +14,7 @@ import java.nio.file.Paths
 object Goto {
     @JvmStatic
     fun main(args: Array<String>) {
-        build(true)
+        build(args.isEmpty())
     }
 
     fun build(isDevMode: Boolean) {

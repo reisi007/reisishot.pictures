@@ -21,12 +21,12 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 object Main {
-    private val folderName = "reisishot.pictures"
-    val tmpPath = Paths.get("tmp", folderName).toAbsolutePath()
+    private const val folderName = "reisishot.pictures"
+    val tmpPath: Path = Paths.get("tmp", folderName).toAbsolutePath()
 
     @JvmStatic
     fun main(args: Array<String>) {
-        build(true)
+        build(args.isEmpty())
     }
 
     fun build(isDevMode: Boolean) {
