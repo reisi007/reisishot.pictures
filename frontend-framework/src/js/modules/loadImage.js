@@ -14,9 +14,13 @@ define('loadImage', [], function () {
         const sizes = elem.getAttribute("data-sizes")
         for (let i = 0; i < sizes; i++) {
             const data = parseAttribute(elem, "data-" + i);
-            if (fits(data)) return elem["cur"] = data
+            if (fits(data)) {
+                elem.cur = data
+                return data
+            }
         }
-        return elem["cur"] = parseAttribute(elem, "data-" + sizes - 1);
+        elem.cur = parseAttribute(elem, "data-" + (sizes - 1));
+        return elem.cur
     }
 
     function parseAttribute(elem, attr) {

@@ -40,6 +40,21 @@ gulp.task('scripts', function () {
 
 });
 
+gulp.task('scriptsDev', function () {
+    return gulp
+        .src([
+            './src/js/bootstrap/*.js',
+            './src/js/bootstrap/**/*.js',
+            './src/js/modules/*.js',
+            './src/js/modules/**/*.js'
+        ])
+        .pipe(babelify())
+        .pipe($.plumber())
+        .pipe($.concat('combined.min.js'))
+        .pipe(gulp.dest('generated/js'))
+
+});
+
 gulp.task('copyStatic', function () {
     return gulp
         .src('./src/static/**/*', {dot: true})
@@ -67,7 +82,7 @@ gulp.task('watch', function () {
         './src/js/bootstrap/**/*.js',
         './src/js/modules/*.js',
         './src/js/modules/**/*.js'
-    ], ['scripts']);
+    ], ['scriptsDev']);
     // Watch static files
     gulp.watch('src/static/**/*.*', ['copyStatic']);
 });
@@ -77,7 +92,7 @@ gulp.task('default', function () {
         'copyStatic',
         'copyStaticCss',
         'styles',
-        'scripts',
+        'scriptsDev',
         'watch'
     );
 });
