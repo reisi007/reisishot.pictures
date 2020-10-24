@@ -1,18 +1,18 @@
 package pictures.reisishot.mise.backend.generator.pages.yamlConsumer
 
 import at.reisishot.mise.commons.*
+import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.pages.YamlMetaDataConsumer
-import pictures.reisishot.mise.backend.html.PageGenerator
-import pictures.reisishot.mise.backend.html.insertLazyPicture
-import pictures.reisishot.mise.backend.html.raw
+import pictures.reisishot.mise.backend.html.*
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
 import pictures.reisishot.mise.backend.htmlparsing.SourcePath
 import pictures.reisishot.mise.backend.htmlparsing.TargetPath
 import pictures.reisishot.mise.backend.htmlparsing.Yaml
+import java.nio.file.Files
 import java.nio.file.Path
 
 class OverviewPageGenerator : YamlMetaDataConsumer {
@@ -37,10 +37,10 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
     }
 
     override fun processChanges(configuration: WebsiteConfiguration, cache: BuildingCache, galleryGenerator: AbstractGalleryGenerator, metaDataConsumers: Array<out YamlMetaDataConsumer>) {
+        processExternals(configuration, cache, galleryGenerator)
         val changedGroups = mutableMapOf<String, Path>()
         changeSetAdd.forEach {
-            data.computeIfAbsent(it.id)
-            { _ -> mutableSetOf() }.add(it, true)
+            data.computeIfAbsent(it.id) { _ -> mutableSetOf() }.add(it, true)
             changedGroups[it.id] = it.entryOutUrl.parent
         }
         changeSetRemove.forEach {
@@ -96,10 +96,13 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
                                     ?.forEach { entry ->
                                         val image = galleryGenerator.cache.imageInformationData[entry.picture]
                                                 ?: throw IllegalStateException("Cannot find Image Information")
-                                        val url = configuration.getUrl(entry.entryOutUrl withChild "index.html")
+                                        val url = entry.configuredUrl
+                                                ?: kotlin.run { configuration.getUrl(entry.entryOutUrl withChild "index.html") }
                                         div(classes = "col-lg-4 mt-3") {
                                             a(url, classes = "card black h-100") {
-                                                div(classes = "card-img-top only-w") {
+                                                if (entry.configuredUrl != null)
+                                                    this.target = "_blank"
+                                                div(classes = "card-img-top") {
                                                     insertLazyPicture(image)
                                                 }
                                                 div(classes = "card-body") {
@@ -114,6 +117,9 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
                                                 footer("card-footer") {
                                                     div(classes = "btn btn-primary") {
                                                         text("Mehr erfahren")
+                                                        entry.configuredUrl?.let {
+                                                            insertIcon(ReisishotIcons.LINK, "xs", "sup")
+                                                        }
                                                     }
                                                 }
                                             }
@@ -129,6 +135,25 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
         changeSetAdd.clear()
         changeSetRemove.clear()
         dirty = false
+    }
+
+    private fun processExternals(configuration: WebsiteConfiguration, cache: BuildingCache, abstractGalleryGenerator: AbstractGalleryGenerator) {
+        Files.walk(configuration.inPath)
+                .filter { it.isRegularFile() }
+                .filter { it.hasExtension({ it.isMarkdownPart("external") }) }
+                .map { inPath ->
+                    parseFrontmatter(configuration, inPath)
+                }.forEach { (path, yaml) ->
+                    processFrontMatter(configuration, cache, path, yaml, abstractGalleryGenerator)
+                }
+    }
+
+    private fun parseFrontmatter(configuration: WebsiteConfiguration, inPath: Path): Pair<Path, Yaml> {
+        val outPath = configuration.outPath withChild configuration.inPath.relativize(inPath) withChild "external"
+        val yamlExtractor = AbstractYamlFrontMatterVisitor()
+        val fileContent = inPath.useBufferedReader { it.readText() }
+        MarkdownParser.extractFrontmatter(fileContent, yamlExtractor)
+        return outPath to yamlExtractor.data as Yaml
     }
 
 
@@ -174,9 +199,10 @@ private fun Map<String, Any>.extract(targetPath: TargetPath): OverviewEntry? {
     val order = getString("order")?.toInt()
     val description = getString("description")
     val groupName = getString("groupName")
+    val url = getString("url")
     if (group == null || picture == null || title == null || order == null)
         return null
-    return OverviewEntry(group, title, description, picture, targetPath.parent, order, groupName)
+    return OverviewEntry(group, title, description, picture, targetPath.parent, order, groupName, url)
 }
 
 fun Map<String, Any>.getString(key: String): String? {
@@ -190,7 +216,7 @@ fun Map<String, Any>.getString(key: String): String? {
 }
 
 
-data class OverviewEntry(val id: String, val title: String, val description: String?, val picture: String, val entryOutUrl: Path, val order: Int, val groupName: String?) {
+data class OverviewEntry(val id: String, val title: String, val description: String?, val picture: String, val entryOutUrl: Path, val order: Int, val groupName: String?, val configuredUrl: String?) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

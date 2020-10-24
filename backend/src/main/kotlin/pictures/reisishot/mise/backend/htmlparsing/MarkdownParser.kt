@@ -10,6 +10,7 @@ import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
 import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterExtension
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
+import com.vladsch.flexmark.util.ast.Document
 import kotlinx.html.HEAD
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
@@ -66,9 +67,12 @@ object MarkdownParser {
             configuration
     )
 
-    private fun String.markdown2Html(yamlExtractor: AbstractYamlFrontMatterVisitor): String {
-        val parseReader = markdownParser.parse(this)
-        yamlExtractor.visit(parseReader)
-        return htmlRenderer.render(parseReader)
+    private fun String.markdown2Html(yamlExtractor: AbstractYamlFrontMatterVisitor) =
+            htmlRenderer.render(extractFrontmatter(this, yamlExtractor))
+
+    fun extractFrontmatter(fileContents: String, target: AbstractYamlFrontMatterVisitor): Document {
+        val parseReader = markdownParser.parse(fileContents)
+        target.visit(parseReader)
+        return parseReader
     }
 }
