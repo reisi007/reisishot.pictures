@@ -36,6 +36,7 @@ object Boudoir {
                         tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
                         outPath = Paths.get("upload", folderName).toAbsolutePath(),
                         interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
+                        metaDataConsumers = arrayOf(KeywordConsumer()),
                         cleanupGeneration = false,
                         socialMediaLinks = SocialMediaAccounts(
                                 "reisishot.boudoir",
@@ -62,11 +63,7 @@ object Boudoir {
                                     })
                         },
                         generators = listOf(
-                                PageGenerator(
-                                        metaDataConsumers = arrayOf(
-                                                KeywordConsumer()
-                                        )
-                                ),
+                                PageGenerator(),
                                 GalleryGenerator(
                                         categoryBuilders = emptyArray(),
                                         exifReplaceFunction = defaultExifReplaceFunction

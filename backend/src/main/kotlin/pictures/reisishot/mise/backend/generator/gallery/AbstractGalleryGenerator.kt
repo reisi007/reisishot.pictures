@@ -8,6 +8,7 @@ import at.reisishot.mise.exifdata.readExif
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.DIV
+import kotlinx.html.HEAD
 import kotlinx.html.div
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.fromXml
@@ -17,6 +18,8 @@ import pictures.reisishot.mise.backend.generator.MenuLinkContainerItem
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.html.insertSubcategoryThumbnail
+import pictures.reisishot.mise.backend.html.raw
+import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
 import pictures.reisishot.mise.backend.toXml
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
@@ -278,6 +281,16 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
         super.saveCache(configuration, cache)
         this.cache.toXml(cachePath)
         categoryBuilders.forEach { it.teardown(configuration, cache) }
+    }
+
+    protected fun DIV.insertCustomMarkdown(outFolder: Path, type: String, configuration: WebsiteConfiguration, cache: BuildingCache): HEAD.() -> Unit {
+        val inPath = configuration.inPath withChild configuration.outPath.relativize(outFolder) withChild "$type.gallery.md"
+        if (inPath.exists()) {
+            val (manipulator, html) = MarkdownParser.parse(configuration, cache, inPath, outFolder withChild "index.html", this@AbstractGalleryGenerator)
+            raw(html)
+            return manipulator
+        } else
+            return {}
     }
 }
 

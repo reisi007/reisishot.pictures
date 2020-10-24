@@ -14,6 +14,7 @@ import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategory
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.links.LinkGenerator
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
+import pictures.reisishot.mise.backend.generator.pages.yamlConsumer.KeywordConsumer
 import pictures.reisishot.mise.backend.generator.pages.yamlConsumer.OverviewPageGenerator
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
 import pictures.reisishot.mise.backend.html.*
@@ -41,6 +42,7 @@ object Main {
                         tmpPath = tmpPath,
                         outPath = Paths.get("upload", folderName).toAbsolutePath(),
                         interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
+                        metaDataConsumers = arrayOf(OverviewPageGenerator(), KeywordConsumer()),
                         cleanupGeneration = false,
                         analyticsSiteId = "1",
                         socialMediaLinks = SocialMediaAccounts("reisishot", "reisishot", "florian@reisishot.pictures"),
@@ -62,11 +64,7 @@ object Main {
                                     })
                         },
                         generators = listOf(
-                                PageGenerator(
-                                        metaDataConsumers = arrayOf(
-                                                OverviewPageGenerator()
-                                        )
-                                ),
+                                PageGenerator(),
                                 GalleryGenerator(
                                         categoryBuilders = arrayOf(
                                                 DateCategoryBuilder("Chronologisch"),

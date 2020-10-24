@@ -34,23 +34,31 @@ class GalleryGenerator(
                     .filterNotNull()
                     .asIterable()
                     .forEachLimitedParallel(50) { curImageInformation ->
+                        val targetFolder = baseHtmlPath withChild curImageInformation.filename.toLowerCase()
                         PageGenerator.generatePage(
                                 websiteConfiguration = configuration,
                                 buildingCache = cache,
-                                target = baseHtmlPath withChild curImageInformation.filename.toLowerCase() withChild "index.html",
+                                target = targetFolder withChild "index.html",
                                 title = curImageInformation.title,
                                 pageContent = {
                                     div("singleImage") {
                                         h1("text-center") {
                                             text(curImageInformation.title)
                                         }
+
+                                        insertCustomMarkdown(targetFolder, "start", configuration, cache)
+
                                         insertImageGallery("1", curImageInformation)
 
                                         insertCategoryLinks(curImageInformation, configuration, cache)
 
                                         insertTagLinks(curImageInformation, configuration, cache)
 
+                                        insertCustomMarkdown(targetFolder, "beforeExif", configuration, cache)
+
                                         insertExifInformation(curImageInformation, dateTimeFormatter)
+
+                                        insertCustomMarkdown(targetFolder, "end", configuration, cache)
                                     }
                                 }
                         )
@@ -67,11 +75,11 @@ class GalleryGenerator(
             computedCategories.forEach { (categoryName, categoryImages) ->
                 val categoryMetaInformation = categoryInformation[categoryName]
                         ?: throw IllegalStateException("No category information found for name \"$categoryName\"!")
-                val targetFile = baseHtmlPath withChild categoryMetaInformation.urlFragment withChild "index.html"
+                val targetFolder = baseHtmlPath withChild categoryMetaInformation.urlFragment
                 PageGenerator.generatePage(
                         websiteConfiguration = configuration,
                         buildingCache = cache,
-                        target = targetFile,
+                        target = targetFolder withChild "index.html",
                         title = categoryMetaInformation.displayName,
                         pageContent = {
                             h1("text-center") {
@@ -80,6 +88,8 @@ class GalleryGenerator(
                                     text(("\"${categoryMetaInformation.displayName}\""))
                                 }
                             }
+
+                            insertCustomMarkdown(targetFolder, "start", configuration, cache)
 
                             val imageInformations = with(categoryImages) {
                                 asSequence()
@@ -92,6 +102,8 @@ class GalleryGenerator(
                             insertSubcategoryThumbnails(categoryMetaInformation.internalName)
 
                             insertImageGallery("1", imageInformations)
+
+                            insertCustomMarkdown(targetFolder, "end", configuration, cache)
                         }
                 )
             }
@@ -105,12 +117,11 @@ class GalleryGenerator(
     ) = with(this.cache) {
         (configuration.outPath withChild "gallery/tags").let { baseHtmlPath ->
             computedTags.forEach { (tagName, tagImages) ->
-                val targetFile = baseHtmlPath withChild tagName.url withChild "index.html"
-
+                val targetFolder = baseHtmlPath withChild tagName.url
                 PageGenerator.generatePage(
                         websiteConfiguration = configuration,
                         buildingCache = cache,
-                        target = targetFile,
+                        target = targetFolder withChild "index.html",
                         title = tagName.name,
                         pageContent = {
                             h1("text-center") {
@@ -120,12 +131,15 @@ class GalleryGenerator(
                                 }
                             }
 
+                            insertCustomMarkdown(targetFolder, "start", configuration, cache)
+
                             val imageInformations = tagImages.asSequence()
                                     .map { it as? InternalImageInformation }
                                     .filterNotNull()
                                     .toOrderedByTime()
-                            insertImageGallery("1", imageInformations
-                            )
+                            insertImageGallery("1", imageInformations)
+
+                            insertCustomMarkdown(targetFolder, "end", configuration, cache)
                         })
             }
         }
@@ -173,9 +187,8 @@ class GalleryGenerator(
                                 div("col-md-9 align-self-center") {
                                     when (type) {
                                         ExifdataKey.CREATION_TIME -> text(
-                                                ZonedDateTime.parse(value).format(
-                                                        dateTimeFormatter
-                                                )
+                                                ZonedDateTime.parse(value)
+                                                        .format(dateTimeFormatter)
                                         )
                                         else -> text(value)
                                     }

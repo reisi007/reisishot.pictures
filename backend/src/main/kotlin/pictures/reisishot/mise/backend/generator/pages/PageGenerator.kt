@@ -20,8 +20,7 @@ import kotlin.streams.asSequence
 
 class PageGenerator(
         private val generateHeader: Boolean = true,
-        private val generateFooter: Boolean = true,
-        private vararg val metaDataConsumers: YamlMetaDataConsumer
+        private val generateFooter: Boolean = true
 ) : WebsiteGenerator {
 
     override val executionPriority: Int = 30_000
@@ -30,13 +29,6 @@ class PageGenerator(
     companion object {
         const val FILENAME_SEPERATOR = "--"
         const val LINKTYPE_PAGE = "PAGE"
-    }
-
-    private val metaDataConsumerFileExtensions by lazy {
-        metaDataConsumers.asSequence()
-                .flatMap { it.interestingFileExtensions() }
-                .toList()
-                .toTypedArray()
     }
 
     private lateinit var filesToProcess: List<PageGeneratorInfo>
@@ -128,7 +120,7 @@ class PageGenerator(
             alreadyRunGenerators: List<WebsiteGenerator>
     ) {
         withContext(Dispatchers.IO) {
-            metaDataConsumers.forEach { it.init(configuration, cache) }
+            configuration.metaDataConsumers.forEach { it.init(configuration, cache) }
             galleryGenerator = alreadyRunGenerators.find { it is AbstractGalleryGenerator } as? AbstractGalleryGenerator
                     ?: throw IllegalStateException("Gallery generator is needed for this generator!")
 
@@ -148,7 +140,7 @@ class PageGenerator(
         filesToProcess
                 .filter { (path) -> path.hasExtension(FileExtension::isMarkdown, FileExtension::isHtml) }
                 .forEach { it.buildArtifact(configuration, cache) }
-        metaDataConsumers.forEach { it.processChanges(configuration, cache, galleryGenerator, metaDataConsumers) }
+        configuration.metaDataConsumers.forEach { it.processChanges(configuration, cache, galleryGenerator, configuration.metaDataConsumers) }
     }
 
 
@@ -185,16 +177,16 @@ class PageGenerator(
 
     private fun convertMarkdown(
             soureFile: SourcePath,
-            websiteConfiguration: WebsiteConfiguration,
+            configuration: WebsiteConfiguration,
             buildingCache: BuildingCache,
             targetFile: TargetPath,
             title: String
     ) {
-        val (headManipulator, htmlInput) = MarkdownParser.parse(websiteConfiguration, buildingCache, soureFile, targetFile, galleryGenerator, *metaDataConsumers)
+        val (headManipulator, htmlInput) = MarkdownParser.parse(configuration, buildingCache, soureFile, targetFile, galleryGenerator, *configuration.metaDataConsumers)
         return buildPage(
                 htmlInput,
                 headManipulator,
-                websiteConfiguration,
+                configuration,
                 buildingCache,
                 targetFile,
                 title
@@ -202,7 +194,7 @@ class PageGenerator(
     }
 
     override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changeFiles: ChangeFileset): Boolean {
-        val relevantFiles = changeFiles.relevantFiles()
+        val relevantFiles = changeFiles.relevantFiles(configuration)
         withContext(Dispatchers.IO) {
             filesToProcess = computeFilesToProcess(relevantFiles, configuration, cache)
             cleanupOutDir(relevantFiles, configuration, cache)
@@ -235,12 +227,12 @@ class PageGenerator(
         return false
     }
 
-    private fun ChangeFileset.relevantFiles(): Set<Pair<Path, Set<ChangeState>>> {
+    private fun ChangeFileset.relevantFiles(configuration: WebsiteConfiguration): Set<Pair<Path, Set<ChangeState>>> {
         val data = mutableMapOf<Path, MutableSet<ChangeState>>()
 
         entries.asSequence()
                 .filter { (file, _) ->
-                    file.hasExtension(FileExtension::isHtml, FileExtension::isMarkdown, *metaDataConsumerFileExtensions)
+                    file.hasExtension(FileExtension::isHtml, FileExtension::isMarkdown, *configuration.metaDataConsumerFileExtensions)
                 }
                 .forEach { (k, v) ->
                     data.computeIfAbsent(k) { mutableSetOf() }.addAll(v)
@@ -254,7 +246,7 @@ class PageGenerator(
                 .map { configuration.outPath.resolve("index.html") }
                 .forEach {
                     Files.deleteIfExists(it)
-                    metaDataConsumers.forEach { consumer ->
+                    configuration.metaDataConsumers.forEach { consumer ->
                         consumer.processDelete(configuration, cache, it.parent)
                     }
                 }

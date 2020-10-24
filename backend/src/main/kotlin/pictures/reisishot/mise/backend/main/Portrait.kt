@@ -37,6 +37,7 @@ object Portrait {
                         tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
                         outPath = Paths.get("upload", folderName).toAbsolutePath(),
                         interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
+                        metaDataConsumers = arrayOf(OverviewPageGenerator(), KeywordConsumer()),
                         cleanupGeneration = false,
                         socialMediaLinks = SocialMediaAccounts(
                                 "reisishot",
@@ -63,12 +64,7 @@ object Portrait {
                                     })
                         },
                         generators = listOf(
-                                PageGenerator(
-                                        metaDataConsumers = arrayOf(
-                                                OverviewPageGenerator(),
-                                                KeywordConsumer()
-                                        )
-                                ),
+                                PageGenerator(),
                                 GalleryGenerator(
                                         categoryBuilders = emptyArray(),
                                         exifReplaceFunction = defaultExifReplaceFunction

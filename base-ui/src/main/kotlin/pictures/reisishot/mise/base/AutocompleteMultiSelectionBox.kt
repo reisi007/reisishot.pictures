@@ -4,7 +4,6 @@ import javafx.collections.FXCollections
 import javafx.collections.ListChangeListener
 import javafx.collections.ListChangeListener.Change
 import javafx.collections.ObservableSet
-import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Pos
@@ -88,7 +87,7 @@ class AutocompleteMultiSelectionBox<T : Comparable<T>>(private val maxItems: Int
                     val item = CustomMenuItem(textFlow, true)
 
                     //if any suggestion is select set it into text and close popup
-                    item.onAction = EventHandler { actionEvent: ActionEvent ->
+                    item.onAction = EventHandler {
                         tags.add(result)
                         suggestions.remove(result)
                         inputTextField.clear()
@@ -120,7 +119,7 @@ class AutocompleteMultiSelectionBox<T : Comparable<T>>(private val maxItems: Int
             // Remove item button
             val removeButton = Button("x")
             removeButton.background = null
-            removeButton.onAction = EventHandler { event: ActionEvent ->
+            removeButton.onAction = EventHandler {
                 tags.remove(tag)
                 suggestions.add(tag)
                 inputTextField.requestFocus()
