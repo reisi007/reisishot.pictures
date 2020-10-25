@@ -1,20 +1,11 @@
 dependencies {
-    def flexmark_version = "0.61.16"
-
-    // https://mvnrepository.com/artifact/net.coobird/thumbnailator
-    implementation group: 'net.coobird', name: 'thumbnailator', version: '0.4.8'
     implementation project(':image-access')
     // https://mvnrepository.com/artifact/org.apache.velocity/velocity-engine-core
-    implementation group: 'org.apache.velocity', name: 'velocity-engine-core', version: '2.1'
+    implementation group: 'org.apache.velocity', name: 'velocity-engine-core', version: '2.2'
     // https://mvnrepository.com/artifact/com.thoughtworks.xstream/xstream
     implementation group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.+'
-    // https://search.maven.org/artifact/com.atlassian.commonmark/commonmark/0.13.0/jar
-    implementation group: 'com.vladsch.flexmark', name: 'flexmark', version: flexmark_version
-    implementation group: 'com.vladsch.flexmark', name: 'flexmark-ext-tables', version: flexmark_version
-    implementation group: 'com.vladsch.flexmark', name: 'flexmark-ext-autolink', version: flexmark_version
-    implementation group: 'com.vladsch.flexmark', name: 'flexmark-ext-toc', version: flexmark_version
-    implementation group: 'com.vladsch.flexmark', name: 'flexmark-ext-yaml-front-matter', version: flexmark_version
-    implementation group: 'com.vladsch.flexmark', name: 'flexmark-ext-emoji', version: flexmark_version
+    // https://mvnrepository.com/artifact/com.vladsch.flexmark/flexmark
+    implementation group: 'com.vladsch.flexmark', name: 'flexmark-all', version: '0.62.2'
 
 
 }

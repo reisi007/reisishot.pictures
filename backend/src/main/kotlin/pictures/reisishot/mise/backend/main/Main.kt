@@ -49,7 +49,7 @@ object Main {
                         form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
                             buildForm(
                                     title = { h2 { text("Kontaktiere mich") } },
-                                    thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich schnellstmöglich!") } },
+                                    thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich innerhalb von 48h!") } },
                                     formStructure = {
                                         FormRoot("footer",
                                                 HiddenFormInput("Seite", websiteConfiguration.websiteLocation + websiteConfiguration.outPath.relativize(target.parent).toString()),

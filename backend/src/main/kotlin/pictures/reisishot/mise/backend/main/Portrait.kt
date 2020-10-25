@@ -49,7 +49,7 @@ object Portrait {
                         form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
                             buildForm(
                                     title = { h2 { text("Möchtest du mit mir ein Porträt Shooting haben?") } },
-                                    thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich schnellstmöglich bei dir!") } },
+                                    thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich innerhalb von 48h bei dir!") } },
                                     formStructure = {
                                         FormRoot("footer",
                                                 HiddenFormInput("Seite", websiteConfiguration.websiteLocation + websiteConfiguration.outPath.relativize(target.parent).toString()),

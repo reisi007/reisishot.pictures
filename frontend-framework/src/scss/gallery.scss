@@ -1,6 +1,7 @@
 .gallery {
   display: flex;
   $margin: 8px;
+  margin-bottom: 16px;
 
   &.multiple {
     $thumbnailSize: 270px;

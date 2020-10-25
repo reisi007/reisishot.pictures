@@ -10,11 +10,14 @@ import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerato
 import pictures.reisishot.mise.backend.writeToString
 import java.io.Reader
 import java.nio.file.Path
+import java.util.*
 
 object VelocityApplier {
     private val velocity by lazy {
-        Velocity.init()
-        return@lazy VelocityEngine()
+        val p = Properties()
+        p["parser.class"] = "at.reisishot.velocity.runtime.parser.custom.MdCompatibleParser"
+        Velocity.init(p)
+        return@lazy VelocityEngine(p)
     }
 
     private fun VelocityContext.withTemplateApi(

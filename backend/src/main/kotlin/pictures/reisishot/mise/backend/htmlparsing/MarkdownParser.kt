@@ -16,6 +16,7 @@ import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.pages.YamlMetaDataConsumer
 import java.io.Reader
+import java.io.StringReader
 import java.nio.file.Files
 
 object MarkdownParser {
@@ -32,6 +33,7 @@ object MarkdownParser {
                 .apply {
                     set(Parser.SPACE_IN_LINK_ELEMENTS, true)
                     set(Parser.SPACE_IN_LINK_URLS, true)
+                    set(Parser.HEADING_SETEXT_MARKER_LENGTH, 4)
                 }
                 .build()
     }
@@ -49,9 +51,11 @@ object MarkdownParser {
                     .map { it.processFrontMatter(configuration, cache, targetPath, yamlExtractor.data, galleryGenerator) }
                     .forEach { it(this) }
         }
-        val html = Files.newBufferedReader(sourceFile)
-                .use { it.velocity(sourceFile, targetPath, galleryGenerator, cache, configuration) }
+        val html = Files.newBufferedReader(sourceFile, Charsets.UTF_8)
+                .velocity(sourceFile, targetPath, galleryGenerator, cache, configuration)
                 .markdown2Html(yamlExtractor)
+
+
 
         return headManipulator to html
     }
@@ -65,11 +69,25 @@ object MarkdownParser {
             configuration
     )
 
+    private fun String.velocity(sourceFile: SourcePath, targetPath: TargetPath, galleryGenerator: AbstractGalleryGenerator, cache: BuildingCache, configuration: WebsiteConfiguration) = VelocityApplier.runVelocity(
+            StringReader(this),
+            sourceFile.filenameWithoutExtension,
+            targetPath,
+            galleryGenerator,
+            cache,
+            configuration
+    )
+
     private fun String.markdown2Html(yamlExtractor: AbstractYamlFrontMatterVisitor) =
             htmlRenderer.render(extractFrontmatter(this, yamlExtractor))
 
-    fun extractFrontmatter(fileContents: String, target: AbstractYamlFrontMatterVisitor): Document {
-        val parseReader = markdownParser.parse(fileContents)
+    private fun Reader.markdown2Html(yamlExtractor: AbstractYamlFrontMatterVisitor) =
+            htmlRenderer.render(extractFrontmatter(this, yamlExtractor))
+
+    fun extractFrontmatter(fileContents: String, target: AbstractYamlFrontMatterVisitor): Document = extractFrontmatter(StringReader(fileContents), target)
+
+    fun extractFrontmatter(fileContents: Reader, target: AbstractYamlFrontMatterVisitor): Document {
+        val parseReader = markdownParser.parseReader(fileContents)
         target.visit(parseReader)
         return parseReader
     }
