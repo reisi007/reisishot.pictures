@@ -1,7 +1,6 @@
 package pictures.reisishot.mise.backend.htmlparsing
 
 import at.reisishot.mise.commons.filenameWithoutExtension
-import com.vladsch.flexmark.ext.anchorlink.AnchorLinkExtension
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension
 import com.vladsch.flexmark.ext.emoji.EmojiExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
@@ -25,7 +24,6 @@ object MarkdownParser {
             TablesExtension.create(),
             TocExtension.create(),
             EmojiExtension.create(),
-            AnchorLinkExtension.create(),
             YamlFrontMatterExtension.create(),
     )
     private val markdownParser by lazy {

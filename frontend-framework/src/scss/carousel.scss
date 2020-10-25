@@ -1,87 +1,22 @@
-#carousel {
-  background: black;
-  padding: 2rem;
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-}
+.carousel {
+  $h: 75vh;
+  max-height: $h;
+  height: $h;
+  margin-bottom: 16px;
 
-#carouselIndicator {
-  $margin: 20px;
-  color: white;
-
-  a {
-    &:active {
-      color: white;
-    }
+  .carousel-inner, .carousel-item, .pic-holder, div.lazy, img {
+    height: 100%;
   }
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: $margin;
-  padding-bottom: $margin;
-
-  background: $primaryColor;
-
-  .carousel-indicators {
-    position: relative;
-    margin-top: -7.7vh;
+  .carousel-control-prev-icon, .carousel-control-next-icon {
+    padding: 20px;
+    background-size: 20px;
+    font-size: 5px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
   }
 
-  height: $maxCarouselHeight;
-  max-height: $maxCarouselHeight;
-
-  @media only screen and (max-aspect-ratio: 21/31) {
-    $portraitHeight: 25vh;
-    min-height: 300px;
-    height: $portraitHeight;
-    max-height: $portraitHeight;
-    .carousel-inner {
-      max-height: $portraitHeight !important;
-
-      img {
-        height: $portraitHeight !important;
-        max-height: $portraitHeight !important;
-      }
-    }
-
-    .carousel-indicators {
-      margin-top: -2.7vh;
-    }
-  }
-
-  .carousel-inner {
-    height: $maxCarouselHeight;
-    max-height: $maxCarouselHeight;
-
-    .carousel-item {
-      height: $maxCarouselHeight;
-      max-height: $maxCarouselHeight;
-
-      .carousel-caption {
-        position: relative;
-        bottom: 8vh !important;
-        left: 0;
-        right: 0;
-
-        h5 {
-          @include stroke(1, black)
-        }
-      }
-
-      a {
-        justify-content: space-between;
-
-        & > div {
-          display: flex;
-          justify-content: center;
-        }
-
-        img {
-          height: $maxCarouselImageHeight;
-          max-height: $maxCarouselImageHeight;
-        }
-      }
-    }
+  img {
+    vertical-align: middle;
   }
 }
