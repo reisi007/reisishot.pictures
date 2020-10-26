@@ -1,13 +1,14 @@
-define(function () {
+define(['trackAction'], function (trackAction) {
     document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll("[data-partial]").forEach((cur) => {
-                const initial = parseInt(cur.getAttribute("data-initial"));
-                const step = parseInt(cur.getAttribute("data-step"));
-                const children = cur.children;
-                let showCount = initial;
+            const partialName = cur.getAttribute("data-partial") || "???"
+            const initial = parseInt(cur.getAttribute("data-initial"));
+            const step = parseInt(cur.getAttribute("data-step"));
+            const children = cur.children;
+            let showCount = initial;
 
-                const loadMoreButton = document.createElement("BUTTON");
-                loadMoreButton.type = "button"
+            const loadMoreButton = document.createElement("BUTTON");
+            loadMoreButton.type = "button"
                 loadMoreButton.classList.add("btn", "btn-primary")
                 loadMoreButton.innerText = "Mehr anzeigen"
                 loadMoreButton.style.display = "block"
@@ -28,9 +29,12 @@ define(function () {
                         else
                             el.style.display = ""
                     }
-                    if (idx >= children.length)
+                    if (idx >= children.length) {
                         loadMoreButton.style.display = "none";
+                        trackAction({group: "loadMore", action: 'allLoaded', id: partialName})
+                    }
                     if (oldIdx != null && oldIdx > 0) {
+                        trackAction({group: "loadMore", action: 'loaded', id: partialName, value: idx - 1})
                         const child = children[oldIdx];
                         child.focus()
                         child.scrollIntoView({

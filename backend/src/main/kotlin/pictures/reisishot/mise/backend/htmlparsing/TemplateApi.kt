@@ -108,7 +108,7 @@ class TemplateApi(
             return@buildString
         appendHTML(false, true).div {
             div("container-flex reviews") {
-                attributes["data-partial"] = ""
+                attributes["data-partial"] = "testimonials"
                 attributes["data-initial"] = "4"
                 attributes["data-step"] = "2"
                 testimonialsToDisplay.forEach { testimonial ->
