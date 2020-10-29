@@ -2,15 +2,12 @@ define('loadImage', [], function () {
 
     function loadImageInternally(elem, width, height) {
         function fits(data) {
-            return data.w >= width && (height === null || data.h >= height)
+            return data.w >= width && (height === 0 || data.h >= height)
         }
 
         const cur = parseAttribute(elem, "cur") || {w: -1, h: -1}
         if (fits(cur)) return cur;
 
-
-        if (cur.w >= width || (height != null && cur.h >= height))
-            return cur;
         const sizes = elem.getAttribute("data-sizes")
         for (let i = 0; i < sizes; i++) {
             const data = parseAttribute(elem, "data-" + i);
