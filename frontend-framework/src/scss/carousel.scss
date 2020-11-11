@@ -2,10 +2,11 @@
   $hDefault: 75vh;
 
   &#testimonials {
-    $h: 10em;
+    $h: 20em;
     max-height: $h;
     height: $h;
     color: $primaryColor;
+    margin-bottom: 0;
 
     p {
       margin: 0;
@@ -20,6 +21,8 @@
       overflow-y: auto;
 
       span {
+        max-height: 70%;
+        overflow-y: auto;
         text-align: center;
         width: 70%;;
       }
