@@ -141,10 +141,15 @@ class TemplateApi(
                 .toList()
     }
 
+
     @SuppressWarnings("unused")
-    fun insertCarousel(changeMs: Int, vararg filename: String) = buildString {
+    fun insertCarousel(changeMs: Int, vararg filename: String) =
+            insertCarousel("carousel", changeMs, *filename)
+
+
+    fun insertCarousel(id: String, changeMs: Int, vararg filename: String) = buildString {
         appendHTML(false, true).div("carousel slide") {
-            id = "carousel"
+            this.id = id
             attributes["data-interval"] = changeMs.toString()
             attributes["data-ride"] = "carousel"
             div("carousel-inner") {
@@ -161,7 +166,7 @@ class TemplateApi(
                 }
             }
 
-            a("#carousel", classes = "carousel-control-prev") {
+            a("#$id", classes = "carousel-control-prev") {
                 role = "button"
                 attributes["data-slide"] = "prev"
                 span("carousel-control-prev-icon") {
@@ -170,7 +175,7 @@ class TemplateApi(
                 span("sr-only") { text("Vorheriges Bild") }
             }
 
-            a("#carousel", classes = "carousel-control-next") {
+            a("#$id", classes = "carousel-control-next") {
                 role = "button"
                 attributes["data-slide"] = "next"
                 span("carousel-control-next-icon") {
@@ -181,6 +186,51 @@ class TemplateApi(
         }
     }
 
+    @SuppressWarnings("unused")
+    fun insertTextCarousel(changeMs: Int, vararg text: String) =
+            insertTextCarousel("testimonials", changeMs, *text)
+
+
+    fun insertTextCarousel(id: String, changeMs: Int, vararg text: String) = buildString {
+        appendHTML(false, true).div("carousel slide") {
+            this.id = id
+            attributes["data-interval"] = changeMs.toString()
+            attributes["data-ride"] = "carousel"
+            div("carousel-inner") {
+                text.forEachIndexed { idx, cur ->
+                    div {
+                        classes = classes + "carousel-item"
+                        if (idx == 0)
+                            classes = classes + "active"
+
+                        p {
+                            span {
+                                text("„$cur“")
+                            }
+                        }
+                    }
+                }
+            }
+
+            a("#$id", classes = "carousel-control-prev") {
+                role = "button"
+                attributes["data-slide"] = "prev"
+                span("carousel-control-prev-icon") {
+                    attributes["aria-hidden"] = "true"
+                }
+                span("sr-only") { text("Vorheriges Bild") }
+            }
+
+            a("#$id", classes = "carousel-control-next") {
+                role = "button"
+                attributes["data-slide"] = "next"
+                span("carousel-control-next-icon") {
+                    attributes["aria-hidden"] = "true"
+                }
+                span("sr-only") { text("Nächstes Bild") }
+            }
+        }
+    }
 
     @SuppressWarnings("unused")
     fun insertSlidingImages(filename: String, w: Int, h: Int) = buildString {

@@ -76,9 +76,10 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
                         else configuration.inPath withChild it
                     }
 
-                    val additionalTopContent = loadFromFile(configuration, cache, additionalContentSubPath, target, galleryGenerator, metaDataConsumers)
-
+                    val additionalTopContent = loadBefore(configuration, cache, additionalContentSubPath, target, galleryGenerator, metaDataConsumers)
+                    val endContent = loadEnd(configuration, cache, additionalContentSubPath, target, galleryGenerator, metaDataConsumers)
                     val displayName = data.groupName ?: name
+
                     PageGenerator.generatePage(
                             target,
                             displayName,
@@ -126,6 +127,7 @@ class OverviewPageGenerator : YamlMetaDataConsumer {
                                         }
                                     }
                         }
+                        endContent?.let { raw(it) }
                     }
                 }
         if (dirty) {
@@ -167,7 +169,7 @@ private fun <E> MutableSet<E>.add(element: E, force: Boolean) {
     }
 }
 
-private fun loadFromFile(
+private fun loadBefore(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
         sourcePath: SourcePath,
@@ -190,6 +192,30 @@ private fun loadFromFile(
                     *metaDataConsumers
             )
         }
+
+private fun loadEnd(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        sourcePath: SourcePath,
+        targetPath: TargetPath,
+        galleryGenerator: AbstractGalleryGenerator,
+        metaDataConsumers: Array<out YamlMetaDataConsumer>
+) = sequenceOf(
+        "end.overview.md",
+        "end.overview.html"
+)
+        .map { sourcePath withChild it }
+        .firstOrNull { it.exists() }
+        ?.let {
+            MarkdownParser.parse(
+                    configuration,
+                    cache,
+                    it,
+                    targetPath,
+                    galleryGenerator,
+                    *metaDataConsumers
+            )
+        }?.second
 
 
 private fun Map<String, Any>.extract(targetPath: TargetPath): OverviewEntry? {

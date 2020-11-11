@@ -64,10 +64,10 @@ gulp.task('copyStatic', function () {
 gulp.task('copyStaticCss', function () {
     return gulp
         .src('./src/static_css/**/*', {dot: true})
-        .pipe(gulp.dest('generated/css'))
+        .pipe(gulp.dest('./../upload/static.reisishot.pictures/static'))
 });
 
-gulp.task('copyRelease', function () {
+gulp.task('copyReleaseInternal', function () {
     return gulp
         .src('./generated/**/*', {dot: true})
         .pipe(gulp.dest('./../upload/static.reisishot.pictures'))
@@ -90,7 +90,6 @@ gulp.task('watch', function () {
 gulp.task('default', function () {
     gulp.start(
         'copyStatic',
-        'copyStaticCss',
         'styles',
         'scriptsDev',
         'watch'
@@ -100,8 +99,14 @@ gulp.task('default', function () {
 gulp.task('release', function () {
     gulp.start(
         'copyStatic',
-        'copyStaticCss',
         'styles',
         'scripts'
+    );
+});
+
+gulp.task('copyRelease', function () {
+    gulp.start(
+        'copyReleaseInternal',
+        'copyStaticCss'
     );
 });

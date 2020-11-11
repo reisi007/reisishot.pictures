@@ -1,7 +1,34 @@
 .carousel {
-  $h: 75vh;
-  max-height: $h;
-  height: $h;
+  $hDefault: 75vh;
+
+  &#testimonials {
+    $h: 10em;
+    max-height: $h;
+    height: $h;
+    color: $primaryColor;
+
+    p {
+      margin: 0;
+      font-size: 1.5em;
+      line-height: 1.5em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-style: italic;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+
+      span {
+        text-align: center;
+        width: 70%;;
+      }
+    }
+  }
+
+  max-height: $hDefault;
+  height: $hDefault;
+
   margin-bottom: 16px;
 
   .carousel-inner, .carousel-item, .pic-holder, div.lazy, img {
