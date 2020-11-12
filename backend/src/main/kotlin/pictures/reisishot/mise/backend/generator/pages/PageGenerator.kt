@@ -140,7 +140,7 @@ class PageGenerator(
         filesToProcess
                 .filter { (path) -> path.hasExtension(FileExtension::isMarkdown, FileExtension::isHtml) }
                 .forEach { it.buildArtifact(configuration, cache) }
-        configuration.metaDataConsumers.forEach { it.processChanges(configuration, cache, galleryGenerator, configuration.metaDataConsumers) }
+        configuration.metaDataConsumers.forEach { it.processChanges(configuration, cache) }
     }
 
 

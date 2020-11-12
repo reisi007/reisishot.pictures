@@ -31,6 +31,15 @@ object Main {
     }
 
     fun build(isDevMode: Boolean) {
+        val galleryGenerator = GalleryGenerator(
+                categoryBuilders = arrayOf(
+                        DateCategoryBuilder("Chronologisch"),
+                        ConfigurableCategoryBuilder()
+                ),
+                displayedMenuItems = emptySet(),
+                exifReplaceFunction = defaultExifReplaceFunction
+        )
+        val overviewPageGenerator = OverviewPageGenerator(galleryGenerator)
 
         Mise.build(
                 WebsiteConfiguration(
@@ -42,7 +51,7 @@ object Main {
                         tmpPath = tmpPath,
                         outPath = Paths.get("upload", folderName).toAbsolutePath(),
                         interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
-                        metaDataConsumers = arrayOf(OverviewPageGenerator(), KeywordConsumer()),
+                        metaDataConsumers = arrayOf(overviewPageGenerator, KeywordConsumer()),
                         cleanupGeneration = false,
                         analyticsSiteId = "1",
                         socialMediaLinks = SocialMediaAccounts("reisishot", "reisishot", "florian@reisishot.pictures"),
@@ -65,14 +74,8 @@ object Main {
                         },
                         generators = listOf(
                                 PageGenerator(),
-                                GalleryGenerator(
-                                        categoryBuilders = arrayOf(
-                                                DateCategoryBuilder("Chronologisch"),
-                                                ConfigurableCategoryBuilder()
-                                        ),
-                                        displayedMenuItems = emptySet(),
-                                        exifReplaceFunction = defaultExifReplaceFunction
-                                ),
+                                overviewPageGenerator,
+                                galleryGenerator,
                                 ImageMagickThumbnailGenerator(),
                                 LinkGenerator(),
                                 SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)

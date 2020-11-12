@@ -238,20 +238,20 @@ class GalleryGenerator(
         val filesToProcess = changeFiles.asSequence()
                 .map { it.key }
                 .map { configuration.inPath.relativize(it) }
-                .filter { it.getName(0).toString().equals("gallery") }
+                .filter { it.getName(0).toString() == "gallery" }
                 .toList()
         val curUpdate = filesToProcess.isNotEmpty()
         updatePages(filesToProcess, configuration, cache)
-        // Keep super call
+        // Keep super call. Extra variable -> should be executed in any case
         val superUpdate = super.fetchUpdateInformation(configuration, cache, alreadyRunGenerators, changeFiles)
         return superUpdate || curUpdate
     }
 
     private fun updatePages(filesToProcess: List<Path>, configuration: WebsiteConfiguration, cache: BuildingCache) {
-        filesToProcess.forEach { updateType(it, configuration, cache) }
+        filesToProcess.forEach { updatePage(it, configuration, cache) }
     }
 
-    private fun updateType(path: Path, configuration: WebsiteConfiguration, buildingCache: BuildingCache) {
+    private fun updatePage(path: Path, configuration: WebsiteConfiguration, buildingCache: BuildingCache) {
         val type = path.getName(1).toString()
         val value = path.subpath(2, path.nameCount - 1)
                 .toString()

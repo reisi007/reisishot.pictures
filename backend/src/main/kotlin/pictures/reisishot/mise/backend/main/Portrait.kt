@@ -27,6 +27,11 @@ object Portrait {
 
     fun build(isDevMode: Boolean) {
         val folderName = "portrait.reisishot.pictures"
+        val galleryGenerator = GalleryGenerator(
+                categoryBuilders = emptyArray(),
+                exifReplaceFunction = defaultExifReplaceFunction
+        )
+        val overviewPageGenerator = OverviewPageGenerator(galleryGenerator)
         Mise.build(
                 WebsiteConfiguration(
                         shortTitle = "Reisishot Porträt",
@@ -37,7 +42,7 @@ object Portrait {
                         tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
                         outPath = Paths.get("upload", folderName).toAbsolutePath(),
                         interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
-                        metaDataConsumers = arrayOf(OverviewPageGenerator(), KeywordConsumer()),
+                        metaDataConsumers = arrayOf(overviewPageGenerator, KeywordConsumer()),
                         cleanupGeneration = false,
                         socialMediaLinks = SocialMediaAccounts(
                                 "reisishot",
@@ -65,10 +70,8 @@ object Portrait {
                         },
                         generators = listOf(
                                 PageGenerator(),
-                                GalleryGenerator(
-                                        categoryBuilders = emptyArray(),
-                                        exifReplaceFunction = defaultExifReplaceFunction
-                                ),
+                                galleryGenerator,
+                                overviewPageGenerator,
                                 ImageMagickThumbnailGenerator(),
                                 ImageInfoImporter(Main.tmpPath),
                                 SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)

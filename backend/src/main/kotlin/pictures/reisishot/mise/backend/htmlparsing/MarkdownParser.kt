@@ -48,7 +48,7 @@ object MarkdownParser {
         val yamlExtractor = AbstractYamlFrontMatterVisitor()
         val headManipulator: HEAD.() -> Unit = {
             metaDataConsumers.asSequence()
-                    .map { it.processFrontMatter(configuration, cache, targetPath, yamlExtractor.data, galleryGenerator) }
+                    .map { it.processFrontMatter(configuration, cache, targetPath, yamlExtractor.data) }
                     .forEach { it(this) }
         }
         val html = Files.newBufferedReader(sourceFile, Charsets.UTF_8)
