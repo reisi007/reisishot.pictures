@@ -1,15 +1,19 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
 import at.reisishot.mise.commons.CategoryName
+import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.commons.forEachLimitedParallel
 import at.reisishot.mise.commons.withChild
 import at.reisishot.mise.exifdata.ExifdataKey
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
+import pictures.reisishot.mise.backend.generator.ChangeFileset
+import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertImageGallery
 import pictures.reisishot.mise.backend.html.smallButtonLink
+import java.nio.file.Path
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -22,127 +26,155 @@ class GalleryGenerator(
 
     override val generatorName: String = "Reisishot Gallery"
 
+    private val dateTimeFormatter = DateTimeFormatter.ofPattern("eeee 'den' dd.MM.YYYY 'um' HH:mm:ss z")
+
     override suspend fun generateImagePages(
             configuration: WebsiteConfiguration,
             cache: BuildingCache
     ) {
-        val dateTimeFormatter = DateTimeFormatter.ofPattern("eeee 'den' dd.MM.YYYY 'um' HH:mm:ss z")
-        (configuration.outPath withChild "gallery/images").let { baseHtmlPath ->
-            this.cache.imageInformationData.values
-                    .asSequence()
-                    .map { it as? InternalImageInformation }
-                    .filterNotNull()
-                    .asIterable()
-                    .forEachLimitedParallel(50) { curImageInformation ->
-                        val targetFolder = baseHtmlPath withChild curImageInformation.filename.toLowerCase()
-                        PageGenerator.generatePage(
-                                websiteConfiguration = configuration,
-                                buildingCache = cache,
-                                target = targetFolder withChild "index.html",
-                                title = curImageInformation.title,
-                                pageContent = {
-                                    div("singleImage") {
-                                        h1("text-center") {
-                                            text(curImageInformation.title)
-                                        }
+        this.cache.imageInformationData.values
+                .asSequence()
+                .map { it as? InternalImageInformation }
+                .filterNotNull()
+                .asIterable()
+                .forEachLimitedParallel(50) { curImageInformation ->
+                    generateImagePage(configuration, cache, curImageInformation)
+                }
+    }
 
-                                        insertCustomMarkdown(targetFolder, "start", configuration, cache)
+    private fun generateImagePage(
+            configuration: WebsiteConfiguration,
+            cache: BuildingCache,
+            curImageInformation: InternalImageInformation
+    ) {
+        val baseHtmlPath = configuration.outPath withChild "gallery/images"
+        val targetFolder = baseHtmlPath withChild curImageInformation.filename.toLowerCase()
+        PageGenerator.generatePage(
+                websiteConfiguration = configuration,
+                buildingCache = cache,
+                target = targetFolder withChild "index.html",
+                title = curImageInformation.title,
+                pageContent = {
+                    div("singleImage") {
+                        h1("text-center") {
+                            text(curImageInformation.title)
+                        }
 
-                                        insertImageGallery("1", curImageInformation)
+                        insertCustomMarkdown(targetFolder, "start", configuration, cache)
 
-                                        insertCategoryLinks(curImageInformation, configuration, cache)
+                        insertImageGallery("1", curImageInformation)
 
-                                        insertTagLinks(curImageInformation, configuration, cache)
+                        insertCategoryLinks(curImageInformation, configuration, cache)
 
-                                        insertCustomMarkdown(targetFolder, "beforeExif", configuration, cache)
+                        insertTagLinks(curImageInformation, configuration, cache)
 
-                                        insertExifInformation(curImageInformation, dateTimeFormatter)
+                        insertCustomMarkdown(targetFolder, "beforeExif", configuration, cache)
 
-                                        insertCustomMarkdown(targetFolder, "end", configuration, cache)
-                                    }
-                                }
-                        )
+                        insertExifInformation(curImageInformation, dateTimeFormatter)
+
+                        insertCustomMarkdown(targetFolder, "end", configuration, cache)
                     }
-        }
+                }
+        )
     }
 
 
     override fun generateCategoryPages(
             configuration: WebsiteConfiguration,
             cache: BuildingCache
-    ) = with(this.cache) {
-        (configuration.outPath withChild "gallery/categories").let { baseHtmlPath ->
-            computedCategories.forEach { (categoryName, categoryImages) ->
-                val categoryMetaInformation = categoryInformation[categoryName]
-                        ?: throw IllegalStateException("No category information found for name \"$categoryName\"!")
-                val targetFolder = baseHtmlPath withChild categoryMetaInformation.urlFragment
-                PageGenerator.generatePage(
-                        websiteConfiguration = configuration,
-                        buildingCache = cache,
-                        target = targetFolder withChild "index.html",
-                        title = categoryMetaInformation.displayName,
-                        pageContent = {
-                            h1("text-center") {
-                                text("Kategorie - ")
-                                i {
-                                    text(("\"${categoryMetaInformation.displayName}\""))
-                                }
-                            }
-
-                            insertCustomMarkdown(targetFolder, "start", configuration, cache)
-
-                            val imageInformations = with(categoryImages) {
-                                asSequence()
-                                        .map { imageInformationData.getValue(it) }
-                                        .map { it as? InternalImageInformation }
-                                        .filterNotNull()
-                                        .toOrderedByTime()
-                            }
-
-                            insertSubcategoryThumbnails(categoryMetaInformation.internalName)
-
-                            insertImageGallery("1", imageInformations)
-
-                            insertCustomMarkdown(targetFolder, "end", configuration, cache)
-                        }
-                )
-            }
+    ) {
+        this.cache.computedCategories.forEach { (categoryName, _) ->
+            generateCategoryPage(configuration, cache, categoryName)
         }
+    }
+
+
+    private fun generateCategoryPage(
+            configuration: WebsiteConfiguration,
+            buildingCache: BuildingCache,
+            categoryName: CategoryName,
+    ) {
+        val categoryImages: Set<FilenameWithoutExtension> = cache.computedCategories.getValue(categoryName)
+        (configuration.outPath withChild "gallery/categories").let { baseHtmlPath ->
+
+            val categoryMetaInformation = cache.categoryInformation[categoryName]
+                    ?: throw IllegalStateException("No category information found for name \"$categoryName\"!")
+            val targetFolder = baseHtmlPath withChild categoryMetaInformation.urlFragment
+            PageGenerator.generatePage(
+                    websiteConfiguration = configuration,
+                    buildingCache = buildingCache,
+                    target = targetFolder withChild "index.html",
+                    title = categoryMetaInformation.displayName,
+                    pageContent = {
+                        h1("text-center") {
+                            text("Kategorie - ")
+                            i {
+                                text(("\"${categoryMetaInformation.displayName}\""))
+                            }
+                        }
+
+                        insertCustomMarkdown(targetFolder, "start", configuration, buildingCache)
+
+                        val imageInformations = with(categoryImages) {
+                            asSequence()
+                                    .map { cache.imageInformationData.getValue(it) }
+                                    .map { it as? InternalImageInformation }
+                                    .filterNotNull()
+                                    .toOrderedByTime()
+                        }
+
+                        insertSubcategoryThumbnails(categoryMetaInformation.internalName)
+
+                        insertImageGallery("1", imageInformations)
+
+                        insertCustomMarkdown(targetFolder, "end", configuration, buildingCache)
+                    }
+            )
+        }
+
     }
 
 
     override fun generateTagPages(
             configuration: WebsiteConfiguration,
             cache: BuildingCache
-    ) = with(this.cache) {
-        (configuration.outPath withChild "gallery/tags").let { baseHtmlPath ->
-            computedTags.forEach { (tagName, tagImages) ->
-                val targetFolder = baseHtmlPath withChild tagName.url
-                PageGenerator.generatePage(
-                        websiteConfiguration = configuration,
-                        buildingCache = cache,
-                        target = targetFolder withChild "index.html",
-                        title = tagName.name,
-                        pageContent = {
-                            h1("text-center") {
-                                text("Tag - ")
-                                i {
-                                    text(("\"${tagName.name}\""))
-                                }
-                            }
-
-                            insertCustomMarkdown(targetFolder, "start", configuration, cache)
-
-                            val imageInformations = tagImages.asSequence()
-                                    .map { it as? InternalImageInformation }
-                                    .filterNotNull()
-                                    .toOrderedByTime()
-                            insertImageGallery("1", imageInformations)
-
-                            insertCustomMarkdown(targetFolder, "end", configuration, cache)
-                        })
-            }
+    ) {
+        computedTags.keys.forEach { tagName ->
+            generateTagPage(configuration, cache, tagName)
         }
+    }
+
+    private fun generateTagPage(
+            configuration: WebsiteConfiguration,
+            buildingCache: BuildingCache,
+            tagName: TagInformation
+    ) {
+        val tagImages = computedTags.getValue(tagName)
+        val baseHtmlPath = configuration.outPath withChild "gallery/tags"
+        val targetFolder = baseHtmlPath withChild tagName.url
+        PageGenerator.generatePage(
+                websiteConfiguration = configuration,
+                buildingCache = buildingCache,
+                target = targetFolder withChild "index.html",
+                title = tagName.name,
+                pageContent = {
+                    h1("text-center") {
+                        text("Tag - ")
+                        i {
+                            text(("\"${tagName.name}\""))
+                        }
+                    }
+
+                    insertCustomMarkdown(targetFolder, "start", configuration, buildingCache)
+
+                    val imageInformations = tagImages.asSequence()
+                            .map { it as? InternalImageInformation }
+                            .filterNotNull()
+                            .toOrderedByTime()
+                    insertImageGallery("1", imageInformations)
+
+                    insertCustomMarkdown(targetFolder, "end", configuration, buildingCache)
+                })
     }
 
     private fun DIV.insertTagLinks(curImageInformation: InternalImageInformation, configuration: WebsiteConfiguration, cache: BuildingCache) {
@@ -201,6 +233,58 @@ class GalleryGenerator(
         }
     }
 
+    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changeFiles: ChangeFileset): Boolean {
+        // find files & compute changes on the go
+        val filesToProcess = changeFiles.asSequence()
+                .map { it.key }
+                .map { configuration.inPath.relativize(it) }
+                .filter { it.getName(0).toString().equals("gallery") }
+                .toList()
+        val curUpdate = filesToProcess.isNotEmpty()
+        updatePages(filesToProcess, configuration, cache)
+        // Keep super call
+        val superUpdate = super.fetchUpdateInformation(configuration, cache, alreadyRunGenerators, changeFiles)
+        return superUpdate || curUpdate
+    }
+
+    private fun updatePages(filesToProcess: List<Path>, configuration: WebsiteConfiguration, cache: BuildingCache) {
+        filesToProcess.forEach { updateType(it, configuration, cache) }
+    }
+
+    private fun updateType(path: Path, configuration: WebsiteConfiguration, buildingCache: BuildingCache) {
+        val type = path.getName(1).toString()
+        val value = path.subpath(2, path.nameCount - 1)
+                .toString()
+                .replace('\\', '/')
+        when (type) {
+            "categories" -> {
+                val categoryName = cache.categoryInformation
+                        .keys
+                        .first { it.complexName.equals(value, true) }
+                generateCategoryPage(configuration, buildingCache, categoryName)
+            }
+            "tags" -> {
+                val tagName = computedTags
+                        .keys
+                        .first { it.url.equals(value, true) }
+                generateTagPage(configuration, buildingCache, tagName)
+            }
+            "images" -> {
+                val imageInformation = cache.imageInformationData
+                        .keys
+                        .first { it.equals(value, true) }
+                        .let { cache.imageInformationData.getValue(it) }
+                (imageInformation as? InternalImageInformation)?.let { internalImageInformation ->
+                    generateImagePage(configuration, buildingCache, internalImageInformation)
+                }
+
+            }
+            else -> throw IllegalStateException("Type $type is not known")
+        }
+    }
+
     fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?) =
             insertSubcategoryThumbnails(categoryName, this@GalleryGenerator)
+
+
 }
