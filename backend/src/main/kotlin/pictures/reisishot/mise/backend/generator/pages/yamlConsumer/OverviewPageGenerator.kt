@@ -48,7 +48,7 @@ class OverviewPageGenerator(
                 .map { it.key }
                 .filter { it.filenameWithoutExtension.endsWith("overview", true) }
                 .map { configuration.inPath.relativize(it) }
-                .map { toString().replace('\\', '/') }
+                .map { it.toString().replace('\\', '/') }
                 .map { if (it.isBlank()) "index" else it }
                 .map { data.keys.first { key -> key.equals(it, true) } }
                 .filterNotNull()
