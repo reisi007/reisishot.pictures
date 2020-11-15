@@ -38,7 +38,7 @@ class OverviewPageGenerator(
 
     override fun processFrontMatter(configuration: WebsiteConfiguration, cache: BuildingCache, targetPath: TargetPath, frontMatter: Yaml): HEAD.() -> Unit {
         frontMatter.extract(targetPath)?.let {
-            dirty = dirty || changeSetAdd.add(it)
+            dirty = dirty or changeSetAdd.add(it)
         }
         return {}
     }
@@ -54,7 +54,7 @@ class OverviewPageGenerator(
                 .filterNotNull()
                 .map { data.getValue(it) }
                 .map { it.first() }
-                .forEach { dirty = dirty || changeSetAdd.add(it) }
+                .forEach { dirty = dirty or changeSetAdd.add(it) }
         return dirty
     }
 
