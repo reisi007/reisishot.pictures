@@ -106,7 +106,7 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) =
             generateWebpages(configuration, cache)
 
-    protected fun buildTags(cache: BuildingCache) = with(this.cache) {
+    private fun buildTags(cache: BuildingCache) = with(this.cache) {
         val shallAddToMenu = displayedMenuItems.contains(DisplayedMenuItems.TAGS)
         cache.clearMenuItems { LINKTYPE_TAGS == it.id }
         cache.resetLinkcacheFor(LINKTYPE_TAGS)

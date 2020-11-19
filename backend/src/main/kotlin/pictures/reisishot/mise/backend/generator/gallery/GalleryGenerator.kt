@@ -266,7 +266,7 @@ class GalleryGenerator(
             "tags" -> {
                 val tagName = computedTags
                         .keys
-                        .first { it.url.equals(value, true) }
+                        .first { it.name.equals(value, true) }
                 generateTagPage(configuration, buildingCache, tagName)
             }
             "images" -> {
