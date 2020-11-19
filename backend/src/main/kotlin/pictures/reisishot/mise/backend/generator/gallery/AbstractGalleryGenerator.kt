@@ -21,14 +21,22 @@ import pictures.reisishot.mise.backend.html.insertSubcategoryThumbnail
 import pictures.reisishot.mise.backend.html.raw
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
 import pictures.reisishot.mise.backend.toXml
+import java.nio.file.Files
 import java.nio.file.Path
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
+import kotlin.streams.asSequence
 
 
-abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: CategoryBuilder,
-                                        private val displayedMenuItems: Set<DisplayedMenuItems> = setOf(DisplayedMenuItems.CATEGORIES, DisplayedMenuItems.TAGS),
-                                        private val exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }) : WebsiteGenerator, ImageInformationRepository {
+abstract class AbstractGalleryGenerator(
+        private vararg val categoryBuilders: CategoryBuilder,
+        private val displayedMenuItems: Set<DisplayedMenuItems> = setOf(DisplayedMenuItems.CATEGORIES, DisplayedMenuItems.TAGS),
+        private val exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }
+) : WebsiteGenerator, ImageInformationRepository {
 
     enum class DisplayedMenuItems {
         CATEGORIES,
@@ -84,19 +92,32 @@ abstract class AbstractGalleryGenerator(private vararg val categoryBuilders: Cat
             configuration: WebsiteConfiguration,
             cache: BuildingCache
     ) {
-        val newestFile = configuration.inPath.withChild(AbstractThumbnailGenerator.NAME_IMAGE_SUBFOLDER).list()
-                .map {
-                    it.fileModifiedDateTime
-                            ?: throw IllegalStateException("File $it is listed but no file modified time...")
-                }.max() ?: return  // No file to detect
+        val cacheTime = cachePath.fileModifiedDateTime
+                ?: ZonedDateTime.of(LocalDate.of(1900, 1, 1), LocalTime.MIN, ZoneId.systemDefault())
 
-        cachePath.fileModifiedDateTime?.let { cacheTime ->
-            if (cacheTime > newestFile) {
-                this.cache = cachePath.fromXml()
-                        ?: throw IllegalStateException("Cache has a modifed date, but cannot be parsed!")
-                return
-            }
+        val cacheStillValid = configuration.inPath.withChild(AbstractThumbnailGenerator.NAME_IMAGE_SUBFOLDER)
+                .list()
+                .map { it.fileModifiedDateTime }
+                .filterNotNull()
+                .any { it <= cacheTime }
+
+
+        if (cacheStillValid) {
+            this.cache = cachePath.fromXml()
+                    ?: throw IllegalStateException("Cache has a modifed date, but cannot be parsed!")
         }
+
+        val regeneratePages = !cacheStillValid ||
+                withContext(Dispatchers.IO) {
+                    // A file has been modified, which is newer than the cache
+                    Files.walk(configuration.inPath withChild "gallery")
+                            .asSequence()
+                            .map { it.fileModifiedDateTime }
+                            .filterNotNull()
+                            .any { it > cacheTime }
+                }
+
+        if (!regeneratePages) return
 
         buildImageInformation(configuration)
         buildTags(cache)
