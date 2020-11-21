@@ -20,20 +20,21 @@ import java.io.StringReader
 import java.nio.file.Files
 
 object MarkdownParser {
-    private val extensions = listOf(
-            AutolinkExtension.create(),
-            TablesExtension.create(),
-            TocExtension.create(),
-            EmojiExtension.create(),
-            YamlFrontMatterExtension.create(),
-    )
+    private val extensions =
+            listOf(
+                    AutolinkExtension.create(),
+                    TablesExtension.create(),
+                    TocExtension.create(),
+                    EmojiExtension.create(),
+                    YamlFrontMatterExtension.create(),
+            )
+
     private val markdownParser by lazy {
         Parser.builder()
                 .extensions(extensions)
                 .apply {
                     set(Parser.SPACE_IN_LINK_ELEMENTS, true)
                     set(Parser.SPACE_IN_LINK_URLS, true)
-                    set(Parser.HEADING_SETEXT_MARKER_LENGTH, 4)
                 }
                 .build()
     }

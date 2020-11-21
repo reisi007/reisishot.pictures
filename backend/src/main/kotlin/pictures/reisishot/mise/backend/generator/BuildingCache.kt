@@ -17,6 +17,8 @@ class BuildingCache {
         fun getLinkFromFragment(config: WebsiteConfiguration, it: Link): Link =
                 if (it.startsWith("http", true))
                     it
+                else if (config.isDevMode)
+                    "http://localhost:3000/$it"
                 else
                     config.websiteLocation + it
     }

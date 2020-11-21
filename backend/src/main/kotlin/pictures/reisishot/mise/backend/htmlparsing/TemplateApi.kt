@@ -48,7 +48,7 @@ class TemplateApi(
     fun insertPicture(filenameWithoutExtension: FilenameWithoutExtension, classNames: String? = null) = buildString {
         appendHTML(prettyPrint = false, xhtmlCompatible = true).div {
             with(galleryGenerator.cache) {
-                insertLazyPicture(imageInformationData.getOrThrow(filenameWithoutExtension), classNames)
+                insertLazyPicture(imageInformationData.getOrThrow(filenameWithoutExtension), "solo $classNames")
             }
         }
     }

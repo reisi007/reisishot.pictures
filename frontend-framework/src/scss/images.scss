@@ -7,6 +7,10 @@ div {
     max-height: $maxImageHeight;
     overflow: hidden;
 
+    &.solo {
+      margin-bottom: 1rem;
+    }
+
     div.lazy {
       position: relative;
       box-sizing: border-box;
