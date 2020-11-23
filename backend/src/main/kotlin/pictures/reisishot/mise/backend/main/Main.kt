@@ -8,6 +8,7 @@ import kotlinx.html.h3
 import pictures.reisishot.mise.backend.Mise
 import pictures.reisishot.mise.backend.SocialMediaAccounts
 import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.categories.ConfigurableCategoryBuilder
 import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategoryBuilder
@@ -61,7 +62,7 @@ object Main {
                                     thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich innerhalb von 48h!") } },
                                     formStructure = {
                                         FormRoot("footer",
-                                                HiddenFormInput("Seite", websiteConfiguration.websiteLocation + websiteConfiguration.outPath.relativize(target.parent).toString()),
+                                                HiddenFormInput("Seite", BuildingCache.getLinkFromFragment(websiteConfiguration, websiteConfiguration.outPath.relativize(target.parent).toString())),
                                                 FormHGroup(
                                                         FormInput("Name", "Name", "Dein Name", "Bitte sag mir, wie du heißt", InputType.text),
                                                         FormInput("E-Mail", "E-Mail Adresse", "Deine E-Mail-Adresse, auf die du deine Antwort bekommst", "Ich kann dich ohne deine E-Mail Adresse nicht kontaktieren", InputType.email)

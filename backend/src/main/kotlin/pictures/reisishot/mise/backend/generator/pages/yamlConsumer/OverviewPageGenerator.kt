@@ -127,7 +127,10 @@ class OverviewPageGenerator(
                                         val image = galleryGenerator.cache.imageInformationData[entry.picture]
                                                 ?: throw IllegalStateException("Cannot find Image Information")
                                         val url = entry.configuredUrl
-                                                ?: kotlin.run { configuration.getUrl(entry.entryOutUrl withChild "index.html") }
+                                                ?: kotlin.run {
+                                                    BuildingCache.getLinkFromFragment(configuration, configuration.outPath.relativize(entry.entryOutUrl withChild "index.html").parent?.toString()
+                                                            ?: "")
+                                                }
                                         div(classes = "col-lg-4 mt-3") {
                                             a(url, classes = "card black h-100") {
                                                 if (entry.configuredUrl != null)

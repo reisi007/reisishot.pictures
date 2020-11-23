@@ -19,7 +19,7 @@ class BuildingCache {
                 else if (config.isDevMode)
                     "http://localhost:3000/$it"
                 else
-                    config.websiteLocation + it
+                    config.normalizedWebsiteLocation + it
     }
 
     private val linkCache: MutableMap<String, MutableMap<String, Link>> = ConcurrentHashMap()

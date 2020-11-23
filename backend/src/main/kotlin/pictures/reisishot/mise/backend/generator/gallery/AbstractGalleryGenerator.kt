@@ -13,6 +13,7 @@ import kotlinx.html.div
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.fromXml
 import pictures.reisishot.mise.backend.generator.BuildingCache
+import pictures.reisishot.mise.backend.generator.BuildingCache.Companion.getLinkFromFragment
 import pictures.reisishot.mise.backend.generator.ChangeFileset
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
@@ -172,7 +173,7 @@ abstract class AbstractGalleryGenerator(
                     InternalImageInformation(
                             filenameWithoutExtension,
                             thumbnailConfig,
-                            configuration.websiteLocation + SUBFOLDER_OUT + '/' + filenameWithoutExtension.toLowerCase(),
+                            getLinkFromFragment(configuration, SUBFOLDER_OUT + '/' + filenameWithoutExtension.toLowerCase()),
                             imageConfig.title,
                             imageConfig.tags,
                             exifData

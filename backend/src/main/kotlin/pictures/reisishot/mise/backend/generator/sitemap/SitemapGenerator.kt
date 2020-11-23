@@ -4,6 +4,7 @@ import at.reisishot.mise.commons.FileExtension
 import at.reisishot.mise.commons.hasExtension
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
+import pictures.reisishot.mise.backend.generator.BuildingCache.Companion.getLinkFromFragment
 import pictures.reisishot.mise.backend.generator.ChangeFileset
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.isStateEdited
@@ -37,7 +38,7 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
             it.println("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">")
             configuration.outPath.findIndexHtmlFiles()
                     .map { it.normalize().toString().replace('\\', '/') }
-                    .map { configuration.websiteLocation + it }
+                    .map { getLinkFromFragment(configuration, it) }
                     .map { if (it.endsWith('/')) it.substringBeforeLast('/') else it }
                     .forEach { pageUrl ->
                         it.print("<url>")
