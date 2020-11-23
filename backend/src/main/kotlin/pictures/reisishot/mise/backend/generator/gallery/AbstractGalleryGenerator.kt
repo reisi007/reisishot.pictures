@@ -14,7 +14,6 @@ import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.fromXml
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.ChangeFileset
-import pictures.reisishot.mise.backend.generator.MenuLinkContainerItem
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.html.insertSubcategoryThumbnail
@@ -47,7 +46,6 @@ abstract class AbstractGalleryGenerator(
 
     internal var cache = Cache()
     protected lateinit var cachePath: Path
-    private val menuIemComperator = Comparator.comparing<MenuLinkContainerItem, String> { it.text }
     override val imageInformationData: Collection<ImageInformation> = cache.imageInformationData.values
     override val computedTags: Map<TagInformation, Set<ImageInformation>> = cache.computedTags
     protected val ExifdataKey.displayName
@@ -134,7 +132,7 @@ abstract class AbstractGalleryGenerator(
         imageInformationData.values.asSequence()
                 .map { it as? InternalImageInformation }
                 .filterNotNull()
-                .forEach { imageInformation ->
+                .forEachIndexed { idx, imageInformation ->
                     imageInformation.tags.forEach { tagName ->
                         val tag = TagInformation(tagName)
                         computedTags.computeIfAbsent(tag) { mutableSetOf() } += imageInformation
@@ -142,7 +140,7 @@ abstract class AbstractGalleryGenerator(
                         "gallery/tags/${tag.url}".let { link ->
                             cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag.name, link)
                             if (shallAddToMenu)
-                                cache.addMenuItemInContainerNoDupes(LINKTYPE_TAGS, "Tags", 300, tag.name, link, comperator = menuIemComperator)
+                                cache.addMenuItemInContainerNoDupes(LINKTYPE_TAGS, "Tags", 300, tag.name, link, orderFunction = { idx }, elementIndex = idx)
                         }
                     }
                 }
@@ -207,7 +205,7 @@ abstract class AbstractGalleryGenerator(
 
         categoryBuilders.forEach { categoryBuilder ->
             categoryBuilder.generateCategories(this@AbstractGalleryGenerator, websiteConfiguration)
-                    .forEach { (filename, categoryInformation) ->
+                    .forEachIndexed { idx, (filename, categoryInformation) ->
                         categoryInformation.internalName.let { categoryName ->
                             categoryName.complexName.count { it == '/' }.let { subcategoryLevel ->
                                 categoryLevelMap.computeIfAbsent(subcategoryLevel) { mutableSetOf() } += categoryInformation
@@ -218,7 +216,7 @@ abstract class AbstractGalleryGenerator(
                                 if (shallAddToMenu && categoryInformation.visible) {
                                     cache.addMenuItemInContainer(
                                             LINKTYPE_CATEGORIES, "Kategorien", 200, categoryInformation.displayName,
-                                            link, comparator = menuIemComperator
+                                            link, orderFunction = { idx }, elementIndex = idx
                                     )
                                 }
                                 mutableSetOf()

@@ -1,12 +1,20 @@
 package pictures.reisishot.mise.backend.generator
 
-import com.google.common.collect.TreeMultiset
 import java.util.*
 
 typealias  Link = String
 typealias  LinkText = String
 
-sealed class MenuLink(val id: String, val uniqueIndex: Int, val href: Link?, val text: LinkText, val target: String?)
+sealed class MenuLink(val id: String, val uniqueIndex: Int, val href: Link?, val text: LinkText, val target: String?) : Comparable<MenuLink> {
+
+    override fun compareTo(other: MenuLink) = compareValuesBy(
+            this,
+            other,
+            { uniqueIndex },
+            { id }
+    )
+
+}
 
 class MenuLinkContainerItem(
         id: String,
@@ -20,14 +28,19 @@ class MenuLinkContainer(
         id: String,
         uniqueIndex: Int,
         text: LinkText,
-        childComperator: Comparator<MenuLinkContainerItem>,
+        private val orderFunction: (MenuLinkContainerItem) -> Int,
         addChildren: MenuLinkContainer.() -> Unit = {}
 ) : MenuLink(id, uniqueIndex, null, text, null) {
-    private val internalChildren = TreeMultiset.create(childComperator)
-    val children: Collection<MenuLinkContainerItem> get() = internalChildren
+    private val internalChildren = mutableMapOf<Int, TreeSet<MenuLinkContainerItem>>()
+
+    val children: Sequence<MenuLinkContainerItem>
+        get() = internalChildren
+                .asSequence()
+                .flatMap { (_, v) -> v.asSequence() }
 
     fun addChild(child: MenuLinkContainerItem) {
-        internalChildren += child
+        val key = orderFunction(child)
+        internalChildren.computeIfAbsent(key) { TreeSet() }.add(child)
     }
 
     operator fun plusAssign(child: MenuLinkContainerItem) = addChild(child)

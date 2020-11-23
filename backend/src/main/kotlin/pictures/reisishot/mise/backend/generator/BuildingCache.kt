@@ -7,7 +7,6 @@ import pictures.reisishot.mise.backend.toXml
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.Comparator
 
 class BuildingCache {
     private lateinit var menuLinkPath: Path
@@ -58,7 +57,7 @@ class BuildingCache {
             text: LinkText,
             link: Link,
             target: String? = null,
-            comperator: Comparator<MenuLinkContainerItem> = Comparator.comparing<MenuLinkContainerItem, Int> { it.uniqueIndex },
+            orderFunction: (MenuLinkContainerItem) -> Int = { it.uniqueIndex },
             elementIndex: Int = 0
     ): Unit = synchronized(internalMenuLinks) {
         internalMenuLinks.find {
@@ -68,7 +67,7 @@ class BuildingCache {
             }
         }.let {
             if (it == null)
-                addMenuItemInContainer(containerId, containerText, containerIndex, text, link, target, comperator, elementIndex)
+                addMenuItemInContainer(containerId, containerText, containerIndex, text, link, target, orderFunction, elementIndex)
         }
     }
 
@@ -79,7 +78,7 @@ class BuildingCache {
             text: LinkText,
             link: Link,
             target: String? = null,
-            comparator: Comparator<MenuLinkContainerItem> = Comparator.comparing<MenuLinkContainerItem, Int> { it.uniqueIndex },
+            orderFunction: (MenuLinkContainerItem) -> Int = { it.uniqueIndex },
             elementIndex: Int = 0
     ) = synchronized(internalMenuLinks) {
         val menuLinkContainer = internalMenuLinks.find {
@@ -89,7 +88,7 @@ class BuildingCache {
                     containerId,
                     containerIndex,
                     containerText,
-                    comparator
+                    orderFunction
             )
             internalMenuLinks.add(newContainer)
             newContainer
