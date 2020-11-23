@@ -14,7 +14,9 @@ import pictures.reisishot.mise.backend.generator.hasDeletions
 import pictures.reisishot.mise.backend.toXml
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.*
 import java.util.stream.Collectors
+import kotlin.math.max
 
 abstract class AbstractThumbnailGenerator(protected val forceRegeneration: ForceRegeneration) : WebsiteGenerator {
 
@@ -25,7 +27,7 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
 
     override val executionPriority: Int = 1_000
 
-    data class ThumbnailInformation(val filename: String, val width: Int, val height: Int)
+    data class ImageSizeInformation(val filename: String, val width: Int, val height: Int)
 
     enum class Interpolation(val value: String) {
         NONE("4:4:4"),
@@ -47,17 +49,26 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
 
         companion object {
 
-            val LARGEST = LARGE
+            private val _data by lazy {
+                ImageSize.values()
+                        .associateByTo(TreeMap<Int, ImageSize>(), { it.ordinal }, { it })
+            }
 
-            fun getSize(minSize: Int) = values()
-                    .asSequence()
-                    .firstOrNull { it.longestSidePx > minSize } ?: LARGEST
+            val SMALLEST
+                get() = _data.firstEntry().value
+            val LARGEST
+                get() = _data.lastEntry().value
+
         }
+
+        val largerSize: ImageSize?
+            get() = _data.get(ordinal + 1)
+        val smallerSize: ImageSize?
+            get() = _data.get(ordinal - 1)
 
         fun decoratePath(p: Path): Path = with(p) {
             parent withChild fileName.filenameWithoutExtension + '_' + identifier + ".jpg"
         }
-
 
         private fun <T> ListIterator<T>.find(imageSize: ImageSize): ListIterator<T>? {
             while (hasNext()) {
@@ -123,28 +134,41 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
                     withContext(Dispatchers.IO) {
                         Files.createDirectories(baseOutPath.parent)
                     }
-                    ImageSize.values().asSequence().map { size ->
-                        val outFile = size.decoratePath(baseOutPath)
-
-                        (forceRegeneration.thumbnails || !outFile.exists() || jpegImage.isNewerThan(outFile)).let { actionNeeded ->
-                            if (actionNeeded)
-                                convertImage(jpegImage, outFile, size)
-                        }
-
-                        size to getThumbnailInfo(outFile)
-
-                    }.filterNotNull().toMap().toXml(thumbnailInfoPath)
+                    val sourceInfo = getThumbnailInfo(jpegImage)
+                    ImageSize.values()
+                            .asSequence()
+                            .map { size -> generateThumbnails(baseOutPath, jpegImage, sourceInfo, size) }
+                            .filterNotNull()
+                            .toMap()
+                            .toXml(thumbnailInfoPath)
                 }
             }
         }
     }
 
-    protected abstract fun convertImage(inFile: Path, outFile: Path, size: ImageSize)
+    private fun generateThumbnails(baseOutPath: Path, jpegImage: Path, sourceInfo: ImageSizeInformation, size: ImageSize): Pair<ImageSize, ImageSizeInformation>? {
+        val outFile = size.decoratePath(baseOutPath)
 
-    protected fun getThumbnailInfo(jpegImage: Path): ThumbnailInformation {
+        (forceRegeneration.thumbnails || !outFile.exists() || jpegImage.isNewerThan(outFile)).let { actionNeeded ->
+            if (actionNeeded)
+                convertImageInternally(jpegImage, sourceInfo, outFile, size)
+        }
+        return size to getThumbnailInfo(outFile)
+    }
+
+    private fun convertImageInternally(jpegImage: Path, sourceInfo: ImageSizeInformation, outFile: Path, size: ImageSize) {
+        size.smallerSize?.let {
+            if (max(sourceInfo.height, sourceInfo.width) < it.longestSidePx) return
+        }
+        convertImage(jpegImage, outFile, size)
+    }
+
+    protected abstract fun convertImage(inFile: Path, outFile: Path, prefferedSize: ImageSize)
+
+    private fun getThumbnailInfo(jpegImage: Path): ImageSizeInformation {
         val exifData = ImageMetadataReader.readMetadata(jpegImage.toFile())
         val jpegExifData = exifData.getFirstDirectoryOfType(JpegDirectory::class.java)
-        return ThumbnailInformation(jpegImage.fileName.toString(), jpegExifData.imageWidth, jpegExifData.imageHeight)
+        return ImageSizeInformation(jpegImage.fileName.toString(), jpegExifData.imageWidth, jpegExifData.imageHeight)
     }
 
     protected open fun computeOriginalFilename(generatedFilename: FilenameWithoutExtension): FilenameWithoutExtension = generatedFilename.substringBeforeLast('_')

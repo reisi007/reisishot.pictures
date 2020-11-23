@@ -3,19 +3,19 @@ package pictures.reisishot.mise.backend.generator.gallery
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.exifdata.ExifdataKey
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
-import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ThumbnailInformation
+import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSizeInformation
 
 
 sealed class ImageInformation(
         val filename: FilenameWithoutExtension,
-        val thumbnailSizes: Map<ImageSize, ThumbnailInformation>,
+        val thumbnailSizes: Map<ImageSize, ImageSizeInformation>,
         val href: String,
         val title: String
 )
 
 class InternalImageInformation(
         filename: FilenameWithoutExtension,
-        thumbnailSizes: Map<ImageSize, ThumbnailInformation>,
+        thumbnailSizes: Map<ImageSize, ImageSizeInformation>,
         href: String,
         title: String,
         val tags: Set<String>,
@@ -25,7 +25,7 @@ class InternalImageInformation(
 
 class ExternalImageInformation(
         filename: FilenameWithoutExtension,
-        thumbnailSizes: Map<ImageSize, ThumbnailInformation>,
+        thumbnailSizes: Map<ImageSize, ImageSizeInformation>,
         href: String,
         title: String
 ) : ImageInformation(filename, thumbnailSizes, href, title)

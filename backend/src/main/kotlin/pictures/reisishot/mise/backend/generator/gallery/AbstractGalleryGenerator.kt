@@ -166,7 +166,7 @@ abstract class AbstractGalleryGenerator(
                     val imageConfig: ImageConfig = configPath.parseConfig()
                             ?: throw IllegalStateException("Could not load config file $configPath. Please check if the format is valid!")
                     val exifData = jpegPath.readExif(exifReplaceFunction)
-                    val thumbnailConfig: HashMap<AbstractThumbnailGenerator.ImageSize, AbstractThumbnailGenerator.ThumbnailInformation> =
+                    val thumbnailConfig: HashMap<AbstractThumbnailGenerator.ImageSize, AbstractThumbnailGenerator.ImageSizeInformation> =
                             thumbnailInfoPath.fromXml() ?: throw IllegalStateException("Thumbnail info not found...")
 
                     InternalImageInformation(
