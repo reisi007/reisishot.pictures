@@ -101,24 +101,6 @@ internal fun HtmlBlockTag.insertSubcategoryThumbnail(
     }
 }
 
-class PICTURE(classes: String? = null, consumer: TagConsumer<*>) :
-        HTMLTag("picture", consumer, attributesMapOf("class", classes), inlineTag = false, emptyTag = false), HtmlBlockTag
-
-@HtmlTagMarker
-fun FlowOrInteractiveOrPhrasingContent.picture(classes: String? = null, block: PICTURE.() -> Unit = {}) =
-        PICTURE(classes, consumer).visit(block)
-
-
-@HtmlTagMarker
-fun PICTURE.source(srcset: String, mediaQuery: String? = null, classes: String? = null, block: SOURCE.() -> Unit = {}) =
-        SOURCE(
-                attributesMapOf(
-                        "srcset", srcset,
-                        "media", mediaQuery,
-                        "classes", classes
-                ), consumer
-        ).visit(block)
-
 @HtmlTagMarker
 fun FlowOrInteractiveOrPhrasingContent.smallButtonLink(text: String, href: String, target: String = "_blank") = a(href, target, classes = "btn btn-primary btn-sm active") {
     attributes["role"] = "button"
