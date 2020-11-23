@@ -3,9 +3,6 @@ dependencies {
 
     // https://mvnrepository.com/artifact/no.tornado/tornadofx
     compile group: 'no.tornado', name: 'tornadofx', version: '1.7.20'
-    // https://mvnrepository.com/artifact/org.controlsfx/controlsfx
-    compile group: 'org.controlsfx', name: 'controlsfx', version: '8.40.16'
     // https://mvnrepository.com/artifact/org.languagetool/language-de
-    implementation group: 'org.languagetool', name: 'language-de', version: '4.9'
-
+    implementation group: 'org.languagetool', name: 'language-de', version: '5.1'
 }

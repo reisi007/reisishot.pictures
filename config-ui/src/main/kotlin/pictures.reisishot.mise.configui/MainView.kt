@@ -53,7 +53,7 @@ class MainView : View("Main View") {
 
     private val knownTags = mutableSetOf<String>()
     private val imageConfigs = LinkedList<Pair<Path, ImageConfig>>()
-    private var initialDirectory: File = File("D:\\Reisishot\\MiSe\\input-main\\images")
+    private var initialDirectory: File = File("D:\\Reisishot\\MiSe\\input\\reisishot.pictures\\images")
 
     override val root = vbox(5) {
 
@@ -111,18 +111,19 @@ class MainView : View("Main View") {
             item("Config öffnen") {
                 setOnAction {
                     var path: List<Path>
-                    do {
-                        with(FileChooser()) {
-                            initialDirectory = this@MainView.initialDirectory
-                            extensionFilters.add(FileChooser.ExtensionFilter("Image files", "*.jpg", "*.jpeg"))
-                            val showOpenMultipleDialog = showOpenMultipleDialog(null)
-                            path = showOpenMultipleDialog
-                                    ?.asSequence()
-                                    ?.map { it.toPath() }
-                                    ?.map { it.resolveSibling("${it.fileName.filenameWithoutExtension}.conf") }
-                                    ?.toList() ?: emptyList()
-                        }
-                    } while (path.isNullOrEmpty())
+
+                    with(FileChooser()) {
+                        initialDirectory = this@MainView.initialDirectory
+                        extensionFilters.add(FileChooser.ExtensionFilter("Image files", "*.jpg", "*.jpeg"))
+                        val showOpenMultipleDialog = showOpenMultipleDialog(null)
+                        path = showOpenMultipleDialog
+                                ?.asSequence()
+                                ?.map { it.toPath() }
+                                ?.map { it.resolveSibling("${it.fileName.filenameWithoutExtension}.conf") }
+                                ?.toList() ?: emptyList()
+                    }
+                    if (path.isNullOrEmpty())
+                        return@setOnAction
                     path.first().parent?.toFile()?.let {
                         initialDirectory = it
                     }
