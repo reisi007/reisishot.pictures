@@ -2,6 +2,8 @@ package pictures.reisishot.mise.backend.generator.pages.yamlConsumer
 
 import at.reisishot.mise.commons.*
 import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
@@ -172,16 +174,15 @@ class OverviewPageGenerator(
         return changes
     }
 
-    private fun processExternals(configuration: WebsiteConfiguration, cache: BuildingCache) {
-        Files.walk(configuration.inPath)
-                .filter { it.isRegularFile() }
-                .filter { it.hasExtension({ it.isMarkdownPart("external") }) }
-                .map { inPath ->
-                    parseFrontmatter(configuration, inPath)
-                }.forEach { (path, yaml) ->
-                    processFrontMatter(configuration, cache, path, yaml)
-                }
-    }
+    private fun processExternals(configuration: WebsiteConfiguration, cache: BuildingCache) =
+            Files.walk(configuration.inPath)
+                    .filter { it.isRegularFile() }
+                    .filter { it: Path -> it.hasExtension({ it.isMarkdownPart("external") }) }
+                    .map { inPath ->
+                        parseFrontmatter(configuration, inPath)
+                    }.forEach { (path, yaml) ->
+                        processFrontMatter(configuration, cache, path, yaml)
+                    }
 
     private fun parseFrontmatter(configuration: WebsiteConfiguration, inPath: Path): Pair<Path, Yaml> {
         val outPath = configuration.outPath withChild configuration.inPath.relativize(inPath) withChild "external"
@@ -191,8 +192,15 @@ class OverviewPageGenerator(
         return outPath to yamlExtractor.data as Yaml
     }
 
-    override suspend fun fetchInitialInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>) {
-        // No action needed
+    override suspend fun fetchInitialInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>) = withContext(Dispatchers.IO) {
+        Files.walk(configuration.inPath)
+                .filter { it.isRegularFile() }
+                .filter { it: Path -> it.hasExtension({ it.isMarkdownPart("overview") }) }
+                .map { inPath ->
+                    parseFrontmatter(configuration, inPath)
+                }.forEach { (path, yaml) ->
+                    processFrontMatter(configuration, cache, path, yaml)
+                }
     }
 
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
@@ -202,6 +210,17 @@ class OverviewPageGenerator(
     override suspend fun cleanup(configuration: WebsiteConfiguration, cache: BuildingCache) {
         // Nothing to do
     }
+
+    // FIXME: I am getting a build error, when using this function
+    /*private fun Path.processFrontmatter(configuration: WebsiteConfiguration, cache: BuildingCache, filter: (Path) -> Boolean) =
+            Files.walk(this)
+                    .filter { it.isRegularFile() }
+                    .filter(filter)
+                    .map { inPath ->
+                        parseFrontmatter(configuration, inPath)
+                    }.forEach { (path, yaml) ->
+                        processFrontMatter(configuration, cache, path, yaml)
+                    }*/
 }
 
 private fun <E> MutableSet<E>.add(element: E, force: Boolean) {
@@ -259,7 +278,6 @@ private fun loadEnd(
                     *metaDataConsumers
             )
         }?.second
-
 
 private fun Map<String, Any>.extract(targetPath: TargetPath): OverviewEntry? {
     val group = getString("group")
