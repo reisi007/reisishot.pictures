@@ -38,7 +38,7 @@ class OverviewPageGenerator(
         )
     }
 
-    override fun processFrontMatter(configuration: WebsiteConfiguration, cache: BuildingCache, targetPath: TargetPath, frontMatter: Yaml): HEAD.() -> Unit {
+    override fun processFrontmatter(configuration: WebsiteConfiguration, cache: BuildingCache, targetPath: TargetPath, frontMatter: Yaml): HEAD.() -> Unit {
         frontMatter.extract(targetPath)?.let {
             dirty = dirty or changeSetAdd.add(it)
         }
@@ -175,14 +175,7 @@ class OverviewPageGenerator(
     }
 
     private fun processExternals(configuration: WebsiteConfiguration, cache: BuildingCache) =
-            Files.walk(configuration.inPath)
-                    .filter { it.isRegularFile() }
-                    .filter { it: Path -> it.hasExtension({ it.isMarkdownPart("external") }) }
-                    .map { inPath ->
-                        parseFrontmatter(configuration, inPath)
-                    }.forEach { (path, yaml) ->
-                        processFrontMatter(configuration, cache, path, yaml)
-                    }
+            configuration.inPath.processFrontmatter(configuration, cache) { it: Path -> it.hasExtension({ it.isMarkdownPart("external") }) }
 
     private fun parseFrontmatter(configuration: WebsiteConfiguration, inPath: Path): Pair<Path, Yaml> {
         val outPath = configuration.outPath withChild configuration.inPath.relativize(inPath) withChild "external"
@@ -193,14 +186,7 @@ class OverviewPageGenerator(
     }
 
     override suspend fun fetchInitialInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>) = withContext(Dispatchers.IO) {
-        Files.walk(configuration.inPath)
-                .filter { it.isRegularFile() }
-                .filter { it: Path -> it.hasExtension({ it.isMarkdownPart("overview") }) }
-                .map { inPath ->
-                    parseFrontmatter(configuration, inPath)
-                }.forEach { (path, yaml) ->
-                    processFrontMatter(configuration, cache, path, yaml)
-                }
+        configuration.inPath.processFrontmatter(configuration, cache) { it: Path -> it.hasExtension({ it.isMarkdownPart("overview") }) }
     }
 
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
@@ -211,16 +197,15 @@ class OverviewPageGenerator(
         // Nothing to do
     }
 
-    // FIXME: I am getting a build error, when using this function
-    /*private fun Path.processFrontmatter(configuration: WebsiteConfiguration, cache: BuildingCache, filter: (Path) -> Boolean) =
+    private fun Path.processFrontmatter(configuration: WebsiteConfiguration, cache: BuildingCache, filter: (Path) -> Boolean) =
             Files.walk(this)
                     .filter { it.isRegularFile() }
                     .filter(filter)
                     .map { inPath ->
                         parseFrontmatter(configuration, inPath)
                     }.forEach { (path, yaml) ->
-                        processFrontMatter(configuration, cache, path, yaml)
-                    }*/
+                        processFrontmatter(configuration, cache, path, yaml)
+                    }
 }
 
 private fun <E> MutableSet<E>.add(element: E, force: Boolean) {

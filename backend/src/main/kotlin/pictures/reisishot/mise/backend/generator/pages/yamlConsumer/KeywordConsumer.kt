@@ -10,7 +10,7 @@ import pictures.reisishot.mise.backend.htmlparsing.Yaml
 
 class KeywordConsumer : YamlMetaDataConsumer {
 
-    override fun processFrontMatter(configuration: WebsiteConfiguration, cache: BuildingCache, targetPath: TargetPath, frontMatter: Yaml): HEAD.() -> Unit {
+    override fun processFrontmatter(configuration: WebsiteConfiguration, cache: BuildingCache, targetPath: TargetPath, frontMatter: Yaml): HEAD.() -> Unit {
         return {
             frontMatter["keywords"]?.joinToString(",")?.let {
                 meta("keywords", it)

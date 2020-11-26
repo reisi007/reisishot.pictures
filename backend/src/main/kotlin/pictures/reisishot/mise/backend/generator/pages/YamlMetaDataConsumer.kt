@@ -13,7 +13,7 @@ interface YamlMetaDataConsumer {
         // Nothing to do
     }
 
-    fun processFrontMatter(configuration: WebsiteConfiguration, cache: BuildingCache, targetPath: TargetPath, frontMatter: Yaml): HEAD.() -> Unit
+    fun processFrontmatter(configuration: WebsiteConfiguration, cache: BuildingCache, targetPath: TargetPath, frontMatter: Yaml): HEAD.() -> Unit
 
     fun processDelete(configuration: WebsiteConfiguration, cache: BuildingCache, targetPath: TargetPath) {
     }
