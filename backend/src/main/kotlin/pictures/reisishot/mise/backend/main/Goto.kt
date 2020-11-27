@@ -60,7 +60,7 @@ object Goto {
                                         categoryBuilders = emptyArray(),
                                         exifReplaceFunction = defaultExifReplaceFunction
                                 ),
-                                ImageInfoImporter(Main.tmpPath),
+                                ImageInfoImporter(Main.tmpPath, "https://${Main.folderName}/"),
                                 PageGenerator(),
                                 SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
                         )

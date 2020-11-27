@@ -13,13 +13,13 @@ class BuildingCache {
     private lateinit var linkPath: Path
 
     companion object {
-        fun getLinkFromFragment(config: WebsiteConfiguration, it: Link): Link =
+        fun getLinkFromFragment(config: WebsiteConfiguration, it: Link, websiteLocationSupplier: () -> String = { config.normalizedWebsiteLocation }): Link =
                 if (it.startsWith("http", true))
                     it
                 else if (config.isDevMode)
                     "http://localhost:3000/$it"
                 else
-                    config.normalizedWebsiteLocation + it
+                    websiteLocationSupplier() + it
     }
 
     private val linkCache: MutableMap<String, MutableMap<String, Link>> = ConcurrentHashMap()

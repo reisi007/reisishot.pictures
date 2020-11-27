@@ -13,7 +13,6 @@ import kotlinx.html.div
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.fromXml
 import pictures.reisishot.mise.backend.generator.BuildingCache
-import pictures.reisishot.mise.backend.generator.BuildingCache.Companion.getLinkFromFragment
 import pictures.reisishot.mise.backend.generator.ChangeFileset
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
@@ -174,7 +173,7 @@ abstract class AbstractGalleryGenerator(
                     InternalImageInformation(
                             filenameWithoutExtension,
                             thumbnailConfig,
-                            getLinkFromFragment(configuration, SUBFOLDER_OUT + '/' + filenameWithoutExtension.toLowerCase()),
+                            SUBFOLDER_OUT + '/' + filenameWithoutExtension.toLowerCase(),
                             imageConfig.title,
                             imageConfig.tags,
                             exifData
@@ -323,13 +322,13 @@ fun Map<CategoryName, ImageInformation>.getThumbnailImageInformation(
                 ?: generator.cache.imageInformationData[generator.cache.computedCategories[name]?.first()]
                 ?: throw IllegalStateException("Could not find thumbnail for \"$name\"!")
 
-fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?, generator: AbstractGalleryGenerator) {
+fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?, configuration: WebsiteConfiguration, generator: AbstractGalleryGenerator) {
     val subcategories = generator.cache.computedSubcategories[categoryName] ?: emptySet()
     if (subcategories.isNullOrEmpty()) return
-    insertCategoryThumbnails(subcategories, generator)
+    insertCategoryThumbnails(subcategories, configuration, generator)
 }
 
-fun DIV.insertCategoryThumbnails(subcategories: Set<CategoryName>, generator: AbstractGalleryGenerator) {
+fun DIV.insertCategoryThumbnails(subcategories: Set<CategoryName>, configuration: WebsiteConfiguration, generator: AbstractGalleryGenerator) {
     if (!subcategories.isNullOrEmpty())
         div("category-thumbnails") {
             subcategories.asSequence()
@@ -343,7 +342,8 @@ fun DIV.insertCategoryThumbnails(subcategories: Set<CategoryName>, generator: Ab
                         if (imageInformation != null)
                             insertSubcategoryThumbnail(
                                     categoryName,
-                                    imageInformation
+                                    imageInformation,
+                                    configuration
                             )
                     }
         }

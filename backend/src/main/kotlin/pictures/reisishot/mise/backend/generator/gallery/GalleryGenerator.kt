@@ -63,7 +63,7 @@ class GalleryGenerator(
 
                         insertCustomMarkdown(targetFolder, "start", configuration, cache)
 
-                        insertImageGallery("1", curImageInformation)
+                        insertImageGallery("1", configuration, curImageInformation)
 
                         insertCategoryLinks(curImageInformation, configuration, cache)
 
@@ -125,9 +125,9 @@ class GalleryGenerator(
                                     .toOrderedByTime()
                         }
 
-                        insertSubcategoryThumbnails(categoryMetaInformation.internalName)
+                        insertSubcategoryThumbnails(categoryMetaInformation.internalName, configuration, this@GalleryGenerator)
 
-                        insertImageGallery("1", imageInformations)
+                        insertImageGallery("1", configuration, imageInformations)
 
                         insertCustomMarkdown(targetFolder, "end", configuration, buildingCache)
                     }
@@ -174,7 +174,7 @@ class GalleryGenerator(
                             .map { it as? InternalImageInformation }
                             .filterNotNull()
                             .toOrderedByTime()
-                    insertImageGallery("1", imageInformations)
+                    insertImageGallery("1", configuration, imageInformations)
 
                     insertCustomMarkdown(targetFolder, "end", configuration, buildingCache)
                 })
@@ -285,9 +285,4 @@ class GalleryGenerator(
             else -> throw IllegalStateException("Type $type is not known")
         }
     }
-
-    fun DIV.insertSubcategoryThumbnails(categoryName: CategoryName?) =
-            insertSubcategoryThumbnails(categoryName, this@GalleryGenerator)
-
-
 }

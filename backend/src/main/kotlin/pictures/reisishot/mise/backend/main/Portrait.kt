@@ -74,7 +74,7 @@ object Portrait {
                                 galleryGenerator,
                                 overviewPageGenerator,
                                 ImageMagickThumbnailGenerator(),
-                                ImageInfoImporter(Main.tmpPath),
+                                ImageInfoImporter(Main.tmpPath, "https://${Main.folderName}/"),
                                 SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
                         )
                 )

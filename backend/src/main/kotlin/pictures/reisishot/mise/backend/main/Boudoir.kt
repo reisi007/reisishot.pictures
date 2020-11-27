@@ -43,9 +43,7 @@ object Boudoir {
                         cssFileName = "styles-boudoir.css",
                         bootsrapMenuBreakpoint = "lg",
                         navbarBrandFunction = { config, galleryGenerator ->
-                            with(galleryGenerator.cache) {
-                                insertLazyPicture(imageInformationData.getOrThrow("Boudoir-Logo", "Menu"), "solo")
-                            }
+                            insertLazyPicture(galleryGenerator.cache.imageInformationData.getOrThrow("Boudoir-Logo", "Menu"), config, "solo")
                         },
                         socialMediaLinks = SocialMediaAccounts(
                                 "reisishot.boudoir",
@@ -78,7 +76,7 @@ object Boudoir {
                                         exifReplaceFunction = defaultExifReplaceFunction
                                 ),
                                 ImageMagickThumbnailGenerator(),
-                                ImageInfoImporter(Main.tmpPath),
+                                ImageInfoImporter(Main.tmpPath, "https://${Main.folderName}/"),
                                 SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
                         )
                 )

@@ -23,7 +23,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 object Main {
-    private const val folderName = "reisishot.pictures"
+     const val folderName = "reisishot.pictures"
     val tmpPath: Path = Paths.get("tmp", folderName).toAbsolutePath()
 
     @JvmStatic

@@ -39,7 +39,7 @@ class TemplateApi(
     fun insertPicture(filenameWithoutExtension: FilenameWithoutExtension, classNames: String? = null) = buildString {
         appendHTML(prettyPrint = false, xhtmlCompatible = true).div {
             with(galleryGenerator.cache) {
-                insertLazyPicture(imageInformationData.getOrThrow(filenameWithoutExtension, targetPath), "solo $classNames")
+                insertLazyPicture(imageInformationData.getOrThrow(filenameWithoutExtension, targetPath), websiteConfiguration, "solo $classNames")
             }
         }
     }
@@ -58,7 +58,7 @@ class TemplateApi(
                     }.toList().let { imageInformations ->
                         buildString {
                             appendHTML(prettyPrint = false, xhtmlCompatible = true).div {
-                                insertImageGallery(galleryName, imageInformations)
+                                insertImageGallery(galleryName, websiteConfiguration, imageInformations)
                             }
                         }
                     }
@@ -78,7 +78,7 @@ class TemplateApi(
     @SuppressWarnings("unused")
     fun insertSubalbumThumbnails(albumName: String?): String = buildString {
         appendHTML(false, true).div {
-            insertSubcategoryThumbnails(CategoryName(albumName ?: ""), galleryGenerator)
+            insertSubcategoryThumbnails(CategoryName(albumName ?: ""), websiteConfiguration, galleryGenerator)
         }
     }
 
@@ -89,7 +89,7 @@ class TemplateApi(
             val albums = albumName.asSequence()
                     .map { CategoryName(it) }
                     .toCollection(LinkedHashSet())
-            insertCategoryThumbnails(albums, galleryGenerator);
+            insertCategoryThumbnails(albums, websiteConfiguration, galleryGenerator);
         }
     }
 
@@ -106,7 +106,7 @@ class TemplateApi(
                 testimonialsToDisplay.forEach { testimonial ->
                     div("col-12 col-lg-5 card border-dark") {
                         with(galleryGenerator.cache) {
-                            insertLazyPicture(imageInformationData.getOrThrow(testimonial.image, targetPath), "card-img-top")
+                            insertLazyPicture(imageInformationData.getOrThrow(testimonial.image, targetPath), websiteConfiguration, "card-img-top")
                         }
                         div("card-body text-dark") {
                             h5("card-title") {
@@ -152,7 +152,7 @@ class TemplateApi(
                             classes = classes + "active"
 
                         with(galleryGenerator.cache) {
-                            insertLazyPicture(imageInformationData.getOrThrow(filename, targetPath), "d-block w-100")
+                            insertLazyPicture(imageInformationData.getOrThrow(filename, targetPath), websiteConfiguration, "d-block w-100")
                         }
                     }
                 }

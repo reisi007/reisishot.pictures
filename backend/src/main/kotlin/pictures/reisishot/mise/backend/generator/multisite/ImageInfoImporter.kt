@@ -10,7 +10,10 @@ import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerato
 import pictures.reisishot.mise.backend.generator.gallery.toExternal
 import java.nio.file.Path
 
-class ImageInfoImporter(private val otherCacheDir: Path) : WebsiteGenerator {
+class ImageInfoImporter constructor(
+        private val otherCacheDir: Path,
+        private val rootUrl: String
+) : WebsiteGenerator {
     override val executionPriority: Int = 25_000
     override val generatorName: String = "ImageInfoImport"
 
@@ -21,7 +24,7 @@ class ImageInfoImporter(private val otherCacheDir: Path) : WebsiteGenerator {
         (otherCacheDir withChild "gallery.cache.xml").fromXml<AbstractGalleryGenerator.Cache>()
                 ?.imageInformationData
                 ?.forEach { (name, data) ->
-                    galleryGenerator.cache.imageInformationData[name] = data.toExternal()
+                    galleryGenerator.cache.imageInformationData[name] = data.toExternal(rootUrl)
                 }
     }
 

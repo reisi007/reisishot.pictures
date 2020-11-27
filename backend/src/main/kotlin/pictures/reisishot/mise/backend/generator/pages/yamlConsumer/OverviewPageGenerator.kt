@@ -139,7 +139,7 @@ class OverviewPageGenerator(
                                                 if (entry.configuredUrl != null)
                                                     this.target = "_blank"
                                                 div(classes = "card-img-top") {
-                                                    insertLazyPicture(image)
+                                                    insertLazyPicture(image, configuration)
                                                 }
                                                 div(classes = "card-body") {
                                                     h5("card-title") { text(entry.title) }
