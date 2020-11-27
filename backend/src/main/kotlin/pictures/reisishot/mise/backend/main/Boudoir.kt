@@ -10,6 +10,7 @@ import pictures.reisishot.mise.backend.SocialMediaAccounts
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache.Companion.getLinkFromFragment
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
+import pictures.reisishot.mise.backend.generator.gallery.getOrThrow
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.multisite.ImageInfoImporter
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
@@ -39,6 +40,13 @@ object Boudoir {
                         interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         metaDataConsumers = arrayOf(KeywordConsumer()),
                         cleanupGeneration = false,
+                        cssFileName = "styles-boudoir.css",
+                        bootsrapMenuBreakpoint = "lg",
+                        navbarBrandFunction = { config, galleryGenerator ->
+                            with(galleryGenerator.cache) {
+                                insertLazyPicture(imageInformationData.getOrThrow("Boudoir-Logo", "Menu"), "solo")
+                            }
+                        },
                         socialMediaLinks = SocialMediaAccounts(
                                 "reisishot.boudoir",
                                 "reisishot_boudoir",

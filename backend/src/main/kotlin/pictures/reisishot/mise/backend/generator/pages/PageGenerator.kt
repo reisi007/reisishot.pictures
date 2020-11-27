@@ -159,6 +159,7 @@ class PageGenerator(
             headManipulator: HEAD.() -> Unit,
             websiteConfiguration: WebsiteConfiguration,
             buildingCache: BuildingCache,
+            galleryGenerator: AbstractGalleryGenerator,
             targetPath: TargetPath,
             title: String
     ) {
@@ -169,6 +170,7 @@ class PageGenerator(
                 websiteConfiguration = websiteConfiguration,
                 buildingCache = buildingCache,
                 additionalHeadContent = headManipulator,
+                galleryGenerator = galleryGenerator,
                 pageContent = { raw(body) }
         )
 
@@ -188,6 +190,7 @@ class PageGenerator(
                 headManipulator,
                 configuration,
                 buildingCache,
+                galleryGenerator,
                 targetFile,
                 title
         )

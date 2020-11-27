@@ -2,17 +2,13 @@ package pictures.reisishot.mise.backend.htmlparsing
 
 import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.FilenameWithoutExtension
-import at.reisishot.mise.commons.filenameWithoutExtension
 import at.reisishot.mise.commons.withChild
 import at.reisishot.mise.config.parseConfig
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
-import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
-import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
-import pictures.reisishot.mise.backend.generator.gallery.insertCategoryThumbnails
-import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbnails
+import pictures.reisishot.mise.backend.generator.gallery.*
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.pages.Testimonal
 import pictures.reisishot.mise.backend.generator.pages.dateFormatted
@@ -38,20 +34,16 @@ class TemplateApi(
                 ?: throw IllegalStateException("Could not load testimonials")
     }
 
-
-    private fun Map<FilenameWithoutExtension, ImageInformation>.getOrThrow(key: FilenameWithoutExtension) =
-            this[key]
-                    ?: throw IllegalStateException("Cannot find picture with filename \"$key\" (used in ${targetPath.filenameWithoutExtension})!")
-
     @SuppressWarnings("unused")
     @JvmOverloads
     fun insertPicture(filenameWithoutExtension: FilenameWithoutExtension, classNames: String? = null) = buildString {
         appendHTML(prettyPrint = false, xhtmlCompatible = true).div {
             with(galleryGenerator.cache) {
-                insertLazyPicture(imageInformationData.getOrThrow(filenameWithoutExtension), "solo $classNames")
+                insertLazyPicture(imageInformationData.getOrThrow(filenameWithoutExtension, targetPath), "solo $classNames")
             }
         }
     }
+
 
     @SuppressWarnings("unused")
     fun insertGallery(
@@ -62,7 +54,7 @@ class TemplateApi(
         return with(galleryGenerator.cache) {
             filenameWithoutExtension.asSequence()
                     .map {
-                        imageInformationData.getOrThrow(it)
+                        imageInformationData.getOrThrow(it, targetPath)
                     }.toList().let { imageInformations ->
                         buildString {
                             appendHTML(prettyPrint = false, xhtmlCompatible = true).div {
@@ -114,7 +106,7 @@ class TemplateApi(
                 testimonialsToDisplay.forEach { testimonial ->
                     div("col-12 col-lg-5 card border-dark") {
                         with(galleryGenerator.cache) {
-                            insertLazyPicture(imageInformationData.getOrThrow(testimonial.image), "card-img-top")
+                            insertLazyPicture(imageInformationData.getOrThrow(testimonial.image, targetPath), "card-img-top")
                         }
                         div("card-body text-dark") {
                             h5("card-title") {
@@ -160,7 +152,7 @@ class TemplateApi(
                             classes = classes + "active"
 
                         with(galleryGenerator.cache) {
-                            insertLazyPicture(imageInformationData.getOrThrow(filename), "d-block w-100")
+                            insertLazyPicture(imageInformationData.getOrThrow(filename, targetPath), "d-block w-100")
                         }
                     }
                 }

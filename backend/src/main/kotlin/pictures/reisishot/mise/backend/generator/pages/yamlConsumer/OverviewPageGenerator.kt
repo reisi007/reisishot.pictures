@@ -20,8 +20,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 class OverviewPageGenerator(
-        val galleryGenerator: AbstractGalleryGenerator,
-        val metaDataConsumers: Array<out YamlMetaDataConsumer> = emptyArray()
+        private val galleryGenerator: AbstractGalleryGenerator,
+        private val metaDataConsumers: Array<out YamlMetaDataConsumer> = emptyArray()
 ) : YamlMetaDataConsumer, WebsiteGenerator {
 
     override val generatorName: String = "Overview Page Generator"
@@ -116,6 +116,7 @@ class OverviewPageGenerator(
                             displayName,
                             websiteConfiguration = configuration,
                             additionalHeadContent = additionalTopContent?.first ?: {},
+                            galleryGenerator = galleryGenerator,
                             buildingCache = cache
                     ) {
                         p {

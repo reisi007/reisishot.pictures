@@ -20,6 +20,7 @@ import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThum
 import pictures.reisishot.mise.backend.html.insertSubcategoryThumbnail
 import pictures.reisishot.mise.backend.html.raw
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
+import pictures.reisishot.mise.backend.htmlparsing.TargetPath
 import pictures.reisishot.mise.backend.toXml
 import java.nio.file.Files
 import java.nio.file.Path
@@ -347,3 +348,9 @@ fun DIV.insertCategoryThumbnails(subcategories: Set<CategoryName>, generator: Ab
                     }
         }
 }
+
+fun Map<FilenameWithoutExtension, ImageInformation>.getOrThrow(key: FilenameWithoutExtension, usage: TargetPath? = null) =
+        getOrThrow(key, usage?.filenameWithoutExtension)
+
+fun Map<FilenameWithoutExtension, ImageInformation>.getOrThrow(key: FilenameWithoutExtension, usage: String? = null) =
+        this[key] ?: throw IllegalStateException("Cannot find picture with filename \"$key\" (used in ${usage})!")

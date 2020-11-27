@@ -54,6 +54,7 @@ class GalleryGenerator(
                 buildingCache = cache,
                 target = targetFolder withChild "index.html",
                 title = curImageInformation.title,
+                galleryGenerator = this,
                 pageContent = {
                     div("singleImage") {
                         h1("text-center") {
@@ -105,6 +106,7 @@ class GalleryGenerator(
                     buildingCache = buildingCache,
                     target = targetFolder withChild "index.html",
                     title = categoryMetaInformation.displayName,
+                    galleryGenerator = this,
                     pageContent = {
                         h1("text-center") {
                             text("Kategorie - ")
@@ -157,6 +159,7 @@ class GalleryGenerator(
                 buildingCache = buildingCache,
                 target = targetFolder withChild "index.html",
                 title = tagName.name,
+                galleryGenerator = this,
                 pageContent = {
                     h1("text-center") {
                         text("Tag - ")

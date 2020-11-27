@@ -6,6 +6,7 @@ import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.MenuLink
 import pictures.reisishot.mise.backend.generator.MenuLinkContainer
+import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import java.io.BufferedWriter
 import java.net.URLEncoder
 import java.nio.file.Files
@@ -24,6 +25,7 @@ object PageGenerator {
             locale: Locale = Locale.getDefault(),
             websiteConfiguration: WebsiteConfiguration,
             buildingCache: BuildingCache,
+            galleryGenerator: AbstractGalleryGenerator,
             additionalHeadContent: HEAD.() -> Unit = {},
             pageContent: DIV.() -> Unit
     ): BufferedWriter = with(target) {
@@ -39,18 +41,18 @@ object PageGenerator {
                         classes = classes + "h-100"
                         head {
                             lang = locale.toLanguageTag()
-                            preload(websiteConfiguration.isDevMode)
+                            preload(websiteConfiguration)
                             metaUTF8()
                             metaViewport()
                             linkCanonnical(url)
                             favicon()
                             title(title)
-                            appCss(websiteConfiguration.isDevMode)
+                            appCss(websiteConfiguration)
                             additionalHeadContent(this)
                         }
                         body("d-flex flex-column h-100") {
                             header {
-                                buildMenu(websiteConfiguration, buildingCache.menuLinks)
+                                buildMenu(websiteConfiguration, galleryGenerator, buildingCache.menuLinks)
                             }
 
                             main("flex-shrink-0") {
@@ -125,11 +127,11 @@ object PageGenerator {
     }
 
 
-    private fun HEADER.buildMenu(websiteConfiguration: WebsiteConfiguration, items: Collection<MenuLink>) {
-        nav("navbar navbar-dark navbar-fixed-top navbar-expand-md") {
+    private fun HEADER.buildMenu(websiteConfiguration: WebsiteConfiguration, galleryGenerator: AbstractGalleryGenerator, items: Collection<MenuLink>) {
+        nav("navbar navbar-dark navbar-fixed-top navbar-expand-${websiteConfiguration.bootsrapMenuBreakpoint}") {
             val navId = "navbarCollapse"
             a(classes = "navbar-brand", href = "/") {
-                text(websiteConfiguration.shortTitle)
+                websiteConfiguration.navbarBrandFunction(this, websiteConfiguration, galleryGenerator)
             }
             if (items.isNotEmpty())
                 button(classes = "navbar-toggler") {
@@ -192,9 +194,9 @@ object PageGenerator {
     private fun BODY.scriptJs(src: String) = script(src = src) {}
 
     @HtmlTagMarker
-    private fun HEAD.appCss(devMode: Boolean) {
-        val prefix = getRessourceUrlPrefix(devMode)
-        styleLink("$prefix/css/styles.css")
+    private fun HEAD.appCss(configuration: WebsiteConfiguration) {
+        val prefix = getRessourceUrlPrefix(configuration.isDevMode)
+        styleLink("$prefix/css/${configuration.cssFileName}")
     }
 
     @HtmlTagMarker
@@ -216,8 +218,8 @@ object PageGenerator {
             meta(name = "viewport", content = "width=device-width, initial-scale=1, shrink-to-fit=no")
 
     @HtmlTagMarker
-    private fun HEAD.preload(devMode: Boolean) {
-        val prefix = getRessourceUrlPrefix(devMode)
+    private fun HEAD.preload(configuration: WebsiteConfiguration) {
+        val prefix = getRessourceUrlPrefix(configuration.isDevMode)
         link("$prefix/css/rs/fonts/reisishotpictures.woff2", "preload") {
             attributes["as"] = "font"
             attributes["crossorigin"] = ""
@@ -229,7 +231,7 @@ object PageGenerator {
         link("$prefix/js/combined.min.js", "preload") {
             attributes["as"] = "script"
         }
-        link("$prefix/css/styles.css", "preload") {
+        link("$prefix/css/${configuration.cssFileName}", "preload") {
             attributes["as"] = "style"
         }
     }

@@ -1,0 +1,24 @@
+.carousel#testimonials {
+  background-color: $primaryColor;
+  color: $accentColor;
+}
+
+.navbar-brand, h1, h2, h3, h4, h5, h6 {
+  color: $accentColor !important;
+}
+
+.navbar-brand {
+  $h: 40px;
+  height: $h;
+  padding-bottom: 10px;
+  width: 220px;
+
+  .pic-holder, div.lazy, img {
+    max-height: $h;
+  }
+
+  div.lazy {
+    padding-top: 0 !important;
+
+  }
+}

@@ -20,6 +20,16 @@ gulp.task('styles', function () {
         .pipe(gulp.dest('generated/css'));
 });
 
+gulp.task('styles-boudoir', function () {
+    return gulp
+        .src('./src/scss/main-boudoir.scss')
+        .pipe($.sass().on('error', $.sass.logError))
+        .pipe(autoprefixCss())
+        .pipe($.cleanCss())
+        .pipe($.concat('styles-boudoir.css'))
+        .pipe(gulp.dest('generated/css'));
+});
+
 function babelify() {
     return $.babel();
 }
@@ -75,7 +85,7 @@ gulp.task('copyReleaseInternal', function () {
 
 gulp.task('watch', function () {
     // Watch .sass files
-    gulp.watch(['src/scss/**/*.scss', 'src/scss/**/*.css'], ['styles']);
+    gulp.watch(['src/scss/**/*.scss', 'src/scss/**/*.css'], ['styles', 'styles-boudoir']);
     // Watch .js files
     gulp.watch([
         './src/js/bootstrap/*.js',
@@ -91,6 +101,7 @@ gulp.task('default', function () {
     gulp.start(
         'copyStatic',
         'styles',
+        'styles-boudoir',
         'scriptsDev',
         'watch'
     );
@@ -100,6 +111,7 @@ gulp.task('release', function () {
     gulp.start(
         'copyStatic',
         'styles',
+        'styles-boudoir',
         'scripts'
     );
 });

@@ -32,8 +32,6 @@
   max-height: $hDefault;
   height: $hDefault;
 
-  margin-bottom: 16px;
-
   .carousel-inner, .carousel-item, .pic-holder, div.lazy, img {
     height: 100%;
   }
@@ -48,5 +46,9 @@
 
   img {
     vertical-align: middle;
+  }
+
+  & + * {
+    margin-top: 16px;
   }
 }

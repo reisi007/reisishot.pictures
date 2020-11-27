@@ -1,8 +1,10 @@
 package pictures.reisishot.mise.backend
 
 import at.reisishot.mise.commons.FileExtension
+import kotlinx.html.A
 import kotlinx.html.DIV
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
+import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.pages.YamlMetaDataConsumer
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -24,6 +26,9 @@ class WebsiteConfiguration(
         val metaDataConsumers: Array<YamlMetaDataConsumer> = emptyArray(),
         val generators: List<WebsiteGenerator> = emptyList(),
         val isDevMode: Boolean = false,
+        val cssFileName: String = "styles.css",
+        val bootsrapMenuBreakpoint: String = "md",
+        val navbarBrandFunction: A.(WebsiteConfiguration, AbstractGalleryGenerator) -> Unit = { config, _ -> text(config.shortTitle) },
         vararg val interactiveIgnoredFiles: ((FileExtension) -> Boolean) = arrayOf({ _: String -> false })
 ) {
     val interactiveDelayMs: Long?
