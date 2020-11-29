@@ -12,10 +12,7 @@ import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.pages.YamlMetaDataConsumer
 import pictures.reisishot.mise.backend.html.*
-import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
-import pictures.reisishot.mise.backend.htmlparsing.SourcePath
-import pictures.reisishot.mise.backend.htmlparsing.TargetPath
-import pictures.reisishot.mise.backend.htmlparsing.Yaml
+import pictures.reisishot.mise.backend.htmlparsing.*
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -265,7 +262,7 @@ private fun loadEnd(
             )
         }?.second
 
-private fun Map<String, Any>.extract(targetPath: TargetPath): OverviewEntry? {
+private fun Map<String, List<String>>.extract(targetPath: TargetPath): OverviewEntry? {
     val group = getString("group")
     val picture = getString("picture")
     val title = getString("title")
@@ -276,16 +273,6 @@ private fun Map<String, Any>.extract(targetPath: TargetPath): OverviewEntry? {
     if (group == null || picture == null || title == null || order == null)
         return null
     return OverviewEntry(group, title, description, picture, targetPath.parent, order, groupName, url)
-}
-
-fun Map<String, Any>.getString(key: String): String? {
-    val value = getOrDefault(key, null)
-    return when (value) {
-        is String -> value
-        is List<*> -> (value.firstOrNull() as? String)
-        is Number -> value.toString()
-        else -> null
-    }?.trim()
 }
 
 

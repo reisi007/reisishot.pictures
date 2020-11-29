@@ -7,13 +7,16 @@ import java.util.*
 data class Testimonal(
         val image: FilenameWithoutExtension,
         val name: String,
-        val date: String,
+        private val _date: String,
         val type: String,
-        val text: String
-)
+        val html: String
+) {
+    companion object {
+        private val sourceDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        private val targetDateFormat = SimpleDateFormat("dd. MMMM yyyy", Locale.GERMAN)
+    }
 
-private val sourceDateFormat = SimpleDateFormat("yyyy-MM-dd")
-private val targetDateFormat = SimpleDateFormat("dd. MMMM yyyy", Locale.GERMAN)
-
-
-fun Testimonal.dateFormatted() = targetDateFormat.format(sourceDateFormat.parse(date))
+    val date: String by lazy {
+        targetDateFormat.format(sourceDateFormat.parse(_date))
+    }
+}

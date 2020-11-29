@@ -1,9 +1,7 @@
 package pictures.reisishot.mise.backend.htmlparsing
 
-import at.reisishot.mise.commons.CategoryName
-import at.reisishot.mise.commons.FilenameWithoutExtension
-import at.reisishot.mise.commons.withChild
-import at.reisishot.mise.config.parseConfig
+import at.reisishot.mise.commons.*
+import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import pictures.reisishot.mise.backend.WebsiteConfiguration
@@ -11,13 +9,16 @@ import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.*
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.pages.Testimonal
-import pictures.reisishot.mise.backend.generator.pages.dateFormatted
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertImageGallery
 import pictures.reisishot.mise.backend.html.insertLazyPicture
 import pictures.reisishot.mise.backend.html.raw
+import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser.markdown2Html
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.math.roundToInt
+import kotlin.streams.toList
 
 class TemplateApi(
         private val targetPath: TargetPath,
@@ -25,14 +26,33 @@ class TemplateApi(
         private val cache: BuildingCache,
         private val websiteConfiguration: WebsiteConfiguration
 ) {
-    private var privateHasGallery = false
-    val hasGallery
-        get() = privateHasGallery
 
     private val testimonials: List<Testimonal> by lazy {
-        (websiteConfiguration.inPath withChild "testimonials.conf").parseConfig<List<Testimonal>>("testimonials")
-                ?: throw IllegalStateException("Could not load testimonials")
+        Files.walk(websiteConfiguration.inPath)
+                .filter { Files.isRegularFile(it) }
+                .filter { it.hasExtension({ it.isMarkdownPart("review") }) }
+                .map {
+                    val yamlContainer = AbstractYamlFrontMatterVisitor()
+                    val html = Files.newBufferedReader(it, StandardCharsets.UTF_8).use {
+                        it.markdown2Html(yamlContainer)
+                    }
+                    yamlContainer.data.createTestimonial(it, html)
+                }
+                .toList()
+
+
     }
+
+    private fun Yaml.createTestimonial(p: Path, contentHtml: String): Testimonal {
+        val imageFilename = getString("image")
+        val personName = getString("name")
+        val date = getString("date")
+        val type = getString("type")
+        if (imageFilename == null || personName == null || date == null || type == null)
+            throw IllegalStateException("Das Testimonial in $p ist nicht vollständig!")
+        return Testimonal(imageFilename, personName, date, type, contentHtml)
+    }
+
 
     @SuppressWarnings("unused")
     @JvmOverloads
@@ -50,7 +70,6 @@ class TemplateApi(
             galleryName: String,
             vararg filenameWithoutExtension: FilenameWithoutExtension
     ): String {
-        privateHasGallery = privateHasGallery || filenameWithoutExtension.isNotEmpty()
         return with(galleryGenerator.cache) {
             filenameWithoutExtension.asSequence()
                     .map {
@@ -112,10 +131,10 @@ class TemplateApi(
                             h5("card-title") {
                                 text(testimonial.name)
                                 br()
-                                small("text-muted") { text(testimonial.dateFormatted()) }
+                                small("text-muted") { text(testimonial.date) }
                             }
                             div("card-text") {
-                                raw("<p>" + testimonial.text.replace("\n", "</p><p>") + "</p>")
+                                raw(testimonial.html)
                             }
                         }
                     }
@@ -272,3 +291,8 @@ typealias SourcePath = Path;
 typealias TargetPath = Path;
 typealias PageGeneratorInfo = Triple<SourcePath, TargetPath, String/*Title*/>
 typealias Yaml = Map<String, List<String>>
+
+fun Map<String, List<String>>.getString(key: String): String? {
+    val value = getOrDefault(key, null)
+    return value?.firstOrNull()?.trim()
+}

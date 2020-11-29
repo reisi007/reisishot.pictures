@@ -79,10 +79,10 @@ object MarkdownParser {
             configuration
     )
 
-    private fun String.markdown2Html(yamlExtractor: AbstractYamlFrontMatterVisitor) =
+    fun String.markdown2Html(yamlExtractor: AbstractYamlFrontMatterVisitor) =
             htmlRenderer.render(extractFrontmatter(this, yamlExtractor))
 
-    private fun Reader.markdown2Html(yamlExtractor: AbstractYamlFrontMatterVisitor) =
+    fun Reader.markdown2Html(yamlExtractor: AbstractYamlFrontMatterVisitor) =
             htmlRenderer.render(extractFrontmatter(this, yamlExtractor))
 
     fun extractFrontmatter(fileContents: String, target: AbstractYamlFrontMatterVisitor): Document = extractFrontmatter(StringReader(fileContents), target)
