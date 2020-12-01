@@ -6,6 +6,19 @@
     border-top: unset;
   }
 
+  .card-img-top {
+    $h: 50vh;
+    height: $h;
+
+    .pic-holder, .lazy, img {
+      height: $h;
+    }
+
+    .lazy {
+      padding-top: unset !important;
+    }
+  }
+
   .rs-link-ext.rs-xs.sup {
     color: white;
   }

@@ -12,9 +12,11 @@ import pictures.reisishot.mise.backend.generator.BuildingCache.Companion.getLink
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.getOrThrow
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
+import pictures.reisishot.mise.backend.generator.links.LinkGenerator
 import pictures.reisishot.mise.backend.generator.multisite.ImageInfoImporter
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
 import pictures.reisishot.mise.backend.generator.pages.yamlConsumer.KeywordConsumer
+import pictures.reisishot.mise.backend.generator.pages.yamlConsumer.OverviewPageGenerator
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
 import pictures.reisishot.mise.backend.html.*
 import java.nio.file.Path
@@ -28,6 +30,14 @@ object Boudoir {
 
     fun build(isDevMode: Boolean) {
         val folderName = "boudoir.reisishot.pictures"
+
+        val galleryGenerator = GalleryGenerator(
+                categoryBuilders = emptyArray(),
+                exifReplaceFunction = defaultExifReplaceFunction
+        )
+        val overviewPageGenerator = OverviewPageGenerator(galleryGenerator)
+
+
         Mise.build(
                 WebsiteConfiguration(
                         shortTitle = "Reisishot Boudoir",
@@ -38,10 +48,9 @@ object Boudoir {
                         tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
                         outPath = Paths.get("upload", folderName).toAbsolutePath(),
                         interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
-                        metaDataConsumers = arrayOf(KeywordConsumer()),
+                        metaDataConsumers = arrayOf(overviewPageGenerator, KeywordConsumer()),
                         cleanupGeneration = false,
                         cssFileName = "styles-boudoir.css",
-                        bootsrapMenuBreakpoint = "lg",
                         navbarBrandFunction = { config, galleryGenerator ->
                             insertLazyPicture(galleryGenerator.cache.imageInformationData.getOrThrow("Boudoir-Logo", "Menu"), config, "solo")
                         },
@@ -71,12 +80,11 @@ object Boudoir {
                         },
                         generators = listOf(
                                 PageGenerator(),
-                                GalleryGenerator(
-                                        categoryBuilders = emptyArray(),
-                                        exifReplaceFunction = defaultExifReplaceFunction
-                                ),
+                                overviewPageGenerator,
+                                galleryGenerator,
                                 ImageMagickThumbnailGenerator(),
                                 ImageInfoImporter(Main.tmpPath, "https://${Main.folderName}/"),
+                                LinkGenerator(),
                                 SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
                         )
                 )

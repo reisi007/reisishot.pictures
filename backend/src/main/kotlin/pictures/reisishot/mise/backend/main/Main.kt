@@ -40,8 +40,8 @@ object Main {
                 displayedMenuItems = emptySet(),
                 exifReplaceFunction = defaultExifReplaceFunction
         )
-        val overviewPageGenerator = OverviewPageGenerator(galleryGenerator)
 
+        val overviewPageGenerator = OverviewPageGenerator(galleryGenerator)
         Mise.build(
                 WebsiteConfiguration(
                         shortTitle = "Reisishot",

@@ -96,16 +96,17 @@ class OverviewPageGenerator(
                 .map { (name, b) -> data.getValue(name).first() to b }
                 .forEach { (data, b) ->
                     val name = data.id //TODO group config files using name only
-                    val target = b withChild "index.html"
 
-                    val additionalContentSubPath = b.fileName.let {
+                    val overviewPagePath = b.fileName.let {
                         if (name == "index")
                             configuration.inPath
-                        else configuration.inPath withChild it
+                        else configuration.inPath withChild name
                     }
 
-                    val additionalTopContent = loadBefore(configuration, cache, additionalContentSubPath, target, galleryGenerator, metaDataConsumers)
-                    val endContent = loadEnd(configuration, cache, additionalContentSubPath, target, galleryGenerator, metaDataConsumers)
+                    val target = configuration.outPath withChild configuration.inPath.relativize(overviewPagePath) withChild "index.html"
+
+                    val additionalTopContent = loadBefore(configuration, cache, overviewPagePath, target, galleryGenerator, metaDataConsumers)
+                    val endContent = loadEnd(configuration, cache, overviewPagePath, target, galleryGenerator, metaDataConsumers)
                     val displayName = data.groupName ?: name
 
                     PageGenerator.generatePage(
