@@ -181,7 +181,7 @@ class OverviewPageGenerator(
         val yamlExtractor = AbstractYamlFrontMatterVisitor()
         val fileContent = inPath.useBufferedReader { it.readText() }
         MarkdownParser.extractFrontmatter(fileContent, yamlExtractor)
-        return outPath to yamlExtractor.data as Yaml
+        return outPath to yamlExtractor.data
     }
 
     override suspend fun fetchInitialInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>) = withContext(Dispatchers.IO) {
