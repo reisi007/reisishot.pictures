@@ -117,7 +117,7 @@ class OverviewPageGenerator(
 
                     val additionalTopContent = loadBefore(configuration, cache, overviewPagePath, target, galleryGenerator, metaDataConsumers)
                     val endContent = loadEnd(configuration, cache, overviewPagePath, target, galleryGenerator, metaDataConsumers)
-                    val displayName = data.groupName
+                    val displayName = data.displayName
 
                     PageGenerator.generatePage(
                             target,
@@ -223,15 +223,15 @@ class OverviewPageGenerator(
         val order = getString("order")?.toInt()
         val description = getString("description")
         val groupConfig = overviewConfigs[group]
-        val groupName = groupConfig?.name ?: group
+        val displayName = groupConfig?.name ?: group
 
         val url = getString("url")
-        if (group == null || picture == null || title == null || order == null || groupName == null)
+        if (group == null || picture == null || title == null || order == null || displayName == null)
             return null
-        return OverviewEntry(group, title, description, picture, targetPath.parent, order, groupName, url)
+        return OverviewEntry(group, title, description, picture, targetPath.parent, order, displayName, url)
     }
 
-    inner class OverviewEntry(val id: String, val title: String, val description: String?, val picture: String, val entryOutUrl: Path, val order: Int, val groupName: String, val configuredUrl: String?) {
+    inner class OverviewEntry(val id: String, val title: String, val description: String?, val picture: String, val entryOutUrl: Path, val order: Int, val displayName: String, val configuredUrl: String?) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
