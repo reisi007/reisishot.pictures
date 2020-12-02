@@ -1,7 +1,9 @@
-package pictures.reisishot.mise.backend.generator.pages.yamlConsumer
+package pictures.reisishot.mise.backend.generator.pages.overview
 
 import at.reisishot.mise.commons.*
+import at.reisishot.mise.config.getConfig
 import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
+import io.github.config4k.extract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.*
@@ -27,6 +29,7 @@ class OverviewPageGenerator(
     private var dirty = false
     private val changeSetAdd = mutableSetOf<OverviewEntry>()
     private val changeSetRemove = mutableListOf<Path>()
+    private lateinit var overviewConfigs: Map<String, OverviewConfig>
 
     override fun interestingFileExtensions(): Sequence<(FileExtension) -> Boolean> {
         return sequenceOf(
@@ -62,6 +65,13 @@ class OverviewPageGenerator(
 
     override fun processChanges(configuration: WebsiteConfiguration, cache: BuildingCache) {
         processChangesInternal(configuration, cache)
+    }
+
+    override fun init(configuration: WebsiteConfiguration, cache: BuildingCache) {
+        overviewConfigs = (configuration.inPath withChild "overview.conf")
+                .getConfig()
+                ?.extract("entries")
+                ?: emptyMap()
     }
 
     private fun processChangesInternal(configuration: WebsiteConfiguration, cache: BuildingCache): Boolean {
@@ -107,7 +117,7 @@ class OverviewPageGenerator(
 
                     val additionalTopContent = loadBefore(configuration, cache, overviewPagePath, target, galleryGenerator, metaDataConsumers)
                     val endContent = loadEnd(configuration, cache, overviewPagePath, target, galleryGenerator, metaDataConsumers)
-                    val displayName = data.groupName ?: name
+                    val displayName = data.groupName
 
                     PageGenerator.generatePage(
                             target,
@@ -121,7 +131,7 @@ class OverviewPageGenerator(
                             h1(classes = "center") { text(displayName) }
                         }
                         additionalTopContent?.second?.let { raw(it) }
-                        div(classes = "row center") {
+                        div(classes = "row center overview-" + data.config?.computeStyle()) {
                             this@OverviewPageGenerator.data[name]?.asSequence()
                                     ?.sortedByDescending { it.order }
                                     ?.forEach { entry ->
@@ -205,6 +215,44 @@ class OverviewPageGenerator(
                     }.forEach { (path, yaml) ->
                         processFrontmatter(configuration, cache, path, yaml)
                     }
+
+    private fun Map<String, List<String>>.extract(targetPath: TargetPath): OverviewEntry? {
+        val group = getString("group")
+        val picture = getString("picture")
+        val title = getString("title")
+        val order = getString("order")?.toInt()
+        val description = getString("description")
+        val groupConfig = overviewConfigs[group]
+        val groupName = groupConfig?.name ?: group
+
+        val url = getString("url")
+        if (group == null || picture == null || title == null || order == null || groupName == null)
+            return null
+        return OverviewEntry(group, title, description, picture, targetPath.parent, order, groupName, url)
+    }
+
+    inner class OverviewEntry(val id: String, val title: String, val description: String?, val picture: String, val entryOutUrl: Path, val order: Int, val groupName: String, val configuredUrl: String?) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as OverviewEntry
+
+            if (id != other.id) return false
+            if (entryOutUrl != other.entryOutUrl) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = id.hashCode()
+            result = 31 * result + entryOutUrl.hashCode()
+            return result
+        }
+
+        val config: OverviewConfig?
+            get() = overviewConfigs[id]
+    }
 }
 
 private fun <E> MutableSet<E>.add(element: E, force: Boolean) {
@@ -262,37 +310,3 @@ private fun loadEnd(
                     *metaDataConsumers
             )
         }?.second
-
-private fun Map<String, List<String>>.extract(targetPath: TargetPath): OverviewEntry? {
-    val group = getString("group")
-    val picture = getString("picture")
-    val title = getString("title")
-    val order = getString("order")?.toInt()
-    val description = getString("description")
-    val groupName = getString("groupName")
-    val url = getString("url")
-    if (group == null || picture == null || title == null || order == null)
-        return null
-    return OverviewEntry(group, title, description, picture, targetPath.parent, order, groupName, url)
-}
-
-
-data class OverviewEntry(val id: String, val title: String, val description: String?, val picture: String, val entryOutUrl: Path, val order: Int, val groupName: String?, val configuredUrl: String?) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as OverviewEntry
-
-        if (id != other.id) return false
-        if (entryOutUrl != other.entryOutUrl) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = id.hashCode()
-        result = 31 * result + entryOutUrl.hashCode()
-        return result
-    }
-}
