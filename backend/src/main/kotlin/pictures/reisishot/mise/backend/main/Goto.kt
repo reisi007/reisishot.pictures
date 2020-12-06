@@ -37,6 +37,7 @@ object Goto {
                         interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         metaDataConsumers = arrayOf(KeywordConsumer()),
                         cleanupGeneration = false,
+                        fbMessengerChatPlugin = generateDefaultChatPlugin(),
                         analyticsSiteId = "6",
                         form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
                             buildForm(

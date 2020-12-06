@@ -56,6 +56,7 @@ object Main {
                         cleanupGeneration = false,
                         analyticsSiteId = "1",
                         socialMediaLinks = SocialMediaAccounts("reisishot", "reisishot", "florian@reisishot.pictures"),
+                        fbMessengerChatPlugin = generateDefaultChatPlugin(),
                         form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
                             buildForm(
                                     title = { h2 { text("Kontaktiere mich") } },

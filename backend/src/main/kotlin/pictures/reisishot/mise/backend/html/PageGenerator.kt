@@ -2,6 +2,7 @@ package pictures.reisishot.mise.backend.html
 
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
+import pictures.reisishot.mise.backend.FacebookMessengerChatPlugin
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.MenuLink
@@ -121,6 +122,7 @@ object PageGenerator {
                             analyticsJs(websiteConfiguration)
                             cookieInfo(websiteConfiguration.isDevMode)
                             analyticsImage(websiteConfiguration)
+                            websiteConfiguration.fbMessengerChatPlugin?.let { fbChat(it) }
                         }
                     }
         }
@@ -331,4 +333,20 @@ object PageGenerator {
     private fun BODY.analyticsImage(websiteConfiguration: WebsiteConfiguration) = websiteConfiguration.analyticsSiteId?.let {
         img(src = """https://analytics.reisishot.pictures/matomo.php?idsite=$it&amp;rec=1""")
     }
+
+    @HtmlTagMarker
+    private fun BODY.fbChat(data: FacebookMessengerChatPlugin) {
+        divId("fb-root")
+        div("fb-customerchat") {
+            attributes["page_id"] = data.pageId.toString()
+            attributes["theme_color"] = data.themeColor
+            attributes["logged_in_greeting"] = data.message
+            attributes["logged_out_greeting"] = data.message
+
+            attributes["greeting_dialog_display"] = "fade"
+            attributes["greeting_dialog_delay"] = "10"
+
+        }
+    }
+
 }
