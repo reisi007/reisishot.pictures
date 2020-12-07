@@ -226,10 +226,13 @@ object PageGenerator {
             attributes["as"] = "font"
             attributes["crossorigin"] = ""
         }
-
         link(polyfillUrl, "preload") {
             attributes["as"] = "script"
         }
+        if (configuration.fbMessengerChatPlugin != null)
+            link("https://connect.facebook.net/de_DE/sdk/xfbml.customerchat.js", "preload") {
+                attributes["as"] = "script"
+            }
         link("$prefix/js/combined.min.js", "preload") {
             attributes["as"] = "script"
         }
