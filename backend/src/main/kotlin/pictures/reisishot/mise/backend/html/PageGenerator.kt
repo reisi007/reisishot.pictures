@@ -345,9 +345,7 @@ object PageGenerator {
             attributes["theme_color"] = data.themeColor
             attributes["logged_in_greeting"] = data.message
             attributes["logged_out_greeting"] = data.message
-
-            attributes["greeting_dialog_display"] = "fade"
-            attributes["greeting_dialog_delay"] = "10"
+            attributes["greeting_dialog_display"] = "hide"
 
         }
     }
