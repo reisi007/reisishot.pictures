@@ -2,7 +2,6 @@ package pictures.reisishot.mise.backend.generator.gallery
 
 import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.FilenameWithoutExtension
-import at.reisishot.mise.commons.forEachLimitedParallel
 import at.reisishot.mise.commons.withChild
 import at.reisishot.mise.exifdata.ExifdataKey
 import kotlinx.html.*
@@ -28,21 +27,7 @@ class GalleryGenerator(
 
     private val dateTimeFormatter = DateTimeFormatter.ofPattern("eeee 'den' dd.MM.YYYY 'um' HH:mm:ss z")
 
-    override suspend fun generateImagePages(
-            configuration: WebsiteConfiguration,
-            cache: BuildingCache
-    ) {
-        this.cache.imageInformationData.values
-                .asSequence()
-                .map { it as? InternalImageInformation }
-                .filterNotNull()
-                .asIterable()
-                .forEachLimitedParallel(50) { curImageInformation ->
-                    generateImagePage(configuration, cache, curImageInformation)
-                }
-    }
-
-    private fun generateImagePage(
+    override fun generateImagePage(
             configuration: WebsiteConfiguration,
             cache: BuildingCache,
             curImageInformation: InternalImageInformation
@@ -79,18 +64,7 @@ class GalleryGenerator(
         )
     }
 
-
-    override fun generateCategoryPages(
-            configuration: WebsiteConfiguration,
-            cache: BuildingCache
-    ) {
-        this.cache.computedCategories.forEach { (categoryName, _) ->
-            generateCategoryPage(configuration, cache, categoryName)
-        }
-    }
-
-
-    private fun generateCategoryPage(
+    override fun generateCategoryPage(
             configuration: WebsiteConfiguration,
             buildingCache: BuildingCache,
             categoryName: CategoryName,
@@ -136,17 +110,7 @@ class GalleryGenerator(
 
     }
 
-
-    override fun generateTagPages(
-            configuration: WebsiteConfiguration,
-            cache: BuildingCache
-    ) {
-        computedTags.keys.forEach { tagName ->
-            generateTagPage(configuration, cache, tagName)
-        }
-    }
-
-    private fun generateTagPage(
+    override fun generateTagPage(
             configuration: WebsiteConfiguration,
             buildingCache: BuildingCache,
             tagName: TagInformation
