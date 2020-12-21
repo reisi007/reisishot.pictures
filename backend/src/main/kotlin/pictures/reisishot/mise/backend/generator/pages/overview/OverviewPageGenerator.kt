@@ -52,7 +52,7 @@ class OverviewPageGenerator(
                 .map { configuration.inPath.relativize(it) }
                 .map { it.toString().replace('\\', '/') }
                 .map { if (it.isBlank()) "index" else it }
-                .map { data.keys.first { key -> key.equals(it, true) } }
+                .map { data.keys.firstOrNull { key -> key.equals(it, true) } }
                 .filterNotNull()
                 .map { data.getValue(it) }
                 .map { it.first() }
