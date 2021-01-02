@@ -85,40 +85,29 @@ gulp.task('copyReleaseInternal', function () {
 
 gulp.task('watch', function () {
     // Watch .sass files
-    gulp.watch(['src/scss/**/*.scss', 'src/scss/**/*.css'], ['styles', 'styles-boudoir']);
+    gulp.watch(['src/scss/**/*.scss', 'src/scss/**/*.css'], gulp.parallel('styles', 'styles-boudoir'));
     // Watch .js files
     gulp.watch([
-        './src/js/bootstrap/*.js',
-        './src/js/bootstrap/**/*.js',
-        './src/js/modules/*.js',
-        './src/js/modules/**/*.js'
-    ], ['scriptsDev']);
+            './src/js/bootstrap/*.js',
+            './src/js/bootstrap/**/*.js',
+            './src/js/modules/*.js',
+            './src/js/modules/**/*.js'
+        ],
+        gulp.parallel('scriptsDev')
+    )
+    ;
     // Watch static files
-    gulp.watch('src/static/**/*.*', ['copyStatic']);
+    gulp.watch('src/static/**/*.*', gulp.parallel('copyStatic'));
 });
 
-gulp.task('default', function () {
-    gulp.start(
-        'copyStatic',
-        'styles',
-        'styles-boudoir',
-        'scriptsDev',
-        'watch'
-    );
-});
+gulp.task('default', gulp.parallel(
+    'copyStatic',
+    'styles',
+    'styles-boudoir',
+    'scriptsDev',
+    'watch'
+));
 
-gulp.task('release', function () {
-    gulp.start(
-        'copyStatic',
-        'styles',
-        'styles-boudoir',
-        'scripts'
-    );
-});
+gulp.task('release', gulp.parallel('copyStatic', 'styles', 'styles-boudoir', 'scripts'));
 
-gulp.task('copyRelease', function () {
-    gulp.start(
-        'copyReleaseInternal',
-        'copyStaticCss'
-    );
-});
+gulp.task('copyRelease', gulp.parallel('copyReleaseInternal', 'copyStaticCss'));

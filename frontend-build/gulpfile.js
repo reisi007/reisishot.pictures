@@ -61,26 +61,24 @@ gulp.task('watch', function () {
     // Watch framework
     gulp.watch(outBase + '/**/*.html').on('change', browserSync.reload);
     // Watch static files
-    gulp.watch(frameworkStatic, ['copyFrameworkStatic', browserSync.reload]);
+    gulp.watch(frameworkStatic, gulp.parallel('copyFrameworkStatic', browserSync.reload));
     // Watch .js / .css  files
-    gulp.watch(frameworkJsCss, ['copyFrameworkJsCss', browserSync.reload]);
+    gulp.watch(frameworkJsCss, gulp.parallel('copyFrameworkJsCss', browserSync.reload));
     // Watch static files
-    gulp.watch(inBase + 'src/static/**/*.*', ['copyStatic', browserSync.reload]);
+    gulp.watch(inBase + 'src/static/**/*.*', gulp.parallel('copyStatic', browserSync.reload));
 });
 
-gulp.task('default', function () {
-    gulp.start(
+gulp.task('default',
+    gulp.parallel(
         'copyStatic',
         'copyFrameworkStatic',
         'copyFrameworkJsCss',
         'browser-sync',
         'watch'
-    );
-});
+    ));
 
-gulp.task('release', function () {
-    gulp.start(
+gulp.task('release',
+    gulp.parallel(
         'copyStatic',
         'copyFrameworkStatic'
-    );
-});
+    ));
