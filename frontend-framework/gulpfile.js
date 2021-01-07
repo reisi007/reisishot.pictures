@@ -65,23 +65,39 @@ gulp.task('scriptsDev', function () {
 
 });
 
-gulp.task('copyStatic', function () {
+gulp.task('copyStatic', function (done) {
+    let firstDone = false
+
+    function doneLogic() {
+        if (firstDone)
+            done();
+        else firstDone = true;
+    }
+
     gulp.src('./src/static/**/*', {dot: true})
+        .on('end', doneLogic)
         .pipe(gulp.dest('out'));
 
     gulp.src('./src/static_css/**/*', {dot: true})
+        .on('end', doneLogic)
         .pipe(gulp.dest('out/css'));
 });
 
-gulp.task('copyStaticCss', function () {
+gulp.task('copyStaticCss', function (done) {
     return gulp
         .src('./src/static_css/**/*', {dot: true})
+        .on('end', function () {
+            done();
+        })
         .pipe(gulp.dest('./../upload/static.reisishot.pictures/static'))
 });
 
-gulp.task('copyReleaseInternal', function () {
+gulp.task('copyReleaseInternal', function (done) {
     return gulp
         .src('./generated/**/*', {dot: true})
+        .on('end', function () {
+            done();
+        })
         .pipe(gulp.dest('./../upload/static.reisishot.pictures'))
 });
 
