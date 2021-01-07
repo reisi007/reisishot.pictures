@@ -9,16 +9,13 @@ import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.*
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.pages.Testimonal
-import pictures.reisishot.mise.backend.html.PageGenerator
-import pictures.reisishot.mise.backend.html.insertImageGallery
-import pictures.reisishot.mise.backend.html.insertLazyPicture
-import pictures.reisishot.mise.backend.html.raw
+import pictures.reisishot.mise.backend.html.*
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser.markdown2Html
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.math.roundToInt
-import kotlin.streams.toList
+import kotlin.streams.asSequence
 
 class TemplateApi(
         private val targetPath: TargetPath,
@@ -27,20 +24,19 @@ class TemplateApi(
         private val websiteConfiguration: WebsiteConfiguration
 ) {
 
-    private val testimonials: List<Testimonal> by lazy {
-        Files.walk(websiteConfiguration.inPath)
+    private val testimonials: Map<String, Testimonal> by lazy {
+        Files.list(websiteConfiguration.inPath withChild "reviews")
+                .asSequence()
                 .filter { Files.isRegularFile(it) }
                 .filter { it.hasExtension({ it.isMarkdownPart("review") }) }
-                .map {
+                .map { path ->
                     val yamlContainer = AbstractYamlFrontMatterVisitor()
-                    val html = Files.newBufferedReader(it, StandardCharsets.UTF_8).use {
+                    val html = Files.newBufferedReader(path, StandardCharsets.UTF_8).use {
                         it.markdown2Html(yamlContainer)
                     }
-                    yamlContainer.data.createTestimonial(it, html)
+                    path.fileName.toString().substringBefore('.') to yamlContainer.data.createTestimonial(path, html)
                 }
-                .toList()
-
-
+                .toMap()
     }
 
     private fun Yaml.createTestimonial(p: Path, contentHtml: String): Testimonal {
@@ -113,43 +109,28 @@ class TemplateApi(
     }
 
     @SuppressWarnings("unused")
+    fun insertSingleTestimonial(name: String) = buildString {
+        val testimonialsToDisplay = testimonials.getValue(name)
+        appendTestimonials(websiteConfiguration, targetPath, galleryGenerator, testimonialsToDisplay)
+
+    }
+
+    @SuppressWarnings("unused")
     fun insertTestimonials(vararg testimonialTypes: String) = buildString {
         val testimonialsToDisplay = computeMatchingTestimonials(testimonialTypes)
         if (testimonialsToDisplay.isEmpty())
             return@buildString
-        appendHTML(false, true).div {
-            div("container-flex reviews") {
-                attributes["data-partial"] = "testimonials"
-                attributes["data-initial"] = "4"
-                attributes["data-step"] = "2"
-                testimonialsToDisplay.forEach { testimonial ->
-                    div("col-12 col-lg-5 card border-dark") {
-                        with(galleryGenerator.cache) {
-                            insertLazyPicture(imageInformationData.getOrThrow(testimonial.image, targetPath), websiteConfiguration, "card-img-top")
-                        }
-                        div("card-body text-dark") {
-                            h5("card-title") {
-                                text(testimonial.name)
-                                br()
-                                small("text-muted") { text(testimonial.date) }
-                            }
-                            div("card-text") {
-                                raw(testimonial.html)
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        appendTestimonials(websiteConfiguration, targetPath, galleryGenerator, *testimonialsToDisplay)
     }
 
-    private fun computeMatchingTestimonials(testimonialTypes: Array<out String>): List<Testimonal> {
-        var tmpTestimonials = testimonials.asSequence()
+    private fun computeMatchingTestimonials(testimonialTypes: Array<out String>): Array<Testimonal> {
+        var tmpTestimonials = testimonials.values.asSequence()
         if (testimonialTypes.isNotEmpty())
             tmpTestimonials = tmpTestimonials.filter { testimonialTypes.contains(it.type) }
         return tmpTestimonials
                 .sortedByDescending { it.date }
                 .toList()
+                .toTypedArray()
     }
 
 

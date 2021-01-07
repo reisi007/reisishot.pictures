@@ -1,10 +1,15 @@
 package pictures.reisishot.mise.backend.html
 
 import kotlinx.html.*
+import kotlinx.html.stream.appendHTML
 import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.CategoryInformation
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
+import pictures.reisishot.mise.backend.generator.gallery.getOrThrow
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
+import pictures.reisishot.mise.backend.generator.pages.Testimonal
+import pictures.reisishot.mise.backend.htmlparsing.TargetPath
 
 
 @HtmlTagMarker
@@ -111,4 +116,42 @@ internal fun HtmlBlockTag.insertSubcategoryThumbnail(
 fun FlowOrInteractiveOrPhrasingContent.smallButtonLink(text: String, href: String, target: String = "_blank") = a(href, target, classes = "btn btn-primary btn-sm active") {
     attributes["role"] = "button"
     text(text)
+}
+
+@HtmlTagMarker
+fun DIV.renderTestimonial(websiteConfiguration: WebsiteConfiguration, targetPath: TargetPath, galleryGenerator: AbstractGalleryGenerator, testimonial: Testimonal) {
+    div("col-12 col-lg-5 card border-dark") {
+        with(galleryGenerator.cache) {
+            insertLazyPicture(imageInformationData.getOrThrow(testimonial.image, targetPath), websiteConfiguration, "card-img-top")
+        }
+        div("card-body text-dark") {
+            h5("card-title") {
+                text(testimonial.name)
+                br()
+                small("text-muted") { text(testimonial.formattedDate) }
+            }
+            div("card-text") {
+                raw(testimonial.html)
+            }
+        }
+    }
+}
+
+@HtmlTagMarker
+fun StringBuilder.appendTestimonials(
+        websiteConfiguration: WebsiteConfiguration,
+        targetPath: TargetPath,
+        galleryGenerator: AbstractGalleryGenerator,
+        vararg testimonialsToDisplay: Testimonal
+) {
+    appendHTML(false, true).div {
+        div("container-flex reviews") {
+            attributes["data-partial"] = "testimonials"
+            attributes["data-initial"] = "4"
+            attributes["data-step"] = "2"
+            testimonialsToDisplay.forEach { testimonial ->
+                renderTestimonial(websiteConfiguration, targetPath, galleryGenerator, testimonial)
+            }
+        }
+    }
 }

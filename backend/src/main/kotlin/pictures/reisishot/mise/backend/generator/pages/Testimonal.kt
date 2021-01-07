@@ -16,7 +16,10 @@ data class Testimonal(
         private val targetDateFormat = SimpleDateFormat("dd. MMMM yyyy", Locale.GERMAN)
     }
 
-    val date: String by lazy {
-        targetDateFormat.format(sourceDateFormat.parse(_date))
+    val date: Date by lazy {
+        sourceDateFormat.parse(_date)
+    }
+    val formattedDate: String by lazy {
+        targetDateFormat.format(date)
     }
 }

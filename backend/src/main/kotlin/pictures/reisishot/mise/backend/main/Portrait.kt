@@ -44,7 +44,7 @@ object Portrait {
                         outPath = Paths.get("upload", folderName).toAbsolutePath(),
                         interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         metaDataConsumers = arrayOf(overviewPageGenerator, KeywordConsumer()),
-                        fbMessengerChatPlugin = generateDefaultChatPlugin(),
+                       // fbMessengerChatPlugin = generateDefaultChatPlugin(),
                         cleanupGeneration = false,
                         socialMediaLinks = SocialMediaAccounts(
                                 "reisishot",

@@ -66,9 +66,11 @@ gulp.task('scriptsDev', function () {
 });
 
 gulp.task('copyStatic', function () {
-    return gulp
-        .src('./src/static/**/*', {dot: true})
-        .pipe(gulp.dest('out'))
+    gulp.src('./src/static/**/*', {dot: true})
+        .pipe(gulp.dest('out'));
+
+    gulp.src('./src/static_css/**/*', {dot: true})
+        .pipe(gulp.dest('out/css'));
 });
 
 gulp.task('copyStaticCss', function () {
@@ -98,10 +100,12 @@ gulp.task('watch', function () {
     ;
     // Watch static files
     gulp.watch('src/static/**/*.*', gulp.parallel('copyStatic'));
+    gulp.watch('src/static_css/**/*.*', gulp.parallel('copyStaticCss'));
 });
 
 gulp.task('default', gulp.parallel(
     'copyStatic',
+    'copyStaticCss',
     'styles',
     'styles-boudoir',
     'scriptsDev',
