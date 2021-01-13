@@ -1,6 +1,6 @@
 define('trackAction', [], function () {
     return function (input) {
-      // console.log("Tracking", input)
+        // console.log("Tracking", input);
         const action = input.group + '_' + input.action;
         if (typeof input.value === 'undefined')
             _paq.push([

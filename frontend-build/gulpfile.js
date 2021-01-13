@@ -28,22 +28,25 @@ const
     frameworkStatic = './../frontend-framework/out/**/*',
     frameworkJsCss = './../frontend-framework/generated/**/*';
 
-gulp.task('copyStatic', function () {
-    return gulp
+gulp.task('copyStatic', function (done) {
+    gulp
         .src(inBase + 'src/static/**/*', {dot: true})
         .pipe(gulp.dest(outBase))
+        .on('end', done)
 });
 
-gulp.task('copyFrameworkStatic', function () {
-    return gulp
+gulp.task('copyFrameworkStatic', function (done) {
+    gulp
         .src(frameworkStatic, {dot: true})
         .pipe(gulp.dest(outBase))
+        .on('end', done)
 });
 
-gulp.task('copyFrameworkJsCss', function () {
-    return gulp
+gulp.task('copyFrameworkJsCss', function (done) {
+    gulp
         .src(frameworkJsCss, {dot: true})
         .pipe(gulp.dest(outBase))
+        .on('end', done)
 });
 
 gulp.task('browser-sync', function () {

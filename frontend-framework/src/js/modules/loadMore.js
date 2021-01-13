@@ -6,19 +6,22 @@ define(['trackAction'], function (trackAction) {
             const step = parseInt(cur.getAttribute("data-step"));
             const children = cur.children;
             let showCount = initial;
+            if (cur.children.length <= initial) {
+                return
+            }
 
             const loadMoreButton = document.createElement("BUTTON");
             loadMoreButton.type = "button"
-                loadMoreButton.classList.add("btn", "btn-primary")
-                loadMoreButton.innerText = "Mehr anzeigen"
-                loadMoreButton.style.display = "block"
-                loadMoreButton.style.margin = "0 auto"
-                loadMoreButton.onclick = () => {
-                    const oldShowCount = showCount;
-                    showCount += step;
-                    showUntil(oldShowCount, showCount)
-                }
-                cur.insertAdjacentElement("afterend", loadMoreButton)
+            loadMoreButton.classList.add("btn", "btn-primary")
+            loadMoreButton.innerText = "Mehr anzeigen"
+            loadMoreButton.style.display = "block"
+            loadMoreButton.style.margin = "0 auto"
+            loadMoreButton.onclick = () => {
+                const oldShowCount = showCount;
+                showCount += step;
+                showUntil(oldShowCount, showCount)
+            }
+            cur.insertAdjacentElement("afterend", loadMoreButton)
                 showUntil(null, showCount)
 
                 function showUntil(oldIdx, idx) {
