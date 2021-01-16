@@ -7,7 +7,7 @@ import java.util.*
 data class Testimonal(
         val image: FilenameWithoutExtension,
         val name: String,
-        private val _date: String,
+        val isoDateString: String,
         val type: String,
         val html: String
 ) {
@@ -17,7 +17,7 @@ data class Testimonal(
     }
 
     val date: Date by lazy {
-        sourceDateFormat.parse(_date)
+        sourceDateFormat.parse(isoDateString)
     }
     val formattedDate: String by lazy {
         targetDateFormat.format(date)

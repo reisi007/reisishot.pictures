@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Framework Copy Release" type="js.build_tools.gulp">
+  <configuration default="false" name="Framework Release &amp; Copy Release" type="js.build_tools.gulp">
     <node-interpreter>project</node-interpreter>
     <node-options />
     <gulpfile>$PROJECT_DIR$/frontend-framework/gulpfile.js</gulpfile>

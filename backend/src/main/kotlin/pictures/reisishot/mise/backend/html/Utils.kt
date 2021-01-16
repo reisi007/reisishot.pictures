@@ -1,6 +1,7 @@
 package pictures.reisishot.mise.backend.html
 
 import kotlinx.html.*
+import kotlinx.html.impl.DelegatingMap
 import kotlinx.html.stream.appendHTML
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
@@ -118,19 +119,68 @@ fun FlowOrInteractiveOrPhrasingContent.smallButtonLink(text: String, href: Strin
     text(text)
 }
 
+private var DelegatingMap.itemprop
+    get() = this["itemprop"]
+    set(value) {
+        if (value == null)
+            this.remove("itemprop")
+        else
+            this["itemprop"] = value
+    }
+
+private var DelegatingMap.itemtype
+    get() = this["itemtype"]
+    set(value) {
+        if (value == null)
+            this.remove("itemtype")
+        else
+            this["itemtype"] = value
+    }
+
+
+private var DelegatingMap.itemscope
+    get() = this["itemscope"]
+    set(value) {
+        if (value == null)
+            this.remove("itemscope")
+        else
+            this["itemscope"] = value
+    }
+
+private var DelegatingMap.content
+    get() = this["content"]
+    set(value) {
+        if (value == null)
+            this.remove("content")
+        else
+            this["content"] = value
+    }
+
 @HtmlTagMarker
 fun DIV.renderTestimonial(websiteConfiguration: WebsiteConfiguration, targetPath: TargetPath, galleryGenerator: AbstractGalleryGenerator, testimonial: Testimonal) {
     div("col-12 col-lg-5 card border-dark") {
+        attributes.itemprop = "review"
+        attributes.itemprop = ""
+        attributes.itemtype = "https://schema.org/Review"
         with(galleryGenerator.cache) {
-            insertLazyPicture(imageInformationData.getOrThrow(testimonial.image, targetPath), websiteConfiguration, "card-img-top")
+            val curImageInfo = imageInformationData.getOrThrow(testimonial.image, targetPath)
+            insertLazyPicture(curImageInfo, websiteConfiguration, "card-img-top")
         }
         div("card-body text-dark") {
             h5("card-title") {
-                text(testimonial.name)
+                span {
+                    attributes.itemprop = "author"
+                    text(testimonial.name)
+                }
                 br()
-                small("text-muted") { text(testimonial.formattedDate) }
+                small("text-muted") {
+                    attributes.itemprop = "datePublished"
+                    attributes.content = testimonial.isoDateString
+                    text(testimonial.formattedDate)
+                }
             }
             div("card-text") {
+                attributes.itemprop = "reviewBody"
                 raw(testimonial.html)
             }
         }
@@ -146,9 +196,9 @@ fun StringBuilder.appendTestimonials(
 ) {
     appendHTML(false, true).div {
         div("container-flex reviews") {
-            attributes["data-partial"] = "testimonials"
-            attributes["data-initial"] = "4"
-            attributes["data-step"] = "2"
+            /* attributes["data-partial"] = "testimonials"
+             attributes["data-initial"] = "4"
+             attributes["data-step"] = "2"*/
             testimonialsToDisplay.forEach { testimonial ->
                 renderTestimonial(websiteConfiguration, targetPath, galleryGenerator, testimonial)
             }
