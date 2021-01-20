@@ -133,6 +133,25 @@ class TemplateApi(
                 .toTypedArray()
     }
 
+    @SuppressWarnings("unused")
+    @JvmOverloads
+    fun addMeta(created: FormattedDate, updated: FormattedDate? = null) = buildString {
+        appendHTML(false, true).span("badge bg-light") {
+            style = "white-space: pre-wrap;"
+            updated?.let {
+                span("font-weight-normal") {
+                    text("Zuletzt aktualisiert am: ")
+                }
+                text(it)
+                text("  –  ")
+            }
+            span("font-weight-normal") {
+                text("Veröffentlicht am: ")
+            }
+            text(created)
+
+        }
+    }
 
     @SuppressWarnings("unused")
     fun insertCarousel(changeMs: Int, vararg filename: String) =
@@ -272,6 +291,7 @@ typealias SourcePath = Path;
 typealias TargetPath = Path;
 typealias PageGeneratorInfo = Triple<SourcePath, TargetPath, String/*Title*/>
 typealias Yaml = Map<String, List<String>>
+typealias FormattedDate = String
 
 fun Map<String, List<String>>.getString(key: String): String? {
     val value = getOrDefault(key, null)
