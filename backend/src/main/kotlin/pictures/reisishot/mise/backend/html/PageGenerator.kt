@@ -37,8 +37,12 @@ object PageGenerator {
             it.write("<!doctype html>")
             it.appendHTML(prettyPrint = false, xhtmlCompatible = true)
                     .html(namespace = "http://www.w3.org/1999/xhtml") {
-                        val url = BuildingCache.getLinkFromFragment(websiteConfiguration, websiteConfiguration.outPath.relativize(target).parent?.toString()
-                                ?: "")
+                        val url = BuildingCache.getLinkFromFragment(
+                                websiteConfiguration,
+                                websiteConfiguration.outPath.relativize(target)
+                                        .parent?.toString()
+                                        ?: ""
+                        )
                         classes = classes + "h-100"
                         head {
                             lang = locale.toLanguageTag()

@@ -151,11 +151,16 @@ class OverviewPageGenerator(
                                                 }
                                                 div(classes = "card-body") {
                                                     h5("card-title") { text(entry.title) }
-                                                    entry.description?.let {
-                                                        p("card-text") {
+                                                    p("card-text") {
+                                                        entry.metaData?.let {
+                                                            metadata(it)
+                                                            br
+                                                        }
+                                                        entry.description?.let {
                                                             text(it)
                                                         }
                                                     }
+
                                                 }
 
                                                 footer("card-footer") {
@@ -216,11 +221,12 @@ class OverviewPageGenerator(
                         processFrontmatter(configuration, cache, path, yaml)
                     }
 
-    private fun Map<String, List<String>>.extract(targetPath: TargetPath): OverviewEntry? {
+    private fun Yaml.extract(targetPath: TargetPath): OverviewEntry? {
         val group = getString("group")
         val picture = getString("picture")
         val title = getString("title")
-        val order = getString("order")?.toInt()
+        val metaData = this.asPageMetadata()
+        val order = (metaData?.order ?: getOrder())?.toInt()
         val description = getString("description")
         val groupConfig = overviewConfigs[group]
         val displayName = groupConfig?.name ?: group
@@ -228,10 +234,11 @@ class OverviewPageGenerator(
         val url = getString("url")
         if (group == null || picture == null || title == null || order == null || displayName == null)
             return null
-        return OverviewEntry(group, title, description, picture, targetPath.parent, order, displayName, url)
+
+        return OverviewEntry(group, title, description, picture, targetPath.parent, order, displayName, url, metaData)
     }
 
-    inner class OverviewEntry(val id: String, val title: String, val description: String?, val picture: String, val entryOutUrl: Path, val order: Int, val displayName: String, val configuredUrl: String?) {
+    inner class OverviewEntry(val id: String, val title: String, val description: String?, val picture: String, val entryOutUrl: Path, val order: Int, val displayName: String, val configuredUrl: String?, val metaData: PageMetadata?) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false

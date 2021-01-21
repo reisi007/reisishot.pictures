@@ -295,6 +295,8 @@ fun Yaml.getString(key: String): String? {
     return value?.firstOrNull()?.trim()
 }
 
+fun Yaml.getOrder() = getString("order")
+
 data class PageMetadata(
         val order: String,
         val created: Date,
@@ -302,7 +304,7 @@ data class PageMetadata(
 )
 
 fun Yaml.asPageMetadata(): PageMetadata? {
-    val order = getString("order")
+    val order = getOrder()
     val created = getString("created")
     val edited = getString("edit")
 

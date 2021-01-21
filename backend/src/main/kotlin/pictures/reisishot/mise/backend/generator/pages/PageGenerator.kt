@@ -126,13 +126,15 @@ class PageGenerator(
 
             cache.clearMenuItems { it.id.startsWith(generatorName + "_") }
             cache.resetLinkcacheFor(LINKTYPE_PAGE)
-            filesToProcess = Files.walk(configuration.inPath)
-                    .asSequence()
-                    .filter { p -> p.hasExtension(FileExtension::isMarkdown, FileExtension::isHtml) }
-                    // Generate all links
-                    .map {
-                        it.computePageGeneratorInfo(configuration, cache)
-                    }.toList()
+            withContext(Dispatchers.IO) {
+                filesToProcess = Files.walk(configuration.inPath)
+                        .asSequence()
+                        .filter { p -> p.hasExtension(FileExtension::isMarkdown, FileExtension::isHtml) }
+                        // Generate all links
+                        .map {
+                            it.computePageGeneratorInfo(configuration, cache)
+                        }.toList()
+            }
         }
     }
 
