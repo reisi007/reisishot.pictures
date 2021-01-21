@@ -144,3 +144,7 @@ blockquote {
   border-left: 4px solid $primaryColor;
   padding-left: 1rem;
 }
+
+.text-pre-wrap {
+  white-space: pre-wrap;
+}

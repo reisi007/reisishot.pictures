@@ -10,7 +10,10 @@ import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.getOrThrow
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
 import pictures.reisishot.mise.backend.generator.pages.Testimonal
+import pictures.reisishot.mise.backend.htmlparsing.PageMetadata
 import pictures.reisishot.mise.backend.htmlparsing.TargetPath
+import java.text.DateFormat
+import java.util.*
 
 
 @HtmlTagMarker
@@ -204,4 +207,29 @@ fun StringBuilder.appendTestimonials(
             }
         }
     }
+}
+
+@HtmlTagMarker
+internal fun FlowOrPhrasingContent.metadata(metadata: PageMetadata) {
+    span("badge bg-light text-pre-wrap") {
+        metadata.edited?.let {
+            span("font-weight-normal") {
+                text("Zuletzt aktualisiert am: ")
+            }
+            text(it)
+            text("  –  ")
+        }
+        span("font-weight-normal") {
+            text("Veröffentlicht am: ")
+        }
+        text(metadata.created)
+    }
+}
+
+
+private val dateFormatter = DateFormat.getDateInstance()
+
+@HtmlTagMarker
+internal fun Tag.text(date: Date) {
+    text(dateFormatter.format(date))
 }

@@ -14,10 +14,14 @@ import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser.markdown2Html
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.LinkedHashSet
 import kotlin.math.roundToInt
 import kotlin.streams.asSequence
 
 class TemplateApi(
+        private val pageMetadata: PageMetadata?,
         private val targetPath: TargetPath,
         private val galleryGenerator: AbstractGalleryGenerator,
         private val cache: BuildingCache,
@@ -134,22 +138,12 @@ class TemplateApi(
     }
 
     @SuppressWarnings("unused")
-    @JvmOverloads
-    fun addMeta(created: FormattedDate, updated: FormattedDate? = null) = buildString {
-        appendHTML(false, true).span("badge bg-light") {
-            style = "white-space: pre-wrap;"
-            updated?.let {
-                span("font-weight-normal") {
-                    text("Zuletzt aktualisiert am: ")
-                }
-                text(it)
-                text("  –  ")
+    fun addMeta() {
+        val metadata = pageMetadata ?: throw IllegalStateException("No page metadata specified for \"$targetPath\"!")
+        buildString {
+            appendHTML(false, true).span {
+                metadata(metadata)
             }
-            span("font-weight-normal") {
-                text("Veröffentlicht am: ")
-            }
-            text(created)
-
         }
     }
 
@@ -293,7 +287,32 @@ typealias PageGeneratorInfo = Triple<SourcePath, TargetPath, String/*Title*/>
 typealias Yaml = Map<String, List<String>>
 typealias FormattedDate = String
 
-fun Map<String, List<String>>.getString(key: String): String? {
+private val yamlDateParser = SimpleDateFormat("yyyyMMdd")
+
+
+fun Yaml.getString(key: String): String? {
     val value = getOrDefault(key, null)
     return value?.firstOrNull()?.trim()
+}
+
+data class PageMetadata(
+        val order: String,
+        val created: Date,
+        val edited: Date?
+)
+
+fun Yaml.asPageMetadata(): PageMetadata? {
+    val order = getString("order")
+    val created = getString("created")
+    val edited = getString("edit")
+
+    val computedOrder = order ?: created ?: edited
+    // Ensure we have all required fields
+    if (computedOrder == null || created == null)
+        return null
+    return PageMetadata(
+            computedOrder,
+            yamlDateParser.parse(created),
+            edited?.let { yamlDateParser.parse(it) }
+    )
 }

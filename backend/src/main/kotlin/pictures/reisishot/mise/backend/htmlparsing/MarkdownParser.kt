@@ -70,42 +70,31 @@ object MarkdownParser {
                     .map { it.processFrontmatter(configuration, cache, targetPath, yamlExtractor.data) }
                     .forEach { it(this) }
         }
-        val html = Files.newBufferedReader(sourceFile, Charsets.UTF_8)
-                .velocity(sourceFile, targetPath, galleryGenerator, cache, configuration)
+
+        val parsedMarkdown = Files.newBufferedReader(sourceFile, Charsets.UTF_8)
                 .markdown2Html(yamlExtractor)
-
-
-
-        return headManipulator to html
+        val metaData = (yamlExtractor.data as Yaml).asPageMetadata()
+        val finalHtml = parsedMarkdown
+                .velocity(sourceFile, metaData, targetPath, galleryGenerator, cache, configuration)
+        return headManipulator to finalHtml
     }
 
-    private fun Reader.velocity(sourceFile: SourcePath, targetPath: TargetPath, galleryGenerator: AbstractGalleryGenerator, cache: BuildingCache, configuration: WebsiteConfiguration) = VelocityApplier.runVelocity(
-            this,
-            sourceFile.filenameWithoutExtension,
-            targetPath,
-            galleryGenerator,
-            cache,
-            configuration
-    )
-
-    private fun String.velocity(sourceFile: SourcePath, targetPath: TargetPath, galleryGenerator: AbstractGalleryGenerator, cache: BuildingCache, configuration: WebsiteConfiguration) = VelocityApplier.runVelocity(
+    private fun String.velocity(sourceFile: SourcePath, metadata: PageMetadata?, targetPath: TargetPath, galleryGenerator: AbstractGalleryGenerator, cache: BuildingCache, configuration: WebsiteConfiguration) = VelocityApplier.runVelocity(
             StringReader(this),
             sourceFile.filenameWithoutExtension,
             targetPath,
             galleryGenerator,
             cache,
-            configuration
+            configuration,
+            metadata
     )
-
-    fun String.markdown2Html(yamlExtractor: AbstractYamlFrontMatterVisitor) =
-            htmlRenderer.render(extractFrontmatter(this, yamlExtractor))
 
     fun Reader.markdown2Html(yamlExtractor: AbstractYamlFrontMatterVisitor) =
             htmlRenderer.render(extractFrontmatter(this, yamlExtractor))
 
     fun extractFrontmatter(fileContents: String, target: AbstractYamlFrontMatterVisitor): Document = extractFrontmatter(StringReader(fileContents), target)
 
-    fun extractFrontmatter(fileContents: Reader, target: AbstractYamlFrontMatterVisitor): Document {
+    private fun extractFrontmatter(fileContents: Reader, target: AbstractYamlFrontMatterVisitor): Document {
         val parseReader = markdownParser.parseReader(fileContents)
         target.visit(parseReader)
         return parseReader

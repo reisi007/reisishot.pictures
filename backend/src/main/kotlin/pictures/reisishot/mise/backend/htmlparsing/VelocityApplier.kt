@@ -21,12 +21,13 @@ object VelocityApplier {
     }
 
     private fun VelocityContext.withTemplateApi(
+            pageMetadata: PageMetadata?,
             targetPath: Path,
             galleryGenerator: AbstractGalleryGenerator,
             buildingCache: BuildingCache,
             websiteConfiguration: WebsiteConfiguration
     ) = apply {
-        put("please", TemplateApi(targetPath, galleryGenerator, buildingCache, websiteConfiguration))
+        put("please", TemplateApi(pageMetadata, targetPath, galleryGenerator, buildingCache, websiteConfiguration))
     }
 
     fun runVelocity(
@@ -35,11 +36,12 @@ object VelocityApplier {
             targetPath: Path,
             galleryGenerator: AbstractGalleryGenerator,
             buildingCache: BuildingCache,
-            websiteConfiguration: WebsiteConfiguration
+            websiteConfiguration: WebsiteConfiguration,
+            pageMetadata: PageMetadata?
     ) = writeToString {
         try {
             velocity.evaluate(
-                    VelocityContext().withTemplateApi(targetPath, galleryGenerator, buildingCache, websiteConfiguration),
+                    VelocityContext().withTemplateApi(pageMetadata, targetPath, galleryGenerator, buildingCache, websiteConfiguration),
                     it,
                     "HtmlParser",
                     reader
