@@ -4,6 +4,8 @@ import kotlinx.html.*
 import kotlinx.html.impl.DelegatingMap
 import kotlinx.html.stream.appendHTML
 import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.df_dd_MM_YYYY
+import pictures.reisishot.mise.backend.df_yyyy_MM_dd
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.CategoryInformation
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
@@ -12,7 +14,6 @@ import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThum
 import pictures.reisishot.mise.backend.generator.pages.Testimonal
 import pictures.reisishot.mise.backend.htmlparsing.PageMetadata
 import pictures.reisishot.mise.backend.htmlparsing.TargetPath
-import java.text.DateFormat
 import java.util.*
 
 
@@ -122,7 +123,7 @@ fun FlowOrInteractiveOrPhrasingContent.smallButtonLink(text: String, href: Strin
     text(text)
 }
 
-private var DelegatingMap.itemprop
+internal var DelegatingMap.itemprop
     get() = this["itemprop"]
     set(value) {
         if (value == null)
@@ -131,17 +132,7 @@ private var DelegatingMap.itemprop
             this["itemprop"] = value
     }
 
-private var DelegatingMap.itemtype
-    get() = this["itemtype"]
-    set(value) {
-        if (value == null)
-            this.remove("itemtype")
-        else
-            this["itemtype"] = value
-    }
-
-
-private var DelegatingMap.itemscope
+internal var DelegatingMap.itemscope
     get() = this["itemscope"]
     set(value) {
         if (value == null)
@@ -150,7 +141,20 @@ private var DelegatingMap.itemscope
             this["itemscope"] = value
     }
 
-private var DelegatingMap.content
+internal var DelegatingMap.itemtype
+    get() = this["itemtype"]
+    set(value) {
+        if (value == null)
+            this.remove("itemtype")
+        else
+            this["itemtype"] = value
+    }
+
+object Itemtypes {
+    const val ARTICLE = "http://schema.org/Article"
+}
+
+internal var DelegatingMap.content
     get() = this["content"]
     set(value) {
         if (value == null)
@@ -213,23 +217,29 @@ fun StringBuilder.appendTestimonials(
 internal fun FlowOrPhrasingContent.metadata(metadata: PageMetadata) {
     span("badge bg-light text-pre-wrap") {
         metadata.edited?.let {
-            span("font-weight-normal") {
-                text("Zuletzt aktualisiert am: ")
+            time {
+                attributes.itemprop = "dateModified"
+                dateTime = df_yyyy_MM_dd.format(it)
+
+                span("font-weight-normal") {
+                    text("Zuletzt aktualisiert am: ")
+                }
+                text(it)
             }
-            text(it)
             text("  –  ")
         }
-        span("font-weight-normal") {
-            text("Veröffentlicht am: ")
+        time {
+            attributes.itemprop = "datePublished"
+            dateTime = df_yyyy_MM_dd.format(metadata.created)
+            span("font-weight-normal") {
+                text("Veröffentlicht am: ")
+            }
+            text(metadata.created)
         }
-        text(metadata.created)
     }
 }
 
-
-private val dateFormatter = DateFormat.getDateInstance()
-
 @HtmlTagMarker
 internal fun Tag.text(date: Date) {
-    text(dateFormatter.format(date))
+    text(df_dd_MM_YYYY.format(date))
 }

@@ -5,6 +5,7 @@ import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.df_yyyMMdd
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.*
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
@@ -14,7 +15,6 @@ import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser.markdown2Html
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.LinkedHashSet
 import kotlin.math.roundToInt
@@ -138,10 +138,10 @@ class TemplateApi(
     }
 
     @SuppressWarnings("unused")
-    fun addMeta() {
+    fun addMeta(): String {
         val metadata = pageMetadata ?: throw IllegalStateException("No page metadata specified for \"$targetPath\"!")
-        buildString {
-            appendHTML(false, true).span {
+        return buildString {
+            appendHTML(false, true).div {
                 metadata(metadata)
             }
         }
@@ -151,7 +151,7 @@ class TemplateApi(
     fun insertCarousel(changeMs: Int, vararg filename: String) =
             insertCarousel("carousel", changeMs, *filename)
 
-
+    @SuppressWarnings("unused")
     fun insertCarousel(id: String, changeMs: Int, vararg filename: String) = buildString {
         appendHTML(false, true).div("carousel slide") {
             this.id = id
@@ -285,9 +285,6 @@ typealias SourcePath = Path;
 typealias TargetPath = Path;
 typealias PageGeneratorInfo = Triple<SourcePath, TargetPath, String/*Title*/>
 typealias Yaml = Map<String, List<String>>
-typealias FormattedDate = String
-
-private val yamlDateParser = SimpleDateFormat("yyyyMMdd")
 
 
 fun Yaml.getString(key: String): String? {
@@ -306,7 +303,7 @@ data class PageMetadata(
 fun Yaml.asPageMetadata(): PageMetadata? {
     val order = getOrder()
     val created = getString("created")
-    val edited = getString("edit")
+    val edited = getString("updated")
 
     val computedOrder = order ?: created ?: edited
     // Ensure we have all required fields
@@ -314,7 +311,7 @@ fun Yaml.asPageMetadata(): PageMetadata? {
         return null
     return PageMetadata(
             computedOrder,
-            yamlDateParser.parse(created),
-            edited?.let { yamlDateParser.parse(it) }
+            df_yyyMMdd.parse(created),
+            edited?.let { df_yyyMMdd.parse(it) }
     )
 }

@@ -5,11 +5,12 @@ import at.reisishot.mise.commons.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.HEAD
+import kotlinx.html.div
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.*
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
+import pictures.reisishot.mise.backend.html.*
 import pictures.reisishot.mise.backend.html.PageGenerator
-import pictures.reisishot.mise.backend.html.raw
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
 import pictures.reisishot.mise.backend.htmlparsing.PageGeneratorInfo
 import pictures.reisishot.mise.backend.htmlparsing.SourcePath
@@ -173,7 +174,13 @@ class PageGenerator(
                 buildingCache = buildingCache,
                 additionalHeadContent = headManipulator,
                 galleryGenerator = galleryGenerator,
-                pageContent = { raw(body) }
+                pageContent = {
+                    div {
+                        attributes.itemscope = ""
+                        attributes.itemtype = Itemtypes.ARTICLE
+                        raw(body)
+                    }
+                }
         )
 
     }

@@ -1,7 +1,8 @@
 package pictures.reisishot.mise.backend.generator.pages
 
 import at.reisishot.mise.commons.FilenameWithoutExtension
-import java.text.SimpleDateFormat
+import pictures.reisishot.mise.backend.df_dd_MMMM_yyyy
+import pictures.reisishot.mise.backend.df_yyyy_MM_dd
 import java.util.*
 
 data class Testimonal(
@@ -11,15 +12,10 @@ data class Testimonal(
         val type: String,
         val html: String
 ) {
-    companion object {
-        private val sourceDateFormat = SimpleDateFormat("yyyy-MM-dd")
-        private val targetDateFormat = SimpleDateFormat("dd. MMMM yyyy", Locale.GERMAN)
-    }
-
     val date: Date by lazy {
-        sourceDateFormat.parse(isoDateString)
+        df_yyyy_MM_dd.parse(isoDateString)
     }
     val formattedDate: String by lazy {
-        targetDateFormat.format(date)
+        df_dd_MMMM_yyyy.format(date)
     }
 }
