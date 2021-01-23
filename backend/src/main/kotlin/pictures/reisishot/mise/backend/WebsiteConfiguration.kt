@@ -30,7 +30,7 @@ class WebsiteConfiguration(
         val bootsrapMenuBreakpoint: String = "md",
         val fbMessengerChatPlugin: FacebookMessengerChatPlugin? = null,
         val navbarBrandFunction: A.(WebsiteConfiguration, AbstractGalleryGenerator) -> Unit = { config, _ -> text(config.shortTitle) },
-        vararg val interactiveIgnoredFiles: ((FileExtension) -> Boolean) = arrayOf({ _: String -> false })
+        val interactiveIgnoredFiles: Array<((FileExtension) -> Boolean)> = arrayOf({ _: String -> false })
 ) {
     val interactiveDelayMs: Long?
         get() = if (isDevMode) _interactiveDelayMs else null

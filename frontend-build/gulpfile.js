@@ -46,7 +46,10 @@ gulp.task('copyFrameworkJsCss', function (done) {
     gulp
         .src(frameworkJsCss, {dot: true})
         .pipe(gulp.dest(outBase))
-        .on('end', done)
+        .on('end', function () {
+            browserSync.reload();
+            done()
+        })
 });
 
 gulp.task('browser-sync', function () {
@@ -64,11 +67,11 @@ gulp.task('watch', function () {
     // Watch framework
     gulp.watch(outBase + '/**/*.html').on('change', browserSync.reload);
     // Watch static files
-    gulp.watch(frameworkStatic, gulp.parallel('copyFrameworkStatic', browserSync.reload));
+    gulp.watch(frameworkStatic, gulp.series('copyFrameworkStatic'));
     // Watch .js / .css  files
-    gulp.watch(frameworkJsCss, gulp.parallel('copyFrameworkJsCss', browserSync.reload));
+    gulp.watch(frameworkJsCss, gulp.series('copyFrameworkJsCss'));
     // Watch static files
-    gulp.watch(inBase + 'src/static/**/*.*', gulp.parallel('copyStatic', browserSync.reload));
+    gulp.watch(inBase + 'src/static/**/*.*', gulp.series('copyStatic'))
 });
 
 gulp.task('default',

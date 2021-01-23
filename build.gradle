@@ -23,16 +23,13 @@ subprojects {
         maven {
             url 'https://dl.bintray.com/kotlin/kotlin-eap/'
         }
-
     }
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
         kotlinOptions {
             jvmTarget = "1.8"
         }
-        kotlinOptions.freeCompilerArgs += ['-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi']
     }
-
 
     dependencies {
         // https://kotlinlang.org/releases.html#release-details

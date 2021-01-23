@@ -33,7 +33,7 @@ import kotlin.streams.asSequence
 
 
 abstract class AbstractGalleryGenerator(
-        private vararg val categoryBuilders: CategoryBuilder,
+        private val categoryBuilders: Array<CategoryBuilder>,
         private val displayedMenuItems: Set<DisplayedMenuItems> = setOf(DisplayedMenuItems.CATEGORIES, DisplayedMenuItems.TAGS),
         private val exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }
 ) : WebsiteGenerator, ImageInformationRepository {

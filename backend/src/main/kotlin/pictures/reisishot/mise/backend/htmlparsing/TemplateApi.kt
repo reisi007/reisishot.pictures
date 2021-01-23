@@ -108,12 +108,12 @@ class TemplateApi(
             val albums = albumName.asSequence()
                     .map { CategoryName(it) }
                     .toCollection(LinkedHashSet())
-            insertCategoryThumbnails(albums, websiteConfiguration, galleryGenerator);
+            insertCategoryThumbnails(albums, websiteConfiguration, galleryGenerator)
         }
     }
 
     @SuppressWarnings("unused")
-    fun insertSingleTestimonial(name: String) = buildString {
+    fun insertTestimonial(name: String) = buildString {
         val testimonialsToDisplay = testimonials.getValue(name)
         appendTestimonials(websiteConfiguration, targetPath, galleryGenerator, testimonialsToDisplay)
 
@@ -281,8 +281,8 @@ class TemplateApi(
 
 }
 
-typealias SourcePath = Path;
-typealias TargetPath = Path;
+typealias SourcePath = Path
+typealias TargetPath = Path
 typealias PageGeneratorInfo = Triple<SourcePath, TargetPath, String/*Title*/>
 typealias Yaml = Map<String, List<String>>
 
