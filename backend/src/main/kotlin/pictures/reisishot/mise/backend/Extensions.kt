@@ -10,7 +10,19 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 
-internal val xStrem by lazy { XStream() }
+internal val xStrem by lazy {
+    XStream().apply {
+        XStream.setupDefaultSecurity(this)
+        allowTypesByWildcard(
+                arrayOf(
+                        "pictures.reisishot.mise.backend.**",
+                        "pictures.reisishot.mise.commons.**",
+                        "at.reisishot.mise.commons.**",
+                        "kotlin.InitializedLazyImpl"
+                )
+        )
+    }
+}
 
 internal inline fun <reified T> T.toXml(path: Path) {
     path.parent?.let {

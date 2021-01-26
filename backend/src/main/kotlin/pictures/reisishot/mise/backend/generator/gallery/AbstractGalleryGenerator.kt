@@ -46,7 +46,7 @@ abstract class AbstractGalleryGenerator(
     override val executionPriority: Int = 20_000
 
     internal var cache = Cache()
-    protected lateinit var cachePath: Path
+    private lateinit var cachePath: Path
     override val imageInformationData: Collection<ImageInformation> = cache.imageInformationData.values
     override val computedTags: Map<TagInformation, Set<ImageInformation>> = cache.computedTags
     protected val ExifdataKey.displayName
@@ -94,11 +94,12 @@ abstract class AbstractGalleryGenerator(
         val cacheTime = cachePath.fileModifiedDateTime
                 ?: kotlin.run { ZonedDateTime.of(LocalDate.of(1900, 1, 1), LocalTime.MIN, ZoneId.systemDefault()) }
 
-        val cacheStillValid = configuration.inPath.withChild(AbstractThumbnailGenerator.NAME_IMAGE_SUBFOLDER)
-                .list()
-                .map { it.fileModifiedDateTime }
-                .filterNotNull()
-                .all { it < cacheTime }
+        val cacheStillValid = cachePath.exists() &&
+                configuration.inPath.withChild(AbstractThumbnailGenerator.NAME_IMAGE_SUBFOLDER)
+                        .list()
+                        .map { it.fileModifiedDateTime }
+                        .filterNotNull()
+                        .all { it < cacheTime }
 
         if (cacheStillValid) {
             this.cache = cachePath.fromXml()
