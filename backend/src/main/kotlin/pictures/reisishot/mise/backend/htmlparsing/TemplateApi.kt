@@ -57,7 +57,7 @@ class TemplateApi(
     @SuppressWarnings("unused")
     @JvmOverloads
     fun insertPicture(filenameWithoutExtension: FilenameWithoutExtension, classNames: String? = null) = buildString {
-        appendHTML(prettyPrint = false, xhtmlCompatible = true).div {
+        appendUnformattedHtml().div {
             with(galleryGenerator.cache) {
                 insertLazyPicture(imageInformationData.getOrThrow(filenameWithoutExtension, targetPath), websiteConfiguration, "solo $classNames")
             }
@@ -76,7 +76,7 @@ class TemplateApi(
                         imageInformationData.getOrThrow(it, targetPath)
                     }.toList().let { imageInformations ->
                         buildString {
-                            appendHTML(prettyPrint = false, xhtmlCompatible = true).div {
+                            appendUnformattedHtml().div {
                                 insertImageGallery(galleryName, websiteConfiguration, imageInformations)
                             }
                         }
@@ -89,14 +89,14 @@ class TemplateApi(
 
     @SuppressWarnings("unused")
     fun insertLink(linktext: String, type: String, key: String): String = buildString {
-        appendHTML(false, true).a(insertLink(type, key)) {
+        appendUnformattedHtml().a(insertLink(type, key)) {
             text(linktext)
         }
     }
 
     @SuppressWarnings("unused")
     fun insertSubalbumThumbnails(albumName: String?): String = buildString {
-        appendHTML(false, true).div {
+        appendUnformattedHtml().div {
             insertSubcategoryThumbnails(CategoryName(albumName ?: ""), websiteConfiguration, galleryGenerator)
         }
     }
@@ -104,7 +104,7 @@ class TemplateApi(
     @SuppressWarnings("unused")
     fun insertCategoryOverview(vararg albumName: String) = buildString {
         if (albumName.isEmpty()) return@buildString
-        appendHTML(false, true).div {
+        appendUnformattedHtml().div {
             val albums = albumName.asSequence()
                     .map { CategoryName(it) }
                     .toCollection(LinkedHashSet())
@@ -117,6 +117,16 @@ class TemplateApi(
         val testimonialsToDisplay = testimonials.getValue(name)
         appendTestimonials(websiteConfiguration, targetPath, galleryGenerator, testimonialsToDisplay)
 
+    }
+
+    @SuppressWarnings("unused")
+    @JvmOverloads
+    fun toKontaktformular(text: String = "Zum Kontaktformular") = buildString {
+        appendUnformattedHtml().div("center") {
+            a("#footer", classes = "btn btn-primary") {
+                text(text)
+            }
+        }
     }
 
     @SuppressWarnings("unused")
@@ -141,7 +151,7 @@ class TemplateApi(
     fun addMeta(): String {
         val metadata = pageMetadata ?: throw IllegalStateException("No page metadata specified for \"$targetPath\"!")
         return buildString {
-            appendHTML(false, true).div {
+            appendUnformattedHtml().div {
                 metadata(metadata)
             }
         }
@@ -153,7 +163,7 @@ class TemplateApi(
 
     @SuppressWarnings("unused")
     fun insertCarousel(id: String, changeMs: Int, vararg filename: String) = buildString {
-        appendHTML(false, true).div("carousel slide") {
+        appendUnformattedHtml().div("carousel slide") {
             this.id = id
             attributes["data-interval"] = changeMs.toString()
             attributes["data-ride"] = "carousel"
@@ -197,7 +207,7 @@ class TemplateApi(
 
 
     fun insertTextCarousel(id: String, changeMs: Int, vararg text: String) = buildString {
-        appendHTML(false, true).div("carousel slide") {
+        appendUnformattedHtml().div("carousel slide") {
             this.id = id
             attributes["data-interval"] = changeMs.toString()
             attributes["data-ride"] = "carousel"
@@ -254,7 +264,7 @@ class TemplateApi(
         }
 
 
-        appendHTML(false, true).div("bal-container") {
+        appendUnformattedHtml().div("bal-container") {
             val ratio = (h / w.toFloat())
             attributes["style"] = "width: 550px;height:${Math.round(550 * ratio)}px"
             attributes["data-ratio"] = ratio.toString()
@@ -305,7 +315,7 @@ fun Yaml.asPageMetadata(): PageMetadata? {
     val created = getString("created")
     val edited = getString("updated")
 
-    val computedOrder = order ?: created ?: edited
+    val computedOrder = order ?: edited ?: created
     // Ensure we have all required fields
     if (computedOrder == null || created == null)
         return null
@@ -315,3 +325,5 @@ fun Yaml.asPageMetadata(): PageMetadata? {
             edited?.let { df_yyyMMdd.parse(it) }
     )
 }
+
+private fun StringBuilder.appendUnformattedHtml() = appendHTML(false, true)
