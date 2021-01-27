@@ -42,8 +42,7 @@ object Portrait {
                         inPath = Paths.get("input", folderName).toAbsolutePath(),
                         tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
                         outPath = Paths.get("upload", folderName).toAbsolutePath(),
-                        interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
-                        metaDataConsumers = arrayOf(overviewPageGenerator, KeywordConsumer()),
+                        interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         // fbMessengerChatPlugin = generateDefaultChatPlugin(),
                         cleanupGeneration = false,
                         socialMediaLinks = SocialMediaAccounts(
@@ -71,7 +70,7 @@ object Portrait {
                                     })
                         },
                         generators = listOf(
-                                PageGenerator(),
+                                PageGenerator(overviewPageGenerator, KeywordConsumer()),
                                 galleryGenerator,
                                 overviewPageGenerator,
                                 ImageMagickThumbnailGenerator(),

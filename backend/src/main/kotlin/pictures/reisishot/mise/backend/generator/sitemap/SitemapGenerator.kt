@@ -2,6 +2,8 @@ package pictures.reisishot.mise.backend.generator.sitemap
 
 import at.reisishot.mise.commons.FileExtension
 import at.reisishot.mise.commons.hasExtension
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.BuildingCache.Companion.getLinkFromFragment
@@ -32,20 +34,21 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
         return false
     }
 
-    override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
-        PrintWriter(configuration.outPath.resolve("sitemap.xml").toFile(), Charsets.UTF_8.toString()).use {
-            it.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
-            it.println("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">")
+    override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) = withContext(Dispatchers.IO) {
+        PrintWriter(configuration.outPath.resolve("sitemap.xml").toFile(), Charsets.UTF_8.toString()).use { writer ->
+            writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+            writer.println("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">")
             configuration.outPath.findIndexHtmlFiles()
                     .map { it.normalize().toString().replace('\\', '/') }
                     .map { getLinkFromFragment(configuration, it) }
                     .map { if (it.endsWith('/')) it.substringBeforeLast('/') else it }
+                    .distinct()
                     .forEach { pageUrl ->
-                        it.print("<url>")
-                        it.print("<loc>$pageUrl</loc>")
-                        it.print("</url>")
+                        writer.print("<url>")
+                        writer.print("<loc>$pageUrl</loc>")
+                        writer.print("</url>")
                     }
-            it.print("</urlset>")
+            writer.print("</urlset>")
         }
     }
 

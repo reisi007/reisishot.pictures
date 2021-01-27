@@ -5,7 +5,6 @@ import kotlinx.html.A
 import kotlinx.html.DIV
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
-import pictures.reisishot.mise.backend.generator.pages.YamlMetaDataConsumer
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
@@ -23,7 +22,6 @@ class WebsiteConfiguration(
         private val form: DIV.(target: Path, websiteConfiguration: WebsiteConfiguration) -> Unit = { _, _ -> },
         val analyticsSiteId: String? = null,
         val socialMediaLinks: SocialMediaAccounts? = null,
-        val metaDataConsumers: Array<YamlMetaDataConsumer> = emptyArray(),
         val generators: List<WebsiteGenerator> = emptyList(),
         val isDevMode: Boolean = false,
         val cssFileName: String = "styles.css",
@@ -34,13 +32,6 @@ class WebsiteConfiguration(
 ) {
     val interactiveDelayMs: Long?
         get() = if (isDevMode) _interactiveDelayMs else null
-
-    val metaDataConsumerFileExtensions by lazy {
-        metaDataConsumers.asSequence()
-                .flatMap { it.interestingFileExtensions() }
-                .toList()
-                .toTypedArray()
-    }
 
     fun createForm(parent: DIV, target: Path) = form(parent, target, this@WebsiteConfiguration)
     val normalizedWebsiteLocation: String = websiteLocation.let { if (websiteLocation.endsWith("/")) it else "$it/" }

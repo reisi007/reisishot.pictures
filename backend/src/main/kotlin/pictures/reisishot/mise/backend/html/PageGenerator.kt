@@ -1,7 +1,6 @@
 package pictures.reisishot.mise.backend.html
 
 import kotlinx.html.*
-import kotlinx.html.stream.appendHTML
 import pictures.reisishot.mise.backend.FacebookMessengerChatPlugin
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
@@ -28,6 +27,7 @@ object PageGenerator {
             buildingCache: BuildingCache,
             galleryGenerator: AbstractGalleryGenerator,
             additionalHeadContent: HEAD.() -> Unit = {},
+            minimalPage: Boolean = false,
             pageContent: DIV.() -> Unit
     ): BufferedWriter = with(target) {
         target.parent?.let {
@@ -35,12 +35,13 @@ object PageGenerator {
         }
         Files.newBufferedWriter(target, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE).use {
             it.write("<!doctype html>")
-            it.appendHTML(prettyPrint = false, xhtmlCompatible = true)
+            it.appendUnformattedHtml()
                     .html(namespace = "http://www.w3.org/1999/xhtml") {
                         val url = BuildingCache.getLinkFromFragment(
                                 websiteConfiguration,
                                 websiteConfiguration.outPath.relativize(target)
-                                        .parent?.toString()
+                                        .parent
+                                        ?.toString()
                                         ?: ""
                         )
                         classes = classes + "h-100"
@@ -56,9 +57,10 @@ object PageGenerator {
                             additionalHeadContent(this)
                         }
                         body("d-flex flex-column h-100") {
-                            header {
-                                buildMenu(websiteConfiguration, galleryGenerator, buildingCache.menuLinks)
-                            }
+                            if (!minimalPage)
+                                header {
+                                    buildMenu(websiteConfiguration, galleryGenerator, buildingCache.menuLinks)
+                                }
 
                             main("flex-shrink-0") {
                                 attributes["role"] = "main"
@@ -76,7 +78,6 @@ object PageGenerator {
                                     a {
                                         attributes["name"] = "footer"
                                     }
-                                    //  socialSharing(url, title)
                                     websiteConfiguration.createForm(this, target)
                                     p("text-muted center") {
                                         text("© ${websiteConfiguration.longTitle}")
@@ -150,7 +151,7 @@ object PageGenerator {
                     span("navbar-toggler-icon")
                 }
 
-            var dropdownCount = 0;
+            var dropdownCount = 0
             divId("navbarCollapse", "navbar-collapse collapse") {
                 ul("navbar-nav navbar-light mr-auto") {
                     items.forEach { curItem ->

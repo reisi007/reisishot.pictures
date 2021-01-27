@@ -16,7 +16,10 @@ import kotlinx.html.HEAD
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
-import pictures.reisishot.mise.backend.generator.pages.YamlMetaDataConsumer
+import pictures.reisishot.mise.backend.generator.pages.IPageMininmalInfo
+import pictures.reisishot.mise.backend.generator.pages.PageGeneratorExtension
+import pictures.reisishot.mise.backend.generator.pages.minimalistic.SourcePath
+import pictures.reisishot.mise.backend.generator.pages.minimalistic.Yaml
 import java.io.Reader
 import java.io.StringReader
 import java.lang.reflect.Modifier
@@ -63,11 +66,12 @@ object MarkdownParser {
         field.set(this, value)
     }
 
-    fun parse(configuration: WebsiteConfiguration, cache: BuildingCache, sourceFile: SourcePath, targetPath: TargetPath, galleryGenerator: AbstractGalleryGenerator, vararg metaDataConsumers: YamlMetaDataConsumer): Pair<HEAD.() -> Unit, String> {
+    fun parse(configuration: WebsiteConfiguration, cache: BuildingCache, pageMininmalInfo: IPageMininmalInfo, galleryGenerator: AbstractGalleryGenerator, vararg metaDataConsumers: PageGeneratorExtension): Pair<HEAD.() -> Unit, String> {
+        val sourceFile = pageMininmalInfo.sourcePath
         val yamlExtractor = AbstractYamlFrontMatterVisitor()
         val headManipulator: HEAD.() -> Unit = {
             metaDataConsumers.asSequence()
-                    .map { it.processFrontmatter(configuration, cache, targetPath, yamlExtractor.data) }
+                    .map { it.processFrontmatter(configuration, cache, pageMininmalInfo, yamlExtractor.data) }
                     .forEach { it(this) }
         }
 
@@ -75,14 +79,14 @@ object MarkdownParser {
                 .markdown2Html(yamlExtractor)
         val metaData = (yamlExtractor.data as Yaml).asPageMetadata()
         val finalHtml = parsedMarkdown
-                .velocity(sourceFile, metaData, targetPath, galleryGenerator, cache, configuration)
+                .velocity(sourceFile, metaData, pageMininmalInfo, galleryGenerator, cache, configuration)
         return headManipulator to finalHtml
     }
 
-    private fun String.velocity(sourceFile: SourcePath, metadata: PageMetadata?, targetPath: TargetPath, galleryGenerator: AbstractGalleryGenerator, cache: BuildingCache, configuration: WebsiteConfiguration) = VelocityApplier.runVelocity(
+    private fun String.velocity(sourceFile: SourcePath, metadata: PageMetadata?, pageMininmalInfo: IPageMininmalInfo, galleryGenerator: AbstractGalleryGenerator, cache: BuildingCache, configuration: WebsiteConfiguration) = VelocityApplier.runVelocity(
             StringReader(this),
             sourceFile.filenameWithoutExtension,
-            targetPath,
+            pageMininmalInfo.targetPath,
             galleryGenerator,
             cache,
             configuration,

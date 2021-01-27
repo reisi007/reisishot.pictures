@@ -1,16 +1,16 @@
-package pictures.reisishot.mise.backend.generator.pages.yamlConsumer;
+package pictures.reisishot.mise.backend.generator.pages.yamlConsumer
 
 import kotlinx.html.HEAD
 import kotlinx.html.meta
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
-import pictures.reisishot.mise.backend.generator.pages.YamlMetaDataConsumer
-import pictures.reisishot.mise.backend.htmlparsing.TargetPath
-import pictures.reisishot.mise.backend.htmlparsing.Yaml
+import pictures.reisishot.mise.backend.generator.pages.IPageMininmalInfo
+import pictures.reisishot.mise.backend.generator.pages.PageGeneratorExtension
+import pictures.reisishot.mise.backend.generator.pages.minimalistic.Yaml
 
-class KeywordConsumer : YamlMetaDataConsumer {
+class KeywordConsumer : PageGeneratorExtension {
 
-    override fun processFrontmatter(configuration: WebsiteConfiguration, cache: BuildingCache, targetPath: TargetPath, frontMatter: Yaml): HEAD.() -> Unit {
+    override fun processFrontmatter(configuration: WebsiteConfiguration, cache: BuildingCache, pageMininmalInfo: IPageMininmalInfo, frontMatter: Yaml): HEAD.() -> Unit {
         return {
             frontMatter["keywords"]?.joinToString(",")?.let {
                 meta("keywords", it)

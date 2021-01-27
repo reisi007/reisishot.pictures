@@ -3,13 +3,14 @@ package pictures.reisishot.mise.backend.htmlparsing
 import at.reisishot.mise.commons.*
 import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
 import kotlinx.html.*
-import kotlinx.html.stream.appendHTML
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.df_yyyMMdd
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.*
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.pages.Testimonal
+import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
+import pictures.reisishot.mise.backend.generator.pages.minimalistic.Yaml
 import pictures.reisishot.mise.backend.html.*
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser.markdown2Html
 import java.nio.charset.StandardCharsets
@@ -291,11 +292,6 @@ class TemplateApi(
 
 }
 
-typealias SourcePath = Path
-typealias TargetPath = Path
-typealias PageGeneratorInfo = Triple<SourcePath, TargetPath, String/*Title*/>
-typealias Yaml = Map<String, List<String>>
-
 
 fun Yaml.getString(key: String): String? {
     val value = getOrDefault(key, null)
@@ -325,5 +321,3 @@ fun Yaml.asPageMetadata(): PageMetadata? {
             edited?.let { df_yyyMMdd.parse(it) }
     )
 }
-
-private fun StringBuilder.appendUnformattedHtml() = appendHTML(false, true)

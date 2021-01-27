@@ -51,8 +51,7 @@ object Main {
                         inPath = Paths.get("input", folderName).toAbsolutePath(),
                         tmpPath = tmpPath,
                         outPath = Paths.get("upload", folderName).toAbsolutePath(),
-                        interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
-                        metaDataConsumers = arrayOf(overviewPageGenerator, KeywordConsumer()),
+                        interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         cleanupGeneration = false,
                         analyticsSiteId = "1",
                         socialMediaLinks = SocialMediaAccounts("reisishot", "reisishot", "florian@reisishot.pictures"),
@@ -75,7 +74,7 @@ object Main {
                                     })
                         },
                         generators = listOf(
-                                PageGenerator(),
+                                PageGenerator(overviewPageGenerator, KeywordConsumer()),
                                 overviewPageGenerator,
                                 galleryGenerator,
                                 ImageMagickThumbnailGenerator(),

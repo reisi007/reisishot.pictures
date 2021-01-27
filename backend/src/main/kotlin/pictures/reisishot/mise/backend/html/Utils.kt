@@ -12,8 +12,8 @@ import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.getOrThrow
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
 import pictures.reisishot.mise.backend.generator.pages.Testimonal
+import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
 import pictures.reisishot.mise.backend.htmlparsing.PageMetadata
-import pictures.reisishot.mise.backend.htmlparsing.TargetPath
 import java.util.*
 
 
@@ -243,3 +243,6 @@ internal fun FlowOrPhrasingContent.metadata(metadata: PageMetadata) {
 internal fun Tag.text(date: Date) {
     text(df_dd_MM_YYYY.format(date))
 }
+
+
+fun <T : Appendable> T.appendUnformattedHtml() = appendHTML(false, true)

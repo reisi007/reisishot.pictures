@@ -34,8 +34,7 @@ object Goto {
                         inPath = Paths.get("input", folderName).toAbsolutePath(),
                         tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
                         outPath = Paths.get("upload", folderName).toAbsolutePath(),
-                        interactiveIgnoredFiles = arrayOf<(FileExtension) -> Boolean>(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
-                        metaDataConsumers = arrayOf(KeywordConsumer()),
+                        interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                         cleanupGeneration = false,
                         // fbMessengerChatPlugin = generateDefaultChatPlugin(),
                         analyticsSiteId = "6",
@@ -62,7 +61,7 @@ object Goto {
                                         exifReplaceFunction = defaultExifReplaceFunction
                                 ),
                                 ImageInfoImporter(Main.tmpPath, "https://${Main.folderName}/"),
-                                PageGenerator(),
+                                PageGenerator(KeywordConsumer()),
                                 SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
                         )
                 )

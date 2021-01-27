@@ -12,7 +12,11 @@ import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.ChangeFileset
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
-import pictures.reisishot.mise.backend.generator.pages.YamlMetaDataConsumer
+import pictures.reisishot.mise.backend.generator.pages.IPageMininmalInfo
+import pictures.reisishot.mise.backend.generator.pages.PageGeneratorExtension
+import pictures.reisishot.mise.backend.generator.pages.minimalistic.SourcePath
+import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
+import pictures.reisishot.mise.backend.generator.pages.minimalistic.Yaml
 import pictures.reisishot.mise.backend.html.*
 import pictures.reisishot.mise.backend.htmlparsing.*
 import java.nio.file.Files
@@ -20,8 +24,8 @@ import java.nio.file.Path
 
 class OverviewPageGenerator(
         private val galleryGenerator: AbstractGalleryGenerator,
-        private val metaDataConsumers: Array<out YamlMetaDataConsumer> = emptyArray()
-) : YamlMetaDataConsumer, WebsiteGenerator {
+        private val metaDataConsumers: Array<out PageGeneratorExtension> = emptyArray()
+) : PageGeneratorExtension, WebsiteGenerator {
 
     override val generatorName: String = "Overview Page Generator"
     override val executionPriority: Int = 35_000
@@ -38,11 +42,15 @@ class OverviewPageGenerator(
         )
     }
 
-    override fun processFrontmatter(configuration: WebsiteConfiguration, cache: BuildingCache, targetPath: TargetPath, frontMatter: Yaml): HEAD.() -> Unit {
-        frontMatter.extract(targetPath)?.let {
+    override fun processFrontmatter(configuration: WebsiteConfiguration, cache: BuildingCache, pageMininmalInfo: IPageMininmalInfo, frontMatter: Yaml): HEAD.() -> Unit {
+        frontMatter.processFrontmatter(pageMininmalInfo)
+        return {}
+    }
+
+    private fun Yaml.processFrontmatter(pageMinimalInfo: IPageMininmalInfo) {
+        extract(pageMinimalInfo)?.let {
             dirty = dirty or changeSetAdd.add(it)
         }
-        return {}
     }
 
     override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changeFiles: ChangeFileset): Boolean {
@@ -75,7 +83,7 @@ class OverviewPageGenerator(
     }
 
     private fun processChangesInternal(configuration: WebsiteConfiguration, cache: BuildingCache): Boolean {
-        processExternals(configuration, cache)
+        processExternals(configuration)
         val changedGroups = mutableMapOf<String, Path>()
         changeSetAdd.forEach {
             data.computeIfAbsent(it.id) { _ -> mutableSetOf() }.add(it, true)
@@ -95,14 +103,7 @@ class OverviewPageGenerator(
         }
         dirty = false
 
-        (
-                if (changedGroups.isEmpty())
-                    data.asSequence()
-                            .filter { (_, set) -> set.isNotEmpty() }
-                            .map { (k, v) -> k to v.first().entryOutUrl.parent }
-                else changedGroups.asSequence()
-                        .map { it.toPair() }
-                )
+        changedGroups.computeChangedGroups()
                 .map { (name, b) -> data.getValue(name).first() to b }
                 .forEach { (data, b) ->
                     val name = data.id //TODO group config files using name only
@@ -115,8 +116,8 @@ class OverviewPageGenerator(
 
                     val target = configuration.outPath withChild configuration.inPath.relativize(overviewPagePath) withChild "index.html"
 
-                    val additionalTopContent = loadBefore(configuration, cache, overviewPagePath, target, galleryGenerator, metaDataConsumers)
-                    val endContent = loadEnd(configuration, cache, overviewPagePath, target, galleryGenerator, metaDataConsumers)
+                    val additionalTopContent = loadBefore(configuration, cache, data.pageMininmalInfo, galleryGenerator, metaDataConsumers)
+                    val endContent = loadEnd(configuration, cache, data.pageMininmalInfo, galleryGenerator, metaDataConsumers)
                     val displayName = data.displayName
 
                     PageGenerator.generatePage(
@@ -188,8 +189,17 @@ class OverviewPageGenerator(
         return changes
     }
 
-    private fun processExternals(configuration: WebsiteConfiguration, cache: BuildingCache) =
-            configuration.inPath.processFrontmatter(configuration, cache) { it: Path -> it.hasExtension({ it.isMarkdownPart("external") }) }
+    private fun MutableMap<String, Path>.computeChangedGroups() = (
+            if (isEmpty())
+                data.asSequence()
+                        .filter { (_, set) -> set.isNotEmpty() }
+                        .map { (k, v) -> k to v.first().entryOutUrl.parent }
+            else asSequence()
+                    .map { it.toPair() }
+            )
+
+    private fun processExternals(configuration: WebsiteConfiguration) =
+            configuration.inPath.processFrontmatter(configuration) { it: Path -> it.hasExtension({ it.isMarkdownPart("external") }) }
 
     private fun parseFrontmatter(configuration: WebsiteConfiguration, inPath: Path): Pair<Path, Yaml> {
         val outPath = configuration.outPath withChild configuration.inPath.relativize(inPath) withChild "external"
@@ -200,7 +210,7 @@ class OverviewPageGenerator(
     }
 
     override suspend fun fetchInitialInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>) = withContext(Dispatchers.IO) {
-        configuration.inPath.processFrontmatter(configuration, cache) { it: Path -> it.hasExtension({ it.isMarkdownPart("overview") }) }
+        configuration.inPath.processFrontmatter(configuration) { it: Path -> it.hasExtension({ it.isMarkdownPart("overview") }) }
     }
 
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
@@ -211,17 +221,24 @@ class OverviewPageGenerator(
         // Nothing to do
     }
 
-    private fun Path.processFrontmatter(configuration: WebsiteConfiguration, cache: BuildingCache, filter: (Path) -> Boolean) =
+    private fun Path.processFrontmatter(configuration: WebsiteConfiguration, filter: (Path) -> Boolean) =
             Files.walk(this)
                     .filter { it.isRegularFile() }
                     .filter(filter)
                     .map { inPath ->
                         parseFrontmatter(configuration, inPath)
                     }.forEach { (path, yaml) ->
-                        processFrontmatter(configuration, cache, path, yaml)
+                        yaml.processFrontmatter(OverviewPageMinimalInformation(path))
                     }
 
-    private fun Yaml.extract(targetPath: TargetPath): OverviewEntry? {
+    class OverviewPageMinimalInformation(override val targetPath: TargetPath) : IPageMininmalInfo {
+        override val sourcePath: SourcePath
+            get() = throw IllegalStateException("Not implemented")
+        override val title: String
+            get() = throw IllegalStateException("Not implemented")
+    }
+
+    private fun Yaml.extract(pageMinimalInfo: IPageMininmalInfo): OverviewEntry? {
         val group = getString("group")
         val picture = getString("picture")
         val title = getString("title")
@@ -235,10 +252,24 @@ class OverviewPageGenerator(
         if (group == null || picture == null || title == null || order == null || displayName == null)
             return null
 
-        return OverviewEntry(group, title, description, picture, targetPath.parent, order, displayName, url, metaData)
+        return OverviewEntry(group, title, description, picture, pageMinimalInfo, order, displayName, url, metaData)
     }
 
-    inner class OverviewEntry(val id: String, val title: String, val description: String?, val picture: String, val entryOutUrl: Path, val order: Int, val displayName: String, val configuredUrl: String?, val metaData: PageMetadata?) {
+    inner class OverviewEntry(
+            val id: String,
+            val title: String,
+            val description: String?,
+            val picture: String,
+            val pageMininmalInfo: IPageMininmalInfo,
+            val order: Int,
+            val displayName: String,
+            val configuredUrl: String?, val metaData: PageMetadata?) {
+
+        val entryOutUrl = pageMininmalInfo.targetPath.parent
+
+        val config: OverviewConfig?
+            get() = overviewConfigs[id]
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -246,19 +277,16 @@ class OverviewPageGenerator(
             other as OverviewEntry
 
             if (id != other.id) return false
-            if (entryOutUrl != other.entryOutUrl) return false
+            if (pageMininmalInfo != other.pageMininmalInfo) return false
 
             return true
         }
 
         override fun hashCode(): Int {
             var result = id.hashCode()
-            result = 31 * result + entryOutUrl.hashCode()
+            result = 31 * result + pageMininmalInfo.hashCode()
             return result
         }
-
-        val config: OverviewConfig?
-            get() = overviewConfigs[id]
     }
 }
 
@@ -273,47 +301,50 @@ private fun <E> MutableSet<E>.add(element: E, force: Boolean) {
 private fun loadBefore(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        sourcePath: SourcePath,
-        targetPath: TargetPath,
+        pageMininmalInfo: IPageMininmalInfo,
         galleryGenerator: AbstractGalleryGenerator,
-        metaDataConsumers: Array<out YamlMetaDataConsumer>
-) = sequenceOf(
-        "top.overview.md",
-        "top.overview.html"
-)
-        .map { sourcePath withChild it }
-        .firstOrNull { it.exists() }
-        ?.let {
-            MarkdownParser.parse(
-                    configuration,
-                    cache,
-                    it,
-                    targetPath,
-                    galleryGenerator,
-                    *metaDataConsumers
-            )
-        }
+        metaDataConsumers: Array<out PageGeneratorExtension>
+): Pair<HEAD.() -> Unit, String>? {
+    val sequence = sequenceOf(
+            "top.overview.md",
+            "top.overview.html"
+    )
+    return sequence.parseFile(pageMininmalInfo, configuration, cache, galleryGenerator, metaDataConsumers)
+}
+
+private fun Sequence<String>.parseFile(
+        pageMininmalInfo: IPageMininmalInfo,
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        galleryGenerator: AbstractGalleryGenerator,
+        metaDataConsumers: Array<out PageGeneratorExtension>
+): Pair<HEAD.() -> Unit, String>? {
+    val sourcePath = pageMininmalInfo.sourcePath
+
+    return map { sourcePath withChild it }
+            .firstOrNull { it.exists() }
+            ?.let {
+                MarkdownParser.parse(
+                        configuration,
+                        cache,
+                        pageMininmalInfo,
+                        galleryGenerator,
+                        *metaDataConsumers
+                )
+            }
+}
 
 private fun loadEnd(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        sourcePath: SourcePath,
-        targetPath: TargetPath,
+        pageMininmalInfo: IPageMininmalInfo,
         galleryGenerator: AbstractGalleryGenerator,
-        metaDataConsumers: Array<out YamlMetaDataConsumer>
-) = sequenceOf(
-        "end.overview.md",
-        "end.overview.html"
-)
-        .map { sourcePath withChild it }
-        .firstOrNull { it.exists() }
-        ?.let {
-            MarkdownParser.parse(
-                    configuration,
-                    cache,
-                    it,
-                    targetPath,
-                    galleryGenerator,
-                    *metaDataConsumers
-            )
-        }?.second
+        metaDataConsumers: Array<out PageGeneratorExtension>
+): String? {
+    val sequence = sequenceOf(
+            "end.overview.md",
+            "end.overview.html"
+    )
+    return sequence.parseFile(pageMininmalInfo, configuration, cache, galleryGenerator, metaDataConsumers)
+            ?.second
+}

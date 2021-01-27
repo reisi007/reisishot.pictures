@@ -1,7 +1,10 @@
 package pictures.reisishot.mise.backend.generator.pages
 
 
-import at.reisishot.mise.commons.*
+import at.reisishot.mise.commons.FileExtension
+import at.reisishot.mise.commons.hasExtension
+import at.reisishot.mise.commons.isHtml
+import at.reisishot.mise.commons.isMarkdown
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.HEAD
@@ -9,19 +12,16 @@ import kotlinx.html.div
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.*
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
+import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
 import pictures.reisishot.mise.backend.html.*
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
-import pictures.reisishot.mise.backend.htmlparsing.PageGeneratorInfo
-import pictures.reisishot.mise.backend.htmlparsing.SourcePath
-import pictures.reisishot.mise.backend.htmlparsing.TargetPath
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.streams.asSequence
 
 class PageGenerator(
-        private val generateHeader: Boolean = true,
-        private val generateFooter: Boolean = true
+        vararg val metaDataConsumers: PageGeneratorExtension,
 ) : WebsiteGenerator {
 
     override val executionPriority: Int = 30_000
@@ -32,88 +32,16 @@ class PageGenerator(
         const val LINKTYPE_PAGE = "PAGE"
     }
 
-    private lateinit var filesToProcess: List<PageGeneratorInfo>
+    private lateinit var filesToProcess: List<PageMininmalInfo>
 
     internal lateinit var galleryGenerator: AbstractGalleryGenerator
-    private val displayReplacePattern = Regex("[\\-_]")
 
-    data class FilenameParts(val menuContainerName: String, val destinationPath: Path, val globalPriority: Int,
-                             val menuItemName: String, val menuItemDisplayName: String, val menuItemPriority: Int,
-                             val folderName: String, val folderDisplayName: String)
-
-    private fun Path.computePageGeneratorInfo(configuration: WebsiteConfiguration, cache: BuildingCache): PageGeneratorInfo {
-        configuration.inPath.relativize(this).let { filename ->
-            if (filename.toString().startsWith("index.", true)) {
-                cache.addLinkcacheEntryFor(LINKTYPE_PAGE, "index", "")
-                return Triple(
-                        this,
-                        configuration.outPath.resolve("index.html"),
-                        configuration.longTitle
-                )
-            }
-
-            val filenameParts = calculateFilenameParts(configuration)
-
-            val link = configuration.outPath.relativize(filenameParts.destinationPath.parent).toString()
-            if (filenameParts.menuContainerName.isBlank()) {
-                cache.addLinkcacheEntryFor(LINKTYPE_PAGE, filenameParts.folderDisplayName, link)
-                if (filenameParts.globalPriority > 0)
-                    cache.addMenuItem(
-                            generatorName + "_" + filenameParts.menuContainerName,
-                            filenameParts.globalPriority,
-                            link,
-                            filenameParts.menuItemDisplayName
-                    )
-            } else {
-                cache.addLinkcacheEntryFor(LINKTYPE_PAGE, "${filenameParts.menuContainerName}--${filenameParts.folderDisplayName}", link)
-                if (filenameParts.globalPriority > 0)
-                    cache.addMenuItemInContainerNoDupes(
-                            generatorName + "_" + filenameParts.menuContainerName,
-                            filenameParts.menuContainerName,
-                            filenameParts.globalPriority,
-                            filenameParts.menuItemDisplayName,
-                            link,
-                            elementIndex = filenameParts.menuItemPriority
-                    )
-            }
-
-            return Triple(
-                    this,
-                    filenameParts.destinationPath,
-                    filenameParts.menuItemDisplayName
-            )
-        }
+    val metaDataConsumerFileExtensions by lazy {
+        metaDataConsumers.asSequence()
+                .flatMap { it.interestingFileExtensions() }
+                .toList()
+                .toTypedArray()
     }
-
-    private fun Path.calculateFilenameParts(configuration: WebsiteConfiguration): FilenameParts {
-        var inFilename = filenameWithoutExtension
-
-        val globalPriority = inFilename.substringBefore(FILENAME_SEPERATOR).toIntOrNull() ?: 0
-        inFilename = inFilename.substringAfter(FILENAME_SEPERATOR)
-                .replace('❔', '?')
-
-        val menuContainerName =
-                inFilename.substringBefore(FILENAME_SEPERATOR).replace(displayReplacePattern, " ")
-        inFilename = inFilename.substringAfter(FILENAME_SEPERATOR)
-        val menuItemPriority = inFilename.substringBefore(FILENAME_SEPERATOR)
-                .toIntOrNull()
-                ?.also { inFilename = inFilename.substringAfter(FILENAME_SEPERATOR) }
-                ?: 0
-
-        val rawMenuItemName = inFilename.substringBefore(FILENAME_SEPERATOR)
-        val rawFolderName = inFilename.substringAfter(FILENAME_SEPERATOR)
-
-        val menuItemName = rawMenuItemName.replace(displayReplacePattern, " ")
-        val folderName = rawFolderName.replace(displayReplacePattern, " ")
-
-
-        val outFile = configuration.inPath.relativize(this)
-                .resolveSibling("${rawFolderName.toLowerCase()}/index.html")
-                .let { configuration.outPath.resolve(it) }
-
-        return FilenameParts(menuContainerName, outFile, globalPriority, rawMenuItemName, menuItemName, menuItemPriority, rawFolderName, folderName)
-    }
-
 
     override suspend fun fetchInitialInformation(
             configuration: WebsiteConfiguration,
@@ -121,7 +49,7 @@ class PageGenerator(
             alreadyRunGenerators: List<WebsiteGenerator>
     ) {
         withContext(Dispatchers.IO) {
-            configuration.metaDataConsumers.forEach { it.init(configuration, cache) }
+            metaDataConsumers.forEach { it.init(configuration, cache) }
             galleryGenerator = alreadyRunGenerators.find { it is AbstractGalleryGenerator } as? AbstractGalleryGenerator
                     ?: throw IllegalStateException("Gallery generator is needed for this generator!")
 
@@ -133,7 +61,7 @@ class PageGenerator(
                         .filter { p -> p.hasExtension(FileExtension::isMarkdown, FileExtension::isHtml) }
                         // Generate all links
                         .map {
-                            it.computePageGeneratorInfo(configuration, cache)
+                            it.computeMinimalInfo(generatorName, configuration, cache)
                         }.toList()
             }
         }
@@ -143,19 +71,18 @@ class PageGenerator(
         filesToProcess
                 .filter { (path) -> path.hasExtension(FileExtension::isMarkdown, FileExtension::isHtml) }
                 .forEach { it.buildArtifact(configuration, cache) }
-        configuration.metaDataConsumers.forEach { it.processChanges(configuration, cache) }
+        metaDataConsumers.forEach { it.processChanges(configuration, cache) }
     }
 
 
-    fun PageGeneratorInfo.buildArtifact(configuration: WebsiteConfiguration, cache: BuildingCache) = let { (soureFile, targetFile, title) ->
+    fun PageMininmalInfo.buildArtifact(configuration: WebsiteConfiguration, cache: BuildingCache) {
         convertMarkdown(
-                soureFile,
+                this,
                 configuration,
                 cache,
-                targetFile,
-                title
         )
     }
+
 
     private fun buildPage(
             body: String,
@@ -183,17 +110,17 @@ class PageGenerator(
                 }
         )
 
+
     }
 
 
     private fun convertMarkdown(
-            soureFile: SourcePath,
+            info: PageMininmalInfo,
             configuration: WebsiteConfiguration,
             buildingCache: BuildingCache,
-            targetFile: TargetPath,
-            title: String
     ) {
-        val (headManipulator, htmlInput) = MarkdownParser.parse(configuration, buildingCache, soureFile, targetFile, galleryGenerator, *configuration.metaDataConsumers)
+        val (_, targetFile, title) = info
+        val (headManipulator, htmlInput) = MarkdownParser.parse(configuration, buildingCache, info, galleryGenerator, *metaDataConsumers)
         return buildPage(
                 htmlInput,
                 headManipulator,
@@ -206,7 +133,7 @@ class PageGenerator(
     }
 
     override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changeFiles: ChangeFileset): Boolean {
-        val relevantFiles = changeFiles.relevantFiles(configuration)
+        val relevantFiles = changeFiles.relevantFiles()
         withContext(Dispatchers.IO) {
             filesToProcess = computeFilesToProcess(relevantFiles, configuration, cache)
             cleanupOutDir(relevantFiles, configuration, cache)
@@ -215,11 +142,11 @@ class PageGenerator(
         return relevantFiles.any { changeState -> !changeState.isStateEdited() }
     }
 
-    private fun computeFilesToProcess(relevantFiles: Set<Pair<Path, Set<ChangeState>>>, configuration: WebsiteConfiguration, cache: BuildingCache): List<PageGeneratorInfo> {
+    private fun computeFilesToProcess(relevantFiles: Set<Pair<Path, Set<ChangeState>>>, configuration: WebsiteConfiguration, cache: BuildingCache): List<PageMininmalInfo> {
         return relevantFiles.asSequence()
                 .filter { changeStates -> !changeStates.isStateDeleted() }
                 .map { (file, _) -> configuration.inPath.resolve(file) }
-                .map { it.computePageGeneratorInfo(configuration, cache) }
+                .map { it.computeMinimalInfo(generatorName, configuration, cache) }
                 .toList()
     }
 
@@ -228,9 +155,10 @@ class PageGenerator(
                 .filter { changedStates -> changedStates.isStateDeleted() }
                 .forEach { (sourcePath, _) ->
                     cache.resetLinkcacheFor(LINKTYPE_PAGE)
-                    sourcePath.computePageGeneratorInfo(configuration, cache).let { (_, targetPath, _) ->
-                        targetPath.parent.toFile().deleteRecursively()
-                    }
+                    sourcePath.computeMinimalInfo(generatorName, configuration, cache)
+                            .let { (_, targetPath, _) ->
+                                targetPath.parent.toFile().deleteRecursively()
+                            }
                 }
     }
 
@@ -239,12 +167,12 @@ class PageGenerator(
         return false
     }
 
-    private fun ChangeFileset.relevantFiles(configuration: WebsiteConfiguration): Set<Pair<Path, Set<ChangeState>>> {
+    private fun ChangeFileset.relevantFiles(): Set<Pair<Path, Set<ChangeState>>> {
         val data = mutableMapOf<Path, MutableSet<ChangeState>>()
 
         entries.asSequence()
                 .filter { (file, _) ->
-                    file.hasExtension(FileExtension::isHtml, FileExtension::isMarkdown, *configuration.metaDataConsumerFileExtensions)
+                    file.hasExtension(FileExtension::isHtml, FileExtension::isMarkdown, *metaDataConsumerFileExtensions)
                 }
                 .forEach { (k, v) ->
                     data.computeIfAbsent(k) { mutableSetOf() }.addAll(v)
@@ -258,8 +186,9 @@ class PageGenerator(
                 .map { configuration.outPath.resolve("index.html") }
                 .forEach {
                     Files.deleteIfExists(it)
-                    configuration.metaDataConsumers.forEach { consumer ->
-                        consumer.processDelete(configuration, cache, it.parent)
+                    metaDataConsumers.forEach { consumer ->
+                        consumer.processDelete(configuration, cache,
+                                it.parent)
                     }
                 }
     }

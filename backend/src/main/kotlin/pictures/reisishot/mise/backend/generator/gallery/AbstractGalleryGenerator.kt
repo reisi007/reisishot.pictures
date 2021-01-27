@@ -16,10 +16,12 @@ import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.ChangeFileset
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
+import pictures.reisishot.mise.backend.generator.pages.IPageMininmalInfo
+import pictures.reisishot.mise.backend.generator.pages.minimalistic.SourcePath
+import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
 import pictures.reisishot.mise.backend.html.insertSubcategoryThumbnail
 import pictures.reisishot.mise.backend.html.raw
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
-import pictures.reisishot.mise.backend.htmlparsing.TargetPath
 import pictures.reisishot.mise.backend.toXml
 import java.nio.file.Files
 import java.nio.file.Path
@@ -368,10 +370,16 @@ abstract class AbstractGalleryGenerator(
         categoryBuilders.forEach { it.teardown(configuration, cache) }
     }
 
+    class GalleryMinimalInfo(override val sourcePath: SourcePath, override val targetPath: TargetPath) : IPageMininmalInfo {
+        override val title: String
+            get() = throw IllegalStateException("Not Implemented")
+
+    }
+
     protected fun DIV.insertCustomMarkdown(outFolder: Path, type: String, configuration: WebsiteConfiguration, cache: BuildingCache): HEAD.() -> Unit {
         val inPath = configuration.inPath withChild configuration.outPath.relativize(outFolder) withChild "$type.gallery.md"
         if (inPath.exists()) {
-            val (manipulator, html) = MarkdownParser.parse(configuration, cache, inPath, outFolder withChild "index.html", this@AbstractGalleryGenerator)
+            val (manipulator, html) = MarkdownParser.parse(configuration, cache, GalleryMinimalInfo(inPath, outFolder withChild "index.html"), this@AbstractGalleryGenerator)
             raw(html)
             return manipulator
         } else

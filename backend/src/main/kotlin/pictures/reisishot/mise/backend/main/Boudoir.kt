@@ -48,7 +48,6 @@ object Boudoir {
                         tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
                         outPath = Paths.get("upload", folderName).toAbsolutePath(),
                         interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
-                        metaDataConsumers = arrayOf(overviewPageGenerator, KeywordConsumer()),
                         cleanupGeneration = false,
                         cssFileName = "styles-boudoir.css",
                         navbarBrandFunction = { config, gallery ->
@@ -84,7 +83,10 @@ object Boudoir {
                                     })
                         },
                         generators = listOf(
-                                PageGenerator(),
+                                PageGenerator(
+                                        overviewPageGenerator,
+                                        KeywordConsumer()
+                                ),
                                 overviewPageGenerator,
                                 galleryGenerator,
                                 ImageMagickThumbnailGenerator(),
