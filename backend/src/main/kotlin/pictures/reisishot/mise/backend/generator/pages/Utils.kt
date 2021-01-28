@@ -14,11 +14,11 @@ data class PageInformation(val menuContainerName: String, val destinationPath: P
 
 private val displayReplacePattern = Regex("[\\-_]")
 
-fun Path.computeMinimalInfo(generatorName: String, configuration: WebsiteConfiguration, cache: BuildingCache): PageMininmalInfo {
+fun Path.computeMinimalInfo(generatorName: String, configuration: WebsiteConfiguration, cache: BuildingCache): PageMinimalInfo {
     configuration.inPath.relativize(this).let { filename ->
         if (filename.toString().startsWith("index.", true)) {
             cache.addLinkcacheEntryFor(PageGenerator.LINKTYPE_PAGE, "index", "")
-            return PageMininmalInfo(
+            return PageMinimalInfo(
                     this,
                     configuration.outPath.resolve("index.html"),
                     configuration.longTitle
@@ -50,7 +50,7 @@ fun Path.computeMinimalInfo(generatorName: String, configuration: WebsiteConfigu
                 )
         }
 
-        return PageMininmalInfo(
+        return PageMinimalInfo(
                 this,
                 filenameParts.destinationPath,
                 filenameParts.menuItemDisplayName
@@ -93,4 +93,4 @@ interface IPageMininmalInfo {
     val title: String
 }
 
-data class PageMininmalInfo(override val sourcePath: SourcePath, override val targetPath: TargetPath, override val title: String) : IPageMininmalInfo
+data class PageMinimalInfo(override val sourcePath: SourcePath, override val targetPath: TargetPath, override val title: String) : IPageMininmalInfo

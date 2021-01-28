@@ -379,7 +379,7 @@ abstract class AbstractGalleryGenerator(
     protected fun DIV.insertCustomMarkdown(outFolder: Path, type: String, configuration: WebsiteConfiguration, cache: BuildingCache): HEAD.() -> Unit {
         val inPath = configuration.inPath withChild configuration.outPath.relativize(outFolder) withChild "$type.gallery.md"
         if (inPath.exists()) {
-            val (manipulator, html) = MarkdownParser.parse(configuration, cache, GalleryMinimalInfo(inPath, outFolder withChild "index.html"), this@AbstractGalleryGenerator)
+            val (_, manipulator, html) = MarkdownParser.parse(configuration, cache, GalleryMinimalInfo(inPath, outFolder withChild "index.html"), this@AbstractGalleryGenerator)
             raw(html)
             return manipulator
         } else

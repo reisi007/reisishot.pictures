@@ -12,7 +12,7 @@ import kotlinx.html.div
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.*
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
-import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
+import pictures.reisishot.mise.backend.generator.pages.minimalistic.Yaml
 import pictures.reisishot.mise.backend.html.*
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
@@ -20,9 +20,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.streams.asSequence
 
-class PageGenerator(
-        vararg val metaDataConsumers: PageGeneratorExtension,
-) : WebsiteGenerator {
+class PageGenerator(vararg val extensions: PageGeneratorExtension) : WebsiteGenerator {
 
     override val executionPriority: Int = 30_000
     override val generatorName: String = "Reisishot Page"
@@ -32,16 +30,15 @@ class PageGenerator(
         const val LINKTYPE_PAGE = "PAGE"
     }
 
-    private lateinit var filesToProcess: List<PageMininmalInfo>
+    private lateinit var filesToProcess: List<PageMinimalInfo>
 
     internal lateinit var galleryGenerator: AbstractGalleryGenerator
 
-    val metaDataConsumerFileExtensions by lazy {
-        metaDataConsumers.asSequence()
-                .flatMap { it.interestingFileExtensions() }
-                .toList()
-                .toTypedArray()
-    }
+    private val extensionFileExtensions =
+            extensions.asSequence()
+                    .flatMap { it.interestingFileExtensions() }
+                    .toList()
+                    .toTypedArray()
 
     override suspend fun fetchInitialInformation(
             configuration: WebsiteConfiguration,
@@ -49,7 +46,7 @@ class PageGenerator(
             alreadyRunGenerators: List<WebsiteGenerator>
     ) {
         withContext(Dispatchers.IO) {
-            metaDataConsumers.forEach { it.init(configuration, cache) }
+            extensions.forEach { it.init(configuration, cache) }
             galleryGenerator = alreadyRunGenerators.find { it is AbstractGalleryGenerator } as? AbstractGalleryGenerator
                     ?: throw IllegalStateException("Gallery generator is needed for this generator!")
 
@@ -71,11 +68,11 @@ class PageGenerator(
         filesToProcess
                 .filter { (path) -> path.hasExtension(FileExtension::isMarkdown, FileExtension::isHtml) }
                 .forEach { it.buildArtifact(configuration, cache) }
-        metaDataConsumers.forEach { it.processChanges(configuration, cache) }
+        extensions.forEach { it.processChanges(configuration, cache) }
     }
 
 
-    fun PageMininmalInfo.buildArtifact(configuration: WebsiteConfiguration, cache: BuildingCache) {
+    fun PageMinimalInfo.buildArtifact(configuration: WebsiteConfiguration, cache: BuildingCache) {
         convertMarkdown(
                 this,
                 configuration,
@@ -90,13 +87,12 @@ class PageGenerator(
             websiteConfiguration: WebsiteConfiguration,
             buildingCache: BuildingCache,
             galleryGenerator: AbstractGalleryGenerator,
-            targetPath: TargetPath,
-            title: String
+            pageMinimalInfo: IPageMininmalInfo,
+            metadata: Yaml
     ) {
-
         PageGenerator.generatePage(
-                targetPath,
-                title,
+                pageMinimalInfo.targetPath,
+                pageMinimalInfo.title,
                 websiteConfiguration = websiteConfiguration,
                 buildingCache = buildingCache,
                 additionalHeadContent = headManipulator,
@@ -110,25 +106,24 @@ class PageGenerator(
                 }
         )
 
-
+        extensions.forEach { it.postCreatePage(websiteConfiguration, buildingCache, pageMinimalInfo, metadata, body) }
     }
 
 
     private fun convertMarkdown(
-            info: PageMininmalInfo,
+            info: PageMinimalInfo,
             configuration: WebsiteConfiguration,
             buildingCache: BuildingCache,
     ) {
-        val (_, targetFile, title) = info
-        val (headManipulator, htmlInput) = MarkdownParser.parse(configuration, buildingCache, info, galleryGenerator, *metaDataConsumers)
+        val (yaml, headManipulator, htmlInput) = MarkdownParser.parse(configuration, buildingCache, info, galleryGenerator, *extensions)
         return buildPage(
                 htmlInput,
                 headManipulator,
                 configuration,
                 buildingCache,
                 galleryGenerator,
-                targetFile,
-                title
+                info,
+                yaml
         )
     }
 
@@ -142,7 +137,7 @@ class PageGenerator(
         return relevantFiles.any { changeState -> !changeState.isStateEdited() }
     }
 
-    private fun computeFilesToProcess(relevantFiles: Set<Pair<Path, Set<ChangeState>>>, configuration: WebsiteConfiguration, cache: BuildingCache): List<PageMininmalInfo> {
+    private fun computeFilesToProcess(relevantFiles: Set<Pair<Path, Set<ChangeState>>>, configuration: WebsiteConfiguration, cache: BuildingCache): List<PageMinimalInfo> {
         return relevantFiles.asSequence()
                 .filter { changeStates -> !changeStates.isStateDeleted() }
                 .map { (file, _) -> configuration.inPath.resolve(file) }
@@ -172,7 +167,7 @@ class PageGenerator(
 
         entries.asSequence()
                 .filter { (file, _) ->
-                    file.hasExtension(FileExtension::isHtml, FileExtension::isMarkdown, *metaDataConsumerFileExtensions)
+                    file.hasExtension(FileExtension::isHtml, FileExtension::isMarkdown, *extensionFileExtensions)
                 }
                 .forEach { (k, v) ->
                     data.computeIfAbsent(k) { mutableSetOf() }.addAll(v)
@@ -186,7 +181,7 @@ class PageGenerator(
                 .map { configuration.outPath.resolve("index.html") }
                 .forEach {
                     Files.deleteIfExists(it)
-                    metaDataConsumers.forEach { consumer ->
+                    extensions.forEach { consumer ->
                         consumer.processDelete(configuration, cache,
                                 it.parent)
                     }

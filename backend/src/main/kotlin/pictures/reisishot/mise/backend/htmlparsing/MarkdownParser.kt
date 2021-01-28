@@ -66,7 +66,7 @@ object MarkdownParser {
         field.set(this, value)
     }
 
-    fun parse(configuration: WebsiteConfiguration, cache: BuildingCache, pageMininmalInfo: IPageMininmalInfo, galleryGenerator: AbstractGalleryGenerator, vararg metaDataConsumers: PageGeneratorExtension): Pair<HEAD.() -> Unit, String> {
+    fun parse(configuration: WebsiteConfiguration, cache: BuildingCache, pageMininmalInfo: IPageMininmalInfo, galleryGenerator: AbstractGalleryGenerator, vararg metaDataConsumers: PageGeneratorExtension): Triple<Yaml, HEAD.() -> Unit, String> {
         val sourceFile = pageMininmalInfo.sourcePath
         val yamlExtractor = AbstractYamlFrontMatterVisitor()
         val headManipulator: HEAD.() -> Unit = {
@@ -77,10 +77,11 @@ object MarkdownParser {
 
         val parsedMarkdown = Files.newBufferedReader(sourceFile, Charsets.UTF_8)
                 .markdown2Html(yamlExtractor)
-        val metaData = (yamlExtractor.data as Yaml).asPageMetadata()
+        val yaml: Yaml = yamlExtractor.data
+        val metaData = yaml.asPageMetadata()
         val finalHtml = parsedMarkdown
                 .velocity(sourceFile, metaData, pageMininmalInfo, galleryGenerator, cache, configuration)
-        return headManipulator to finalHtml
+        return Triple(yaml, headManipulator, finalHtml)
     }
 
     private fun String.velocity(sourceFile: SourcePath, metadata: PageMetadata?, pageMininmalInfo: IPageMininmalInfo, galleryGenerator: AbstractGalleryGenerator, cache: BuildingCache, configuration: WebsiteConfiguration) = VelocityApplier.runVelocity(

@@ -10,7 +10,7 @@ import pictures.reisishot.mise.backend.generator.pages.minimalistic.Yaml
 
 class KeywordConsumer : PageGeneratorExtension {
 
-    override fun processFrontmatter(configuration: WebsiteConfiguration, cache: BuildingCache, pageMininmalInfo: IPageMininmalInfo, frontMatter: Yaml): HEAD.() -> Unit {
+    override fun processFrontmatter(configuration: WebsiteConfiguration, cache: BuildingCache, pageMinimalInfo: IPageMininmalInfo, frontMatter: Yaml): HEAD.() -> Unit {
         return {
             frontMatter["keywords"]?.joinToString(",")?.let {
                 meta("keywords", it)

@@ -42,8 +42,8 @@ class OverviewPageGenerator(
         )
     }
 
-    override fun processFrontmatter(configuration: WebsiteConfiguration, cache: BuildingCache, pageMininmalInfo: IPageMininmalInfo, frontMatter: Yaml): HEAD.() -> Unit {
-        frontMatter.processFrontmatter(pageMininmalInfo)
+    override fun processFrontmatter(configuration: WebsiteConfiguration, cache: BuildingCache, pageMinimalInfo: IPageMininmalInfo, frontMatter: Yaml): HEAD.() -> Unit {
+        frontMatter.processFrontmatter(pageMinimalInfo)
         return {}
     }
 
@@ -124,14 +124,14 @@ class OverviewPageGenerator(
                             target,
                             displayName,
                             websiteConfiguration = configuration,
-                            additionalHeadContent = additionalTopContent?.first ?: {},
+                            additionalHeadContent = additionalTopContent?.second ?: {},
                             galleryGenerator = galleryGenerator,
                             buildingCache = cache
                     ) {
                         p {
                             h1(classes = "center") { text(displayName) }
                         }
-                        additionalTopContent?.second?.let { raw(it) }
+                        additionalTopContent?.third?.let { raw(it) }
                         div(classes = "row center overview-" + data.config?.computeStyle()) {
                             this@OverviewPageGenerator.data[name]?.asSequence()
                                     ?.sortedByDescending { it.order }
@@ -304,7 +304,7 @@ private fun loadBefore(
         pageMininmalInfo: IPageMininmalInfo,
         galleryGenerator: AbstractGalleryGenerator,
         metaDataConsumers: Array<out PageGeneratorExtension>
-): Pair<HEAD.() -> Unit, String>? {
+): Triple<Yaml, HEAD.() -> Unit, String>? {
     val sequence = sequenceOf(
             "top.overview.md",
             "top.overview.html"
@@ -318,7 +318,7 @@ private fun Sequence<String>.parseFile(
         cache: BuildingCache,
         galleryGenerator: AbstractGalleryGenerator,
         metaDataConsumers: Array<out PageGeneratorExtension>
-): Pair<HEAD.() -> Unit, String>? {
+): Triple<Yaml, HEAD.() -> Unit, String>? {
     val sourcePath = pageMininmalInfo.sourcePath
 
     return map { sourcePath withChild it }
@@ -346,5 +346,5 @@ private fun loadEnd(
             "end.overview.html"
     )
     return sequence.parseFile(pageMininmalInfo, configuration, cache, galleryGenerator, metaDataConsumers)
-            ?.second
+            ?.third
 }
