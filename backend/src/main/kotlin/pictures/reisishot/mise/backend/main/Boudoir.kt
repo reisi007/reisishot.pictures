@@ -5,6 +5,7 @@ import at.reisishot.mise.exifdata.defaultExifReplaceFunction
 import kotlinx.html.InputType
 import kotlinx.html.h2
 import kotlinx.html.h3
+import pictures.reisishot.mise.backend.FacebookMessengerChatPlugin
 import pictures.reisishot.mise.backend.Mise
 import pictures.reisishot.mise.backend.SocialMediaAccounts
 import pictures.reisishot.mise.backend.WebsiteConfiguration
@@ -60,11 +61,11 @@ object Boudoir {
                                 "436702017710"
                         ),
                         analyticsSiteId = "4",
-                        /*  fbMessengerChatPlugin = FacebookMessengerChatPlugin(
-                                  107984484236335,
-                                  "#d3973b",
-                                  "Hallo! Was kann ich für dich tun?"
-                          ),*/
+                        fbMessengerChatPlugin = FacebookMessengerChatPlugin(
+                                107984484236335,
+                                "#d3973b",
+                                "Hallo! Falls du noch Fragen zu deinem Boudoir Shooting hast, kannst du mich hier kontaktieren!"
+                        ),
                         form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
                             buildForm(
                                     title = { h2 { text("Möchtest du selbst ein Boudoir Shooting haben?") } },
