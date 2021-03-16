@@ -12,9 +12,11 @@ subprojects {
 
     compileKotlin {
         kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.useIR = true
     }
     compileTestKotlin {
         kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.useIR = true
     }
 
     repositories {
@@ -33,9 +35,9 @@ subprojects {
 
     dependencies {
         // https://kotlinlang.org/releases.html#release-details
-        def kotlin_version = '1.4.21'
+        def kotlin_version = '1.4.31'
         def kotlinx_html_version = '0.7.2'
-        def kotlinx_coroutines_version = '1.4.1'
+        def kotlinx_coroutines_version = '1.4.2'
         implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
         implementation "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinx_coroutines_version"
         implementation "org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinx_html_version"
