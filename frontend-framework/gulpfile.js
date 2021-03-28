@@ -66,17 +66,22 @@ gulp.task('scriptsDev', function () {
 });
 
 gulp.task('copyStatic', function (done) {
-    let firstDone = false
+    let doneCount = 0
+    const taskCount = 3;
 
     function doneLogic() {
-        if (firstDone)
+        doneCount++;
+        if (doneCount === taskCount)
             done();
-        else firstDone = true;
     }
 
     gulp.src('./src/static/**/*', {dot: true})
         .on('end', doneLogic)
         .pipe(gulp.dest('out'));
+
+    gulp.src('./src/static_boudoir/**/*', {dot: true})
+        .on('end', doneLogic)
+        .pipe(gulp.dest('out_boudoir'));
 
     gulp.src('./src/static_css/**/*', {dot: true})
         .on('end', doneLogic)
