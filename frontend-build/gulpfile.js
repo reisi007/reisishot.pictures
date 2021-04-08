@@ -20,9 +20,8 @@ const arg = (argList => {
 
 const
     gulp = require('gulp'),
-    browserSync = require('browser-sync'),
+    connect = require('gulp-connect'),
     $ = require('gulp-load-plugins')({lazy: true}),
-    serveStatic = require('serve-static'),
     target = arg.target,
     isBoudoir = target === 'boudoir.reisishot.pictures',
     inBase = './../' + target + '/',
@@ -51,32 +50,30 @@ gulp.task('copyFrameworkJsCss', function (done) {
     gulp
         .src(frameworkJsCss, {dot: true})
         .pipe(gulp.dest(outBase))
-        .on('end', function () {
-            browserSync.reload();
-            done()
-        })
+        .on('end', done)
 });
 
-gulp.task('browser-sync', function () {
-    browserSync({
-        server: {
-            middleware: [
-                serveStatic(outBase)
-            ],
-            injectChanges: true
-        }
-    });
+gulp.task('serve', function () {
+    connect.server({
+        root: [outBase],
+        port: 3000,
+        livereload: true
+    })
 });
 
 gulp.task('watch', function () {
     // Watch framework
-    gulp.watch(outBase + '/**/*.html').on('change', browserSync.reload);
+    gulp.watch(outBase + '/**/*.html')
+        .on('change', connect.reload);
     // Watch static files
-    gulp.watch(mainStatic, gulp.series('copyFrameworkStatic'));
+    gulp.watch(mainStatic, gulp.series('copyFrameworkStatic'))
+        .on('change', connect.reload);
     // Watch .js / .css  files
-    gulp.watch(frameworkJsCss, gulp.series('copyFrameworkJsCss'));
+    gulp.watch(frameworkJsCss, gulp.series('copyFrameworkJsCss'))
+        .on('change', connect.reload);
     // Watch static files
     gulp.watch(inBase + 'src/static/**/*.*', gulp.series('copyStatic'))
+        .on('change', connect.reload);
 });
 
 gulp.task('default',
@@ -84,7 +81,7 @@ gulp.task('default',
         'copyStatic',
         'copyFrameworkStatic',
         'copyFrameworkJsCss',
-        'browser-sync',
+        'serve',
         'watch'
     ));
 

@@ -12,9 +12,11 @@
     "@babel/preset-env": "^7.8.7",
     "babel-register": "^6.26.0",
     "babelify": "^10.0.0",
-    "browser-sync": "^2.26.7",
+    "gulp-connect": "^5.7.0",
     "browserify": "^16.5.0",
     "browserify-shim": "^3.8.14",
+    "browserslist": "^4.9.1",
+    "caniuse-lite": "^1.0.30001032",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^6.1.0",
     "gulp-babel": "^8.0.0",
@@ -29,9 +31,6 @@
     "run-sequence": "^2.2.1",
     "serve-static": "^1.14.1",
     "vinyl-buffer": "^1.0.1",
-    "vinyl-source-stream": "^2.0.0",
-    "browserslist": "^4.9.1",
-    "caniuse-lite": "^1.0.30001032"
-  },
-  "dependencies": {}
+    "vinyl-source-stream": "^2.0.0"
+  }
 }
