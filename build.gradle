@@ -1,6 +1,6 @@
 plugins {
     // https://kotlinlang.org/releases.html#release-details
-    id 'org.jetbrains.kotlin.jvm' version '1.4.21' apply false
+    id 'org.jetbrains.kotlin.jvm' version '1.4.32' apply false
 }
 
 subprojects {
@@ -35,10 +35,9 @@ subprojects {
 
     dependencies {
         // https://kotlinlang.org/releases.html#release-details
-        def kotlin_version = '1.4.31'
         def kotlinx_html_version = '0.7.2'
-        def kotlinx_coroutines_version = '1.4.2'
-        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+        def kotlinx_coroutines_version = '1.4.3'
+        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
         implementation "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinx_coroutines_version"
         implementation "org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinx_html_version"
     }
