@@ -177,6 +177,7 @@ fun DIV.renderTestimonial(websiteConfiguration: WebsiteConfiguration, targetPath
             h5("card-title") {
                 span {
                     attributes.itemprop = "author"
+                    attributes.itemtype = "https://schema.org/Person"
                     text(testimonial.name)
                 }
                 br()
@@ -203,12 +204,10 @@ fun StringBuilder.appendTestimonials(
 ) {
     appendHTML(false, true).div {
         div("container-flex reviews") {
-            /* attributes["data-partial"] = "testimonials"
-             attributes["data-initial"] = "4"
-             attributes["data-step"] = "2"*/
             testimonialsToDisplay.forEach { testimonial ->
                 renderTestimonial(websiteConfiguration, targetPath, galleryGenerator, testimonial)
             }
+
         }
     }
 }

@@ -101,7 +101,10 @@ class PageGenerator(vararg val extensions: PageGeneratorExtension) : WebsiteGene
                     div {
                         attributes.itemscope = ""
                         attributes.itemtype = Itemtypes.ARTICLE
-                        raw(body)
+                        div {
+                            attributes.itemprop = "articleBody"
+                            raw(body)
+                        }
                     }
                 }
         )
