@@ -142,51 +142,53 @@ object PageGenerator {
     ) {
         nav("navbar navbar-dark navbar-fixed-top navbar-expand-${websiteConfiguration.bootsrapMenuBreakpoint}") {
             val navId = "navbarCollapse"
-            a(classes = "navbar-brand", href = "/") {
-                websiteConfiguration.navbarBrandFunction(this, websiteConfiguration, galleryGenerator)
-            }
-            if (items.isNotEmpty())
-                button(classes = "navbar-toggler") {
-                    attributes["type"] = "button"
-                    attributes["data-toggle"] = "collapse"
-                    attributes["data-target"] = "#$navId"
-                    attributes["aria-controls"] = navId
-                    attributes["aria-expanded"] = "false"
-                    attributes["aria-label"] = "Toggle navigation"
-                    span("navbar-toggler-icon")
+            div("container-fluid") {
+                a(classes = "navbar-brand", href = "#") {
+                    websiteConfiguration.navbarBrandFunction(this, websiteConfiguration, galleryGenerator)
                 }
+                if (items.isNotEmpty())
+                    button(classes = "navbar-toggler") {
+                        attributes["type"] = "button"
+                        attributes["data-bs-toggle"] = "collapse"
+                        attributes["data-bs-target"] = "#$navId"
+                        attributes["aria-controls"] = navId
+                        attributes["aria-expanded"] = "false"
+                        attributes["aria-label"] = "Toggle navigation"
+                        span("navbar-toggler-icon")
+                    }
 
-            var dropdownCount = 0
-            divId("navbarCollapse", "navbar-collapse collapse") {
-                ul("navbar-nav navbar-light mr-auto") {
-                    items.forEach { curItem ->
-                        li("nav-item") {
-                            if (curItem is MenuLinkContainer) {
-                                classes = classes + " dropdown"
-                                val dropDownId = "dropDown$dropdownCount"
-                                dropdownCount++
-                                a(classes = "nav-link dropdown-toggle", href = "#") {
-                                    attributes["id"] = dropDownId
-                                    attributes["role"] = "button"
-                                    attributes["data-toggle"] = "dropdown"
-                                    attributes["aria-haspopup"] = "true"
-                                    attributes["aria-expanded"] = "false"
-                                    text(curItem.text)
-                                }
-                                div(classes = "dropdown-menu") {
-                                    attributes["aria-labelledby"] = dropDownId
-                                    curItem.children.forEach { entry ->
-                                        a(classes = "dropdown-item") {
-                                            accept(entry, websiteConfiguration)
+                var dropdownCount = 0
+                divId("navbarCollapse", "navbar-collapse collapse") {
+                    ul("navbar-nav navbar-light mr-auto") {
+                        items.forEach { curItem ->
+                            li("nav-item") {
+                                if (curItem is MenuLinkContainer) {
+                                    classes = classes + " dropdown"
+                                    val dropDownId = "dropDown$dropdownCount"
+                                    dropdownCount++
+                                    a(classes = "nav-link dropdown-toggle", href = "#") {
+                                        attributes["id"] = dropDownId
+                                        attributes["role"] = "button"
+                                        attributes["data-bs-toggle"] = "dropdown"
+                                        attributes["aria-haspopup"] = "true"
+                                        attributes["aria-expanded"] = "false"
+                                        text(curItem.text)
+                                    }
+                                    div(classes = "dropdown-menu") {
+                                        attributes["aria-labelledby"] = dropDownId
+                                        curItem.children.forEach { entry ->
+                                            a(classes = "dropdown-item") {
+                                                accept(entry, websiteConfiguration)
+                                            }
                                         }
                                     }
-                                }
 
-                            } else {
-                                a(
-                                    classes = "nav-link"
-                                ) {
-                                    accept(curItem, websiteConfiguration)
+                                } else {
+                                    a(
+                                        classes = "nav-link"
+                                    ) {
+                                        accept(curItem, websiteConfiguration)
+                                    }
                                 }
                             }
                         }
