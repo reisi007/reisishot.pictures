@@ -29,10 +29,10 @@ fun HTMLTag.raw(content: String): Unit = consumer.onTagContentUnsafe {
 
 @HtmlTagMarker
 fun FlowContent.divId(divId: String, classes: String? = null, block: DIV.() -> Unit = {}): Unit =
-        DIV(attributesMapOf("class", classes), consumer).visit {
-            id = divId
-            block(this)
-        }
+    DIV(attributesMapOf("class", classes), consumer).visit {
+        id = divId
+        block(this)
+    }
 
 @HtmlTagMarker
 fun FlowContent.container(block: DIV.() -> Unit = {}) = div("container", block)
@@ -40,10 +40,11 @@ fun FlowContent.container(block: DIV.() -> Unit = {}) = div("container", block)
 @HtmlTagMarker
 fun FlowContent.fluidContainer(block: DIV.() -> Unit = {}) = div("container-fluid", block)
 
+@HtmlTagMarker
 fun HtmlBlockTag.insertImageGallery(
-        galleryName: String,
-        configuration: WebsiteConfiguration,
-        imageInformation: List<ImageInformation>
+    galleryName: String,
+    configuration: WebsiteConfiguration,
+    imageInformation: List<ImageInformation>
 ) = with(imageInformation) {
     if (isEmpty())
         return@with
@@ -54,7 +55,7 @@ fun HtmlBlockTag.insertImageGallery(
         val additionalClasses = if (isSingleImageGallery)
             ""
         else
-            "col-12 col-sm-6 col-lg-4 col-xl-3"
+            "col-12 col-sm-6 col-lg-4 col-xl-3 col-xxl-2"
         imageInformation.forEach { curImageInfo ->
             insertLazyPicture(curImageInfo, configuration, additionalClasses)
         }
@@ -62,15 +63,15 @@ fun HtmlBlockTag.insertImageGallery(
 }
 
 fun HtmlBlockTag.insertImageGallery(
-        galleryName: String,
-        configuration: WebsiteConfiguration,
-        vararg imageInformation: ImageInformation
+    galleryName: String,
+    configuration: WebsiteConfiguration,
+    vararg imageInformation: ImageInformation
 ) = insertImageGallery(galleryName, configuration, listOf(*imageInformation))
 
 internal fun HtmlBlockTag.insertLazyPicture(
-        curImageInfo: ImageInformation,
-        configuration: WebsiteConfiguration,
-        additionalClasses: String? = null
+    curImageInfo: ImageInformation,
+    configuration: WebsiteConfiguration,
+    additionalClasses: String? = null
 ) {
     div("pic-holder " + (additionalClasses ?: "")) {
         div(PageGenerator.LAZYLOADER_CLASSNAME) {
@@ -82,7 +83,12 @@ internal fun HtmlBlockTag.insertLazyPicture(
             }
             ImageSize.values().forEachIndexed { idx, curSize ->
                 val thumbnailSize = curImageInfo.thumbnailSizes.getValue(curSize)
-                attributes["data-$idx"] = """{"jpg":"${curImageInfo.getJpgUrl(configuration, curSize)}","webp":"${curImageInfo.getWebPUrl(configuration, curSize)}","w":${thumbnailSize.width},"h":${thumbnailSize.height}}"""
+                attributes["data-$idx"] = """{
+                    |"jpg":"${curImageInfo.getJpgUrl(configuration, curSize)}",
+                    |"webp":"${curImageInfo.getWebPUrl(configuration, curSize)}",
+                    |"w":${thumbnailSize.width},
+                    |"h":${thumbnailSize.height}
+                    |}""".trimMargin()
             }
             attributes["data-sizes"] = ImageSize.values().size.toString()
             noScript {
@@ -101,9 +107,9 @@ private fun ImageInformation.getWebPUrl(configuration: WebsiteConfiguration, ima
 }
 
 internal fun HtmlBlockTag.insertSubcategoryThumbnail(
-        categoryInformation: CategoryInformation,
-        imageInformation: ImageInformation,
-        configuration: WebsiteConfiguration
+    categoryInformation: CategoryInformation,
+    imageInformation: ImageInformation,
+    configuration: WebsiteConfiguration
 ) {
     a("/gallery/categories/${categoryInformation.urlFragment}", classes = "card") {
         div("card-img-top") {
@@ -118,10 +124,15 @@ internal fun HtmlBlockTag.insertSubcategoryThumbnail(
 }
 
 @HtmlTagMarker
-fun FlowOrInteractiveOrPhrasingContent.smallButtonLink(text: String, href: String, target: String = "_blank") = a(href, target, classes = "btn btn-primary btn-sm active") {
-    attributes["role"] = "button"
-    text(text)
-}
+fun FlowOrInteractiveOrPhrasingContent.smallButtonLink(
+    text: String,
+    href: String,
+    target: String = "_blank"
+) =
+    a(href, target, classes = "btn btn-primary btn-sm active") {
+        attributes["role"] = "button"
+        text(text)
+    }
 
 internal var DelegatingMap.itemprop
     get() = this["itemprop"]
@@ -164,8 +175,13 @@ internal var DelegatingMap.content
     }
 
 @HtmlTagMarker
-fun DIV.renderTestimonial(websiteConfiguration: WebsiteConfiguration, targetPath: TargetPath, galleryGenerator: AbstractGalleryGenerator, testimonial: Testimonal) {
-    div("col-12 col-lg-5 card border-dark") {
+fun DIV.renderTestimonial(
+    websiteConfiguration: WebsiteConfiguration,
+    targetPath: TargetPath,
+    galleryGenerator: AbstractGalleryGenerator,
+    testimonial: Testimonal
+) {
+    div("col-12 col-lg-5 card border-black") {
         attributes.itemprop = "review"
         attributes.itemprop = ""
         attributes.itemtype = "https://schema.org/Review"
@@ -173,7 +189,7 @@ fun DIV.renderTestimonial(websiteConfiguration: WebsiteConfiguration, targetPath
             val curImageInfo = imageInformationData.getOrThrow(testimonial.image, targetPath)
             insertLazyPicture(curImageInfo, websiteConfiguration, "card-img-top")
         }
-        div("card-body text-dark") {
+        div("card-body") {
             h5("card-title") {
                 span {
                     attributes.itemprop = "author"
@@ -197,10 +213,10 @@ fun DIV.renderTestimonial(websiteConfiguration: WebsiteConfiguration, targetPath
 
 @HtmlTagMarker
 fun StringBuilder.appendTestimonials(
-        websiteConfiguration: WebsiteConfiguration,
-        targetPath: TargetPath,
-        galleryGenerator: AbstractGalleryGenerator,
-        vararg testimonialsToDisplay: Testimonal
+    websiteConfiguration: WebsiteConfiguration,
+    targetPath: TargetPath,
+    galleryGenerator: AbstractGalleryGenerator,
+    vararg testimonialsToDisplay: Testimonal
 ) {
     appendHTML(false, true).div {
         div("container-flex reviews") {
@@ -214,7 +230,7 @@ fun StringBuilder.appendTestimonials(
 
 @HtmlTagMarker
 internal fun FlowOrPhrasingContent.metadata(metadata: PageMetadata) {
-    span("badge bg-light text-pre-wrap") {
+    span("badge bg-light text-secondary text-pre-wrap") {
         metadata.edited?.let {
             time {
                 attributes.itemprop = "dateModified"
@@ -241,6 +257,20 @@ internal fun FlowOrPhrasingContent.metadata(metadata: PageMetadata) {
 @HtmlTagMarker
 internal fun Tag.text(date: Date) {
     text(df_dd_MM_YYYY.format(date))
+}
+
+@HtmlTagMarker
+internal fun HtmlBlockTag.insertYoutube(code: String, w: Int, h: Int) {
+    p("embed-responsive") {
+        classes = classes + ("embed-responsive-" + w + "by" + h)
+
+        iframe(classes = "embed-responsive-item lazy") {
+            attributes["data-src"] = "https://www.youtube-nocookie.com/embed/$code"
+            attributes["allow"] =
+                "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            attributes["allowfullscreen"] = ""
+        }
+    }
 }
 
 

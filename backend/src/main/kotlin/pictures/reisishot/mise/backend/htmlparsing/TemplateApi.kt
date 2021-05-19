@@ -6,7 +6,10 @@ import kotlinx.html.*
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.df_yyyMMdd
 import pictures.reisishot.mise.backend.generator.BuildingCache
-import pictures.reisishot.mise.backend.generator.gallery.*
+import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
+import pictures.reisishot.mise.backend.generator.gallery.getOrThrow
+import pictures.reisishot.mise.backend.generator.gallery.insertCategoryThumbnails
+import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbnails
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.pages.Testimonal
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
@@ -17,31 +20,30 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
-import kotlin.collections.LinkedHashSet
 import kotlin.math.roundToInt
 import kotlin.streams.asSequence
 
 class TemplateApi(
-        private val pageMetadata: PageMetadata?,
-        private val targetPath: TargetPath,
-        private val galleryGenerator: AbstractGalleryGenerator,
-        private val cache: BuildingCache,
-        private val websiteConfiguration: WebsiteConfiguration
+    private val pageMetadata: PageMetadata?,
+    private val targetPath: TargetPath,
+    private val galleryGenerator: AbstractGalleryGenerator,
+    private val cache: BuildingCache,
+    private val websiteConfiguration: WebsiteConfiguration
 ) {
 
     private val testimonials: Map<String, Testimonal> by lazy {
         Files.list(websiteConfiguration.inPath withChild "reviews")
-                .asSequence()
-                .filter { Files.isRegularFile(it) }
-                .filter { it.hasExtension({ it.isMarkdownPart("review") }) }
-                .map { path ->
-                    val yamlContainer = AbstractYamlFrontMatterVisitor()
-                    val html = Files.newBufferedReader(path, StandardCharsets.UTF_8).use {
-                        it.markdown2Html(yamlContainer)
-                    }
-                    path.fileName.toString().substringBefore('.') to yamlContainer.data.createTestimonial(path, html)
+            .asSequence()
+            .filter { Files.isRegularFile(it) }
+            .filter { it.hasExtension({ it.isMarkdownPart("review") }) }
+            .map { path ->
+                val yamlContainer = AbstractYamlFrontMatterVisitor()
+                val html = Files.newBufferedReader(path, StandardCharsets.UTF_8).use {
+                    it.markdown2Html(yamlContainer)
                 }
-                .toMap()
+                path.fileName.toString().substringBefore('.') to yamlContainer.data.createTestimonial(path, html)
+            }
+            .toMap()
     }
 
     private fun Yaml.createTestimonial(p: Path, contentHtml: String): Testimonal {
@@ -60,7 +62,11 @@ class TemplateApi(
     fun insertPicture(filenameWithoutExtension: FilenameWithoutExtension, classNames: String? = null) = buildString {
         appendUnformattedHtml().div {
             with(galleryGenerator.cache) {
-                insertLazyPicture(imageInformationData.getOrThrow(filenameWithoutExtension, targetPath), websiteConfiguration, "solo $classNames")
+                insertLazyPicture(
+                    imageInformationData.getOrThrow(filenameWithoutExtension, targetPath),
+                    websiteConfiguration,
+                    "solo $classNames"
+                )
             }
         }
     }
@@ -68,20 +74,20 @@ class TemplateApi(
 
     @SuppressWarnings("unused")
     fun insertGallery(
-            galleryName: String,
-            vararg filenameWithoutExtension: FilenameWithoutExtension
+        galleryName: String,
+        vararg filenameWithoutExtension: FilenameWithoutExtension
     ): String {
         return with(galleryGenerator.cache) {
             filenameWithoutExtension.asSequence()
-                    .map {
-                        imageInformationData.getOrThrow(it, targetPath)
-                    }.toList().let { imageInformations ->
-                        buildString {
-                            appendUnformattedHtml().div {
-                                insertImageGallery(galleryName, websiteConfiguration, imageInformations)
-                            }
+                .map {
+                    imageInformationData.getOrThrow(it, targetPath)
+                }.toList().let { imageInformations ->
+                    buildString {
+                        appendUnformattedHtml().div {
+                            insertImageGallery(galleryName, websiteConfiguration, imageInformations)
                         }
                     }
+                }
         }
     }
 
@@ -107,8 +113,8 @@ class TemplateApi(
         if (albumName.isEmpty()) return@buildString
         appendUnformattedHtml().div {
             val albums = albumName.asSequence()
-                    .map { CategoryName(it) }
-                    .toCollection(LinkedHashSet())
+                .map { CategoryName(it) }
+                .toCollection(LinkedHashSet())
             insertCategoryThumbnails(albums, websiteConfiguration, galleryGenerator)
         }
     }
@@ -143,9 +149,9 @@ class TemplateApi(
         if (testimonialTypes.isNotEmpty())
             tmpTestimonials = tmpTestimonials.filter { testimonialTypes.contains(it.type) }
         return tmpTestimonials
-                .sortedByDescending { it.date }
-                .toList()
-                .toTypedArray()
+            .sortedByDescending { it.date }
+            .toList()
+            .toTypedArray()
     }
 
     @SuppressWarnings("unused")
@@ -160,14 +166,14 @@ class TemplateApi(
 
     @SuppressWarnings("unused")
     fun insertCarousel(changeMs: Int, vararg filename: String) =
-            insertCarousel("carousel", changeMs, *filename)
+        insertCarousel("carousel", changeMs, *filename)
 
     @SuppressWarnings("unused")
     fun insertCarousel(id: String, changeMs: Int, vararg filename: String) = buildString {
         appendUnformattedHtml().div("carousel slide") {
             this.id = id
-            attributes["data-interval"] = changeMs.toString()
-            attributes["data-ride"] = "carousel"
+            attributes["data-bs-interval"] = changeMs.toString()
+            attributes["data-bs-ride"] = "carousel"
             div("carousel-inner") {
                 filename.forEachIndexed { idx, filename ->
                     div {
@@ -176,7 +182,11 @@ class TemplateApi(
                             classes = classes + "active"
 
                         with(galleryGenerator.cache) {
-                            insertLazyPicture(imageInformationData.getOrThrow(filename, targetPath), websiteConfiguration, "d-block w-100")
+                            insertLazyPicture(
+                                imageInformationData.getOrThrow(filename, targetPath),
+                                websiteConfiguration,
+                                "d-block w-100"
+                            )
                         }
                     }
                 }
@@ -184,34 +194,40 @@ class TemplateApi(
 
             a("#$id", classes = "carousel-control-prev") {
                 role = "button"
-                attributes["data-slide"] = "prev"
+                attributes["data-bs-slide"] = "prev"
                 span("carousel-control-prev-icon") {
                     attributes["aria-hidden"] = "true"
                 }
-                span("sr-only") { text("Vorheriges Bild") }
+                span("visually-hidden") { text("Vorheriges Bild") }
             }
 
             a("#$id", classes = "carousel-control-next") {
                 role = "button"
-                attributes["data-slide"] = "next"
+                attributes["data-bs-slide"] = "next"
                 span("carousel-control-next-icon") {
                     attributes["aria-hidden"] = "true"
                 }
-                span("sr-only") { text("Nächstes Bild") }
+                span("visually-hidden") { text("Nächstes Bild") }
             }
         }
     }
 
     @SuppressWarnings("unused")
     fun insertTextCarousel(changeMs: Int, vararg text: String) =
-            insertTextCarousel("testimonials", changeMs, *text)
+        insertTextCarousel("testimonials", changeMs, *text)
 
+    @SuppressWarnings("unused")
+    fun insertYoutube(code: String, w: Int, h: Int) = buildString {
+        appendUnformattedHtml().div {
+            insertYoutube(code, w, h)
+        }
+    }
 
     fun insertTextCarousel(id: String, changeMs: Int, vararg text: String) = buildString {
         appendUnformattedHtml().div("carousel slide") {
             this.id = id
-            attributes["data-interval"] = changeMs.toString()
-            attributes["data-ride"] = "carousel"
+            attributes["data-bs-interval"] = changeMs.toString()
+            attributes["data-bs-ride"] = "carousel"
             div("carousel-inner") {
                 text.forEachIndexed { idx, cur ->
                     div {
@@ -230,20 +246,20 @@ class TemplateApi(
 
             a("#$id", classes = "carousel-control-prev") {
                 role = "button"
-                attributes["data-slide"] = "prev"
+                attributes["data-bs-slide"] = "prev"
                 span("carousel-control-prev-icon") {
                     attributes["aria-hidden"] = "true"
                 }
-                span("sr-only") { text("Vorheriges Bild") }
+                span("visually-hidden") { text("Vorheriger Text") }
             }
 
             a("#$id", classes = "carousel-control-next") {
                 role = "button"
-                attributes["data-slide"] = "next"
+                attributes["data-bs-slide"] = "next"
                 span("carousel-control-next-icon") {
                     attributes["aria-hidden"] = "true"
                 }
-                span("sr-only") { text("Nächstes Bild") }
+                span("visually-hidden") { text("Nächster Text") }
             }
         }
     }
@@ -258,7 +274,12 @@ class TemplateApi(
                 sequenceOf(300, 400, 700, 1200, 2050, 3000).forEachIndexed { idx, size ->
                     val iw = if (ratio < 1) size else (size * ratio).roundToInt()
                     val ih = if (ratio > 1) size else (size * ratio).roundToInt()
-                    attributes["data-$idx"] = """{"jpg":"${getJpgUrl(filename, size)}","webp":"${getWebPUrl(filename, size)}","w":$iw,"h":$ih}"""
+                    attributes["data-$idx"] = """{"jpg":"${getJpgUrl(filename, size)}","webp":"${
+                        getWebPUrl(
+                            filename,
+                            size
+                        )
+                    }","w":$iw,"h":$ih}"""
                 }
                 attributes["data-sizes"] = AbstractThumbnailGenerator.ImageSize.values().size.toString()
             }
@@ -301,9 +322,9 @@ fun Yaml.getString(key: String): String? {
 fun Yaml.getOrder() = getString("order")
 
 data class PageMetadata(
-        val order: String,
-        val created: Date,
-        val edited: Date?
+    val order: String,
+    val created: Date,
+    val edited: Date?
 )
 
 fun Yaml.asPageMetadata(): PageMetadata? {
@@ -316,8 +337,8 @@ fun Yaml.asPageMetadata(): PageMetadata? {
     if (computedOrder == null || created == null)
         return null
     return PageMetadata(
-            computedOrder,
-            df_yyyMMdd.parse(created),
-            edited?.let { df_yyyMMdd.parse(it) }
+        computedOrder,
+        df_yyyMMdd.parse(created),
+        edited?.let { df_yyyMMdd.parse(it) }
     )
 }
