@@ -143,7 +143,7 @@ object PageGenerator {
         nav("navbar navbar-dark navbar-fixed-top navbar-expand-${websiteConfiguration.bootsrapMenuBreakpoint}") {
             val navId = "navbarCollapse"
             div("container-fluid") {
-                a(classes = "navbar-brand", href = "#") {
+                a(classes = "navbar-brand", href = "/") {
                     websiteConfiguration.navbarBrandFunction(this, websiteConfiguration, galleryGenerator)
                 }
                 if (items.isNotEmpty())
