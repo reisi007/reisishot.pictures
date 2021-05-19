@@ -16,7 +16,11 @@ class LinkGenerator : WebsiteGenerator {
         const val FILENAME = "urls.conf"
     }
 
-    override suspend fun fetchInitialInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>) {
+    override suspend fun fetchInitialInformation(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        alreadyRunGenerators: List<WebsiteGenerator>
+    ) {
         val configFile = configuration.getConfigFile()
         if (configFile.exists()) {
             val data: ManualLinks = configFile.parseConfig() ?: ManualLinks(emptyList())
@@ -34,7 +38,12 @@ class LinkGenerator : WebsiteGenerator {
         }
     }
 
-    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changeFiles: ChangeFileset): Boolean {
+    override suspend fun fetchUpdateInformation(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        alreadyRunGenerators: List<WebsiteGenerator>,
+        changeFiles: ChangeFileset
+    ): Boolean {
         val configFile = configuration.getConfigFile()
         if (changeFiles.keys.any(configFile::equals)) {
             fetchInitialInformation(configuration, cache, alreadyRunGenerators)
@@ -43,13 +52,17 @@ class LinkGenerator : WebsiteGenerator {
     }
 
     private fun WebsiteConfiguration.getConfigFile() =
-            inPath.resolve(FILENAME)
+        inPath.resolve(FILENAME)
 
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
         // No action needed
     }
 
-    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changeFiles: ChangeFileset): Boolean {
+    override suspend fun buildUpdateArtifacts(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        changeFiles: ChangeFileset
+    ): Boolean {
         // No action needed
         return false
     }

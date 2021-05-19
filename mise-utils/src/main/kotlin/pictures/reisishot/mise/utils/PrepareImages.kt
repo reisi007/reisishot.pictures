@@ -20,27 +20,37 @@ object PrepareImages {
                     """.trimIndent()
 
         val notepadSessionPath = Paths.get(".", "notepad++.session").normalized
-        Files.newBufferedWriter(notepadSessionPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING).use { notepadSession ->
-            notepadSession appendXml XmlElement("NotepadPlus") { root ->
-                root withChild XmlElement("Session", "activeView" to "0") { session ->
-                    session withChild XmlElement("mainView", "activeIndex" to "0") { fileContainer ->
-                        Files.list(folder).asSequence().filterNotNull()
-                                .filter { it.toString().let { it.endsWith("jpg", ignoreCase = true) || it.endsWith("jpeg", ignoreCase = true) } }
+        Files.newBufferedWriter(notepadSessionPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+            .use { notepadSession ->
+                notepadSession appendXml XmlElement("NotepadPlus") { root ->
+                    root withChild XmlElement("Session", "activeView" to "0") { session ->
+                        session withChild XmlElement("mainView", "activeIndex" to "0") { fileContainer ->
+                            Files.list(folder).asSequence().filterNotNull()
+                                .filter {
+                                    it.toString().let {
+                                        it.endsWith("jpg", ignoreCase = true) || it.endsWith(
+                                            "jpeg",
+                                            ignoreCase = true
+                                        )
+                                    }
+                                }
                                 .map { it.resolveSibling("${it.filenameWithoutExtension}.conf") }
                                 .filter { !Files.exists(it) }
                                 .map { it.normalized }
                                 .forEach { p ->
                                     Files.newBufferedWriter(p).use { it.write(configFile) }
-                                    fileContainer withChild XmlElement("File",
-                                            "firstVisibleLine" to "0",
-                                            "lang" to "JavaScript",
-                                            "filename" to p.toString())
+                                    fileContainer withChild XmlElement(
+                                        "File",
+                                        "firstVisibleLine" to "0",
+                                        "lang" to "JavaScript",
+                                        "filename" to p.toString()
+                                    )
                                 }
+                        }
                     }
                 }
+                println("Writing Notepad++ session information to:\n$notepadSessionPath")
             }
-            println("Writing Notepad++ session information to:\n$notepadSessionPath")
-        }
     }
 }
 
@@ -51,7 +61,11 @@ val Path.normalized
 annotation class XmlTagMarker
 
 @XmlTagMarker
-class XmlElement(private val name: String, private vararg val attributes: Pair<String, String>, private val addChildrenFunction: (XmlElement) -> Unit = {}) {
+class XmlElement(
+    private val name: String,
+    private vararg val attributes: Pair<String, String>,
+    private val addChildrenFunction: (XmlElement) -> Unit = {}
+) {
     private val children = mutableListOf<XmlElement>()
 
     init {

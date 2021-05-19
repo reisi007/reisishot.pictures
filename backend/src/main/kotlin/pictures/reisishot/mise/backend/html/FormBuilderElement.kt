@@ -124,70 +124,70 @@ private fun FlowContent.formElement(cur: FormBuilderElement, block: DIV.() -> Un
 
 
 sealed class FormBuilderElement(
-        val name: String,
-        open val label: String? = null,
-        open val description: String? = null,
-        open val errorMessage: String? = null,
-        val required: Boolean = true
+    val name: String,
+    open val label: String? = null,
+    open val description: String? = null,
+    open val errorMessage: String? = null,
+    val required: Boolean = true
 )
 
 class FormRoot(
-        formName: String = "form",
-        vararg val builderElements: FormBuilderElement
+    formName: String = "form",
+    vararg val builderElements: FormBuilderElement
 ) : FormBuilderElement(formName)
 
 class FormHGroup(
-        vararg builderElements: FormBuilderElement
+    vararg builderElements: FormBuilderElement
 ) : FormGroup(*builderElements)
 
 abstract class FormGroup(
-        vararg val builderElements: FormBuilderElement
+    vararg val builderElements: FormBuilderElement
 ) : FormBuilderElement("group")
 
 class FormInput(
-        name: String,
-        override val label: String,
-        override val description: String,
-        errorMessage: String,
-        val type: InputType,
-        val placeholder: String? = null,
-        val defaultValue: String? = null,
-        required: Boolean = true
+    name: String,
+    override val label: String,
+    override val description: String,
+    errorMessage: String,
+    val type: InputType,
+    val placeholder: String? = null,
+    val defaultValue: String? = null,
+    required: Boolean = true
 ) : FormBuilderElement(name, label, description, errorMessage, required)
 
 class HiddenFormInput(
-        name: String,
-        val value: String
+    name: String,
+    val value: String
 ) : FormBuilderElement(name, null, null, null, false)
 
 class FormSelect(
-        name: String,
-        label: String,
-        description: String,
-        errorMessage: String,
-        required: Boolean = true,
-        vararg val options: FormSelectOption
+    name: String,
+    label: String,
+    description: String,
+    errorMessage: String,
+    required: Boolean = true,
+    vararg val options: FormSelectOption
 ) : FormBuilderElement(name, label, description, errorMessage, required)
 
 data class FormSelectOption(
-        val value: String,
-        val label: String = value
+    val value: String,
+    val label: String = value
 )
 
 class FormTextArea(
-        name: String,
-        label: String,
-        description: String,
-        errorMessage: String,
-        rows: Int = 6,
-        required: Boolean = true
+    name: String,
+    label: String,
+    description: String,
+    errorMessage: String,
+    rows: Int = 6,
+    required: Boolean = true
 ) : FormBuilderElement(name, label, description, errorMessage, required) {
     val rows = max(1, rows)
 }
 
 class FormCheckbox(
-        name: String,
-        override val label: String,
-        override val description: String,
-        errorMessage: String
+    name: String,
+    override val label: String,
+    override val description: String,
+    errorMessage: String
 ) : FormBuilderElement(name, label, description, errorMessage)

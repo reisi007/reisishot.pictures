@@ -15,7 +15,9 @@ enum class ReisishotIcons(internal val cssName: String) {
 }
 
 @HtmlTagMarker
-fun FlowContent.insertIcon(icon: ReisishotIcons, size: String = "lg", classes: String = "") = insertIcon(icon.cssName, size, classes)
+fun FlowContent.insertIcon(icon: ReisishotIcons, size: String = "lg", classes: String = "") =
+    insertIcon(icon.cssName, size, classes)
 
 @HtmlTagMarker
-fun FlowContent.insertIcon(iconName: String, size: String = "lg", classes: String = "") = i("icon rs-$iconName rs-$size $classes")
+fun FlowContent.insertIcon(iconName: String, size: String = "lg", classes: String = "") =
+    i("icon rs-$iconName rs-$size $classes")

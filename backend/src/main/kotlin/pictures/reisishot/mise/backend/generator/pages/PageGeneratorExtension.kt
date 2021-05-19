@@ -13,7 +13,12 @@ interface PageGeneratorExtension {
         // Nothing to do
     }
 
-    fun processFrontmatter(configuration: WebsiteConfiguration, cache: BuildingCache, pageMinimalInfo: IPageMininmalInfo, frontMatter: Yaml): HEAD.() -> Unit {
+    fun processFrontmatter(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        pageMinimalInfo: IPageMininmalInfo,
+        frontMatter: Yaml
+    ): HEAD.() -> Unit {
         return {}
     }
 
@@ -27,7 +32,13 @@ interface PageGeneratorExtension {
         // Nothing to do
     }
 
-    fun postCreatePage(configuration: WebsiteConfiguration, cache: BuildingCache, pageMinimalInfo: IPageMininmalInfo, yaml: Yaml, content: String) {
+    fun postCreatePage(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        pageMinimalInfo: IPageMininmalInfo,
+        yaml: Yaml,
+        content: String
+    ) {
 
     }
 

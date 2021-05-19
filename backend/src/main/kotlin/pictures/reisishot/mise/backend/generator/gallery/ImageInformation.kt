@@ -9,37 +9,38 @@ import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThum
 
 
 sealed class ImageInformation(
-        val filename: FilenameWithoutExtension,
-        val relativeLocation: String,
-        val thumbnailSizes: Map<ImageSize, ImageSizeInformation>,
-        val title: String,
-        val showInGallery: Boolean
+    val filename: FilenameWithoutExtension,
+    val relativeLocation: String,
+    val thumbnailSizes: Map<ImageSize, ImageSizeInformation>,
+    val title: String,
+    val showInGallery: Boolean
 ) {
     abstract fun getUrl(websiteConfiguration: WebsiteConfiguration): String
 }
 
 class InternalImageInformation(
-        filename: FilenameWithoutExtension,
-        thumbnailSizes: Map<ImageSize, ImageSizeInformation>,
-        relativeLocation: String,
-        title: String,
-        showInGallery: Boolean,
-        val tags: Set<String>,
-        val exifInformation: Map<ExifdataKey, String>,
-        val categories: MutableSet<CategoryInformation> = mutableSetOf(),
+    filename: FilenameWithoutExtension,
+    thumbnailSizes: Map<ImageSize, ImageSizeInformation>,
+    relativeLocation: String,
+    title: String,
+    showInGallery: Boolean,
+    val tags: Set<String>,
+    val exifInformation: Map<ExifdataKey, String>,
+    val categories: MutableSet<CategoryInformation> = mutableSetOf(),
 ) : ImageInformation(filename, relativeLocation, thumbnailSizes, title, showInGallery) {
     override fun getUrl(websiteConfiguration: WebsiteConfiguration): String =
-            BuildingCache.getLinkFromFragment(websiteConfiguration, relativeLocation)
+        BuildingCache.getLinkFromFragment(websiteConfiguration, relativeLocation)
 }
 
 class ExternalImageInformation(
-        private val host: String,
-        filename: FilenameWithoutExtension,
-        thumbnailSizes: Map<ImageSize, ImageSizeInformation>,
-        relativeLocation: String,
-        title: String
+    private val host: String,
+    filename: FilenameWithoutExtension,
+    thumbnailSizes: Map<ImageSize, ImageSizeInformation>,
+    relativeLocation: String,
+    title: String
 ) : ImageInformation(filename, relativeLocation, thumbnailSizes, title, false) {
     override fun getUrl(websiteConfiguration: WebsiteConfiguration): String = host + relativeLocation
 }
 
-fun ImageInformation.toExternal(host: String) = ExternalImageInformation(host, filename, thumbnailSizes, relativeLocation, title)
+fun ImageInformation.toExternal(host: String) =
+    ExternalImageInformation(host, filename, thumbnailSizes, relativeLocation, title)

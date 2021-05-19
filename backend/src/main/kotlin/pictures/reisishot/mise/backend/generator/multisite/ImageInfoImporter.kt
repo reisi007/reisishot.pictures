@@ -11,29 +11,38 @@ import pictures.reisishot.mise.backend.generator.gallery.toExternal
 import java.nio.file.Path
 
 class ImageInfoImporter constructor(
-        private val otherCacheDir: Path,
-        private val rootUrl: String
+    private val otherCacheDir: Path,
+    private val rootUrl: String
 ) : WebsiteGenerator {
     override val executionPriority: Int = 25_000
     override val generatorName: String = "ImageInfoImport"
 
     private fun execute(alreadyRunGenerators: List<WebsiteGenerator>) {
         val galleryGenerator = alreadyRunGenerators.find { it is AbstractGalleryGenerator } as? AbstractGalleryGenerator
-                ?: throw IllegalStateException("Gallery generator is needed for this generator!")
+            ?: throw IllegalStateException("Gallery generator is needed for this generator!")
 
         (otherCacheDir withChild "gallery.cache.xml").fromXml<AbstractGalleryGenerator.Cache>()
-                ?.imageInformationData
-                ?.forEach { (name, data) ->
-                    galleryGenerator.cache.imageInformationData[name] = data.toExternal(rootUrl)
-                }
+            ?.imageInformationData
+            ?.forEach { (name, data) ->
+                galleryGenerator.cache.imageInformationData[name] = data.toExternal(rootUrl)
+            }
     }
 
 
-    override suspend fun fetchInitialInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>) {
+    override suspend fun fetchInitialInformation(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        alreadyRunGenerators: List<WebsiteGenerator>
+    ) {
         execute(alreadyRunGenerators)
     }
 
-    override suspend fun fetchUpdateInformation(configuration: WebsiteConfiguration, cache: BuildingCache, alreadyRunGenerators: List<WebsiteGenerator>, changeFiles: ChangeFileset): Boolean {
+    override suspend fun fetchUpdateInformation(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        alreadyRunGenerators: List<WebsiteGenerator>,
+        changeFiles: ChangeFileset
+    ): Boolean {
         //TODO enable  execute(alreadyRunGenerators)
         return false
     }
@@ -42,7 +51,11 @@ class ImageInfoImporter constructor(
         // Nothing to do
     }
 
-    override suspend fun buildUpdateArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache, changeFiles: ChangeFileset): Boolean {
+    override suspend fun buildUpdateArtifacts(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        changeFiles: ChangeFileset
+    ): Boolean {
         // Nothing to do
         return false
     }

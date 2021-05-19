@@ -21,11 +21,11 @@ object Converter {
     @JvmStatic
     fun main(args: Array<String>) {
         convertPiwigo2Mise(
-                "https://reisishot.pictures",
-                "jdbc:mariadb://localhost:3306/import?user=root",
-                Paths.get("D:\\Reisishot\\MiSe\\backend\\src\\main\\resources\\images").apply {
-                    Files.createDirectories(this)
-                }
+            "https://reisishot.pictures",
+            "jdbc:mariadb://localhost:3306/import?user=root",
+            Paths.get("D:\\Reisishot\\MiSe\\backend\\src\\main\\resources\\images").apply {
+                Files.createDirectories(this)
+            }
         )
     }
 
@@ -34,8 +34,8 @@ object Converter {
         val jdbi = Jdbi.create(connectionString)
         jdbi.open().use { db ->
             db.createQuery("select id from gal_images")
-                    .mapTo(Int::class.java)
-                    .list()
+                .mapTo(Int::class.java)
+                .list()
         }.forEachLimitedParallel(10) {
             downloadImage(it, piwigoEndpoint, targetPath)
         }
@@ -43,10 +43,10 @@ object Converter {
 
 
     data class ImageInfoResult(
-            val file: String,
-            val name: String,
-            @Json(name = "element_url") val elementUrl: String,
-            val tags: List<String>
+        val file: String,
+        val name: String,
+        @Json(name = "element_url") val elementUrl: String,
+        val tags: List<String>
     )
 
     private suspend fun downloadImage(id: Int, piwigoEndpoint: String, baseFolder: Path) {
@@ -56,12 +56,12 @@ object Converter {
                 jsonConverter.parseJsonObject(it).let {
                     val jsonResult = it.obj("result")!!
                     ImageInfoResult(
-                            jsonResult.string("file")!!,
-                            jsonResult.string("name")!!,
-                            jsonResult.string("element_url")!!,
-                            jsonResult.array<JsonObject>("tags")?.let {
-                                it.map { it.string("name")!! }
-                            } ?: throw java.lang.IllegalStateException("Image with ID $id has no associated tags")
+                        jsonResult.string("file")!!,
+                        jsonResult.string("name")!!,
+                        jsonResult.string("element_url")!!,
+                        jsonResult.array<JsonObject>("tags")?.let {
+                            it.map { it.string("name")!! }
+                        } ?: throw java.lang.IllegalStateException("Image with ID $id has no associated tags")
                     )
                 }
             }
@@ -75,13 +75,15 @@ object Converter {
             %s
             ]
         """.trimIndent()
-                .format(imageInfo.tags.joinToString("\n"))
+            .format(imageInfo.tags.joinToString("\n"))
 
         withContext(Dispatchers.IO) {
             val outFile = baseFolder.resolve("$filenameWithoutExtension.jpg")
-            URL(imageInfo.elementUrl).openStream().use { inputStream ->
-                Files.copy(inputStream, outFile)
-            }
+            URL(imageInfo.elementUrl)
+                .openStream()
+                .use { inputStream ->
+                    Files.copy(inputStream, outFile)
+                }
             Files.newBufferedWriter(baseFolder.resolve("$filenameWithoutExtension.conf")).use {
                 it.write(hoconFile)
             }

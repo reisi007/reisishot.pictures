@@ -33,55 +33,85 @@ object Main {
 
     fun build(isDevMode: Boolean) {
         val galleryGenerator = GalleryGenerator(
-                categoryBuilders = arrayOf(
-                        DateCategoryBuilder("Chronologisch"),
-                        ConfigurableCategoryBuilder()
-                ),
-                displayedMenuItems = emptySet(),
-                exifReplaceFunction = defaultExifReplaceFunction
+            categoryBuilders = arrayOf(
+                DateCategoryBuilder("Chronologisch"),
+                ConfigurableCategoryBuilder()
+            ),
+            displayedMenuItems = emptySet(),
+            exifReplaceFunction = defaultExifReplaceFunction
         )
 
         val overviewPageGenerator = OverviewPageGenerator(galleryGenerator)
         Mise.build(
-                WebsiteConfiguration(
-                        shortTitle = "Reisishot",
-                        longTitle = "Reisishot - Fotograf Florian Reisinger",
-                        isDevMode = isDevMode,
-                        websiteLocation = "https://$folderName",
-                        inPath = Paths.get("input", folderName).toAbsolutePath(),
-                        tmpPath = tmpPath,
-                        outPath = Paths.get("upload", folderName).toAbsolutePath(),
-                        interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
-                        cleanupGeneration = false,
-                        analyticsSiteId = "1",
-                        socialMediaLinks = SocialMediaAccounts("reisishot", "reisishot", "florian@reisishot.pictures"),
-                        // fbMessengerChatPlugin = generateDefaultChatPlugin(),
-                        form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
-                            buildForm(
-                                    title = { h2 { text("Kontaktiere mich") } },
-                                    thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich innerhalb von 48h!") } },
-                                    formStructure = {
-                                        FormRoot("footer",
-                                                HiddenFormInput("Seite", BuildingCache.getLinkFromFragment(websiteConfiguration, websiteConfiguration.outPath.relativize(target.parent).toString())),
-                                                FormHGroup(
-                                                        FormInput("Name", "Name", "Dein Name", "Bitte sag mir, wie du heißt", InputType.text),
-                                                        FormInput("E-Mail", "E-Mail Adresse", "Deine E-Mail-Adresse, auf die du deine Antwort bekommst", "Ich kann dich ohne deine E-Mail Adresse nicht kontaktieren", InputType.email)
-                                                ),
-                                                FormInput("Betreff", "Betreff", "Thema deines Anliegens", "Der Betreff der E-Mail, die ich bekomme", InputType.text),
-                                                FormTextArea("Freitext", "Deine Nachricht an mich", "Anfragen für Zusammenarbeit (Bitte gib auch einen Link zu deinen Bildern in die Nachricht dazu), Feedback zu meinen Bildern oder was dir sonst so am Herzen liegt", "Bitte vergiss nicht mir eine Nachricht zu hinterlassen"),
-                                                zustimmung
-                                        )
-                                    })
-                        },
-                        generators = listOf(
-                                PageGenerator(overviewPageGenerator, KeywordConsumer()),
-                                overviewPageGenerator,
-                                galleryGenerator,
-                                ImageMagickThumbnailGenerator(),
-                                LinkGenerator(),
-                                SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
-                        )
+            WebsiteConfiguration(
+                shortTitle = "Reisishot",
+                longTitle = "Reisishot - Fotograf Florian Reisinger",
+                isDevMode = isDevMode,
+                websiteLocation = "https://$folderName",
+                inPath = Paths.get("input", folderName).toAbsolutePath(),
+                tmpPath = tmpPath,
+                outPath = Paths.get("upload", folderName).toAbsolutePath(),
+                interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
+                cleanupGeneration = false,
+                analyticsSiteId = "1",
+                socialMediaLinks = SocialMediaAccounts("reisishot", "reisishot", "florian@reisishot.pictures"),
+                // fbMessengerChatPlugin = generateDefaultChatPlugin(),
+                form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
+                    buildForm(
+                        title = { h2 { text("Kontaktiere mich") } },
+                        thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich innerhalb von 48h!") } },
+                        formStructure = {
+                            FormRoot(
+                                "footer",
+                                HiddenFormInput(
+                                    "Seite",
+                                    BuildingCache.getLinkFromFragment(
+                                        websiteConfiguration,
+                                        websiteConfiguration.outPath.relativize(target.parent).toString()
+                                    )
+                                ),
+                                FormHGroup(
+                                    FormInput(
+                                        "Name",
+                                        "Name",
+                                        "Dein Name",
+                                        "Bitte sag mir, wie du heißt",
+                                        InputType.text
+                                    ),
+                                    FormInput(
+                                        "E-Mail",
+                                        "E-Mail Adresse",
+                                        "Deine E-Mail-Adresse, auf die du deine Antwort bekommst",
+                                        "Ich kann dich ohne deine E-Mail Adresse nicht kontaktieren",
+                                        InputType.email
+                                    )
+                                ),
+                                FormInput(
+                                    "Betreff",
+                                    "Betreff",
+                                    "Thema deines Anliegens",
+                                    "Der Betreff der E-Mail, die ich bekomme",
+                                    InputType.text
+                                ),
+                                FormTextArea(
+                                    "Freitext",
+                                    "Deine Nachricht an mich",
+                                    "Anfragen für Zusammenarbeit (Bitte gib auch einen Link zu deinen Bildern in die Nachricht dazu), Feedback zu meinen Bildern oder was dir sonst so am Herzen liegt",
+                                    "Bitte vergiss nicht mir eine Nachricht zu hinterlassen"
+                                ),
+                                zustimmung
+                            )
+                        })
+                },
+                generators = listOf(
+                    PageGenerator(overviewPageGenerator, KeywordConsumer()),
+                    overviewPageGenerator,
+                    galleryGenerator,
+                    ImageMagickThumbnailGenerator(),
+                    LinkGenerator(),
+                    SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
                 )
+            )
         )
     }
 }

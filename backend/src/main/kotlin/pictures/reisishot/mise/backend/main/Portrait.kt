@@ -30,58 +30,90 @@ object Portrait {
     fun build(isDevMode: Boolean) {
         val folderName = "portrait.reisishot.pictures"
         val galleryGenerator = GalleryGenerator(
-                categoryBuilders = emptyArray(),
-                exifReplaceFunction = defaultExifReplaceFunction
+            categoryBuilders = emptyArray(),
+            exifReplaceFunction = defaultExifReplaceFunction
         )
         val overviewPageGenerator = OverviewPageGenerator(galleryGenerator)
         Mise.build(
-                WebsiteConfiguration(
-                        shortTitle = "Reisishot Porträt",
-                        longTitle = "Reisishot Porträt - Immer im besten Licht",
-                        isDevMode = isDevMode,
-                        websiteLocation = "https://$folderName",
-                        inPath = Paths.get("input", folderName).toAbsolutePath(),
-                        tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
-                        outPath = Paths.get("upload", folderName).toAbsolutePath(),
-                        interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
-                        fbMessengerChatPlugin = FacebookMessengerChatPlugin(
-                                628453067544931,
-                                "#27ae60",
-                                "Hallo! Falls du noch Fragen zu deinem Porträt Shooting hast, kannst du mich hier kontaktieren!"),
-                        cleanupGeneration = false,
-                        socialMediaLinks = SocialMediaAccounts(
-                                "reisishot",
-                                "reisishot",
-                                "florian@reisishot.pictures",
-                                "436702017710"
-                        ),
-                        analyticsSiteId = "5",
-                        form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
-                            buildForm(
-                                    title = { h2 { text("Möchtest du mit mir ein Porträt Shooting haben?") } },
-                                    thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich innerhalb von 48h bei dir!") } },
-                                    formStructure = {
-                                        FormRoot("footer",
-                                                HiddenFormInput("Seite", getLinkFromFragment(websiteConfiguration, websiteConfiguration.outPath.relativize(target.parent).toString())),
-                                                FormHGroup(
-                                                        FormInput("Name", "Wie heißt du?", "Dein Name", "Bitte sag mir, wie du heißt", InputType.text),
-                                                        FormInput("E-Mail", "Wie lautet deine E-Mail Adresse?", "Deine E-Mail-Adresse, auf die du deine Antwort bekommst", "Ich kann dich ohne deine E-Mail Adresse nicht kontaktieren", InputType.email)
-                                                ),
-                                                FormInput("Betreff", "Betreff", "Thema deines Anliegens", "Der Betreff der E-Mail, die ich bekomme", InputType.text, defaultValue = "Beauty Shooting"),
-                                                FormTextArea("Warum", "Was möchtest du mit den Fotos erreichen, die wir gemeinsam machen?", "Ich freue mich schon deine Gedanken zu hören!", errorMessage = "Damit ich dir das bestmögliche Erlebnis anbieten kann, brauche ich diese Informationen."),
-                                                zustimmung
-                                        )
-                                    })
-                        },
-                        generators = listOf(
-                                PageGenerator(overviewPageGenerator, KeywordConsumer()),
-                                galleryGenerator,
-                                overviewPageGenerator,
-                                ImageMagickThumbnailGenerator(),
-                                ImageInfoImporter(Main.tmpPath, "https://${Main.folderName}/"),
-                                SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
-                        )
+            WebsiteConfiguration(
+                shortTitle = "Reisishot Porträt",
+                longTitle = "Reisishot Porträt - Immer im besten Licht",
+                isDevMode = isDevMode,
+                websiteLocation = "https://$folderName",
+                inPath = Paths.get("input", folderName).toAbsolutePath(),
+                tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
+                outPath = Paths.get("upload", folderName).toAbsolutePath(),
+                interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
+                fbMessengerChatPlugin = FacebookMessengerChatPlugin(
+                    628453067544931,
+                    "#27ae60",
+                    "Hallo! Falls du noch Fragen zu deinem Porträt Shooting hast, kannst du mich hier kontaktieren!"
+                ),
+                cleanupGeneration = false,
+                socialMediaLinks = SocialMediaAccounts(
+                    "reisishot",
+                    "reisishot",
+                    "florian@reisishot.pictures",
+                    "436702017710"
+                ),
+                analyticsSiteId = "5",
+                form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
+                    buildForm(
+                        title = { h2 { text("Möchtest du mit mir ein Porträt Shooting haben?") } },
+                        thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich innerhalb von 48h bei dir!") } },
+                        formStructure = {
+                            FormRoot(
+                                "footer",
+                                HiddenFormInput(
+                                    "Seite",
+                                    getLinkFromFragment(
+                                        websiteConfiguration,
+                                        websiteConfiguration.outPath.relativize(target.parent).toString()
+                                    )
+                                ),
+                                FormHGroup(
+                                    FormInput(
+                                        "Name",
+                                        "Wie heißt du?",
+                                        "Dein Name",
+                                        "Bitte sag mir, wie du heißt",
+                                        InputType.text
+                                    ),
+                                    FormInput(
+                                        "E-Mail",
+                                        "Wie lautet deine E-Mail Adresse?",
+                                        "Deine E-Mail-Adresse, auf die du deine Antwort bekommst",
+                                        "Ich kann dich ohne deine E-Mail Adresse nicht kontaktieren",
+                                        InputType.email
+                                    )
+                                ),
+                                FormInput(
+                                    "Betreff",
+                                    "Betreff",
+                                    "Thema deines Anliegens",
+                                    "Der Betreff der E-Mail, die ich bekomme",
+                                    InputType.text,
+                                    defaultValue = "Beauty Shooting"
+                                ),
+                                FormTextArea(
+                                    "Warum",
+                                    "Was möchtest du mit den Fotos erreichen, die wir gemeinsam machen?",
+                                    "Ich freue mich schon deine Gedanken zu hören!",
+                                    errorMessage = "Damit ich dir das bestmögliche Erlebnis anbieten kann, brauche ich diese Informationen."
+                                ),
+                                zustimmung
+                            )
+                        })
+                },
+                generators = listOf(
+                    PageGenerator(overviewPageGenerator, KeywordConsumer()),
+                    galleryGenerator,
+                    overviewPageGenerator,
+                    ImageMagickThumbnailGenerator(),
+                    ImageInfoImporter(Main.tmpPath, "https://${Main.folderName}/"),
+                    SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
                 )
+            )
         )
     }
 }

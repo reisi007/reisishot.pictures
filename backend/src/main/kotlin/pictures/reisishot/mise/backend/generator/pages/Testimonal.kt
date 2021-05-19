@@ -6,11 +6,11 @@ import pictures.reisishot.mise.backend.df_yyyy_MM_dd
 import java.util.*
 
 data class Testimonal(
-        val image: FilenameWithoutExtension,
-        val name: String,
-        val isoDateString: String,
-        val type: String,
-        val html: String
+    val image: FilenameWithoutExtension,
+    val name: String,
+    val isoDateString: String,
+    val type: String,
+    val html: String
 ) {
     val date: Date by lazy {
         df_yyyy_MM_dd.parse(isoDateString)

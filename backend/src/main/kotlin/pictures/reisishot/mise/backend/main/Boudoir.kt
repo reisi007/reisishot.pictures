@@ -33,69 +33,104 @@ object Boudoir {
         val folderName = "boudoir.reisishot.pictures"
 
         val galleryGenerator = GalleryGenerator(
-                categoryBuilders = emptyArray(),
-                exifReplaceFunction = defaultExifReplaceFunction
+            categoryBuilders = emptyArray(),
+            exifReplaceFunction = defaultExifReplaceFunction
         )
         val overviewPageGenerator = OverviewPageGenerator(galleryGenerator)
 
 
         Mise.build(
-                WebsiteConfiguration(
-                        shortTitle = "Reisishot Boudoir",
-                        longTitle = "Reisishot Boudoir - Intime Porträts für dich aus Leidenschaft",
-                        isDevMode = isDevMode,
-                        websiteLocation = "https://$folderName",
-                        inPath = Paths.get("input", folderName).toAbsolutePath(),
-                        tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
-                        outPath = Paths.get("upload", folderName).toAbsolutePath(),
-                        interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
-                        cleanupGeneration = false,
-                        cssFileName = "styles-boudoir.css",
-                        navbarBrandFunction = { config, gallery ->
-                            insertLazyPicture(gallery.cache.imageInformationData.getOrThrow("Boudoir-Logo", "Menu"), config, "solo")
-                        },
-                        socialMediaLinks = SocialMediaAccounts(
-                                "reisishot.boudoir",
-                                "reisishot_boudoir",
-                                "florian@reisishot.pictures",
-                                "436702017710"
-                        ),
-                        analyticsSiteId = "4",
-                        fbMessengerChatPlugin = FacebookMessengerChatPlugin(
-                                107984484236335,
-                                "#d3973b",
-                                "Hallo! Falls du noch Fragen zu deinem Boudoir Shooting hast, kannst du mich hier kontaktieren!"
-                        ),
-                        form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
-                            buildForm(
-                                    title = { h2 { text("Möchtest du selbst ein Boudoir Shooting haben?") } },
-                                    thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich innerhalb von 48h bei dir!") } },
-                                    formStructure = {
-                                        FormRoot("footer",
-                                                HiddenFormInput("Seite", getLinkFromFragment(websiteConfiguration, websiteConfiguration.outPath.relativize(target.parent).toString())),
-                                                FormHGroup(
-                                                        FormInput("Name", "Wie heißt du?", "Dein Name", "Bitte sag mir, wie du heißt", InputType.text),
-                                                        FormInput("E-Mail", "Wie lautet deine E-Mail Adresse?", "Deine E-Mail-Adresse, auf die du deine Antwort bekommst", "Ich kann dich ohne deine E-Mail Adresse nicht kontaktieren", InputType.email)
-                                                ),
-                                                FormInput("Betreff", "Betreff", "Thema deines Anliegens", "Der Betreff der E-Mail, die ich bekomme", InputType.text, defaultValue = "Anfrage Boudoir Shooting"),
-                                                FormTextArea("Warum", "Warum möchtest du Fotos mit mir machen? Gibt es Gründe, warum du aktuell noch überlegst?", "Ich freue mich schon deine Gedanken zu hören!", errorMessage = "Damit ich dir das bestmögliche Erlebnis anbieten kann, brauche ich diese Informationen."),
-                                                zustimmung
-                                        )
-                                    })
-                        },
-                        generators = listOf(
-                                PageGenerator(
-                                        overviewPageGenerator,
-                                        KeywordConsumer()
+            WebsiteConfiguration(
+                shortTitle = "Reisishot Boudoir",
+                longTitle = "Reisishot Boudoir - Intime Porträts für dich aus Leidenschaft",
+                isDevMode = isDevMode,
+                websiteLocation = "https://$folderName",
+                inPath = Paths.get("input", folderName).toAbsolutePath(),
+                tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
+                outPath = Paths.get("upload", folderName).toAbsolutePath(),
+                interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
+                cleanupGeneration = false,
+                cssFileName = "styles-boudoir.css",
+                navbarBrandFunction = { config, gallery ->
+                    insertLazyPicture(
+                        gallery.cache.imageInformationData.getOrThrow("Boudoir-Logo", "Menu"),
+                        config,
+                        "solo"
+                    )
+                },
+                socialMediaLinks = SocialMediaAccounts(
+                    "reisishot.boudoir",
+                    "reisishot_boudoir",
+                    "florian@reisishot.pictures",
+                    "436702017710"
+                ),
+                analyticsSiteId = "4",
+                fbMessengerChatPlugin = FacebookMessengerChatPlugin(
+                    107984484236335,
+                    "#d3973b",
+                    "Hallo! Falls du noch Fragen zu deinem Boudoir Shooting hast, kannst du mich hier kontaktieren!"
+                ),
+                form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
+                    buildForm(
+                        title = { h2 { text("Möchtest du selbst ein Boudoir Shooting haben?") } },
+                        thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich innerhalb von 48h bei dir!") } },
+                        formStructure = {
+                            FormRoot(
+                                "footer",
+                                HiddenFormInput(
+                                    "Seite",
+                                    getLinkFromFragment(
+                                        websiteConfiguration,
+                                        websiteConfiguration.outPath.relativize(target.parent).toString()
+                                    )
                                 ),
-                                overviewPageGenerator,
-                                galleryGenerator,
-                                ImageMagickThumbnailGenerator(),
-                                ImageInfoImporter(Main.tmpPath, "https://${Main.folderName}/"),
-                                LinkGenerator(),
-                                SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
-                        )
+                                FormHGroup(
+                                    FormInput(
+                                        "Name",
+                                        "Wie heißt du?",
+                                        "Dein Name",
+                                        "Bitte sag mir, wie du heißt",
+                                        InputType.text
+                                    ),
+                                    FormInput(
+                                        "E-Mail",
+                                        "Wie lautet deine E-Mail Adresse?",
+                                        "Deine E-Mail-Adresse, auf die du deine Antwort bekommst",
+                                        "Ich kann dich ohne deine E-Mail Adresse nicht kontaktieren",
+                                        InputType.email
+                                    )
+                                ),
+                                FormInput(
+                                    "Betreff",
+                                    "Betreff",
+                                    "Thema deines Anliegens",
+                                    "Der Betreff der E-Mail, die ich bekomme",
+                                    InputType.text,
+                                    defaultValue = "Anfrage Boudoir Shooting"
+                                ),
+                                FormTextArea(
+                                    "Warum",
+                                    "Warum möchtest du Fotos mit mir machen? Gibt es Gründe, warum du aktuell noch überlegst?",
+                                    "Ich freue mich schon deine Gedanken zu hören!",
+                                    errorMessage = "Damit ich dir das bestmögliche Erlebnis anbieten kann, brauche ich diese Informationen."
+                                ),
+                                zustimmung
+                            )
+                        })
+                },
+                generators = listOf(
+                    PageGenerator(
+                        overviewPageGenerator,
+                        KeywordConsumer()
+                    ),
+                    overviewPageGenerator,
+                    galleryGenerator,
+                    ImageMagickThumbnailGenerator(),
+                    ImageInfoImporter(Main.tmpPath, "https://${Main.folderName}/"),
+                    LinkGenerator(),
+                    SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
                 )
+            )
         )
     }
 }

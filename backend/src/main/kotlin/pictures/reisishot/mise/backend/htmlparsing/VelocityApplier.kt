@@ -21,30 +21,37 @@ object VelocityApplier {
     }
 
     private fun VelocityContext.withTemplateApi(
-            pageMetadata: PageMetadata?,
-            targetPath: Path,
-            galleryGenerator: AbstractGalleryGenerator,
-            buildingCache: BuildingCache,
-            websiteConfiguration: WebsiteConfiguration
+        pageMetadata: PageMetadata?,
+        targetPath: Path,
+        galleryGenerator: AbstractGalleryGenerator,
+        buildingCache: BuildingCache,
+        websiteConfiguration: WebsiteConfiguration
     ) = apply {
         put("please", TemplateApi(pageMetadata, targetPath, galleryGenerator, buildingCache, websiteConfiguration))
     }
 
     fun runVelocity(
-            reader: Reader,
-            srcPath: FilenameWithoutExtension,
-            targetPath: Path,
-            galleryGenerator: AbstractGalleryGenerator,
-            buildingCache: BuildingCache,
-            websiteConfiguration: WebsiteConfiguration,
-            pageMetadata: PageMetadata?
+        reader: Reader,
+        srcPath: FilenameWithoutExtension,
+        targetPath: Path,
+        galleryGenerator: AbstractGalleryGenerator,
+        buildingCache: BuildingCache,
+        websiteConfiguration: WebsiteConfiguration,
+        pageMetadata: PageMetadata?
     ) = writeToString {
         try {
             velocity.evaluate(
-                    VelocityContext().withTemplateApi(pageMetadata, targetPath, galleryGenerator, buildingCache, websiteConfiguration),
-                    it,
-                    "HtmlParser",
-                    reader
+                VelocityContext()
+                    .withTemplateApi(
+                        pageMetadata,
+                        targetPath,
+                        galleryGenerator,
+                        buildingCache,
+                        websiteConfiguration
+                    ),
+                it,
+                "HtmlParser",
+                reader
             )
         } catch (e: Exception) {
             throw IllegalStateException("Could not parse \"$srcPath!\"", e)

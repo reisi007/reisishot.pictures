@@ -17,30 +17,30 @@ object RenameDo {
 
         Files.newBufferedReader(csvPath, Charsets.UTF_8).useLines {
             val entiesToChange = it.map { it.split(',', limit = 2) }
-                    .map { it[0] to it[1] }
-                    .peek { (_, targetFilename) ->
-                        if (!targetFilenames.add(targetFilename))
-                            throw IllegalStateException("Cannot perform rename -> $targetFilename is duplicated")
-                    }.filter { it.first != it.second }
-                    .toList()
+                .map { it[0] to it[1] }
+                .peek { (_, targetFilename) ->
+                    if (!targetFilenames.add(targetFilename))
+                        throw IllegalStateException("Cannot perform rename -> $targetFilename is duplicated")
+                }.filter { it.first != it.second }
+                .toList()
             entiesToChange.asSequence()
-                    .flatMap { (sourceName, targetName) ->
-                        sequenceOf(
-                                prepareRename(inputFolder, sourceName, targetName, "jpg"),
-                                prepareRename(inputFolder, sourceName, targetName, "conf")
-                        )
-                    }.filterNotNull()
-                    .forEach { (from, to) ->
-                        Files.move(from, to)
-                    }
+                .flatMap { (sourceName, targetName) ->
+                    sequenceOf(
+                        prepareRename(inputFolder, sourceName, targetName, "jpg"),
+                        prepareRename(inputFolder, sourceName, targetName, "conf")
+                    )
+                }.filterNotNull()
+                .forEach { (from, to) ->
+                    Files.move(from, to)
+                }
         }
     }
 
     private fun prepareRename(
-            inputFolder: Path,
-            sourceFilename: String,
-            targetFilename: String,
-            extension: String
+        inputFolder: Path,
+        sourceFilename: String,
+        targetFilename: String,
+        extension: String
     ): Pair<Path, Path>? {
         val sourcePath = inputFolder.resolve("$sourceFilename.$extension")
         if (!Files.exists(sourcePath))

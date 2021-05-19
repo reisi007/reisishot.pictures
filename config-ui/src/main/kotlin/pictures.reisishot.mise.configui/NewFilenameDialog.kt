@@ -11,7 +11,7 @@ import tornadofx.*
 class NewFilenameDialog : Dialog<FilenameData?>() {
 
     private val nameField = textfield()
-            .enableSpellcheck()
+        .enableSpellcheck()
     private val numberField = combobox(values = (1..10).toList()).apply {
         value = 3
     }
@@ -22,8 +22,8 @@ class NewFilenameDialog : Dialog<FilenameData?>() {
         headerText = "Bitte geben Sie die benötigten Informationen ein:"
 
         dialogPane.buttonTypes.addAll(
-                okButton,
-                ButtonType.CANCEL
+            okButton,
+            ButtonType.CANCEL
         )
 
         dialogPane.content = form {
@@ -41,8 +41,10 @@ class NewFilenameDialog : Dialog<FilenameData?>() {
             if (it != okButton)
                 null
             else FilenameData(
-                    nameField.text.trim().let { if (it.isEmpty()) throw IllegalStateException("Name not selected") else it },
-                    numberField.selectedItem ?: throw IllegalStateException("Item count not selected")
+                nameField.text
+                    .trim()
+                    .let { if (it.isEmpty()) throw IllegalStateException("Name not selected") else it },
+                numberField.selectedItem ?: throw IllegalStateException("Item count not selected")
             )
         }
         Platform.runLater { nameField.requestFocus() }

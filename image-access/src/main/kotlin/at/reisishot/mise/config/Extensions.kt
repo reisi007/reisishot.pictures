@@ -15,38 +15,38 @@ import java.nio.file.Path
 fun ImageConfig.writeConfig(p: Path) {
     val name = "image"
     val config = toConfig(name)
-            .getConfig(name)
-            .root()
-            .render(ConfigRenderOptions.defaults().apply {
-                json = false
-                originComments = false
-            })
+        .getConfig(name)
+        .root()
+        .render(ConfigRenderOptions.defaults().apply {
+            json = false
+            originComments = false
+        })
     Files.newBufferedWriter(p, StandardCharsets.UTF_8).use { it.write(config) }
 }
 
 fun Path.getConfig(configParseOptions: ConfigParseOptions = ConfigParseOptions.defaults()): Config? =
-        if (exists())
-            useBufferedReader {
-                try {
-                    ConfigFactory.parseReader(it, configParseOptions)
-                } catch (e: Exception) {
-                    System.err.println("Error while reading from $this")
-                    throw e
-                }
+    if (exists())
+        useBufferedReader {
+            try {
+                ConfigFactory.parseReader(it, configParseOptions)
+            } catch (e: Exception) {
+                System.err.println("Error while reading from $this")
+                throw e
             }
-        else null
+        }
+    else null
 
 inline fun <reified T> Path.parseConfig(
-        configPath: String,
-        fallbackConfiguration: Config,
-        configParseOptions: ConfigParseOptions = ConfigParseOptions.defaults()
+    configPath: String,
+    fallbackConfiguration: Config,
+    configParseOptions: ConfigParseOptions = ConfigParseOptions.defaults()
 ): T? = getConfig(configParseOptions)?.apply { withFallback(fallbackConfiguration) }?.extract(configPath)
 
 
 inline fun <reified T> Path.parseConfig(
-        configPath: String,
-        vararg fallbackPaths: String,
-        configParseOptions: ConfigParseOptions = ConfigParseOptions.defaults()
+    configPath: String,
+    vararg fallbackPaths: String,
+    configParseOptions: ConfigParseOptions = ConfigParseOptions.defaults()
 ): T? = getConfig(configParseOptions)?.apply {
     var lastConfig = this
     fallbackPaths.forEach {
@@ -60,5 +60,5 @@ inline fun <reified T> Path.parseConfig(
 
 
 inline fun <reified T> Path.parseConfig(
-        configParseOptions: ConfigParseOptions = ConfigParseOptions.defaults()
+    configParseOptions: ConfigParseOptions = ConfigParseOptions.defaults()
 ): T? = getConfig(configParseOptions)?.extract()

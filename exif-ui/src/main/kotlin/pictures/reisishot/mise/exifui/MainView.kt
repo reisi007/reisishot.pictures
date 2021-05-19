@@ -27,25 +27,25 @@ class MainView : View("Exif Extractor") {
         onDragDropped = EventHandler { event ->
             if (event.dragboard.hasFiles()) {
                 text = event.dragboard.files.asSequence()
-                        .map { it.toPath() }
-                        .filter { it.hasExtension(FileExtension::isJpeg) }
-                        .map { it.readExif(defaultExifReplaceFunction) }
-                        .map {
-                            var make = it[ExifdataKey.CAMERA_MAKE]
-                            val model = it[ExifdataKey.CAMERA_MODEL]
-                            if (make != null && model != null && model.startsWith(make))
-                                make = null
-                            sequenceOf(
-                                    make,
-                                    model,
-                                    it[ExifdataKey.LENS_MODEL],
-                                    it[ExifdataKey.FOCAL_LENGTH]?.substringBefore(",0")?.replace(',', '.'),
-                                    it[ExifdataKey.APERTURE],
-                                    it[ExifdataKey.SHUTTER_SPEED],
-                                    it[ExifdataKey.ISO]?.let { "ISO $it" }
-                            ).filterNotNull()
-                                    .joinToString(" | ")
-                        }.joinToString(System.lineSeparator())
+                    .map { it.toPath() }
+                    .filter { it.hasExtension(FileExtension::isJpeg) }
+                    .map { it.readExif(defaultExifReplaceFunction) }
+                    .map {
+                        var make = it[ExifdataKey.CAMERA_MAKE]
+                        val model = it[ExifdataKey.CAMERA_MODEL]
+                        if (make != null && model != null && model.startsWith(make))
+                            make = null
+                        sequenceOf(
+                            make,
+                            model,
+                            it[ExifdataKey.LENS_MODEL],
+                            it[ExifdataKey.FOCAL_LENGTH]?.substringBefore(",0")?.replace(',', '.'),
+                            it[ExifdataKey.APERTURE],
+                            it[ExifdataKey.SHUTTER_SPEED],
+                            it[ExifdataKey.ISO]?.let { "ISO $it" }
+                        ).filterNotNull()
+                            .joinToString(" | ")
+                    }.joinToString(System.lineSeparator())
             }
             event.consume()
         }

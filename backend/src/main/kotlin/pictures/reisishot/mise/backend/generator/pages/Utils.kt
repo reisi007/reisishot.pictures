@@ -8,20 +8,26 @@ import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
 import java.nio.file.Path
 
 
-data class PageInformation(val menuContainerName: String, val destinationPath: Path, val globalPriority: Int,
-                           val menuItemName: String, val menuItemDisplayName: String, val menuItemPriority: Int,
-                           val folderName: String, val folderDisplayName: String)
+data class PageInformation(
+    val menuContainerName: String, val destinationPath: Path, val globalPriority: Int,
+    val menuItemName: String, val menuItemDisplayName: String, val menuItemPriority: Int,
+    val folderName: String, val folderDisplayName: String
+)
 
 private val displayReplacePattern = Regex("[\\-_]")
 
-fun Path.computeMinimalInfo(generatorName: String, configuration: WebsiteConfiguration, cache: BuildingCache): PageMinimalInfo {
+fun Path.computeMinimalInfo(
+    generatorName: String,
+    configuration: WebsiteConfiguration,
+    cache: BuildingCache
+): PageMinimalInfo {
     configuration.inPath.relativize(this).let { filename ->
         if (filename.toString().startsWith("index.", true)) {
             cache.addLinkcacheEntryFor(PageGenerator.LINKTYPE_PAGE, "index", "")
             return PageMinimalInfo(
-                    this,
-                    configuration.outPath.resolve("index.html"),
-                    configuration.longTitle
+                this,
+                configuration.outPath.resolve("index.html"),
+                configuration.longTitle
             )
         }
 
@@ -32,28 +38,32 @@ fun Path.computeMinimalInfo(generatorName: String, configuration: WebsiteConfigu
             cache.addLinkcacheEntryFor(PageGenerator.LINKTYPE_PAGE, filenameParts.folderDisplayName, link)
             if (filenameParts.globalPriority > 0)
                 cache.addMenuItem(
-                        generatorName + "_" + filenameParts.menuContainerName,
-                        filenameParts.globalPriority,
-                        link,
-                        filenameParts.menuItemDisplayName
+                    generatorName + "_" + filenameParts.menuContainerName,
+                    filenameParts.globalPriority,
+                    link,
+                    filenameParts.menuItemDisplayName
                 )
         } else {
-            cache.addLinkcacheEntryFor(PageGenerator.LINKTYPE_PAGE, "${filenameParts.menuContainerName}--${filenameParts.folderDisplayName}", link)
+            cache.addLinkcacheEntryFor(
+                PageGenerator.LINKTYPE_PAGE,
+                "${filenameParts.menuContainerName}--${filenameParts.folderDisplayName}",
+                link
+            )
             if (filenameParts.globalPriority > 0)
                 cache.addMenuItemInContainerNoDupes(
-                        generatorName + "_" + filenameParts.menuContainerName,
-                        filenameParts.menuContainerName,
-                        filenameParts.globalPriority,
-                        filenameParts.menuItemDisplayName,
-                        link,
-                        elementIndex = filenameParts.menuItemPriority
+                    generatorName + "_" + filenameParts.menuContainerName,
+                    filenameParts.menuContainerName,
+                    filenameParts.globalPriority,
+                    filenameParts.menuItemDisplayName,
+                    link,
+                    elementIndex = filenameParts.menuItemPriority
                 )
         }
 
         return PageMinimalInfo(
-                this,
-                filenameParts.destinationPath,
-                filenameParts.menuItemDisplayName
+            this,
+            filenameParts.destinationPath,
+            filenameParts.menuItemDisplayName
         )
     }
 }
@@ -63,15 +73,15 @@ fun Path.computePageInformation(configuration: WebsiteConfiguration): PageInform
 
     val globalPriority = inFilename.substringBefore(PageGenerator.FILENAME_SEPERATOR).toIntOrNull() ?: 0
     inFilename = inFilename.substringAfter(PageGenerator.FILENAME_SEPERATOR)
-            .replace('❔', '?')
+        .replace('❔', '?')
 
     val menuContainerName =
-            inFilename.substringBefore(PageGenerator.FILENAME_SEPERATOR).replace(displayReplacePattern, " ")
+        inFilename.substringBefore(PageGenerator.FILENAME_SEPERATOR).replace(displayReplacePattern, " ")
     inFilename = inFilename.substringAfter(PageGenerator.FILENAME_SEPERATOR)
     val menuItemPriority = inFilename.substringBefore(PageGenerator.FILENAME_SEPERATOR)
-            .toIntOrNull()
-            ?.also { inFilename = inFilename.substringAfter(PageGenerator.FILENAME_SEPERATOR) }
-            ?: 0
+        .toIntOrNull()
+        ?.also { inFilename = inFilename.substringAfter(PageGenerator.FILENAME_SEPERATOR) }
+        ?: 0
 
     val rawMenuItemName = inFilename.substringBefore(PageGenerator.FILENAME_SEPERATOR)
     val rawFolderName = inFilename.substringAfter(PageGenerator.FILENAME_SEPERATOR)
@@ -81,10 +91,19 @@ fun Path.computePageInformation(configuration: WebsiteConfiguration): PageInform
 
 
     val outFile = configuration.inPath.relativize(this)
-            .resolveSibling("${rawFolderName.toLowerCase()}/index.html")
-            .let { configuration.outPath.resolve(it) }
+        .resolveSibling("${rawFolderName.toLowerCase()}/index.html")
+        .let { configuration.outPath.resolve(it) }
 
-    return PageInformation(menuContainerName, outFile, globalPriority, rawMenuItemName, menuItemName, menuItemPriority, rawFolderName, folderName)
+    return PageInformation(
+        menuContainerName,
+        outFile,
+        globalPriority,
+        rawMenuItemName,
+        menuItemName,
+        menuItemPriority,
+        rawFolderName,
+        folderName
+    )
 }
 
 interface IPageMininmalInfo {
@@ -93,4 +112,8 @@ interface IPageMininmalInfo {
     val title: String
 }
 
-data class PageMinimalInfo(override val sourcePath: SourcePath, override val targetPath: TargetPath, override val title: String) : IPageMininmalInfo
+data class PageMinimalInfo(
+    override val sourcePath: SourcePath,
+    override val targetPath: TargetPath,
+    override val title: String
+) : IPageMininmalInfo

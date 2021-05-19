@@ -61,11 +61,11 @@ class ExifInformation(metadata: Metadata) {
     init {
         jpegDescriptor = metadata.getFirstDirectoryOfType(JpegDirectory::class.java)?.let { JpegDescriptor(it) }
         exifD0Descriptor =
-                metadata.getFirstDirectoryOfType(ExifIFD0Directory::class.java)?.let { ExifIFD0Descriptor(it) }
+            metadata.getFirstDirectoryOfType(ExifIFD0Directory::class.java)?.let { ExifIFD0Descriptor(it) }
         exifSubIFDDescriptor =
-                metadata.getFirstDirectoryOfType(ExifSubIFDDirectory::class.java)?.let { ExifSubIFDDescriptor(it) }
+            metadata.getFirstDirectoryOfType(ExifSubIFDDirectory::class.java)?.let { ExifSubIFDDescriptor(it) }
         fileSystemDescriptor =
-                metadata.getFirstDirectoryOfType(FileSystemDirectory::class.java)?.let { FileSystemDescriptor(it) }
+            metadata.getFirstDirectoryOfType(FileSystemDirectory::class.java)?.let { FileSystemDescriptor(it) }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -113,16 +113,17 @@ val defaultExifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey
     }
 }
 
-fun Path.readExif(exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }): Map<ExifdataKey, String> = mutableMapOf<ExifdataKey, String>().apply {
-    ExifInformation(ImageMetadataReader.readMetadata(this@readExif.toFile()))
+fun Path.readExif(exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }): Map<ExifdataKey, String> =
+    mutableMapOf<ExifdataKey, String>().apply {
+        ExifInformation(ImageMetadataReader.readMetadata(this@readExif.toFile()))
             .let { exifInformation ->
                 ExifdataKey.values().forEach { key ->
                     val exifValue = key.getValue(exifInformation)
                     exifReplaceFunction(key to exifValue)
-                            .also { (key, possibleValue) ->
-                                if (possibleValue != null)
-                                    put(key, possibleValue)
-                            }
+                        .also { (key, possibleValue) ->
+                            if (possibleValue != null)
+                                put(key, possibleValue)
+                        }
                 }
             }
-}
+    }

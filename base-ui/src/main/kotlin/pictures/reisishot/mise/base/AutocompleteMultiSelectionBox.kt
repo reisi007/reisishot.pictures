@@ -27,7 +27,10 @@ import java.util.*
 /**
  * Code based on https://stackoverflow.com/a/56644865/1870799 with minor modifications
  */
-class AutocompleteMultiSelectionBox<T : Comparable<T>>(private val maxItems: Int = -1, private val entryGenerator: (String) -> T?) : HBox() {
+class AutocompleteMultiSelectionBox<T : Comparable<T>>(
+    private val maxItems: Int = -1,
+    private val entryGenerator: (String) -> T?
+) : HBox() {
     val tags: MutableList<T>
     val suggestions: MutableSet<T>
     private val entriesPopup: ContextMenu
@@ -45,8 +48,8 @@ class AutocompleteMultiSelectionBox<T : Comparable<T>>(private val maxItems: Int
             } else {
                 //filter all possible suggestions depends on "Text", case insensitive
                 val filteredEntries = suggestions.asSequence()
-                        .filter { it.toString().contains(newValue, true) }
-                        .toList()
+                    .filter { it.toString().contains(newValue, true) }
+                    .toList()
                 //some suggestions are found
                 if (filteredEntries.isNotEmpty()) {
                     //build popup - list of "CustomMenuItem"
@@ -78,23 +81,23 @@ class AutocompleteMultiSelectionBox<T : Comparable<T>>(private val maxItems: Int
         //List of "suggestions"
         //Build list as set of labels
         val menuItems = searchResult.asSequence()
-                .take(MAX_ENTRIES)// Limit to MAX_ENTRIES in the suggestions
-                .minus(tags)
-                .map { result ->
-                    //label with graphic (text flow) to highlight founded subtext in suggestions
-                    val textFlow = buildTextFlow(result.toString(), searchRequest)
-                    textFlow.prefWidthProperty().bind(widthProperty())
-                    val item = CustomMenuItem(textFlow, true)
+            .take(MAX_ENTRIES)// Limit to MAX_ENTRIES in the suggestions
+            .minus(tags)
+            .map { result ->
+                //label with graphic (text flow) to highlight founded subtext in suggestions
+                val textFlow = buildTextFlow(result.toString(), searchRequest)
+                textFlow.prefWidthProperty().bind(widthProperty())
+                val item = CustomMenuItem(textFlow, true)
 
-                    //if any suggestion is select set it into text and close popup
-                    item.onAction = EventHandler {
-                        tags.add(result)
-                        suggestions.remove(result)
-                        inputTextField.clear()
-                        entriesPopup.hide()
-                    }
-                    item
-                }.toList()
+                //if any suggestion is select set it into text and close popup
+                item.onAction = EventHandler {
+                    tags.add(result)
+                    suggestions.remove(result)
+                    inputTextField.clear()
+                    entriesPopup.hide()
+                }
+                item
+            }.toList()
 
         //"Refresh" context menu
         entriesPopup.items.clear()
@@ -112,7 +115,7 @@ class AutocompleteMultiSelectionBox<T : Comparable<T>>(private val maxItems: Int
         this.suggestions.addAll(suggestions)
     }
 
-    private inner class Tag internal constructor(tag: T) : HBox() {
+    private inner class Tag(tag: T) : HBox() {
         init {
             // Style
             styleClass.add("tag")
@@ -152,8 +155,12 @@ class AutocompleteMultiSelectionBox<T : Comparable<T>>(private val maxItems: Int
             val filterIndex = text.toLowerCase().indexOf(filter.toLowerCase())
             val textBefore = Text(text.substring(0, filterIndex))
             val textAfter = Text(text.substring(filterIndex + filter.length))
-            val textFilter = Text(text.substring(filterIndex,
-                    filterIndex + filter.length)) //instead of "filter" to keep all "case sensitive"
+            val textFilter = Text(
+                text.substring(
+                    filterIndex,
+                    filterIndex + filter.length
+                )
+            ) //instead of "filter" to keep all "case sensitive"
 
             textFilter.fill = Color.ORANGE
             textFilter.font = Font.font("Helvetica", FontWeight.BOLD, 12.0)

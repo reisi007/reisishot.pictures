@@ -12,7 +12,6 @@ import java.nio.file.*
 import java.nio.file.StandardWatchEventKinds.*
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.collections.HashSet
 
 object Mise {
 
@@ -39,12 +38,15 @@ object Mise {
 
     }
 
-    private suspend fun WebsiteConfiguration.generateWebsite(buildingCache: BuildingCache, generatorMap: Map<Int, List<WebsiteGenerator>>) = doing("Building website") {
+    private suspend fun WebsiteConfiguration.generateWebsite(
+        buildingCache: BuildingCache,
+        generatorMap: Map<Int, List<WebsiteGenerator>>
+    ) = doing("Building website") {
         with(generatorMap) {
             values.asSequence()
-                    .flatMap { it.asSequence() }
-                    .asIterable()
-                    .forEachParallel { it.saveCache(this@generateWebsite, buildingCache) }
+                .flatMap { it.asSequence() }
+                .asIterable()
+                .forEachParallel { it.saveCache(this@generateWebsite, buildingCache) }
         }
         val runGenerators = mutableListOf<WebsiteGenerator>()
 
@@ -56,42 +58,53 @@ object Mise {
 
     private fun WebsiteConfiguration.loadCache(): BuildingCache = BuildingCache().also { it.loadCache(this) }
 
-    private suspend fun WebsiteConfiguration.setupGenerators(cache: BuildingCache): Map<Int, List<WebsiteGenerator>> = doing("Reading / generating cache...") {
-        // It is very important that this map is sorted!
-        val generatorMap = TreeMap<Int, MutableList<WebsiteGenerator>>()
+    private suspend fun WebsiteConfiguration.setupGenerators(cache: BuildingCache): Map<Int, List<WebsiteGenerator>> =
+        doing("Reading / generating cache...") {
+            // It is very important that this map is sorted!
+            val generatorMap = TreeMap<Int, MutableList<WebsiteGenerator>>()
 
-        generators.forEach { generator ->
-            generatorMap.computeIfAbsent(generator.executionPriority) { mutableListOf() } += generator
+            generators.forEach { generator ->
+                generatorMap.computeIfAbsent(generator.executionPriority) { mutableListOf() } += generator
+            }
+
+            generatorMap.values.flatten().forEachParallel { it.loadCache(this@setupGenerators, cache) }
+
+
+            val runGenerators = mutableListOf<WebsiteGenerator>()
+            generatorMap.forEachLimitedParallel {
+                it.fetchInitialInformation(this@setupGenerators, cache, runGenerators)
+                if (cleanupGeneration)
+                    it.cleanup(this, cache)
+                runGenerators += it
+            }
+
+            generatorMap
         }
 
-        generatorMap.values.flatten().forEachParallel { it.loadCache(this@setupGenerators, cache) }
-
-
-        val runGenerators = mutableListOf<WebsiteGenerator>()
-        generatorMap.forEachLimitedParallel {
-            it.fetchInitialInformation(this@setupGenerators, cache, runGenerators)
-            if (cleanupGeneration)
-                it.cleanup(this, cache)
-            runGenerators += it
-        }
-
-        generatorMap
-    }
-
-    private suspend fun BuildingCache.store(websiteConfiguration: WebsiteConfiguration, generatorMap: Map<Int, List<WebsiteGenerator>>) = doing("Writing cache...") {
+    private suspend fun BuildingCache.store(
+        websiteConfiguration: WebsiteConfiguration,
+        generatorMap: Map<Int, List<WebsiteGenerator>>
+    ) = doing("Writing cache...") {
         generatorMap.values.flatMap { it }.forEachParallel { it.saveCache(websiteConfiguration, this@store) }
         saveCache()
 
     }
 
-    private suspend fun WebsiteConfiguration.startIncrementalGeneration(cache: BuildingCache, generators: Map<Int, List<WebsiteGenerator>>) = doing("Waiting for changes in order to perform an incremental build") {
+    private suspend fun WebsiteConfiguration.startIncrementalGeneration(
+        cache: BuildingCache,
+        generators: Map<Int, List<WebsiteGenerator>>
+    ) = doing("Waiting for changes in order to perform an incremental build") {
         val watchKey = withContext(Dispatchers.IO) {
             FileSystems.getDefault().newWatchService().let {
-                inPath.register(it, arrayOf(ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE), ExtendedWatchEventModifier.FILE_TREE)
+                inPath.register(
+                    it,
+                    arrayOf(ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE),
+                    ExtendedWatchEventModifier.FILE_TREE
+                )
             }
         }
         val coroutineDispatcher = newFixedThreadPoolContext(
-                Runtime.getRuntime().availableProcessors(), "Incremental pool"
+            Runtime.getRuntime().availableProcessors(), "Incremental pool"
         )
         val loopMs = interactiveDelayMs
         while (loopMs != null) {
@@ -104,7 +117,13 @@ object Mise {
         }
     }
 
-    private suspend fun WatchKey.processEvents(configuration: WebsiteConfiguration, watchedDir: Path, cache: BuildingCache, generatorMap: Map<Int, List<WebsiteGenerator>>, coroutineDispatcher: CoroutineDispatcher) {
+    private suspend fun WatchKey.processEvents(
+        configuration: WebsiteConfiguration,
+        watchedDir: Path,
+        cache: BuildingCache,
+        generatorMap: Map<Int, List<WebsiteGenerator>>,
+        coroutineDispatcher: CoroutineDispatcher
+    ) {
         val changedFileset = pollEvents(configuration, watchedDir)
         if (changedFileset.isNotEmpty())
             doing("Incremental build") {
@@ -140,14 +159,18 @@ object Mise {
         return changedFileset
     }
 
-    fun mapToInternal(polledEvents: List<WatchEvent<*>>, watchedDir: Path, configuration: WebsiteConfiguration): MutableChangedFileset {
+    fun mapToInternal(
+        polledEvents: List<WatchEvent<*>>,
+        watchedDir: Path,
+        configuration: WebsiteConfiguration
+    ): MutableChangedFileset {
         val events: MutableChangedFileset = mutableMapOf()
 
         polledEvents.forEach {
             val path = it.getContextPath()
-                    ?.let { watchedDir.resolve(it).normalize() }
-                    ?.filterIllegalPaths(configuration)
-                    ?: return@forEach
+                ?.let { watchedDir.resolve(it).normalize() }
+                ?.filterIllegalPaths(configuration)
+                ?: return@forEach
             val kind = it.kind()?.asChangeState() ?: return@forEach
             events.computeIfAbsent(path) { HashSet() } += kind
         }
@@ -157,9 +180,9 @@ object Mise {
 
     private fun Path?.filterIllegalPaths(websiteConfiguration: WebsiteConfiguration): Path? = this?.let {
         if (
-                Files.exists(this) &&
-                Files.isRegularFile(this) &&
-                !it.hasExtension(*websiteConfiguration.interactiveIgnoredFiles)
+            Files.exists(this) &&
+            Files.isRegularFile(this) &&
+            !it.hasExtension(*websiteConfiguration.interactiveIgnoredFiles)
         )
             it
         else null

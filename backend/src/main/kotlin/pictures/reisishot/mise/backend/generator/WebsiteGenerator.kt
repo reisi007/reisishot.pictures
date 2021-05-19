@@ -18,52 +18,52 @@ interface WebsiteGenerator {
 
 
     suspend fun fetchInitialInformation(
-            configuration: WebsiteConfiguration,
-            cache: BuildingCache,
-            alreadyRunGenerators: List<WebsiteGenerator>
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        alreadyRunGenerators: List<WebsiteGenerator>
     )
 
     /**
      * @return true, if the cache has been changed
      */
     suspend fun fetchUpdateInformation(
-            configuration: WebsiteConfiguration,
-            cache: BuildingCache,
-            alreadyRunGenerators: List<WebsiteGenerator>,
-            changeFiles: ChangeFileset
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        alreadyRunGenerators: List<WebsiteGenerator>,
+        changeFiles: ChangeFileset
     ): Boolean
 
     suspend fun buildInitialArtifacts(
-            configuration: WebsiteConfiguration,
-            cache: BuildingCache
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache
     )
 
     /**
      * @return true, if the cache has been changed
      */
     suspend fun buildUpdateArtifacts(
-            configuration: WebsiteConfiguration,
-            cache: BuildingCache,
-            changeFiles: ChangeFileset
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        changeFiles: ChangeFileset
     ): Boolean
 
     suspend fun loadCache(
-            configuration: WebsiteConfiguration,
-            cache: BuildingCache
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache
     ) {
         println("Load cache")
     }
 
     suspend fun saveCache(
-            configuration: WebsiteConfiguration,
-            cache: BuildingCache
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache
     ) {
         println("Save cache")
     }
 
     suspend fun cleanup(
-            configuration: WebsiteConfiguration,
-            cache: BuildingCache
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache
     )
 
     fun println(a: Any?) {
@@ -80,9 +80,9 @@ typealias MutableChangedFileset = MutableMap<Path, MutableSet<ChangeState>>
 typealias ChangeFilesetEntry = Pair<Path, Set<ChangeState>>
 
 fun ChangeFileset.hasDeletions(vararg predicates: (FileExtension) -> Boolean) = asSequence()
-        .map { (k, v) -> k to v }
-        .filter { changedStates -> changedStates.isStateDeleted() }
-        .any { (file, _) -> file.hasExtension(*predicates) }
+    .map { (k, v) -> k to v }
+    .filter { changedStates -> changedStates.isStateDeleted() }
+    .any { (file, _) -> file.hasExtension(*predicates) }
 
 fun ChangeFilesetEntry.isStateEdited() = let { (file, changeSet) ->
     (changeSet.containsAll(listOf(CREATE, DELETE)) || changeSet.contains(EDIT)) && file.exists()

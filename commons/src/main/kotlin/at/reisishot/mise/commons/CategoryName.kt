@@ -1,13 +1,15 @@
 package at.reisishot.mise.commons
 
-class CategoryName(val complexName: ComplexName,
-                   val sortKey: String = complexName,
-                   val displayName: String = complexName.substringAfterLast("/")
+class CategoryName(
+    val complexName: ComplexName,
+    val sortKey: String = complexName,
+    val displayName: String = complexName.substringAfterLast("/")
 ) : Comparable<CategoryName> {
-    override fun compareTo(other: CategoryName): Int = compareValuesBy(this, other,
-            CategoryName::sortKey,
-            CategoryName::displayName,
-            CategoryName::complexName
+    override fun compareTo(other: CategoryName): Int = compareValuesBy(
+        this, other,
+        CategoryName::sortKey,
+        CategoryName::displayName,
+        CategoryName::complexName
     )
 
     override fun equals(other: Any?): Boolean {

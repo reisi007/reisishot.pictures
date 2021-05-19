@@ -17,18 +17,19 @@ import java.util.*
 object PageGenerator {
 
     const val LAZYLOADER_CLASSNAME = "lazy"
-    private const val polyfillUrl = "https://polyfill.io/v3/polyfill.min.js?flags=gated&features=Object.assign%2CIntersectionObserver"
+    private const val polyfillUrl =
+        "https://polyfill.io/v3/polyfill.min.js?flags=gated&features=Object.assign%2CIntersectionObserver"
 
     fun generatePage(
-            target: Path,
-            title: String,
-            locale: Locale = Locale.getDefault(),
-            websiteConfiguration: WebsiteConfiguration,
-            buildingCache: BuildingCache,
-            galleryGenerator: AbstractGalleryGenerator,
-            additionalHeadContent: HEAD.() -> Unit = {},
-            minimalPage: Boolean = false,
-            pageContent: DIV.() -> Unit
+        target: Path,
+        title: String,
+        locale: Locale = Locale.getDefault(),
+        websiteConfiguration: WebsiteConfiguration,
+        buildingCache: BuildingCache,
+        galleryGenerator: AbstractGalleryGenerator,
+        additionalHeadContent: HEAD.() -> Unit = {},
+        minimalPage: Boolean = false,
+        pageContent: DIV.() -> Unit
     ): BufferedWriter = with(target) {
         target.parent?.let {
             Files.createDirectories(it)
@@ -36,105 +37,109 @@ object PageGenerator {
         Files.newBufferedWriter(target, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE).use {
             it.write("<!doctype html>")
             it.appendUnformattedHtml()
-                    .html(namespace = "http://www.w3.org/1999/xhtml") {
-                        val url = BuildingCache.getLinkFromFragment(
-                                websiteConfiguration,
-                                websiteConfiguration.outPath.relativize(target)
-                                        .parent
-                                        ?.toString()
-                                        ?: ""
-                        )
-                        classes = classes + "h-100"
-                        head {
-                            lang = locale.toLanguageTag()
-                            preload(websiteConfiguration)
-                            metaUTF8()
-                            metaViewport()
-                            linkCanonnical(url)
-                            favicon()
-                            title(title)
-                            appCss(websiteConfiguration)
-                            additionalHeadContent(this)
-                        }
-                        body("d-flex flex-column h-100") {
-                            if (!minimalPage)
-                                header {
-                                    buildMenu(websiteConfiguration, galleryGenerator, buildingCache.menuLinks)
-                                }
-
-                            main("flex-shrink-0") {
-                                attributes["role"] = "main"
-                                fluidContainer {
-                                    div("container") {
-                                        id = "content"
-                                        socialSharing(url, title)
-                                        pageContent(this)
-                                    }
-                                }
-                            }
-
-                            footer("footer mt-auto py-3") {
-                                container {
-                                    a {
-                                        attributes["name"] = "footer"
-                                    }
-                                    websiteConfiguration.createForm(this, target)
-                                    p("text-muted center") {
-                                        text("© ${websiteConfiguration.longTitle}")
-                                    }
-                                    p("text-muted center") {
-                                        a(buildingCache.getLinkcacheEntryFor(websiteConfiguration, "PAGE", "Impressum")) {
-                                            text("Impressum & Datenschutz")
-                                        }
-                                    }
-                                    websiteConfiguration.socialMediaLinks?.let { accounts ->
-                                        span("socialIcons") {
-                                            accounts.facebook?.let {
-                                                a("https://fb.me/$it", "_blank") {
-                                                    insertIcon(ReisishotIcons.FB)
-                                                }
-                                            }
-                                            accounts.instagram?.let {
-                                                a("https://www.instagram.com/$it/", "_blank") {
-                                                    insertIcon(ReisishotIcons.INSTAGRAM)
-                                                }
-                                            }
-                                            accounts.podcast?.let {
-                                                a(it, "_blank") {
-                                                    insertIcon(ReisishotIcons.PODCAST)
-                                                }
-                                            }
-                                            accounts.whatsapp?.let {
-                                                a("https://wa.me/$it", "_blank") {
-                                                    insertIcon(ReisishotIcons.WHATSAPP)
-                                                }
-                                            }
-                                            accounts.facebook?.let {
-                                                a("https://m.me/$it", "_blank") {
-                                                    insertIcon(ReisishotIcons.FB_MESSENGER)
-                                                }
-                                            }
-                                            accounts.mail?.let { mail ->
-                                                a("mailto:$mail", "_blank") {
-                                                    insertIcon(ReisishotIcons.MAIL)
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            polyfills()
-                            analyticsJs(websiteConfiguration)
-                            cookieInfo(websiteConfiguration.isDevMode)
-                            analyticsImage(websiteConfiguration)
-                            websiteConfiguration.fbMessengerChatPlugin?.let { fbChat(it) }
-                        }
+                .html(namespace = "http://www.w3.org/1999/xhtml") {
+                    val url = BuildingCache.getLinkFromFragment(
+                        websiteConfiguration,
+                        websiteConfiguration.outPath.relativize(target)
+                            .parent
+                            ?.toString()
+                            ?: ""
+                    )
+                    classes = classes + "h-100"
+                    head {
+                        lang = locale.toLanguageTag()
+                        preload(websiteConfiguration)
+                        metaUTF8()
+                        metaViewport()
+                        linkCanonnical(url)
+                        favicon()
+                        title(title)
+                        appCss(websiteConfiguration)
+                        additionalHeadContent(this)
                     }
+                    body("d-flex flex-column h-100") {
+                        if (!minimalPage)
+                            header {
+                                buildMenu(websiteConfiguration, galleryGenerator, buildingCache.menuLinks)
+                            }
+
+                        main("flex-shrink-0") {
+                            attributes["role"] = "main"
+                            fluidContainer {
+                                div("container") {
+                                    id = "content"
+                                    socialSharing(url, title)
+                                    pageContent(this)
+                                }
+                            }
+                        }
+
+                        footer("footer mt-auto py-3") {
+                            container {
+                                a {
+                                    attributes["name"] = "footer"
+                                }
+                                websiteConfiguration.createForm(this, target)
+                                p("text-muted center") {
+                                    text("© ${websiteConfiguration.longTitle}")
+                                }
+                                p("text-muted center") {
+                                    a(buildingCache.getLinkcacheEntryFor(websiteConfiguration, "PAGE", "Impressum")) {
+                                        text("Impressum & Datenschutz")
+                                    }
+                                }
+                                websiteConfiguration.socialMediaLinks?.let { accounts ->
+                                    span("socialIcons") {
+                                        accounts.facebook?.let {
+                                            a("https://fb.me/$it", "_blank") {
+                                                insertIcon(ReisishotIcons.FB)
+                                            }
+                                        }
+                                        accounts.instagram?.let {
+                                            a("https://www.instagram.com/$it/", "_blank") {
+                                                insertIcon(ReisishotIcons.INSTAGRAM)
+                                            }
+                                        }
+                                        accounts.podcast?.let {
+                                            a(it, "_blank") {
+                                                insertIcon(ReisishotIcons.PODCAST)
+                                            }
+                                        }
+                                        accounts.whatsapp?.let {
+                                            a("https://wa.me/$it", "_blank") {
+                                                insertIcon(ReisishotIcons.WHATSAPP)
+                                            }
+                                        }
+                                        accounts.facebook?.let {
+                                            a("https://m.me/$it", "_blank") {
+                                                insertIcon(ReisishotIcons.FB_MESSENGER)
+                                            }
+                                        }
+                                        accounts.mail?.let { mail ->
+                                            a("mailto:$mail", "_blank") {
+                                                insertIcon(ReisishotIcons.MAIL)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        polyfills()
+                        analyticsJs(websiteConfiguration)
+                        cookieInfo(websiteConfiguration.isDevMode)
+                        analyticsImage(websiteConfiguration)
+                        websiteConfiguration.fbMessengerChatPlugin?.let { fbChat(it) }
+                    }
+                }
         }
     }
 
 
-    private fun HEADER.buildMenu(websiteConfiguration: WebsiteConfiguration, galleryGenerator: AbstractGalleryGenerator, items: Collection<MenuLink>) {
+    private fun HEADER.buildMenu(
+        websiteConfiguration: WebsiteConfiguration,
+        galleryGenerator: AbstractGalleryGenerator,
+        items: Collection<MenuLink>
+    ) {
         nav("navbar navbar-dark navbar-fixed-top navbar-expand-${websiteConfiguration.bootsrapMenuBreakpoint}") {
             val navId = "navbarCollapse"
             a(classes = "navbar-brand", href = "/") {
@@ -179,7 +184,7 @@ object PageGenerator {
 
                             } else {
                                 a(
-                                        classes = "nav-link"
+                                    classes = "nav-link"
                                 ) {
                                     accept(curItem, websiteConfiguration)
                                 }
@@ -216,13 +221,13 @@ object PageGenerator {
 
     @HtmlTagMarker
     private fun HEAD.linkCanonnical(url: String) = link(
-            rel = "canonical",
-            href = url
+        rel = "canonical",
+        href = url
     )
 
     @HtmlTagMarker
     private fun HEAD.metaViewport() =
-            meta(name = "viewport", content = "width=device-width, initial-scale=1, shrink-to-fit=no")
+        meta(name = "viewport", content = "width=device-width, initial-scale=1, shrink-to-fit=no")
 
     @HtmlTagMarker
     private fun HEAD.preload(configuration: WebsiteConfiguration) {
@@ -304,22 +309,24 @@ object PageGenerator {
         val prefix = getRessourceUrlPrefix(devMode)
         script("text/javascript", "$prefix/js/combined.min.js") {
             attributes.putAll(
-                    sequenceOf(
-                            "id" to "cookieinfo",
-                            "data-message" to "Hier werden Cookies verwendet. Wenn Sie fortfahren akzeptieren Sie die Verwendung von Cookies",
-                            "data-linkmsg" to "Weitere Informationen zum Datenschutz",
-                            "data-moreinfo" to "https://reisishot.pictures/datenschutz",
-                            "data-close-text" to "Akzeptieren",
-                            "data-accept-on-scroll" to "true"
-                    )
+                sequenceOf(
+                    "id" to "cookieinfo",
+                    "data-message" to "Hier werden Cookies verwendet. Wenn Sie fortfahren akzeptieren Sie die Verwendung von Cookies",
+                    "data-linkmsg" to "Weitere Informationen zum Datenschutz",
+                    "data-moreinfo" to "https://reisishot.pictures/datenschutz",
+                    "data-close-text" to "Akzeptieren",
+                    "data-accept-on-scroll" to "true"
+                )
             )
 
         }
     }
 
     @HtmlTagMarker
-    private fun BODY.analyticsJs(websiteConfiguration: WebsiteConfiguration) = websiteConfiguration.analyticsSiteId?.let {
-        raw("""
+    private fun BODY.analyticsJs(websiteConfiguration: WebsiteConfiguration) =
+        websiteConfiguration.analyticsSiteId?.let {
+            raw(
+                """
         <!-- Matomo -->
         <script type="text/javascript">
           var _paq = window._paq || [];
@@ -334,13 +341,16 @@ object PageGenerator {
           })();
         </script>
         <!-- End Matomo Code -->
-    """.trimIndent().replace("[\n\r]", ""))
-    }
+    """.trimIndent()
+                    .replace("[\n\r]", "")
+            )
+        }
 
     @HtmlTagMarker
-    private fun BODY.analyticsImage(websiteConfiguration: WebsiteConfiguration) = websiteConfiguration.analyticsSiteId?.let {
-        img(src = """https://analytics.reisishot.pictures/matomo.php?idsite=$it&amp;rec=1""")
-    }
+    private fun BODY.analyticsImage(websiteConfiguration: WebsiteConfiguration) =
+        websiteConfiguration.analyticsSiteId?.let {
+            img(src = """https://analytics.reisishot.pictures/matomo.php?idsite=$it&amp;rec=1""")
+        }
 
     @HtmlTagMarker
     private fun BODY.fbChat(data: FacebookMessengerChatPlugin) {

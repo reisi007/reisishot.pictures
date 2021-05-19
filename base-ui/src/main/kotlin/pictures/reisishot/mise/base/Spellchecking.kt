@@ -19,51 +19,52 @@ private val spellchecker by lazy {
 
     val ignoredWords by lazy {
         val ignoredWords = ClassLoader.getSystemClassLoader()
-                .getResourceAsStream("ignore.txt")
-                ?.bufferedReader(Charsets.UTF_8)
-                ?.use { it.lines().toList() }
-                ?: emptyList()
+            .getResourceAsStream("ignore.txt")
+            ?.bufferedReader(Charsets.UTF_8)
+            ?.use { it.lines().toList() }
+            ?: emptyList()
 
         println("${ignoredWords.size} Wörter werden ignoriert")
         ignoredWords
     }
 
     spellchecker.allRules
-            .asSequence()
-            .map { it as? SpellingCheckRule }
-            .filterNotNull()
-            .forEach {
-                it.addIgnoreTokens(ignoredWords)
+        .asSequence()
+        .map { it as? SpellingCheckRule }
+        .filterNotNull()
+        .forEach {
+            it.addIgnoreTokens(ignoredWords)
 
-            }
+        }
 
     spellchecker
 }
 
 private val isSpellCheckerInitialized = AtomicBoolean(false)
 
-fun <T : TextInputControl> T.enableSpellcheck(consumer: T.(List<String>) -> Unit = { spellcheckTooltipConsumer(it) }) = also { t ->
-    val debouncing = PauseTransition(Duration(500.0))
+fun <T : TextInputControl> T.enableSpellcheck(consumer: T.(List<String>) -> Unit = { spellcheckTooltipConsumer(it) }) =
+    also { t ->
+        val debouncing = PauseTransition(Duration(500.0))
             .apply {
                 onFinished = EventHandler {
                     consumer(t.performSpellcheck())
 
                 }
             }
-    if (!isSpellCheckerInitialized.get()) {
-        runAsync {
-            finally {
-                println("Spell check: " + spellchecker.language)
+        if (!isSpellCheckerInitialized.get()) {
+            runAsync {
+                finally {
+                    println("Spell check: " + spellchecker.language)
+                }
+                spellchecker.check("init")
+                isSpellCheckerInitialized.lazySet(true)
             }
-            spellchecker.check("init")
-            isSpellCheckerInitialized.lazySet(true)
+        }
+
+        onKeyReleased = EventHandler {
+            debouncing.playFromStart()
         }
     }
-
-    onKeyReleased = EventHandler {
-        debouncing.playFromStart()
-    }
-}
 
 private fun <T : TextInputControl> T.spellcheckTooltipConsumer(spellingErrors: List<String>) {
     if (spellingErrors.isEmpty())
@@ -81,14 +82,14 @@ private fun TextInputControl.performSpellcheck(): List<String> = performSpellChe
 
 private fun performSpellCheck(text: String): List<String> = if (isSpellCheckerInitialized.get())
     spellchecker
-            .check(text)
-            .map { match ->
-                val message = "\"" + text.substring(match.fromPos, match.toPos) + "\" (" + match.shortMessage + ")"
-                if (match.suggestedReplacements.isNotEmpty())
-                    message + match.suggestedReplacements.joinToString(", ", prefix = ": ") { it }
-                else
-                    message
-            }
+        .check(text)
+        .map { match ->
+            val message = "\"" + text.substring(match.fromPos, match.toPos) + "\" (" + match.shortMessage + ")"
+            if (match.suggestedReplacements.isNotEmpty())
+                message + match.suggestedReplacements.joinToString(", ", prefix = ": ") { it }
+            else
+                message
+        }
 else emptyList()
 
 // https://stackoverflow.com/a/27739605/1870799

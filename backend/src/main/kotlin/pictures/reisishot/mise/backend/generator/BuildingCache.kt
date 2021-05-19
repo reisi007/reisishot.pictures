@@ -13,13 +13,17 @@ class BuildingCache {
     private lateinit var linkPath: Path
 
     companion object {
-        fun getLinkFromFragment(config: WebsiteConfiguration, it: Link, websiteLocationSupplier: () -> String = { config.normalizedWebsiteLocation }): Link =
-                if (it.startsWith("http", true))
-                    it
-                else if (config.isDevMode)
-                    "http://localhost:3000/$it"
-                else
-                    websiteLocationSupplier() + it
+        fun getLinkFromFragment(
+            config: WebsiteConfiguration,
+            it: Link,
+            websiteLocationSupplier: () -> String = { config.normalizedWebsiteLocation }
+        ): Link =
+            if (it.startsWith("http", true))
+                it
+            else if (config.isDevMode)
+                "http://localhost:3000/$it"
+            else
+                websiteLocationSupplier() + it
     }
 
     private val linkCache: MutableMap<String, MutableMap<String, Link>> = ConcurrentHashMap()
@@ -34,9 +38,10 @@ class BuildingCache {
         linkCache.computeIfAbsent(linkType) { ConcurrentHashMap() }.put(linkKey, link)
     }
 
-    fun getLinkcacheEntryFor(config: WebsiteConfiguration, linkType: String, linkKey: String): Link = linkCache[linkType]?.get(linkKey)?.let {
-        getLinkFromFragment(config, it)
-    } ?: throw IllegalStateException("Menu link with type $linkType and key $linkKey not found!")
+    fun getLinkcacheEntryFor(config: WebsiteConfiguration, linkType: String, linkKey: String): Link =
+        linkCache[linkType]?.get(linkKey)?.let {
+            getLinkFromFragment(config, it)
+        } ?: throw IllegalStateException("Menu link with type $linkType and key $linkKey not found!")
 
     fun getLinkcacheEntriesFor(linkType: String): Map<String, Link> = linkCache[linkType] ?: emptyMap()
 
@@ -44,21 +49,27 @@ class BuildingCache {
         internalMenuLinks.removeIf(removePredicate)
     }
 
-    fun addMenuItem(id: String = UUID.randomUUID().toString(), index: Int, href: Link, text: LinkText, target: String? = null) =
-            synchronized(internalMenuLinks) {
-                val item = MenuLinkContainerItem(id, index, href, text, target)
-                internalMenuLinks.add(item)
-            }
+    fun addMenuItem(
+        id: String = UUID.randomUUID().toString(),
+        index: Int,
+        href: Link,
+        text: LinkText,
+        target: String? = null
+    ) =
+        synchronized(internalMenuLinks) {
+            val item = MenuLinkContainerItem(id, index, href, text, target)
+            internalMenuLinks.add(item)
+        }
 
     fun addMenuItemInContainerNoDupes(
-            containerId: String,
-            containerText: String,
-            containerIndex: Int,
-            text: LinkText,
-            link: Link,
-            target: String? = null,
-            orderFunction: (MenuLinkContainerItem) -> Int = { it.uniqueIndex },
-            elementIndex: Int = 0
+        containerId: String,
+        containerText: String,
+        containerIndex: Int,
+        text: LinkText,
+        link: Link,
+        target: String? = null,
+        orderFunction: (MenuLinkContainerItem) -> Int = { it.uniqueIndex },
+        elementIndex: Int = 0
     ): Unit = synchronized(internalMenuLinks) {
         internalMenuLinks.find {
             it is MenuLinkContainer && it.id == containerId && it.text == containerText
@@ -67,38 +78,47 @@ class BuildingCache {
             }
         }.let {
             if (it == null)
-                addMenuItemInContainer(containerId, containerText, containerIndex, text, link, target, orderFunction, elementIndex)
+                addMenuItemInContainer(
+                    containerId,
+                    containerText,
+                    containerIndex,
+                    text,
+                    link,
+                    target,
+                    orderFunction,
+                    elementIndex
+                )
         }
     }
 
     fun addMenuItemInContainer(
-            containerId: String,
-            containerText: String,
-            containerIndex: Int,
-            text: LinkText,
-            link: Link,
-            target: String? = null,
-            orderFunction: (MenuLinkContainerItem) -> Int = { it.uniqueIndex },
-            elementIndex: Int = 0
+        containerId: String,
+        containerText: String,
+        containerIndex: Int,
+        text: LinkText,
+        link: Link,
+        target: String? = null,
+        orderFunction: (MenuLinkContainerItem) -> Int = { it.uniqueIndex },
+        elementIndex: Int = 0
     ) = synchronized(internalMenuLinks) {
         val menuLinkContainer = internalMenuLinks.find {
             it is MenuLinkContainer && containerId == it.id
         } as? MenuLinkContainer ?: run {
             val newContainer = MenuLinkContainer(
-                    containerId,
-                    containerIndex,
-                    containerText,
-                    orderFunction
+                containerId,
+                containerIndex,
+                containerText,
+                orderFunction
             )
             internalMenuLinks.add(newContainer)
             newContainer
         }
         menuLinkContainer += MenuLinkContainerItem(
-                UUID.randomUUID().toString(),
-                elementIndex,
-                link,
-                text,
-                target
+            UUID.randomUUID().toString(),
+            elementIndex,
+            link,
+            text,
+            target
         )
 
     }

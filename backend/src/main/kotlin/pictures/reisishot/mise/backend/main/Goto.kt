@@ -26,45 +26,75 @@ object Goto {
     fun build(isDevMode: Boolean) {
         val folderName = "goto.reisishot.pictures"
         Mise.build(
-                WebsiteConfiguration(
-                        shortTitle = "Reisishot - Herzlich Willkommen",
-                        longTitle = "Reisishot Goto - Übersicht über meine Projekte",
-                        isDevMode = isDevMode,
-                        websiteLocation = "https://$folderName",
-                        inPath = Paths.get("input", folderName).toAbsolutePath(),
-                        tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
-                        outPath = Paths.get("upload", folderName).toAbsolutePath(),
-                        interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
-                        cleanupGeneration = false,
-                        // fbMessengerChatPlugin = generateDefaultChatPlugin(),
-                        analyticsSiteId = "6",
-                        form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
-                            buildForm(
-                                    title = { h2 { text("Kontaktiere mich") } },
-                                    thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich innerhalb von 48h!") } },
-                                    formStructure = {
-                                        FormRoot("footer",
-                                                HiddenFormInput("Seite", BuildingCache.getLinkFromFragment(websiteConfiguration, websiteConfiguration.outPath.relativize(target.parent).toString())),
-                                                FormHGroup(
-                                                        FormInput("Name", "Name", "Dein Name", "Bitte sag mir, wie du heißt", InputType.text),
-                                                        FormInput("E-Mail", "E-Mail Adresse", "Deine E-Mail-Adresse, auf die du deine Antwort bekommst", "Ich kann dich ohne deine E-Mail Adresse nicht kontaktieren", InputType.email)
-                                                ),
-                                                FormInput("Betreff", "Betreff", "Thema deines Anliegens", "Der Betreff der E-Mail, die ich bekomme", InputType.text),
-                                                FormTextArea("Freitext", "Deine Nachricht an mich", "Versuche möglichst genau zu sein, da ich dann besser auf dich eingehen kann", "Bitte vergiss nicht mir eine Nachricht zu hinterlassen"),
-                                                zustimmung
-                                        )
-                                    })
-                        },
-                        generators = listOf(
-                                GalleryGenerator(
-                                        categoryBuilders = emptyArray(),
-                                        exifReplaceFunction = defaultExifReplaceFunction
+            WebsiteConfiguration(
+                shortTitle = "Reisishot - Herzlich Willkommen",
+                longTitle = "Reisishot Goto - Übersicht über meine Projekte",
+                isDevMode = isDevMode,
+                websiteLocation = "https://$folderName",
+                inPath = Paths.get("input", folderName).toAbsolutePath(),
+                tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
+                outPath = Paths.get("upload", folderName).toAbsolutePath(),
+                interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
+                cleanupGeneration = false,
+                // fbMessengerChatPlugin = generateDefaultChatPlugin(),
+                analyticsSiteId = "6",
+                form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
+                    buildForm(
+                        title = { h2 { text("Kontaktiere mich") } },
+                        thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich innerhalb von 48h!") } },
+                        formStructure = {
+                            FormRoot(
+                                "footer",
+                                HiddenFormInput(
+                                    "Seite",
+                                    BuildingCache.getLinkFromFragment(
+                                        websiteConfiguration,
+                                        websiteConfiguration.outPath.relativize(target.parent).toString()
+                                    )
                                 ),
-                                ImageInfoImporter(Main.tmpPath, "https://${Main.folderName}/"),
-                                PageGenerator(KeywordConsumer()),
-                                SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
-                        )
+                                FormHGroup(
+                                    FormInput(
+                                        "Name",
+                                        "Name",
+                                        "Dein Name",
+                                        "Bitte sag mir, wie du heißt",
+                                        InputType.text
+                                    ),
+                                    FormInput(
+                                        "E-Mail",
+                                        "E-Mail Adresse",
+                                        "Deine E-Mail-Adresse, auf die du deine Antwort bekommst",
+                                        "Ich kann dich ohne deine E-Mail Adresse nicht kontaktieren",
+                                        InputType.email
+                                    )
+                                ),
+                                FormInput(
+                                    "Betreff",
+                                    "Betreff",
+                                    "Thema deines Anliegens",
+                                    "Der Betreff der E-Mail, die ich bekomme",
+                                    InputType.text
+                                ),
+                                FormTextArea(
+                                    "Freitext",
+                                    "Deine Nachricht an mich",
+                                    "Versuche möglichst genau zu sein, da ich dann besser auf dich eingehen kann",
+                                    "Bitte vergiss nicht mir eine Nachricht zu hinterlassen"
+                                ),
+                                zustimmung
+                            )
+                        })
+                },
+                generators = listOf(
+                    GalleryGenerator(
+                        categoryBuilders = emptyArray(),
+                        exifReplaceFunction = defaultExifReplaceFunction
+                    ),
+                    ImageInfoImporter(Main.tmpPath, "https://${Main.folderName}/"),
+                    PageGenerator(KeywordConsumer()),
+                    SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
                 )
+            )
         )
     }
 }

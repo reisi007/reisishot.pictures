@@ -19,27 +19,32 @@ class MinimalisticPageGenerator(private val galleryGenerator: AbstractGalleryGen
         targetPath.minimalDestinationPath.deleteIfExists()
     }
 
-
-    override fun postCreatePage(configuration: WebsiteConfiguration, cache: BuildingCache, pageMinimalInfo: IPageMininmalInfo, yaml: Yaml, content: String) {
+    override fun postCreatePage(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        pageMinimalInfo: IPageMininmalInfo,
+        yaml: Yaml,
+        content: String
+    ) {
         if (yaml.getString("minimal").toBoolean()) {
             buildPage(pageMinimalInfo, configuration, cache, content)
         }
     }
 
     private fun buildPage(
-            pageMinimalInfo: IPageMininmalInfo,
-            configuration: WebsiteConfiguration,
-            cache: BuildingCache,
-            content: String
+        pageMinimalInfo: IPageMininmalInfo,
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        content: String
     ) {
 
         PageGenerator.generatePage(
-                pageMinimalInfo.targetPath.minimalDestinationPath,
-                pageMinimalInfo.title,
-                websiteConfiguration = configuration,
-                buildingCache = cache,
-                galleryGenerator = galleryGenerator,
-                minimalPage = true,
+            pageMinimalInfo.targetPath.minimalDestinationPath,
+            pageMinimalInfo.title,
+            websiteConfiguration = configuration,
+            buildingCache = cache,
+            galleryGenerator = galleryGenerator,
+            minimalPage = true,
         ) {
             raw(content)
         }

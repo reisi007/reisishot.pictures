@@ -62,13 +62,13 @@ class MainView : View("Main View") {
 
         imageView.fitWidthProperty().bind(widthProperty())
         imageView.fitHeightProperty().bind(
-                heightProperty() -
-                        filenameChooser.heightProperty() -
-                        menuBar.heightProperty() -
-                        form.heightProperty() -
-                        saveButton.heightProperty() -
-                        errorLabel.heightProperty() -
-                        ((children.size) * spacing)
+            heightProperty() -
+                    filenameChooser.heightProperty() -
+                    menuBar.heightProperty() -
+                    form.heightProperty() -
+                    saveButton.heightProperty() -
+                    errorLabel.heightProperty() -
+                    ((children.size) * spacing)
         )
 
         add(menuBar)
@@ -117,10 +117,10 @@ class MainView : View("Main View") {
                         extensionFilters.add(FileChooser.ExtensionFilter("Image files", "*.jpg", "*.jpeg"))
                         val showOpenMultipleDialog = showOpenMultipleDialog(null)
                         path = showOpenMultipleDialog
-                                ?.asSequence()
-                                ?.map { it.toPath() }
-                                ?.map { it.resolveSibling("${it.fileName.filenameWithoutExtension}.conf") }
-                                ?.toList() ?: emptyList()
+                            ?.asSequence()
+                            ?.map { it.toPath() }
+                            ?.map { it.resolveSibling("${it.fileName.filenameWithoutExtension}.conf") }
+                            ?.toList() ?: emptyList()
                     }
                     if (path.isNullOrEmpty())
                         return@setOnAction
@@ -128,13 +128,13 @@ class MainView : View("Main View") {
                         initialDirectory = it
                     }
                     val configs = path.asSequence()
-                            .map {
-                                it to if (it.exists())
-                                    it.parseConfig<ImageConfig>()
-                                            ?: throw IllegalStateException("Cannot load image config from file \"$it\"!")
-                                else
-                                    ImageConfig("", tags = mutableSetOf())
-                            }
+                        .map {
+                            it to if (it.exists())
+                                it.parseConfig<ImageConfig>()
+                                    ?: throw IllegalStateException("Cannot load image config from file \"$it\"!")
+                            else
+                                ImageConfig("", tags = mutableSetOf())
+                        }
 
                     loadImageConfig(configs)
                 }
@@ -154,21 +154,21 @@ class MainView : View("Main View") {
 
                     initialDirectory = dir.toFile()
                     val configNoTags = Files.list(dir)
-                            .filter { it.fileExtension.isConf() }
-                            .map { p -> p to p.parseConfig<ImageConfig>() }
-                            .filter { (_, config) -> config != null }
-                            .map {
-                                @Suppress("UNCHECKED_CAST")
-                                it as Pair<Path, ImageConfig>
-                            }.filter { (_, config) -> config.tags.isEmpty() }
-                            .asSequence()
+                        .filter { it.fileExtension.isConf() }
+                        .map { p -> p to p.parseConfig<ImageConfig>() }
+                        .filter { (_, config) -> config != null }
+                        .map {
+                            @Suppress("UNCHECKED_CAST")
+                            it as Pair<Path, ImageConfig>
+                        }.filter { (_, config) -> config.tags.isEmpty() }
+                        .asSequence()
                     val imagesNoConfig = Files.list(dir)
-                            .map { it.resolveSibling(it.filenameWithoutExtension + ".conf") }
-                            .filter { !Files.exists(it) }
-                            .map { it to ImageConfig("", tags = setOf()) }
-                            .asSequence()
+                        .map { it.resolveSibling(it.filenameWithoutExtension + ".conf") }
+                        .filter { !Files.exists(it) }
+                        .map { it to ImageConfig("", tags = setOf()) }
+                        .asSequence()
                     loadImageConfig(
-                            imagesNoConfig + configNoTags
+                        imagesNoConfig + configNoTags
                     )
                 }
             }
@@ -206,7 +206,8 @@ class MainView : View("Main View") {
         if (oldFilenameData == newFilenameData)
             return
 
-        val newConfigPath = newFilenameData.getNextFreePath(oldConfigPath).let { it.resolveSibling(it.filenameWithoutExtension + ".conf") }
+        val newConfigPath = newFilenameData.getNextFreePath(oldConfigPath)
+            .let { it.resolveSibling(it.filenameWithoutExtension + ".conf") }
         val oldImagePath = oldConfigPath.resolveSibling(oldConfigPath.filenameWithoutExtension + ".jpg")
         val newImagePath = newConfigPath.resolveSibling(newConfigPath.filenameWithoutExtension + ".jpg")
 
@@ -222,7 +223,8 @@ class MainView : View("Main View") {
         val (path, imageConfig) = imageConfigs.firstOrNull() ?: return
         imageConfigs.removeFirst()
         lastPath = path
-        imageView.image = Image(Files.newInputStream(path.let { it.resolveSibling(it.filenameWithoutExtension + ".jpg") }))
+        imageView.image =
+            Image(Files.newInputStream(path.let { it.resolveSibling(it.filenameWithoutExtension + ".jpg") }))
         with(tagField.suggestions) {
             clear()
             addAll(knownTags)
@@ -234,9 +236,9 @@ class MainView : View("Main View") {
         titleField.text = imageConfig.title
         FilenameData.fromPath(path).let {
             filenameChooser.selectedItems = filenameChooser.selectedItems
-                    .firstOrNull()
-                    ?.let { sel -> listOf(sel, it).distinct() }
-                    ?: listOf(it)
+                .firstOrNull()
+                ?.let { sel -> listOf(sel, it).distinct() }
+                ?: listOf(it)
         }
     }
 
@@ -246,9 +248,9 @@ class MainView : View("Main View") {
         else {
             filenameChooser.items.clear()
             Files.list(this)
-                    .filter { it.isRegularFile() }
-                    .filter { it.fileExtension.isJpeg() }
-                    .forEach { filenameChooser.accept(it) }
+                .filter { it.isRegularFile() }
+                .filter { it.fileExtension.isJpeg() }
+                .forEach { filenameChooser.accept(it) }
         }
     }
 
@@ -256,12 +258,12 @@ class MainView : View("Main View") {
         if (!Files.isDirectory(this))
             return parent?.loadTagList() ?: emptyList()
         return Files.list(this)
-                .asSequence()
-                .filter { Files.exists(it) }
-                .filter { it.fileExtension.isConf() }
-                .map { it.parseConfig<ImageConfig>() }
-                .filterNotNull()
-                .flatMap { it.tags.asSequence() }
-                .toList()
+            .asSequence()
+            .filter { Files.exists(it) }
+            .filter { it.fileExtension.isConf() }
+            .map { it.parseConfig<ImageConfig>() }
+            .filterNotNull()
+            .flatMap { it.tags.asSequence() }
+            .toList()
     }
 }
