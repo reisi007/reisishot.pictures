@@ -4,22 +4,14 @@ const
     $ = require('gulp-load-plugins')({lazy: true}),
     sites = ['reisishot.pictures', 'goto.reisishot.pictures', 'portrait.reisishot.pictures'];
 
-function autoprefixCss() {
-    return $.autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4');
-}
 
 gulp.task('styles', function () {
-
     return gulp
         .src('./src/scss/main.scss')
         .pipe($.sass().on('error', $.sass.logError))
-        .pipe(autoprefixCss())
         .pipe($.cleanCss())
         .pipe(purgecss({
-            content: [
-                '../upload/boudoir.reisishot.pictures/**/*.html',
-                './generated/js/*.js'
-            ]
+            content: ['./generated/js/*.js'].concat(sites.map(s => '../upload/' + s + '/**/*.html'))
         }))
         .pipe($.concat('styles.css'))
         .pipe(gulp.dest('generated/css'));
@@ -29,10 +21,12 @@ gulp.task('styles-boudoir', function () {
     return gulp
         .src('./src/scss/main-boudoir.scss')
         .pipe($.sass().on('error', $.sass.logError))
-        .pipe(autoprefixCss())
         .pipe($.cleanCss())
         .pipe(purgecss({
-            content: ['./generated/js/*.js'].concat(sites.map(s => '../upload/' + s + '/**/*.html'))
+            content: [
+                '../upload/boudoir.reisishot.pictures/**/*.html',
+                './generated/js/*.js'
+            ]
         }))
         .pipe($.concat('styles-boudoir.css'))
         .pipe(gulp.dest('generated/css'));
