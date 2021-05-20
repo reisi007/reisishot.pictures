@@ -17,7 +17,7 @@ gulp.task('styles', function () {
         .pipe($.cleanCss())
         .pipe(purgecss({
             content: [
-                '../upload/boudoir.reisishot.pictures/*.html',
+                '../upload/boudoir.reisishot.pictures/**/*.html',
                 './generated/js/*.js'
             ]
         }))
@@ -32,7 +32,7 @@ gulp.task('styles-boudoir', function () {
         .pipe(autoprefixCss())
         .pipe($.cleanCss())
         .pipe(purgecss({
-            content: ['./generated/js/*.js'].concat(sites.map(s => '../upload/' + s + '/*.html'))
+            content: ['./generated/js/*.js'].concat(sites.map(s => '../upload/' + s + '/**/*.html'))
         }))
         .pipe($.concat('styles-boudoir.css'))
         .pipe(gulp.dest('generated/css'));

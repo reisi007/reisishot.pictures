@@ -13,7 +13,6 @@
 .navbar-brand {
   $h: 40px;
   height: $h;
-  padding-bottom: 10px;
   width: 220px;
 
   .pic-holder, div.lazy, img {
@@ -21,7 +20,8 @@
   }
 
   .pic-holder {
-    margin-top: -5px;
+    margin-top: -2.5px;
+    height: 100%;
   }
 
   div.lazy {
