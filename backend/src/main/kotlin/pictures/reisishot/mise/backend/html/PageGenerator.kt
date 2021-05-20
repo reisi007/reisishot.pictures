@@ -166,7 +166,7 @@ object PageGenerator {
                                     classes = classes + " dropdown"
                                     val dropDownId = "dropDown$dropdownCount"
                                     dropdownCount++
-                                    a(classes = "nav-link dropdown-toggle", href = "#") {
+                                    a(classes = "nav-link dropdown-toggle", href = "/") {
                                         attributes["id"] = dropDownId
                                         attributes["role"] = "button"
                                         attributes["data-bs-toggle"] = "dropdown"
