@@ -11,7 +11,7 @@ import pictures.reisishot.mise.backend.generator.gallery.getOrThrow
 import pictures.reisishot.mise.backend.generator.gallery.insertCategoryThumbnails
 import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbnails
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
-import pictures.reisishot.mise.backend.generator.pages.Testimonal
+import pictures.reisishot.mise.backend.generator.pages.Testimonial
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.Yaml
 import pictures.reisishot.mise.backend.html.*
@@ -31,7 +31,7 @@ class TemplateApi(
     private val websiteConfiguration: WebsiteConfiguration
 ) {
 
-    private val testimonials: Map<String, Testimonal> by lazy {
+    private val testimonials: Map<String, Testimonial> by lazy {
         Files.list(websiteConfiguration.inPath withChild "reviews")
             .asSequence()
             .filter { Files.isRegularFile(it) }
@@ -46,14 +46,14 @@ class TemplateApi(
             .toMap()
     }
 
-    private fun Yaml.createTestimonial(p: Path, contentHtml: String): Testimonal {
+    private fun Yaml.createTestimonial(p: Path, contentHtml: String): Testimonial {
         val imageFilename = getString("image")
         val personName = getString("name")
         val date = getString("date")
         val type = getString("type")
         if (imageFilename == null || personName == null || date == null || type == null)
             throw IllegalStateException("Das Testimonial in $p ist nicht vollständig!")
-        return Testimonal(imageFilename, personName, date, type, contentHtml)
+        return Testimonial(imageFilename, personName, date, type, contentHtml)
     }
 
 
@@ -144,7 +144,7 @@ class TemplateApi(
         appendTestimonials(websiteConfiguration, targetPath, galleryGenerator, *testimonialsToDisplay)
     }
 
-    private fun computeMatchingTestimonials(testimonialTypes: Array<out String>): Array<Testimonal> {
+    private fun computeMatchingTestimonials(testimonialTypes: Array<out String>): Array<Testimonial> {
         var tmpTestimonials = testimonials.values.asSequence()
         if (testimonialTypes.isNotEmpty())
             tmpTestimonials = tmpTestimonials.filter { testimonialTypes.contains(it.type) }

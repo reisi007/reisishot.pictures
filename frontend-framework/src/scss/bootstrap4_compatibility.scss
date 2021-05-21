@@ -42,6 +42,10 @@
   padding-top: 75%;
 }
 
+.embed-responsive-4by5::before, .embed-responsive-8by10::before {
+  padding-top: 125%;
+}
+
 .embed-responsive-1by1::before {
   padding-top: 100%;
 }

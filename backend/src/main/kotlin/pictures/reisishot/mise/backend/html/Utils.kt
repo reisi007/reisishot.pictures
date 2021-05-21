@@ -11,7 +11,7 @@ import pictures.reisishot.mise.backend.generator.gallery.CategoryInformation
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.getOrThrow
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
-import pictures.reisishot.mise.backend.generator.pages.Testimonal
+import pictures.reisishot.mise.backend.generator.pages.Testimonial
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
 import pictures.reisishot.mise.backend.htmlparsing.PageMetadata
 import java.util.*
@@ -179,15 +179,19 @@ fun DIV.renderTestimonial(
     websiteConfiguration: WebsiteConfiguration,
     targetPath: TargetPath,
     galleryGenerator: AbstractGalleryGenerator,
-    testimonial: Testimonal
+    testimonial: Testimonial
 ) {
     div("col-12 col-lg-5 card border-black") {
         attributes.itemprop = "review"
         attributes.itemprop = ""
         attributes.itemtype = "https://schema.org/Review"
         with(galleryGenerator.cache) {
-            val curImageInfo = imageInformationData.getOrThrow(testimonial.image, targetPath)
-            insertLazyPicture(curImageInfo, websiteConfiguration, "card-img-top")
+            if (testimonial.video != null) {
+                insertYoutube(testimonial.video, 4, 5, "card-img-top")
+            } else if (testimonial.image != null) {
+                val curImageInfo = imageInformationData.getOrThrow(testimonial.image, targetPath)
+                insertLazyPicture(curImageInfo, websiteConfiguration, "card-img-top")
+            } else throw IllegalStateException("No media available for testimonial $testimonial")
         }
         div("card-body") {
             h5("card-title") {
@@ -216,7 +220,7 @@ fun StringBuilder.appendTestimonials(
     websiteConfiguration: WebsiteConfiguration,
     targetPath: TargetPath,
     galleryGenerator: AbstractGalleryGenerator,
-    vararg testimonialsToDisplay: Testimonal
+    vararg testimonialsToDisplay: Testimonial
 ) {
     appendHTML(false, true).div {
         div("container-flex reviews") {
@@ -260,9 +264,11 @@ internal fun Tag.text(date: Date) {
 }
 
 @HtmlTagMarker
-internal fun HtmlBlockTag.insertYoutube(code: String, w: Int, h: Int) {
+internal fun HtmlBlockTag.insertYoutube(code: String, w: Int, h: Int, vararg additionalClasses: String) {
     p("embed-responsive") {
         classes = classes + ("embed-responsive-" + w + "by" + h)
+        if (!additionalClasses.isNullOrEmpty())
+            classes = classes + additionalClasses
 
         iframe(classes = "embed-responsive-item lazy") {
             attributes["data-src"] = "https://www.youtube-nocookie.com/embed/$code"

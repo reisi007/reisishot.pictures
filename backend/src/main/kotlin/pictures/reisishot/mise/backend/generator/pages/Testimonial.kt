@@ -5,8 +5,9 @@ import pictures.reisishot.mise.backend.df_dd_MMMM_yyyy
 import pictures.reisishot.mise.backend.df_yyyy_MM_dd
 import java.util.*
 
-data class Testimonal(
-    val image: FilenameWithoutExtension,
+data class Testimonial(
+    val image: FilenameWithoutExtension?,
+    val video: String?,
     val name: String,
     val isoDateString: String,
     val type: String,
