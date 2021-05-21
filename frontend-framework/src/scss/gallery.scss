@@ -4,11 +4,13 @@
   margin-bottom: 16px;
 
   &.multiple {
-    $thumbnailSize: 270px;
+    $thumbnailSize: 400px;
 
     .pic-holder {
-      max-height: $thumbnailSize;
-      height: $thumbnailSize;
+      @include media-breakpoint-up(sm) {
+        max-height: $thumbnailSize;
+        height: $thumbnailSize;
+      }
 
       margin-top: $margin;
       margin-bottom: $margin;
