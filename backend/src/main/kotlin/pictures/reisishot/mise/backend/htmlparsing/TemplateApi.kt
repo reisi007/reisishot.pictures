@@ -48,12 +48,13 @@ class TemplateApi(
 
     private fun Yaml.createTestimonial(p: Path, contentHtml: String): Testimonial {
         val imageFilename = getString("image")
+        val ytCode = getString("video")
         val personName = getString("name")
         val date = getString("date")
         val type = getString("type")
-        if (imageFilename == null || personName == null || date == null || type == null)
+        if (personName == null || date == null || type == null || (imageFilename == null && ytCode == null))
             throw IllegalStateException("Das Testimonial in $p ist nicht vollständig!")
-        return Testimonial(imageFilename, personName, date, type, contentHtml)
+        return Testimonial(imageFilename, ytCode, personName, date, type, contentHtml)
     }
 
 
