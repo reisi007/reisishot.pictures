@@ -41,7 +41,7 @@ class MinimalisticPageGenerator(private val galleryGenerator: AbstractGalleryGen
             websiteConfiguration = configuration,
             buildingCache = cache,
             galleryGenerator = galleryGenerator,
-            minimalPage = true,
+            isMinimalPage = true,
         ) {
             raw(content)
         }
