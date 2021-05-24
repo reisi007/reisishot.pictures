@@ -24,7 +24,7 @@ const
     $ = require('gulp-load-plugins')({lazy: true}),
     target = arg.target,
     isBoudoir = target === 'boudoir.reisishot.pictures',
-    inBase = './../' + target + '/',
+    inBase = './../frontend/' + target + '/',
     outBase = './../upload/' + target + '',
     mainStatic = './../frontend-framework/out/**/*',
     boudoirStatic = './../frontend-framework/out_boudoir/**/*',

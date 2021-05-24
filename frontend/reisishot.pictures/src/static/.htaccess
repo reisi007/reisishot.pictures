@@ -6,4 +6,4 @@ RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^(.*[^/])$ /$1/
 
-RedirectMatch 301  ^/shootings.*$ https://portrait.reisishot.pictures/shootings
+RedirectMatch 301  ^/shootings.*$ https://portrait.reisishot.pictures/testimonials

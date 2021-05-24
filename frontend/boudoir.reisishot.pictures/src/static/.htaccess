@@ -5,3 +5,5 @@ RewriteEngine On
 
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^(.*[^/])$ /$1/
+
+RedirectMatch 301  ^/shooting-tagebuch.*$ https://boudoir.reisishot.pictures/testimonials
