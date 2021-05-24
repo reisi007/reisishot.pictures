@@ -28,7 +28,7 @@ object PageGenerator {
         buildingCache: BuildingCache,
         galleryGenerator: AbstractGalleryGenerator,
         additionalHeadContent: HEAD.() -> Unit = {},
-        minimalPage: Boolean = false,
+        isMinimalPage: Boolean = false,
         pageContent: DIV.() -> Unit
     ): BufferedWriter = with(target) {
         target.parent?.let {
@@ -48,7 +48,7 @@ object PageGenerator {
                     classes = classes + "h-100"
                     head {
                         lang = locale.toLanguageTag()
-                        preload(websiteConfiguration)
+                        preload(websiteConfiguration, isMinimalPage)
                         metaUTF8()
                         metaViewport()
                         linkCanonnical(url)
@@ -58,7 +58,7 @@ object PageGenerator {
                         additionalHeadContent(this)
                     }
                     body("d-flex flex-column h-100") {
-                        if (!minimalPage)
+                        if (!isMinimalPage)
                             header {
                                 buildMenu(websiteConfiguration, galleryGenerator, buildingCache.menuLinks)
                             }
@@ -126,7 +126,8 @@ object PageGenerator {
                         analyticsJs(websiteConfiguration)
                         cookieInfo(websiteConfiguration.isDevMode)
                         analyticsImage(websiteConfiguration)
-                        websiteConfiguration.fbMessengerChatPlugin?.let { fbChat(it) }
+                        if (!isMinimalPage)
+                            websiteConfiguration.fbMessengerChatPlugin?.let { fbChat(it) }
                     }
                 }
         }
@@ -230,7 +231,7 @@ object PageGenerator {
         meta(name = "viewport", content = "width=device-width, initial-scale=1, shrink-to-fit=no")
 
     @HtmlTagMarker
-    private fun HEAD.preload(configuration: WebsiteConfiguration) {
+    private fun HEAD.preload(configuration: WebsiteConfiguration, isMinimal: Boolean) {
         val prefix = getRessourceUrlPrefix(configuration.isDevMode)
         link("$prefix/css/rs/fonts/reisishotpictures.woff2", "preload") {
             attributes["as"] = "font"
@@ -239,7 +240,7 @@ object PageGenerator {
         link(polyfillUrl, "preload") {
             attributes["as"] = "script"
         }
-        if (configuration.fbMessengerChatPlugin != null)
+        if (!(isMinimal || configuration.fbMessengerChatPlugin == null))
             link("https://connect.facebook.net/de_DE/sdk/xfbml.customerchat.js", "preload") {
                 attributes["as"] = "script"
             }
