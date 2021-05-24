@@ -4,23 +4,22 @@
   justify-content: center;
 
   margin: 0 auto;
-  max-width: 1200px;
+}
 
-  .sparkGridElement {
-    margin: 4px;
+.sparkGridElement {
+  margin: 4px;
 
-    .asp-embed-link {
-      width: 350px;
-      height: 200px;
-      display: flex;
-      position: relative;
-      cursor: pointer;
+  .asp-embed-link {
+    width: 350px;
+    height: 200px;
+    display: flex;
+    position: relative;
+    cursor: pointer;
 
-      img {
-        object-fit: contain;
-        vertical-align: middle;
-        width: 100%;
-      }
+    img {
+      object-fit: contain;
+      vertical-align: middle;
+      width: 100%;
     }
   }
 }

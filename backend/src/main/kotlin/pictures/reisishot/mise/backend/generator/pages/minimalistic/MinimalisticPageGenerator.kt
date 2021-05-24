@@ -35,7 +35,6 @@ class MinimalisticPageGenerator(private val galleryGenerator: AbstractGalleryGen
         cache: BuildingCache,
         content: String
     ) {
-
         PageGenerator.generatePage(
             pageMinimalInfo.targetPath.minimalDestinationPath,
             pageMinimalInfo.title,

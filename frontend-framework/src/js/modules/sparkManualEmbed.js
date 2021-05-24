@@ -1,11 +1,21 @@
 define(['trackAction'], function (trackAction) {
     const a = document.querySelectorAll(".asp-embed-link")
+
+    function getNameFromATag(cur, fallback) {
+        const img = cur.getElementsByTagName("img")[0];
+        if (img)
+            return img.getAttribute("alt");
+        const dataAlt = cur.getAttribute("data-alt")
+        if (dataAlt)
+            return dataAlt;
+        return fallback;
+    }
+
     for (let idx = 0, e = a.length; idx < e; idx++) {
         let cur = a[idx];
-        const img = cur.getElementsByTagName("img")[0];
         const url = cur.getAttribute("href");
         cur.removeAttribute("href")
-        const alt = img.getAttribute("alt");
+        const alt = getNameFromATag(cur, url);
         cur.onclick = () => window.AdobeSparkPage.showFeature(url, alt)
     }
 
