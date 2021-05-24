@@ -4,7 +4,7 @@ import at.reisishot.mise.commons.*
 import com.drew.imaging.ImageMetadataReader
 import com.drew.metadata.jpeg.JpegDirectory
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
@@ -15,6 +15,7 @@ import pictures.reisishot.mise.backend.toXml
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
+import java.util.concurrent.Executors
 import java.util.stream.Collectors
 import kotlin.math.max
 
@@ -93,10 +94,10 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
     ): Boolean {
         if (changeFiles.hasRelevantDeletions())
             cleanup(configuration, cache)
-        if (changeFiles.hasRelevantChanges()) {
+        return if (changeFiles.hasRelevantChanges()) {
             fetchInitialInformation(configuration, cache, alreadyRunGenerators)
-            return true
-        } else return false
+            true
+        } else false
     }
 
     override suspend fun buildUpdateArtifacts(
@@ -104,10 +105,10 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
         cache: BuildingCache,
         changeFiles: ChangeFileset
     ): Boolean {
-        if (changeFiles.hasRelevantChanges()) {
+        return if (changeFiles.hasRelevantChanges()) {
             buildInitialArtifacts(configuration, cache)
-            return true
-        } else return false
+            true
+        } else false
     }
 
     private fun ChangeFileset.hasRelevantChanges() = keys.asSequence().any { it.hasExtension(FileExtension::isJpeg) }
@@ -139,31 +140,35 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
         cache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
     ) {
-        newFixedThreadPoolContext(4, "Convert").use { preparation ->
-            configuration.inPath.withChild(NAME_IMAGE_SUBFOLDER).list().filter { it.fileExtension.isJpeg() }
-                .asSequence().asIterable().forEachParallel(preparation) { jpegImage ->
-                    val thumbnailInfoPath =
-                        configuration.tmpPath withChild NAME_THUMBINFO_SUBFOLDER withChild "${
-                            configuration.inPath.resolve(
-                                jpegImage
-                            ).filenameWithoutExtension
-                        }.cache.xml"
-                    if (!(thumbnailInfoPath.exists() && thumbnailInfoPath.isNewerThan(jpegImage))) {
-                        val baseOutPath =
-                            configuration.outPath.resolve(NAME_IMAGE_SUBFOLDER).resolve(jpegImage.fileName)
-                        withContext(Dispatchers.IO) {
-                            Files.createDirectories(baseOutPath.parent)
+        Executors.newFixedThreadPool(4)
+            .asCoroutineDispatcher()
+            .use { preparation ->
+                configuration.inPath.withChild(NAME_IMAGE_SUBFOLDER).list()
+                    .filter { it.fileExtension.isJpeg() }
+                    .asIterable()
+                    .forEachParallel(preparation) { jpegImage ->
+                        val thumbnailInfoPath =
+                            configuration.tmpPath withChild NAME_THUMBINFO_SUBFOLDER withChild "${
+                                configuration.inPath.resolve(
+                                    jpegImage
+                                ).filenameWithoutExtension
+                            }.cache.xml"
+                        if (!(thumbnailInfoPath.exists() && thumbnailInfoPath.isNewerThan(jpegImage))) {
+                            val baseOutPath =
+                                configuration.outPath.resolve(NAME_IMAGE_SUBFOLDER).resolve(jpegImage.fileName)
+                            withContext(Dispatchers.IO) {
+                                Files.createDirectories(baseOutPath.parent)
+                            }
+                            val sourceInfo = getThumbnailInfo(jpegImage)
+                            ImageSize.values()
+                                .asSequence()
+                                .map { size -> generateThumbnails(baseOutPath, jpegImage, sourceInfo, size) }
+                                .filterNotNull()
+                                .toMap()
+                                .toXml(thumbnailInfoPath)
+                        }
                     }
-                    val sourceInfo = getThumbnailInfo(jpegImage)
-                        ImageSize.values()
-                            .asSequence()
-                            .map { size -> generateThumbnails(baseOutPath, jpegImage, sourceInfo, size) }
-                            .filterNotNull()
-                            .toMap()
-                            .toXml(thumbnailInfoPath)
-                    }
-                }
-        }
+            }
     }
 
     private fun generateThumbnails(
@@ -171,7 +176,7 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
         jpegImage: Path,
         sourceInfo: ImageSizeInformation,
         size: ImageSize
-    ): Pair<ImageSize, ImageSizeInformation>? {
+    ): Pair<ImageSize, ImageSizeInformation> {
         val outFile = size.decoratePath(baseOutPath)
 
         (forceRegeneration.thumbnails || !outFile.exists() || jpegImage.isNewerThan(outFile)).let { actionNeeded ->
