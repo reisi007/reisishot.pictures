@@ -8,15 +8,13 @@ import pictures.reisishot.mise.backend.generator.pages.PageGeneratorExtension
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.raw
 import pictures.reisishot.mise.backend.htmlparsing.getString
+import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.deleteIfExists
 
-@ExperimentalPathApi
 class MinimalisticPageGenerator(private val galleryGenerator: AbstractGalleryGenerator) : PageGeneratorExtension {
 
     override fun processDelete(configuration: WebsiteConfiguration, cache: BuildingCache, targetPath: Path) {
-        targetPath.minimalDestinationPath.deleteIfExists()
+        Files.deleteIfExists(targetPath.minimalDestinationPath)
     }
 
     override fun postCreatePage(

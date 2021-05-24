@@ -65,12 +65,10 @@ object PageGenerator {
 
                         main("flex-shrink-0") {
                             attributes["role"] = "main"
-                            fluidContainer {
-                                div("container") {
-                                    id = "content"
-                                    socialSharing(url, title)
-                                    pageContent(this)
-                                }
+                            div("container-xxxl") {
+                                id = "content"
+                                socialSharing(url, title)
+                                pageContent(this)
                             }
                         }
 

@@ -1,0 +1,4 @@
+.container-xxxl {
+  @include make-container();
+  max-width: 1800px;
+}

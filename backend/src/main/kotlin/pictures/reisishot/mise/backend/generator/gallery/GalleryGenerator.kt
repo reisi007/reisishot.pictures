@@ -199,20 +199,18 @@ class GalleryGenerator(
             }
             div("card-body") {
                 div("card-text") {
-                    div("container") {
-                        curImageInformation.exifInformation.forEach { (type, value) ->
-                            div("row justify-content-between") {
-                                div("col-md-3 align-self-center") {
-                                    text("${type.displayName}:")
-                                }
-                                div("col-md-9 align-self-center") {
-                                    when (type) {
-                                        ExifdataKey.CREATION_TIME -> text(
-                                            ZonedDateTime.parse(value)
-                                                .format(dateTimeFormatter)
-                                        )
-                                        else -> text(value)
-                                    }
+                    curImageInformation.exifInformation.forEach { (type, value) ->
+                        div("row justify-content-between") {
+                            div("col-md-3 align-self-center") {
+                                text("${type.displayName}:")
+                            }
+                            div("col-md-9 align-self-center") {
+                                when (type) {
+                                    ExifdataKey.CREATION_TIME -> text(
+                                        ZonedDateTime.parse(value)
+                                            .format(dateTimeFormatter)
+                                    )
+                                    else -> text(value)
                                 }
                             }
                         }
