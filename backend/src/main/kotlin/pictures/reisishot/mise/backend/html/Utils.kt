@@ -265,12 +265,12 @@ internal fun Tag.text(date: Date) {
 
 @HtmlTagMarker
 internal fun HtmlBlockTag.insertYoutube(code: String, w: Int, h: Int, vararg additionalClasses: String) {
-    p("embed-responsive") {
-        classes = classes + ("embed-responsive-" + w + "by" + h)
+    p("ratio") {
+        classes = classes + ("ratio-${w}x$h")
         if (!additionalClasses.isNullOrEmpty())
             classes = classes + additionalClasses
 
-        iframe(classes = "embed-responsive-item lazy") {
+        iframe(classes = "lazy") {
             attributes["data-src"] = "https://www.youtube-nocookie.com/embed/$code"
             attributes["allow"] =
                 "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
