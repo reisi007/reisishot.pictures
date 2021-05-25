@@ -14,6 +14,7 @@ import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.multisite.ImageInfoImporter
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
+import pictures.reisishot.mise.backend.generator.pages.minimalistic.MinimalisticPageGenerator
 import pictures.reisishot.mise.backend.generator.pages.overview.OverviewPageGenerator
 import pictures.reisishot.mise.backend.generator.pages.yamlConsumer.KeywordConsumer
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
@@ -22,6 +23,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 object Portrait {
+
     @JvmStatic
     fun main(args: Array<String>) {
         build(args.isEmpty())
@@ -106,7 +108,11 @@ object Portrait {
                         })
                 },
                 generators = listOf(
-                    PageGenerator(overviewPageGenerator, KeywordConsumer()),
+                    PageGenerator(
+                        overviewPageGenerator,
+                        KeywordConsumer(),
+                        MinimalisticPageGenerator(galleryGenerator)
+                    ),
                     galleryGenerator,
                     overviewPageGenerator,
                     ImageMagickThumbnailGenerator(),
