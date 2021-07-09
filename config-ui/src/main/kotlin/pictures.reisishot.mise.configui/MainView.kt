@@ -251,6 +251,13 @@ class MainView : View("Main View") {
                 .filter { it.isRegularFile() }
                 .filter { it.fileExtension.isJpeg() }
                 .forEach { filenameChooser.accept(it) }
+
+            println()
+            filenameChooser.items
+                .asSequence()
+                .sortedBy { it.name }
+                .forEach { println(it) }
+            println()
         }
     }
 

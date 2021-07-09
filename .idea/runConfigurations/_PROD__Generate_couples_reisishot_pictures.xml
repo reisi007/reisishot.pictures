@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="[PROD] Generate couples.reisishot.pictures" type="JetRunConfigurationType">
+    <option name="MAIN_CLASS_NAME" value="pictures.reisishot.mise.backend.main.Couples" />
+    <module name="My_website_(reisishot.pictures).backend.main" />
+    <option name="PROGRAM_PARAMETERS" value="prod" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

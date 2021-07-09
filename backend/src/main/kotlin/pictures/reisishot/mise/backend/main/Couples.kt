@@ -55,7 +55,7 @@ object Couples {
                 outPath = Paths.get("upload", folderName).toAbsolutePath(),
                 interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                 cleanupGeneration = false,
-                analyticsSiteId = "5",
+                analyticsSiteId = "7",
                 socialMediaLinks = SocialMediaAccounts("reisishot", "reisishot", "florian@reisishot.pictures"),
                 // fbMessengerChatPlugin = generateDefaultChatPlugin(),
                 form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
