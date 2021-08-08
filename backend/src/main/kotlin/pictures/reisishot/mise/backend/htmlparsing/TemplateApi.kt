@@ -218,9 +218,9 @@ class TemplateApi(
         insertTextCarousel("testimonials", changeMs, *text)
 
     @SuppressWarnings("unused")
-    fun insertYoutube(code: String, w: Int, h: Int) = buildString {
+    fun insertYoutube(codeOrLinkFragment: String, w: Int, h: Int) = buildString {
         appendUnformattedHtml().div {
-            insertYoutube(code, w, h)
+            insertYoutube(codeOrLinkFragment, w, h)
         }
     }
 

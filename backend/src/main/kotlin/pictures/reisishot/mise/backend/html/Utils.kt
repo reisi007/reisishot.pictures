@@ -264,14 +264,15 @@ internal fun Tag.text(date: Date) {
 }
 
 @HtmlTagMarker
-internal fun HtmlBlockTag.insertYoutube(code: String, w: Int, h: Int, vararg additionalClasses: String) {
+internal fun HtmlBlockTag.insertYoutube(codeOrLinkFragment: String, w: Int, h: Int, vararg additionalClasses: String) {
     p("ratio") {
         classes = classes + ("ratio-${w}x$h")
         if (!additionalClasses.isNullOrEmpty())
             classes = classes + additionalClasses
 
         iframe(classes = "lazy") {
-            attributes["data-src"] = "https://www.youtube-nocookie.com/embed/$code"
+            attributes["data-src"] =
+                if (codeOrLinkFragment.startsWith("http")) codeOrLinkFragment else "https://www.youtube-nocookie.com/embed/$codeOrLinkFragment"
             attributes["allow"] =
                 "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             attributes["allowfullscreen"] = ""
