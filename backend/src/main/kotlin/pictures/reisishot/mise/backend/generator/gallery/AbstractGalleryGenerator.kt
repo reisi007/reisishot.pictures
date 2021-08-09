@@ -56,7 +56,7 @@ abstract class AbstractGalleryGenerator(
     override val computedTags: Map<TagInformation, Set<ImageInformation>> = cache.computedTags
     protected val ExifdataKey.displayName
         get() = when (this) {
-            ExifdataKey.CREATION_TIME -> "Erstellt am"
+            ExifdataKey.CREATION_DATETIME -> "Erstellt am"
             ExifdataKey.LENS_MODEL -> "Objektiv"
             ExifdataKey.FOCAL_LENGTH -> "Brennweite"
             ExifdataKey.APERTURE -> "Blende"
@@ -383,7 +383,7 @@ abstract class AbstractGalleryGenerator(
     }
 
     fun Sequence<InternalImageInformation>.toOrderedByTime() =
-        sortedByDescending { it.exifInformation[ExifdataKey.CREATION_TIME] }
+        sortedByDescending { it.exifInformation[ExifdataKey.CREATION_DATETIME] }
             .toList()
 
     override suspend fun loadCache(configuration: WebsiteConfiguration, cache: BuildingCache) {

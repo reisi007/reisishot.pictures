@@ -26,7 +26,7 @@ class DateCategoryBuilder(val rootCategoryName: String) : CategoryBuilder {
             .map { it as? InternalImageInformation }
             .filterNotNull()
             .flatMap {
-                val captureDate = it.exifInformation.get(ExifdataKey.CREATION_TIME)?.let { ZonedDateTime.parse(it) }
+                val captureDate = it.exifInformation.get(ExifdataKey.CREATION_DATETIME)?.let { ZonedDateTime.parse(it) }
                 if (captureDate == null)
                     emptySequence()
                 else

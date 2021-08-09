@@ -206,7 +206,7 @@ class GalleryGenerator(
                             }
                             div("col-md-9 align-self-center") {
                                 when (type) {
-                                    ExifdataKey.CREATION_TIME -> text(
+                                    ExifdataKey.CREATION_DATETIME -> text(
                                         ZonedDateTime.parse(value)
                                             .format(dateTimeFormatter)
                                     )

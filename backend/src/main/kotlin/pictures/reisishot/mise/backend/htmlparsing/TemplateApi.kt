@@ -1,15 +1,13 @@
 package pictures.reisishot.mise.backend.htmlparsing
 
 import at.reisishot.mise.commons.*
+import at.reisishot.mise.exifdata.ExifdataKey
 import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.df_yyyMMdd
 import pictures.reisishot.mise.backend.generator.BuildingCache
-import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
-import pictures.reisishot.mise.backend.generator.gallery.getOrThrow
-import pictures.reisishot.mise.backend.generator.gallery.insertCategoryThumbnails
-import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbnails
+import pictures.reisishot.mise.backend.generator.gallery.*
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.pages.Testimonial
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
@@ -19,6 +17,8 @@ import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser.markdown2Html
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.math.roundToInt
 import kotlin.streams.asSequence
@@ -312,6 +312,35 @@ class TemplateApi(
         }
     }
 
+    private val galleryInfoDateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.uuuu")
+
+    @SuppressWarnings("unused")
+    fun insertGalleryInfo(): String = buildString {
+        appendUnformattedHtml().p {
+            val images = galleryGenerator.cache.imageInformationData.values
+            val count = images.size
+            val prep = images.asSequence()
+                .map { it as? InternalImageInformation }
+                .filterNotNull()
+                .map { it.exifInformation.get(ExifdataKey.CREATION_DATETIME) }
+                .filterNotNull()
+                .map { ZonedDateTime.parse(it) }
+
+            val lastImage = prep.maxOrNull()
+            val firstImage = prep.minOrNull()
+
+            text("Auf dieser Webseite sind insgesamt ")
+            text(count)
+            text(" Bilder")
+            if (firstImage != null && lastImage != null) {
+                text(" aufgenommen zwischen ")
+                text(galleryInfoDateTimeFormatter.format(firstImage))
+                text(" und ")
+                text(galleryInfoDateTimeFormatter.format(lastImage))
+            }
+            text(" zu sehen.")
+        }
+    }
 }
 
 
