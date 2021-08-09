@@ -6,6 +6,4 @@ dependencies {
     implementation group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.15'
     // https://mvnrepository.com/artifact/com.vladsch.flexmark/flexmark
     implementation group: 'com.vladsch.flexmark', name: 'flexmark-all', version: '0.62.2'
-
-
 }
