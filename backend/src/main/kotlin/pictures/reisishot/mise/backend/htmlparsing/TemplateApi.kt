@@ -28,11 +28,21 @@ class TemplateApi(
     private val targetPath: TargetPath,
     private val galleryGenerator: AbstractGalleryGenerator,
     private val cache: BuildingCache,
-    private val websiteConfiguration: WebsiteConfiguration
+    private val websiteConfiguration: WebsiteConfiguration,
+    private val state: () -> Long
 ) {
+    private var _cachedTestimonials: Map<String, Testimonial>? = null
+    private var _cachedState: Long? = null
+    private fun testimonials(): Map<String, Testimonial> {
+        val cachedTestimonials = _cachedTestimonials
+        val cachedState = _cachedState
+        val curState = state()
 
-    private val testimonials: Map<String, Testimonial> by lazy {
-        Files.list(websiteConfiguration.inPath withChild "reviews")
+
+        if (cachedTestimonials != null && curState != cachedState)
+            return cachedTestimonials
+
+        val newValue = Files.list(websiteConfiguration.inPath withChild "reviews")
             .asSequence()
             .filter { Files.isRegularFile(it) }
             .filter { it.hasExtension({ it.isMarkdownPart("review") }) }
@@ -44,7 +54,12 @@ class TemplateApi(
                 path.fileName.toString().substringBefore('.') to yamlContainer.data.createTestimonial(path, html)
             }
             .toMap()
+
+        _cachedTestimonials = newValue
+        _cachedState = curState
+        return newValue
     }
+
 
     private fun Yaml.createTestimonial(p: Path, contentHtml: String): Testimonial {
         val imageFilename = getString("image")
@@ -122,7 +137,7 @@ class TemplateApi(
 
     @SuppressWarnings("unused")
     fun insertTestimonial(name: String) = buildString {
-        val testimonialsToDisplay = testimonials.getValue(name)
+        val testimonialsToDisplay = testimonials().getValue(name)
         appendTestimonials(websiteConfiguration, targetPath, galleryGenerator, testimonialsToDisplay)
 
     }
@@ -146,7 +161,7 @@ class TemplateApi(
     }
 
     private fun computeMatchingTestimonials(testimonialTypes: Array<out String>): Array<Testimonial> {
-        var tmpTestimonials = testimonials.values.asSequence()
+        var tmpTestimonials = testimonials().values.asSequence()
         if (testimonialTypes.isNotEmpty())
             tmpTestimonials = tmpTestimonials.filter { testimonialTypes.contains(it.type) }
         return tmpTestimonials

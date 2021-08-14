@@ -140,7 +140,7 @@ abstract class AbstractGalleryGenerator(
         }
 
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) =
-        generateWebpages(configuration, cache)
+        generateWebpages(configuration, cache, 0)
 
     private fun buildTags(cache: BuildingCache) = with(this.cache) {
         val shallAddToMenu = displayedMenuItems.contains(DisplayedMenuItems.TAGS)
@@ -289,16 +289,18 @@ abstract class AbstractGalleryGenerator(
 
     private suspend fun generateWebpages(
         configuration: WebsiteConfiguration,
-        cache: BuildingCache
+        cache: BuildingCache,
+        state: Long
     ) {
-        generateImagePages(configuration, cache)
-        generateCategoryPages(configuration, cache)
-        generateTagPages(configuration, cache)
+        generateImagePages(configuration, cache, state)
+        generateCategoryPages(configuration, cache, state)
+        generateTagPages(configuration, cache, state)
     }
 
     private suspend fun generateImagePages(
         configuration: WebsiteConfiguration,
-        cache: BuildingCache
+        cache: BuildingCache,
+        state: Long
     ) {
         this.cache.imageInformationData.values
             .asSequence()
@@ -306,49 +308,55 @@ abstract class AbstractGalleryGenerator(
             .filterNotNull()
             .asIterable()
             .forEachLimitedParallel(50) { curImageInformation ->
-                generateImagePage(configuration, cache, curImageInformation)
+                generateImagePage(configuration, cache, state, curImageInformation)
             }
     }
 
     protected abstract fun generateImagePage(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
+        state: Long,
         curImageInformation: InternalImageInformation
     )
 
     private fun generateCategoryPages(
         configuration: WebsiteConfiguration,
-        cache: BuildingCache
+        cache: BuildingCache,
+        state: Long
     ) {
         this.cache.computedCategories.forEach { (categoryName, _) ->
-            generateCategoryPage(configuration, cache, categoryName)
+            generateCategoryPage(configuration, cache, state, categoryName)
         }
     }
 
     protected abstract fun generateCategoryPage(
         configuration: WebsiteConfiguration,
         buildingCache: BuildingCache,
+        state: Long,
         categoryName: CategoryName,
     )
 
     protected fun generateTagPages(
         configuration: WebsiteConfiguration,
-        cache: BuildingCache
+        cache: BuildingCache,
+        state: Long
     ) {
         computedTags.keys.forEach { tagName ->
-            generateTagPage(configuration, cache, tagName)
+            generateTagPage(configuration, cache, state, tagName)
         }
     }
 
     protected abstract fun generateTagPage(
         configuration: WebsiteConfiguration,
         buildingCache: BuildingCache,
+        state: Long,
         tagName: TagInformation
     )
 
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
+        updateId: Long,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean {
@@ -362,6 +370,7 @@ abstract class AbstractGalleryGenerator(
     override suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
+        updateId: Long,
         changeFiles: ChangeFileset
     ): Boolean {
         if (changeFiles.hasRelevantChanges()) {
@@ -409,7 +418,8 @@ abstract class AbstractGalleryGenerator(
         outFolder: Path,
         type: String,
         configuration: WebsiteConfiguration,
-        cache: BuildingCache
+        cache: BuildingCache,
+        state: () -> Long
     ): HEAD.() -> Unit {
         val inPath =
             configuration.inPath withChild configuration.outPath.relativize(outFolder) withChild "$type.gallery.md"
@@ -417,6 +427,7 @@ abstract class AbstractGalleryGenerator(
             val (_, manipulator, html) = MarkdownParser.parse(
                 configuration,
                 cache,
+                state,
                 GalleryMinimalInfo(inPath, outFolder withChild "index.html"),
                 this@AbstractGalleryGenerator
             )

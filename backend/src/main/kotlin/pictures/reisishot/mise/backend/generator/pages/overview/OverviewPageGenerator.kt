@@ -61,6 +61,7 @@ class OverviewPageGenerator(
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
+        updateId: Long,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean {
@@ -81,11 +82,12 @@ class OverviewPageGenerator(
     override suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
+        updateId: Long,
         changeFiles: ChangeFileset
-    ): Boolean = processChangesInternal(configuration, cache)
+    ): Boolean = processChangesInternal(configuration, cache, updateId)
 
     override fun processChanges(configuration: WebsiteConfiguration, cache: BuildingCache) {
-        processChangesInternal(configuration, cache)
+        processChangesInternal(configuration, cache, 0)
     }
 
     override fun init(configuration: WebsiteConfiguration, cache: BuildingCache) {
@@ -95,7 +97,11 @@ class OverviewPageGenerator(
             ?: emptyMap()
     }
 
-    private fun processChangesInternal(configuration: WebsiteConfiguration, cache: BuildingCache): Boolean {
+    private fun processChangesInternal(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        updateId: Long
+    ): Boolean {
         processExternals(configuration)
         val changedGroups = mutableMapOf<String, Path>()
         changeSetAdd.forEach {
@@ -131,9 +137,23 @@ class OverviewPageGenerator(
                     configuration.outPath withChild configuration.inPath.relativize(overviewPagePath) withChild "index.html"
 
                 val additionalTopContent =
-                    loadBefore(configuration, cache, data.pageMininmalInfo, galleryGenerator, metaDataConsumers)
+                    loadBefore(
+                        configuration,
+                        cache,
+                        { updateId },
+                        data.pageMininmalInfo,
+                        galleryGenerator,
+                        metaDataConsumers
+                    )
                 val endContent =
-                    loadEnd(configuration, cache, data.pageMininmalInfo, galleryGenerator, metaDataConsumers)
+                    loadEnd(
+                        configuration,
+                        cache,
+                        { updateId },
+                        data.pageMininmalInfo,
+                        galleryGenerator,
+                        metaDataConsumers
+                    )
                 val displayName = data.displayName
 
                 PageGenerator.generatePage(
@@ -199,7 +219,7 @@ class OverviewPageGenerator(
                 }
             }
         if (dirty) {
-            return processChangesInternal(configuration, cache)
+            return processChangesInternal(configuration, cache, updateId)
         }
         val changes = changeSetAdd.isNotEmpty() || changeSetRemove.isNotEmpty()
         changeSetAdd.clear()
@@ -325,6 +345,7 @@ private fun <E> MutableSet<E>.add(element: E, force: Boolean) {
 private fun loadBefore(
     configuration: WebsiteConfiguration,
     cache: BuildingCache,
+    state: () -> Long,
     pageMininmalInfo: IPageMininmalInfo,
     galleryGenerator: AbstractGalleryGenerator,
     metaDataConsumers: Array<out PageGeneratorExtension>
@@ -333,7 +354,7 @@ private fun loadBefore(
         "top.overview.md",
         "top.overview.html"
     )
-    return sequence.parseFile(pageMininmalInfo, configuration, cache, galleryGenerator, metaDataConsumers)
+    return sequence.parseFile(pageMininmalInfo, configuration, cache, galleryGenerator, state, metaDataConsumers)
 }
 
 private fun Sequence<String>.parseFile(
@@ -341,6 +362,7 @@ private fun Sequence<String>.parseFile(
     configuration: WebsiteConfiguration,
     cache: BuildingCache,
     galleryGenerator: AbstractGalleryGenerator,
+    state: () -> Long,
     metaDataConsumers: Array<out PageGeneratorExtension>
 ): Triple<Yaml, HEAD.() -> Unit, String>? {
     val sourcePath = pageMininmalInfo.sourcePath
@@ -351,6 +373,7 @@ private fun Sequence<String>.parseFile(
             MarkdownParser.parse(
                 configuration,
                 cache,
+                state,
                 pageMininmalInfo,
                 galleryGenerator,
                 *metaDataConsumers
@@ -361,6 +384,7 @@ private fun Sequence<String>.parseFile(
 private fun loadEnd(
     configuration: WebsiteConfiguration,
     cache: BuildingCache,
+    state: () -> Long,
     pageMininmalInfo: IPageMininmalInfo,
     galleryGenerator: AbstractGalleryGenerator,
     metaDataConsumers: Array<out PageGeneratorExtension>
@@ -369,6 +393,6 @@ private fun loadEnd(
         "end.overview.md",
         "end.overview.html"
     )
-    return sequence.parseFile(pageMininmalInfo, configuration, cache, galleryGenerator, metaDataConsumers)
+    return sequence.parseFile(pageMininmalInfo, configuration, cache, galleryGenerator, state, metaDataConsumers)
         ?.third
 }

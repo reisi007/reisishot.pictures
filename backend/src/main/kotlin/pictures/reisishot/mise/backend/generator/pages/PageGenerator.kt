@@ -65,18 +65,15 @@ class PageGenerator(vararg val extensions: PageGeneratorExtension) : WebsiteGene
     }
 
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
-        filesToProcess
-            .filter { (path) -> path.hasExtension(FileExtension::isMarkdown, FileExtension::isHtml) }
-            .forEach { it.buildArtifact(configuration, cache) }
-        extensions.forEach { it.processChanges(configuration, cache) }
+        buildArtifacts(configuration, cache, 0)
     }
 
-
-    fun PageMinimalInfo.buildArtifact(configuration: WebsiteConfiguration, cache: BuildingCache) {
+    fun PageMinimalInfo.buildArtifact(configuration: WebsiteConfiguration, cache: BuildingCache, state: Long) {
         convertMarkdown(
             this,
             configuration,
             cache,
+            state
         )
     }
 
@@ -117,10 +114,12 @@ class PageGenerator(vararg val extensions: PageGeneratorExtension) : WebsiteGene
         info: PageMinimalInfo,
         configuration: WebsiteConfiguration,
         buildingCache: BuildingCache,
+        state: Long,
     ) {
         val (yaml, headManipulator, htmlInput) = MarkdownParser.parse(
             configuration,
             buildingCache,
+            { state },
             info,
             galleryGenerator,
             *extensions
@@ -139,6 +138,7 @@ class PageGenerator(vararg val extensions: PageGeneratorExtension) : WebsiteGene
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
+        updateId: Long,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean {
@@ -182,10 +182,22 @@ class PageGenerator(vararg val extensions: PageGeneratorExtension) : WebsiteGene
     override suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
+        updateId: Long,
         changeFiles: ChangeFileset
     ): Boolean {
-        buildInitialArtifacts(configuration, cache)
+        buildArtifacts(configuration, cache, updateId)
         return false
+    }
+
+    private fun buildArtifacts(
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        updateId: Long
+    ) {
+        filesToProcess
+            .filter { (path) -> path.hasExtension(FileExtension::isMarkdown, FileExtension::isHtml) }
+            .forEach { it.buildArtifact(configuration, cache, updateId) }
+        extensions.forEach { it.processChanges(configuration, cache) }
     }
 
     private fun ChangeFileset.relevantFiles(): Set<Pair<Path, Set<ChangeState>>> {

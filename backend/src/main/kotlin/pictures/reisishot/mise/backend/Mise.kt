@@ -107,35 +107,40 @@ object Mise {
             Runtime.getRuntime().availableProcessors(), "Incremental pool"
         )
         val loopMs = interactiveDelayMs
+        var i = 1L
         while (loopMs != null) {
             delay(loopMs)
             try {
-                watchKey.processEvents(this, inPath, cache, generators, coroutineDispatcher)
+                processEvents(watchKey, this, cache, i, inPath, generators, coroutineDispatcher)
+                i++
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    private suspend fun WatchKey.processEvents(
+    private suspend fun processEvents(
+        watchKey: WatchKey,
         configuration: WebsiteConfiguration,
-        watchedDir: Path,
         cache: BuildingCache,
+        updateId: Long,
+        watchedDir: Path,
         generatorMap: Map<Int, List<WebsiteGenerator>>,
         coroutineDispatcher: CoroutineDispatcher
     ) {
-        val changedFileset = pollEvents(configuration, watchedDir)
+        val changedFileset = watchKey.pollEvents(configuration, watchedDir)
         if (changedFileset.isNotEmpty())
             doing("Incremental build") {
                 val generators = mutableListOf<WebsiteGenerator>()
                 val changed = AtomicInteger(0)
                 generatorMap.forEachLimitedParallel {
-                    val cacheChanged = it.fetchUpdateInformation(configuration, cache, generators, changedFileset)
+                    val cacheChanged =
+                        it.fetchUpdateInformation(configuration, cache, updateId, generators, changedFileset)
                     if (cacheChanged)
                         changed.addAndGet(1)
                 }
                 generatorMap.forEachLimitedParallel(coroutineDispatcher) {
-                    val cacheChanged = it.buildUpdateArtifacts(configuration, cache, changedFileset)
+                    val cacheChanged = it.buildUpdateArtifacts(configuration, cache, updateId, changedFileset)
                     if (cacheChanged)
                         changed.addAndGet(1)
                 }

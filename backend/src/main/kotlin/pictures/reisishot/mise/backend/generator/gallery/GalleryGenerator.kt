@@ -34,6 +34,7 @@ class GalleryGenerator(
     override fun generateImagePage(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
+        state: Long,
         curImageInformation: InternalImageInformation
     ) {
         val baseHtmlPath = configuration.outPath withChild "gallery/images"
@@ -43,34 +44,34 @@ class GalleryGenerator(
             buildingCache = cache,
             target = targetFolder withChild "index.html",
             title = curImageInformation.title,
-            galleryGenerator = this,
-            pageContent = {
-                div("singleImage") {
-                    h1("text-center") {
-                        text(curImageInformation.title)
-                    }
-
-                    insertCustomMarkdown(targetFolder, "start", configuration, cache)
-
-                    insertImageGallery("1", configuration, curImageInformation)
-
-                    insertCategoryLinks(curImageInformation, configuration, cache)
-
-                    insertTagLinks(curImageInformation, configuration, cache)
-
-                    insertCustomMarkdown(targetFolder, "beforeExif", configuration, cache)
-
-                    insertExifInformation(curImageInformation, dateTimeFormatter)
-
-                    insertCustomMarkdown(targetFolder, "end", configuration, cache)
+            galleryGenerator = this
+        ) {
+            div("singleImage") {
+                h1("text-center") {
+                    text(curImageInformation.title)
                 }
+
+                insertCustomMarkdown(targetFolder, "start", configuration, cache) { state }
+
+                insertImageGallery("1", configuration, curImageInformation)
+
+                insertCategoryLinks(curImageInformation, configuration, cache)
+
+                insertTagLinks(curImageInformation, configuration, cache)
+
+                insertCustomMarkdown(targetFolder, "beforeExif", configuration, cache) { state }
+
+                insertExifInformation(curImageInformation, dateTimeFormatter)
+
+                insertCustomMarkdown(targetFolder, "end", configuration, cache) { state }
             }
-        )
+        }
     }
 
     override fun generateCategoryPage(
         configuration: WebsiteConfiguration,
         buildingCache: BuildingCache,
+        state: Long,
         categoryName: CategoryName,
     ) {
         val categoryImages: Set<FilenameWithoutExtension> = cache.computedCategories.getValue(categoryName)
@@ -93,7 +94,7 @@ class GalleryGenerator(
                         }
                     }
 
-                    insertCustomMarkdown(targetFolder, "start", configuration, buildingCache)
+                    insertCustomMarkdown(targetFolder, "start", configuration, buildingCache) { state }
 
                     val imageInformations = with(categoryImages) {
                         asSequence()
@@ -111,7 +112,7 @@ class GalleryGenerator(
 
                     insertImageGallery("1", configuration, imageInformations)
 
-                    insertCustomMarkdown(targetFolder, "end", configuration, buildingCache)
+                    insertCustomMarkdown(targetFolder, "end", configuration, buildingCache) { state }
                 }
             )
         }
@@ -121,6 +122,7 @@ class GalleryGenerator(
     override fun generateTagPage(
         configuration: WebsiteConfiguration,
         buildingCache: BuildingCache,
+        state: Long,
         tagName: TagInformation
     ) {
         val tagImages = computedTags.getValue(tagName)
@@ -140,7 +142,7 @@ class GalleryGenerator(
                     }
                 }
 
-                insertCustomMarkdown(targetFolder, "start", configuration, buildingCache)
+                insertCustomMarkdown(targetFolder, "start", configuration, buildingCache) { state }
 
                 val imageInformations = tagImages.asSequence()
                     .map { it as? InternalImageInformation }
@@ -148,7 +150,7 @@ class GalleryGenerator(
                     .toOrderedByTime()
                 insertImageGallery("1", configuration, imageInformations)
 
-                insertCustomMarkdown(targetFolder, "end", configuration, buildingCache)
+                insertCustomMarkdown(targetFolder, "end", configuration, buildingCache) { state }
             })
     }
 
@@ -223,6 +225,7 @@ class GalleryGenerator(
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
+        updateId: Long,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean {
@@ -233,17 +236,23 @@ class GalleryGenerator(
             .filter { it.getName(0).toString() == "gallery" }
             .toList()
         val curUpdate = filesToProcess.isNotEmpty()
-        updatePages(filesToProcess, configuration, cache)
+        updatePages(filesToProcess, configuration, cache, updateId)
         // Keep super call. Extra variable -> should be executed in any case
-        val superUpdate = super.fetchUpdateInformation(configuration, cache, alreadyRunGenerators, changeFiles)
+        val superUpdate =
+            super.fetchUpdateInformation(configuration, cache, updateId, alreadyRunGenerators, changeFiles)
         return superUpdate || curUpdate
     }
 
-    private fun updatePages(filesToProcess: List<Path>, configuration: WebsiteConfiguration, cache: BuildingCache) {
-        filesToProcess.forEach { updatePage(it, configuration, cache) }
+    private fun updatePages(
+        filesToProcess: List<Path>,
+        configuration: WebsiteConfiguration,
+        cache: BuildingCache,
+        state: Long
+    ) {
+        filesToProcess.forEach { updatePage(it, configuration, cache, state) }
     }
 
-    private fun updatePage(path: Path, configuration: WebsiteConfiguration, buildingCache: BuildingCache) {
+    private fun updatePage(path: Path, configuration: WebsiteConfiguration, buildingCache: BuildingCache, state: Long) {
         val type = path.getName(1).toString()
         val value = path.subpath(2, path.nameCount - 1)
             .toString()
@@ -253,13 +262,13 @@ class GalleryGenerator(
                 val categoryName = cache.categoryInformation
                     .keys
                     .first { it.complexName.equals(value, true) }
-                generateCategoryPage(configuration, buildingCache, categoryName)
+                generateCategoryPage(configuration, buildingCache, state, categoryName)
             }
             "tags" -> {
                 val tagName = computedTags
                     .keys
                     .first { it.name.equals(value, true) }
-                generateTagPage(configuration, buildingCache, tagName)
+                generateTagPage(configuration, buildingCache, state, tagName)
             }
             "images" -> {
                 val imageInformation = cache.imageInformationData
@@ -267,7 +276,7 @@ class GalleryGenerator(
                     .first { it.equals(value, true) }
                     .let { cache.imageInformationData.getValue(it) }
                 (imageInformation as? InternalImageInformation)?.let { internalImageInformation ->
-                    generateImagePage(configuration, buildingCache, internalImageInformation)
+                    generateImagePage(configuration, buildingCache, state, internalImageInformation)
                 }
 
             }

@@ -89,6 +89,7 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
+        updateId: Long,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean {
@@ -103,6 +104,7 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
     override suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
+        updateId: Long,
         changeFiles: ChangeFileset
     ): Boolean {
         return if (changeFiles.hasRelevantChanges()) {

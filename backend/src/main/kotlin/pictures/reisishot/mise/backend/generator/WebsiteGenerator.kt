@@ -29,6 +29,7 @@ interface WebsiteGenerator {
     suspend fun fetchUpdateInformation(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
+        updateId: Long,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean
@@ -44,6 +45,7 @@ interface WebsiteGenerator {
     suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
+        updateId: Long,
         changeFiles: ChangeFileset
     ): Boolean
 

@@ -25,9 +25,13 @@ object VelocityApplier {
         targetPath: Path,
         galleryGenerator: AbstractGalleryGenerator,
         buildingCache: BuildingCache,
-        websiteConfiguration: WebsiteConfiguration
+        websiteConfiguration: WebsiteConfiguration,
+        state: () -> Long
     ) = apply {
-        put("please", TemplateApi(pageMetadata, targetPath, galleryGenerator, buildingCache, websiteConfiguration))
+        put(
+            "please",
+            TemplateApi(pageMetadata, targetPath, galleryGenerator, buildingCache, websiteConfiguration, state)
+        )
     }
 
     fun runVelocity(
@@ -37,6 +41,7 @@ object VelocityApplier {
         galleryGenerator: AbstractGalleryGenerator,
         buildingCache: BuildingCache,
         websiteConfiguration: WebsiteConfiguration,
+        state: () -> Long,
         pageMetadata: PageMetadata?
     ) = writeToString {
         try {
@@ -47,7 +52,8 @@ object VelocityApplier {
                         targetPath,
                         galleryGenerator,
                         buildingCache,
-                        websiteConfiguration
+                        websiteConfiguration,
+                        state
                     ),
                 it,
                 "HtmlParser",
