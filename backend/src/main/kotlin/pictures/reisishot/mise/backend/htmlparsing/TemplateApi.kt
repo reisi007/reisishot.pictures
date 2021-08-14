@@ -32,7 +32,9 @@ class TemplateApi(
     private val state: () -> Long
 ) {
     private var _cachedTestimonials: Map<String, Testimonial>? = null
-    private var _cachedState: Long? = null
+    private var _cachedState: Long
+    ? = null
+
     private fun testimonials(): Map<String, Testimonial> {
         val cachedTestimonials = _cachedTestimonials
         val cachedState = _cachedState
