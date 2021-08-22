@@ -99,6 +99,14 @@ object Boudoir {
                                         "Deine E-Mail-Adresse, auf die du deine Antwort bekommst",
                                         "Ich kann dich ohne deine E-Mail Adresse nicht kontaktieren",
                                         InputType.email
+                                    ),
+                                    FormInput(
+                                        "Telefonnummer",
+                                        "Wie kann ich dich telefonisch erreichen?",
+                                        "Bitte schicke mir deine Telefonnummer, falls du ein Shooting mit mir möchtest",
+                                        "Bitte gib deine Telefonnummer ein",
+                                        type = InputType.tel,
+                                        required = false
                                     )
                                 ),
                                 FormInput(

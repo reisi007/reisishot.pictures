@@ -56,7 +56,12 @@ object Couples {
                 interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                 cleanupGeneration = false,
                 analyticsSiteId = "7",
-                socialMediaLinks = SocialMediaAccounts("reisishot", "reisishot", "florian@reisishot.pictures"),
+                socialMediaLinks = SocialMediaAccounts(
+                    "reisishot.boudoir",
+                    "reisishot_boudoir",
+                    "florian@reisishot.pictures",
+                    "436702017710"
+                ),
                 // fbMessengerChatPlugin = generateDefaultChatPlugin(),
                 form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
                     buildForm(

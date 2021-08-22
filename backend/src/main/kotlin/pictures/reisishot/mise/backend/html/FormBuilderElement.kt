@@ -19,7 +19,7 @@ fun FlowContent.buildForm(title: DIV.() -> Unit, formStructure: () -> FormRoot, 
     }
 }
 
-private fun FlowContent.buildForm(cur: FormBuilderElement): Unit = when (cur) {
+private fun FlowContent.buildForm(cur: FormElement): Unit = when (cur) {
     is FormRoot -> form(classes = "needs-validation") {
         attributes["r-form"] = cur.name
         novalidate = true
@@ -94,12 +94,14 @@ private fun FlowContent.buildForm(cur: FormBuilderElement): Unit = when (cur) {
     }
     is FormHGroup -> div("form-row") {
         cur.builderElements.forEach { child ->
-            div("col-md") {
-                buildForm(child)
-            }
+            buildForm(child)
         }
     }
     is FormGroup -> throw IllegalStateException("There should not be any instances of FormGroup")
+    is FormHtml -> div {
+        cur.html(this)
+    }
+    is FormElement -> throw  IllegalStateException("There should not be any instances of FormElement")
 }
 
 private fun FlowContent.formElement(cur: FormBuilderElement, block: DIV.() -> Unit) = div("form-group") {
@@ -110,7 +112,13 @@ private fun FlowContent.formElement(cur: FormBuilderElement, block: DIV.() -> Un
         attributes["for"] = cur.name
         if (description != null)
             attributes["aria-describedby"] = helpId
-        label?.let { text(it) }
+        label?.let {
+            text(it)
+            span {
+                style = "color: red;"
+                text(" *")
+            }
+        }
     }
     block()
     cur.errorMessage?.let { errorMessage -> div("invalid-feedback") { text(errorMessage) } }
@@ -122,14 +130,15 @@ private fun FlowContent.formElement(cur: FormBuilderElement, block: DIV.() -> Un
         }
 }
 
+sealed class FormElement
 
-sealed class FormBuilderElement(
+open class FormBuilderElement(
     val name: String,
     open val label: String? = null,
     open val description: String? = null,
     open val errorMessage: String? = null,
     val required: Boolean = true
-)
+) : FormElement()
 
 class FormRoot(
     formName: String = "form",
@@ -191,3 +200,7 @@ class FormCheckbox(
     override val description: String,
     errorMessage: String
 ) : FormBuilderElement(name, label, description, errorMessage)
+
+class FormHtml(
+    val html: (DIV) -> Unit
+) : FormElement()
