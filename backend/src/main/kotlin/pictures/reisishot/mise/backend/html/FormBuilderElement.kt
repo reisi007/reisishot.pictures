@@ -142,7 +142,7 @@ open class FormBuilderElement(
 
 class FormRoot(
     formName: String = "form",
-    vararg val builderElements: FormBuilderElement
+    vararg val builderElements: FormElement
 ) : FormBuilderElement(formName)
 
 class FormHGroup(

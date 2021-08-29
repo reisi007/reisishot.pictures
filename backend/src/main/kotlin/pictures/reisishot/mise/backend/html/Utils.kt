@@ -267,7 +267,7 @@ internal fun Tag.text(date: Date) {
 internal fun HtmlBlockTag.insertYoutube(codeOrLinkFragment: String, w: Int, h: Int, vararg additionalClasses: String) {
     p("ratio") {
         classes = classes + ("ratio-${w}x$h")
-        if (!additionalClasses.isNullOrEmpty())
+        if (additionalClasses.isNotEmpty())
             classes = classes + additionalClasses
 
         iframe(classes = "lazy") {

@@ -1,32 +1,29 @@
 package at.reisishot.mise.commons
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.*
 import java.awt.image.BufferedImage
 import java.io.BufferedReader
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.*
+import java.util.concurrent.Executors
 import javax.swing.ImageIcon
 import kotlin.streams.asSequence
 
 suspend inline fun <E> Iterable<E>.forEachLimitedParallel(
     maxThreadCount: Int, noinline callable: suspend (E) -> Unit
-) = forEachParallel(
-    newFixedThreadPoolContext(
-        Math.min(maxThreadCount, Runtime.getRuntime().availableProcessors()),
-        "Foreach"
-    ), callable
-)
+): List<Job> {
+    return Executors.newFixedThreadPool(
+        maxThreadCount.coerceAtMost(Runtime.getRuntime().availableProcessors())
+    ).asCoroutineDispatcher().use {
+        forEachParallel(it, callable)
+    }
+}
 
 suspend fun <E> Iterable<E>.forEachParallel(
-    dispatcher: CoroutineDispatcher = newFixedThreadPoolContext(
-        Runtime.getRuntime().availableProcessors(),
-        "Foreach"
-    ), callable: suspend (E) -> Unit
+    dispatcher: CoroutineDispatcher = Dispatchers.Default, callable: suspend (E) -> Unit
 ) = coroutineScope {
     map { launch(dispatcher) { callable(it) } }
 }
@@ -94,7 +91,7 @@ fun Path.isNewerThan(other: Path): Boolean =
 
 private val whiteSpace = """\s""".toRegex()
 fun String.toFriendlyPathName(): String {
-    return replace(whiteSpace, "-").toLowerCase()
+    return replace(whiteSpace, "-").lowercase(Locale.getDefault())
 }
 
 fun Array<String>.runAndWaitOnConsole() {

@@ -3,6 +3,7 @@ package pictures.reisishot.mise.backend.main
 import at.reisishot.mise.commons.*
 import at.reisishot.mise.exifdata.defaultExifReplaceFunction
 import kotlinx.html.InputType
+import kotlinx.html.a
 import kotlinx.html.h2
 import kotlinx.html.h3
 import pictures.reisishot.mise.backend.FacebookMessengerChatPlugin
@@ -61,8 +62,8 @@ object Boudoir {
                 },
                 socialMediaLinks = SocialMediaAccounts(
                     "reisishot.boudoir",
-                    "reisishot_boudoir",
-                    "florian@reisishot.pictures",
+                    "florian_reisinger_boudoir",
+                    "boudoir@reisishot.pictures",
                     "436702017710"
                 ),
                 analyticsSiteId = "4",
@@ -85,6 +86,13 @@ object Boudoir {
                                         websiteConfiguration.outPath.relativize(target.parent).toString()
                                     )
                                 ),
+                                FormHtml {
+                                    text("Wenn du dich für ein Shooting anmelden möchtest trage dich einfach direkt in die Warteliste ein: ")
+                                    a("https://service.reisishot.pictures/waitlist", "_blank", "pl-2 btn btn-primary") {
+                                        text("Zur Anmeldung gehen ")
+                                        insertIcon(ReisishotIcons.LINK, "xs", "text-accent")
+                                    }
+                                },
                                 FormHGroup(
                                     FormInput(
                                         "Name",

@@ -14,3 +14,15 @@
 .ratio {
   max-height: $maxImageHeight;
 }
+
+.text-white {
+  color: white !important;
+}
+
+.text-primary {
+  color: $primaryColor !important;
+}
+
+.text-accent {
+  color: $accentColor !important;
+}

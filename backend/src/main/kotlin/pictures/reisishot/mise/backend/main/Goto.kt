@@ -3,6 +3,7 @@ package pictures.reisishot.mise.backend.main
 import at.reisishot.mise.commons.*
 import at.reisishot.mise.exifdata.defaultExifReplaceFunction
 import kotlinx.html.InputType
+import kotlinx.html.a
 import kotlinx.html.h2
 import kotlinx.html.h3
 import pictures.reisishot.mise.backend.Mise
@@ -36,7 +37,6 @@ object Goto {
                 outPath = Paths.get("upload", folderName).toAbsolutePath(),
                 interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                 cleanupGeneration = false,
-                // fbMessengerChatPlugin = generateDefaultChatPlugin(),
                 analyticsSiteId = "6",
                 form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
                     buildForm(
@@ -52,6 +52,13 @@ object Goto {
                                         websiteConfiguration.outPath.relativize(target.parent).toString()
                                     )
                                 ),
+                                FormHtml {
+                                    text("Wenn du dich für ein Shooting anmelden möchtest trage dich einfach direkt in die Warteliste ein: ")
+                                    a("https://service.reisishot.pictures/waitlist", "_blank", "pl-2 btn btn-primary") {
+                                        text("Zur Anmeldung gehen ")
+                                        insertIcon(ReisishotIcons.LINK, "xs", "text-white")
+                                    }
+                                },
                                 FormHGroup(
                                     FormInput(
                                         "Name",
