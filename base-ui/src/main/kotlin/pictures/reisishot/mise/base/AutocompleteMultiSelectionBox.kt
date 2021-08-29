@@ -152,7 +152,7 @@ class AutocompleteMultiSelectionBox<T : Comparable<T>>(
          * @return - TextFlow
          */
         private fun buildTextFlow(text: String, filter: String): TextFlow {
-            val filterIndex = text.toLowerCase().indexOf(filter.toLowerCase())
+            val filterIndex = text.lowercase(Locale.getDefault()).indexOf(filter.lowercase(Locale.getDefault()))
             val textBefore = Text(text.substring(0, filterIndex))
             val textAfter = Text(text.substring(filterIndex + filter.length))
             val textFilter = Text(

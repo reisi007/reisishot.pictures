@@ -48,7 +48,7 @@ class DateCategoryBuilder(val rootCategoryName: String) : CategoryBuilder {
             )
             tmp += first to CategoryInformation(
                 internalName,
-                internalName.complexName.toLowerCase(),
+                internalName.complexName.lowercase(),
                 false,
                 if (it == DateCategoryTypes.ROOT) chronologisch else getDateCategoryBuilder(internalName.complexName)
             )

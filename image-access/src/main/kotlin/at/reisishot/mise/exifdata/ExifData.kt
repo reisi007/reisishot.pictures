@@ -113,7 +113,7 @@ val defaultExifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey
     }
 }
 
-fun Path.readExif(exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }): Map<ExifdataKey, String> =
+fun Path.readExif(exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }): MutableMap<ExifdataKey, String> =
     mutableMapOf<ExifdataKey, String>().apply {
         ExifInformation(ImageMetadataReader.readMetadata(this@readExif.toFile()))
             .let { exifInformation ->

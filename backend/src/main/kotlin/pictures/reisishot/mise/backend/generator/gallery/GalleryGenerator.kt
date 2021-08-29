@@ -38,7 +38,7 @@ class GalleryGenerator(
         curImageInformation: InternalImageInformation
     ) {
         val baseHtmlPath = configuration.outPath withChild "gallery/images"
-        val targetFolder = baseHtmlPath withChild curImageInformation.filename.toLowerCase()
+        val targetFolder = baseHtmlPath withChild curImageInformation.filename.lowercase()
         PageGenerator.generatePage(
             websiteConfiguration = configuration,
             buildingCache = cache,

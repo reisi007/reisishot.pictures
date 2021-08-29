@@ -6,6 +6,7 @@ import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.SourcePath
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
 import java.nio.file.Path
+import java.util.*
 
 
 data class PageInformation(
@@ -91,7 +92,7 @@ fun Path.computePageInformation(configuration: WebsiteConfiguration): PageInform
 
 
     val outFile = configuration.inPath.relativize(this)
-        .resolveSibling("${rawFolderName.toLowerCase()}/index.html")
+        .resolveSibling("${rawFolderName.lowercase(Locale.getDefault())}/index.html")
         .let { configuration.outPath.resolve(it) }
 
     return PageInformation(

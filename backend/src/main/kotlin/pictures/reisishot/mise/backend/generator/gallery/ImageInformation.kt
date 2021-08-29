@@ -12,24 +12,28 @@ sealed class ImageInformation(
     val filename: FilenameWithoutExtension,
     val relativeLocation: String,
     val thumbnailSizes: Map<ImageSize, ImageSizeInformation>,
-    val title: String,
-    val showInGallery: Boolean
+    val title: String
 ) {
     abstract fun getUrl(websiteConfiguration: WebsiteConfiguration): String
 }
 
 class InternalImageInformation(
     filename: FilenameWithoutExtension,
-    thumbnailSizes: Map<ImageSize, ImageSizeInformation>,
+    thumbnailSizes: MutableMap<ImageSize, ImageSizeInformation>,
     relativeLocation: String,
     title: String,
-    showInGallery: Boolean,
-    val tags: Set<String>,
-    val exifInformation: Map<ExifdataKey, String>,
+    val tags: MutableSet<String>,
+    val exifInformation: MutableMap<ExifdataKey, String>,
     val categories: MutableSet<CategoryInformation> = mutableSetOf(),
-) : ImageInformation(filename, relativeLocation, thumbnailSizes, title, showInGallery) {
+) : ImageInformation(filename, relativeLocation, thumbnailSizes, title) {
     override fun getUrl(websiteConfiguration: WebsiteConfiguration): String =
         BuildingCache.getLinkFromFragment(websiteConfiguration, relativeLocation)
+
+    override fun toString(): String {
+        return "InternalImageInformation(tags=$tags, exifInformation=$exifInformation, categories=$categories)"
+    }
+
+
 }
 
 class ExternalImageInformation(
@@ -38,8 +42,13 @@ class ExternalImageInformation(
     thumbnailSizes: Map<ImageSize, ImageSizeInformation>,
     relativeLocation: String,
     title: String
-) : ImageInformation(filename, relativeLocation, thumbnailSizes, title, false) {
+) : ImageInformation(filename, relativeLocation, thumbnailSizes, title) {
     override fun getUrl(websiteConfiguration: WebsiteConfiguration): String = host + relativeLocation
+    override fun toString(): String {
+        return "ExternalImageInformation(host='$host')"
+    }
+
+
 }
 
 fun ImageInformation.toExternal(host: String) =

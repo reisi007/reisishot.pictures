@@ -2,9 +2,11 @@ package pictures.reisishot.mise.backend.generator.gallery
 
 import at.reisishot.mise.commons.*
 import at.reisishot.mise.config.ImageConfig
+import at.reisishot.mise.config.getConfig
 import at.reisishot.mise.config.parseConfig
 import at.reisishot.mise.exifdata.ExifdataKey
 import at.reisishot.mise.exifdata.readExif
+import com.typesafe.config.ConfigList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.DIV
@@ -29,6 +31,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
 import kotlin.streams.asSequence
@@ -117,13 +120,27 @@ abstract class AbstractGalleryGenerator(
                 ?: throw IllegalStateException("Cache has a modified date, but cannot be parsed!")
         }
 
-        val regeneratePages = !cacheStillValid || hasTextChanges(configuration, cacheTime)
+        val regeneratePages =
+            !cacheStillValid
+                    || hasTextChanges(configuration, cacheTime)
+                    || hasConfigChanges(configuration, cacheTime)
 
         if (!regeneratePages) return
 
         buildImageInformation(configuration)
         buildTags(cache)
+        buildTransitiveTags(configuration)
         buildCategories(configuration, cache)
+    }
+
+    private fun hasConfigChanges(configuration: WebsiteConfiguration, cacheTime: ZonedDateTime): Boolean {
+        return sequenceOf(
+            "categories.conf",
+            "tags.conf"
+        ).map { configuration.inPath withChild it }
+            .map { it.fileModifiedDateTime }
+            .filterNotNull()
+            .all { it < cacheTime }
     }
 
     private suspend fun hasTextChanges(configuration: WebsiteConfiguration, cacheTime: ZonedDateTime) =
@@ -171,7 +188,6 @@ abstract class AbstractGalleryGenerator(
             }
     }
 
-    // TODO Write cache files and use them instead of computing...
     private suspend fun buildImageInformation(configuration: WebsiteConfiguration) {
         configuration.inPath.withChild(AbstractThumbnailGenerator.NAME_IMAGE_SUBFOLDER)
             .list()
@@ -199,9 +215,8 @@ abstract class AbstractGalleryGenerator(
                 val imageInformation = InternalImageInformation(
                     filenameWithoutExtension,
                     thumbnailConfig,
-                    SUBFOLDER_OUT + '/' + filenameWithoutExtension.toLowerCase(),
+                    SUBFOLDER_OUT + '/' + filenameWithoutExtension.lowercase(Locale.getDefault()),
                     imageConfig.title,
-                    imageConfig.showInGallery,
                     imageConfig.tags,
                     exifData
                 )
@@ -210,11 +225,43 @@ abstract class AbstractGalleryGenerator(
                 imageConfig.categoryThumbnail.forEach { category ->
                     val categoryName = CategoryName(category)
                     cache.computedCategoryThumbnails.let { thumbnails ->
-                        thumbnails.get(categoryName).let {
+                        thumbnails[categoryName].let {
                             if (it != null)
                                 throw IllegalStateException("A thumbnail for $category has already been set! (\"${it.title}\"")
                             else
-                                thumbnails.put(categoryName, imageInformation)
+                                thumbnails[categoryName] = imageInformation
+                        }
+                    }
+                }
+            }
+    }
+
+    private fun buildTransitiveTags(configuration: WebsiteConfiguration) {
+        val computedTags = cache.computedTags
+
+        configuration.inPath.withChild("tags.conf")
+            .getConfig()
+            ?.root()
+            ?.forEach { (key, value) ->
+                (value as? ConfigList)?.let { list ->
+                    val tagStrings = list.asSequence()
+                        .map { it.unwrapped() as? String }
+                        .filterNotNull()
+                        .toList()
+
+                    val tags = tagStrings.map { TagInformation(it) }
+                    computedTags[TagInformation(key)]?.let { images ->
+                        tags.forEach { newTag ->
+                            computedTags[newTag]?.let { imageInformations ->
+                                imageInformations.addAll(images)
+
+                                images.asSequence()
+                                    .map { it as? InternalImageInformation }
+                                    .filterNotNull()
+                                    .forEach { image ->
+                                        image.tags.addAll(tagStrings)
+                                    }
+                            }
                         }
                     }
                 }
@@ -240,7 +287,7 @@ abstract class AbstractGalleryGenerator(
                 .flatMap { it.asSequence() }
                 .map { it.internalName to it.subcategoryComputator(categoryLevelMap) }
                 .forEach { (category, subcategories) ->
-                    computedSubcategories.put(category, subcategories)
+                    computedSubcategories[category] = subcategories
                 }
 
             // Add first level subcategories
@@ -359,31 +406,27 @@ abstract class AbstractGalleryGenerator(
         updateId: Long,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
-    ): Boolean {
-        if (changeFiles.hasRelevantChanges()) {
-            cleanup(configuration, cache)
-            fetchInitialInformation(configuration, cache, alreadyRunGenerators)
-            return true
-        } else return false
-    }
+    ): Boolean = if (changeFiles.hasRelevantChanges()) {
+        cleanup(configuration, cache)
+        fetchInitialInformation(configuration, cache, alreadyRunGenerators)
+        true
+    } else false
 
     override suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
         updateId: Long,
         changeFiles: ChangeFileset
-    ): Boolean {
-        if (changeFiles.hasRelevantChanges()) {
-            buildInitialArtifacts(configuration, cache)
-            return true
-        } else return false
-    }
+    ) = if (changeFiles.hasRelevantChanges()) {
+        buildInitialArtifacts(configuration, cache)
+        true
+    } else false
 
     private fun ChangeFileset.hasRelevantChanges() =
         keys.asSequence()
             .any { it.hasExtension(FileExtension::isConf) }
 
-    override suspend fun cleanup(configuration: WebsiteConfiguration, cache: BuildingCache): Unit {
+    override suspend fun cleanup(configuration: WebsiteConfiguration, cache: BuildingCache) {
         withContext(Dispatchers.IO) {
             configuration.outPath.resolve(SUBFOLDER_OUT)
                 .toFile()
@@ -452,7 +495,7 @@ fun DIV.insertSubcategoryThumbnails(
     generator: AbstractGalleryGenerator
 ) {
     val subcategories = generator.cache.computedSubcategories[categoryName] ?: emptySet()
-    if (subcategories.isNullOrEmpty()) return
+    if (subcategories.isEmpty()) return
     insertCategoryThumbnails(subcategories, configuration, generator)
 }
 
@@ -461,14 +504,13 @@ fun DIV.insertCategoryThumbnails(
     configuration: WebsiteConfiguration,
     generator: AbstractGalleryGenerator
 ) {
-    if (!subcategories.isNullOrEmpty())
+    if (subcategories.isNotEmpty())
         div("category-thumbnails") {
             subcategories.asSequence()
                 .map {
                     generator.cache.categoryInformation.getValue(it) to
                             generator.cache.computedCategoryThumbnails.getThumbnailImageInformation(it, generator)
                 }
-                .filterNotNull()
                 .sortedBy { (categoryInformation, _) -> categoryInformation.complexName }
                 .forEach { (categoryName, imageInformation) ->
                     insertSubcategoryThumbnail(
