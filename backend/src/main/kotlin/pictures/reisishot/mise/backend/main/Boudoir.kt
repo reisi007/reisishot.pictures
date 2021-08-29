@@ -12,7 +12,6 @@ import pictures.reisishot.mise.backend.SocialMediaAccounts
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache.Companion.getLinkFromFragment
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
-import pictures.reisishot.mise.backend.generator.gallery.getOrThrow
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.links.LinkGenerator
 import pictures.reisishot.mise.backend.generator.multisite.ImageInfoImporter
@@ -44,7 +43,7 @@ object Boudoir {
         Mise.build(
             WebsiteConfiguration(
                 shortTitle = "Reisishot Boudoir",
-                longTitle = "Reisishot Boudoir - Intime Porträts für dich aus Leidenschaft",
+                longTitle = "Reisishot Boudoir - Intime Porträts",
                 isDevMode = isDevMode,
                 websiteLocation = "https://$folderName",
                 inPath = Paths.get("input", folderName).toAbsolutePath(),
@@ -52,14 +51,6 @@ object Boudoir {
                 outPath = Paths.get("upload", folderName).toAbsolutePath(),
                 interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                 cleanupGeneration = false,
-                cssFileName = "styles-boudoir.css",
-                navbarBrandFunction = { config, gallery ->
-                    insertLazyPicture(
-                        gallery.cache.imageInformationData.getOrThrow("Boudoir-Logo", "Menu"),
-                        config,
-                        "solo"
-                    )
-                },
                 socialMediaLinks = SocialMediaAccounts(
                     "reisishot.boudoir",
                     "florian_reisinger_boudoir",
@@ -90,7 +81,7 @@ object Boudoir {
                                     text("Wenn du dich für ein Shooting anmelden möchtest trage dich einfach direkt in die Warteliste ein: ")
                                     a("https://service.reisishot.pictures/waitlist", "_blank", "pl-2 btn btn-primary") {
                                         text("Zur Anmeldung gehen ")
-                                        insertIcon(ReisishotIcons.LINK, "xs", "text-accent")
+                                        insertIcon(ReisishotIcons.LINK, "xs", "text-white")
                                     }
                                 },
                                 FormHGroup(

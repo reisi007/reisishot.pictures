@@ -24,7 +24,6 @@ class WebsiteConfiguration(
     val socialMediaLinks: SocialMediaAccounts? = null,
     val generators: List<WebsiteGenerator> = emptyList(),
     val isDevMode: Boolean = false,
-    val cssFileName: String = "styles.css",
     val bootsrapMenuBreakpoint: String = "md",
     val fbMessengerChatPlugin: FacebookMessengerChatPlugin? = null,
     val navbarBrandFunction: A.(WebsiteConfiguration, AbstractGalleryGenerator) -> Unit = { config, _ -> text(config.shortTitle) },

@@ -52,3 +52,11 @@
     margin-top: 16px;
   }
 }
+
+.carousel#testimonials {
+  $size: 10em;
+  background-color: $primaryColor;
+  color: white;
+  max-height: $size;
+  height: $size;
+}

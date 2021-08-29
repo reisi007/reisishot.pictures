@@ -209,7 +209,7 @@ object PageGenerator {
     @HtmlTagMarker
     private fun HEAD.appCss(configuration: WebsiteConfiguration) {
         val prefix = getRessourceUrlPrefix(configuration.isDevMode)
-        styleLink("$prefix/css/${configuration.cssFileName}")
+        styleLink("$prefix/css/styles.css")
     }
 
     @HtmlTagMarker
@@ -247,7 +247,7 @@ object PageGenerator {
         link("$prefix/js/combined.min.js", "preload") {
             attributes["as"] = "script"
         }
-        link("$prefix/css/${configuration.cssFileName}", "preload") {
+        link("$prefix/css/styles.css", "preload") {
             attributes["as"] = "style"
         }
     }

@@ -2,7 +2,7 @@ const
     gulp = require('gulp'),
     purgecss = require('gulp-purgecss'),
     $ = require('gulp-load-plugins')({lazy: true}),
-    sites = ['reisishot.pictures', 'goto.reisishot.pictures', 'portrait.reisishot.pictures'];
+    sites = ['reisishot.pictures', 'goto.reisishot.pictures', 'portrait.reisishot.pictures', 'couples.reisishot.pictures', 'boudoir.reisishot.pictures'];
 
 
 gulp.task('styles', function () {
@@ -14,21 +14,6 @@ gulp.task('styles', function () {
             content: ['./generated/js/*.js'].concat(sites.map(s => '../upload/' + s + '/**/*.html'))
         }))
         .pipe($.concat('styles.css'))
-        .pipe(gulp.dest('generated/css'));
-});
-
-gulp.task('styles-boudoir', function () {
-    return gulp
-        .src('./src/scss/main-boudoir.scss')
-        .pipe($.sass().on('error', $.sass.logError))
-        .pipe($.cleanCss())
-        .pipe(purgecss({
-            content: [
-                '../upload/boudoir.reisishot.pictures/**/*.html',
-                './generated/js/*.js'
-            ]
-        }))
-        .pipe($.concat('styles-boudoir.css'))
         .pipe(gulp.dest('generated/css'));
 });
 
@@ -81,10 +66,6 @@ gulp.task('copyStatic', function (done) {
         .on('end', doneLogic)
         .pipe(gulp.dest('out'));
 
-    gulp.src('./src/static_boudoir/**/*', {dot: true})
-        .on('end', doneLogic)
-        .pipe(gulp.dest('out_boudoir'));
-
     gulp.src('./src/static_css/**/*', {dot: true})
         .on('end', doneLogic)
         .pipe(gulp.dest('out/css'));
@@ -110,7 +91,7 @@ gulp.task('copyReleaseInternal', function (done) {
 
 gulp.task('watch', function () {
     // Watch .sass files
-    gulp.watch(['src/scss/**/*.scss', 'src/scss/**/*.css'], gulp.parallel('styles', 'styles-boudoir'));
+    gulp.watch(['src/scss/**/*.scss', 'src/scss/**/*.css'], gulp.parallel('styles'));
     // Watch .js files
     gulp.watch([
             './src/js/bootstrap/*.js',
@@ -131,10 +112,9 @@ gulp.task('default', gulp.parallel(
     'copyStaticCss',
     'scriptsDev',
     'styles',
-    'styles-boudoir',
     'watch'
 ));
 
-gulp.task('release', gulp.parallel('copyStatic', 'scripts', 'styles', 'styles-boudoir'));
+gulp.task('release', gulp.parallel('copyStatic', 'scripts', 'styles'));
 
 gulp.task('copyRelease', gulp.parallel('copyReleaseInternal', 'copyStaticCss'));

@@ -23,11 +23,9 @@ const
     connect = require('gulp-connect'),
     $ = require('gulp-load-plugins')({lazy: true}),
     target = arg.target,
-    isBoudoir = target === 'boudoir.reisishot.pictures',
     inBase = './../frontend-static/' + target + '/',
     outBase = './../upload/' + target + '',
-    mainStatic = './../frontend-framework/out/**/*',
-    boudoirStatic = './../frontend-framework/out_boudoir/**/*',
+    staticSource = './../frontend-framework/out/**/*',
     frameworkJsCss = './../frontend-framework/generated/**/*';
 
 gulp.task('copyStatic', function (done) {
@@ -38,8 +36,6 @@ gulp.task('copyStatic', function (done) {
 });
 
 gulp.task('copyFrameworkStatic', function (done) {
-    const staticSource = isBoudoir ? boudoirStatic : mainStatic;
-
     gulp
         .src(staticSource, {dot: true})
         .pipe(gulp.dest(outBase))
@@ -66,7 +62,7 @@ gulp.task('watch', function () {
     gulp.watch(outBase + '/**/*.html')
         .on('change', connect.reload);
     // Watch static files
-    gulp.watch(mainStatic, gulp.series('copyFrameworkStatic'));
+    gulp.watch(staticSource, gulp.series('copyFrameworkStatic'));
     // Watch .js / .css  files
     gulp.watch(frameworkJsCss, gulp.series('copyFrameworkJsCss'));
     // Watch static files
