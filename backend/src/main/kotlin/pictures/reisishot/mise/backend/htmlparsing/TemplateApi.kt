@@ -358,8 +358,14 @@ class TemplateApi(
             text(" zu sehen.")
         }
     }
-}
 
+    @SuppressWarnings("unused")
+    fun insertWartelisteInfo(): String = buildString {
+        appendUnformattedHtml().div {
+            insertWartelisteInfo()
+        }
+    }
+}
 
 fun Yaml.getString(key: String): String? {
     val value = getOrDefault(key, null)

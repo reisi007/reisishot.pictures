@@ -140,7 +140,7 @@ abstract class AbstractGalleryGenerator(
         ).map { configuration.inPath withChild it }
             .map { it.fileModifiedDateTime }
             .filterNotNull()
-            .all { it < cacheTime }
+            .any { it >= cacheTime }
     }
 
     private suspend fun hasTextChanges(configuration: WebsiteConfiguration, cacheTime: ZonedDateTime) =

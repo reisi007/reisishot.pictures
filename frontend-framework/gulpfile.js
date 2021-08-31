@@ -92,6 +92,11 @@ gulp.task('copyReleaseInternal', function (done) {
 gulp.task('watch', function () {
     // Watch .sass files
     gulp.watch(['src/scss/**/*.scss', 'src/scss/**/*.css'], gulp.parallel('styles'));
+    //Watch HTML files for changed classes / ids / tags
+    gulp.watch(
+        sites.map(s => '../upload/' + s + '/**/*.html'),
+        gulp.parallel('styles')
+    )
     // Watch .js files
     gulp.watch([
             './src/js/bootstrap/*.js',
@@ -100,8 +105,7 @@ gulp.task('watch', function () {
             './src/js/modules/**/*.js'
         ],
         gulp.parallel('scriptsDev')
-    )
-    ;
+    );
     // Watch static files
     gulp.watch('src/static/**/*.*', gulp.parallel('copyStatic'));
     gulp.watch('src/static_css/**/*.*', gulp.parallel('copyStaticCss'));

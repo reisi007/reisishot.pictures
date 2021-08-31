@@ -280,5 +280,13 @@ internal fun HtmlBlockTag.insertYoutube(codeOrLinkFragment: String, w: Int, h: I
     }
 }
 
+@HtmlTagMarker
+fun DIV.insertWartelisteInfo() {
+    p("d-inline-block") { text("Wenn du dich für ein Shooting anmelden möchtest trage dich einfach direkt in die Warteliste ein:") }
+    a("https://service.reisishot.pictures/waitlist", "_blank", "pl-2 btn btn-primary") {
+        text("Zur Anmeldung gehen ")
+        insertIcon(ReisishotIcons.LINK, "xs", "text-white")
+    }
+}
 
 fun <T : Appendable> T.appendUnformattedHtml() = appendHTML(false, true)

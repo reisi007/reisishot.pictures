@@ -11,6 +11,7 @@ import pictures.reisishot.mise.backend.generator.ChangeState.*
 import java.nio.file.*
 import java.nio.file.StandardWatchEventKinds.*
 import java.util.*
+import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
 object Mise {
@@ -85,9 +86,10 @@ object Mise {
         websiteConfiguration: WebsiteConfiguration,
         generatorMap: Map<Int, List<WebsiteGenerator>>
     ) = doing("Writing cache...") {
-        generatorMap.values.flatMap { it }.forEachParallel { it.saveCache(websiteConfiguration, this@store) }
+        generatorMap.values
+            .flatten()
+            .forEachParallel { it.saveCache(websiteConfiguration, this@store) }
         saveCache()
-
     }
 
     private suspend fun WebsiteConfiguration.startIncrementalGeneration(
@@ -103,9 +105,10 @@ object Mise {
                 )
             }
         }
-        val coroutineDispatcher = newFixedThreadPoolContext(
-            Runtime.getRuntime().availableProcessors(), "Incremental pool"
-        )
+        val coroutineDispatcher = Executors.newFixedThreadPool(
+            Runtime.getRuntime().availableProcessors()
+        ).asCoroutineDispatcher()
+
         val loopMs = interactiveDelayMs
         var i = 1L
         while (loopMs != null) {
