@@ -58,7 +58,7 @@ object Boudoir {
                 ),
                 analyticsSiteId = "4",
                 fbMessengerChatPlugin = FacebookMessengerChatPlugin(
-                    107984484236335,
+                    628453067544931,
                     "#d3973b",
                     "Hallo! Falls du noch Fragen zu deinem Boudoir Shooting hast, kannst du mich hier kontaktieren!"
                 ),

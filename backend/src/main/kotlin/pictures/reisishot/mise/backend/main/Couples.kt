@@ -5,6 +5,7 @@ import at.reisishot.mise.exifdata.defaultExifReplaceFunction
 import kotlinx.html.InputType
 import kotlinx.html.h2
 import kotlinx.html.h3
+import pictures.reisishot.mise.backend.FacebookMessengerChatPlugin
 import pictures.reisishot.mise.backend.Mise
 import pictures.reisishot.mise.backend.SocialMediaAccounts
 import pictures.reisishot.mise.backend.WebsiteConfiguration
@@ -54,6 +55,11 @@ object Couples {
                 tmpPath = tmpPath,
                 outPath = Paths.get("upload", folderName).toAbsolutePath(),
                 interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
+                fbMessengerChatPlugin = FacebookMessengerChatPlugin(
+                    628453067544931,
+                    "#27ae60",
+                    "Hallo! Falls du noch Fragen zu deinem Pärchen Shooting hast, kannst du mich hier kontaktieren!"
+                ),
                 cleanupGeneration = false,
                 analyticsSiteId = "7",
                 socialMediaLinks = SocialMediaAccounts(
