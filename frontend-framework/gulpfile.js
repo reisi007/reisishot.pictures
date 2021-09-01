@@ -5,7 +5,7 @@ const
     sites = ['reisishot.pictures', 'goto.reisishot.pictures', 'portrait.reisishot.pictures', 'couples.reisishot.pictures', 'boudoir.reisishot.pictures'];
 
 
-gulp.task('styles', function () {
+gulp.task('styles', function (done) {
     return gulp
         .src('./src/scss/main.scss')
         .pipe($.sass().on('error', $.sass.logError))
@@ -14,7 +14,8 @@ gulp.task('styles', function () {
             content: ['./generated/js/*.js'].concat(sites.map(s => '../upload/' + s + '/**/*.html'))
         }))
         .pipe($.concat('styles.css'))
-        .pipe(gulp.dest('generated/css'));
+        .pipe(gulp.dest('generated/css'))
+        .on('end', done);
 });
 
 function babelify() {
@@ -54,7 +55,7 @@ gulp.task('scriptsDev', function () {
 
 gulp.task('copyStatic', function (done) {
     let doneCount = 0
-    const taskCount = 3;
+    const taskCount = 2;
 
     function doneLogic() {
         doneCount++;
@@ -119,6 +120,10 @@ gulp.task('default', gulp.parallel(
     'watch'
 ));
 
-gulp.task('release', gulp.parallel('copyStatic', 'scripts', 'styles'));
+gulp.task('release', gulp.parallel('copyStatic', 'scripts', 'styles'), function (done) {
+    done()
+});
 
-gulp.task('copyRelease', gulp.parallel('copyReleaseInternal', 'copyStaticCss'));
+gulp.task('copyRelease', gulp.parallel('copyReleaseInternal', 'copyStaticCss'), function (done) {
+    done()
+});
