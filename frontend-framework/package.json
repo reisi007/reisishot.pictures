@@ -37,7 +37,5 @@
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0"
   },
-  "dependencies": {
-    "caniuse-lite": "^1.0.30001228"
-  }
+  "dependencies": {}
 }

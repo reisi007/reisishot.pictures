@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Browserlist Update Sites" type="ShConfigurationType">
+  <configuration default="false" name="Browserlist Update Sites (Frontend)" type="ShConfigurationType">
     <option name="SCRIPT_TEXT" value="npx browserslist@latest --update-db" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="" />

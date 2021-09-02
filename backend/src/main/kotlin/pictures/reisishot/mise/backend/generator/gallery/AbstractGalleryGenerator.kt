@@ -120,12 +120,12 @@ abstract class AbstractGalleryGenerator(
                 ?: throw IllegalStateException("Cache has a modified date, but cannot be parsed!")
         }
 
-        val regeneratePages =
+        val recomputeGallery =
             !cacheStillValid
                     || hasTextChanges(configuration, cacheTime)
                     || hasConfigChanges(configuration, cacheTime)
 
-        if (!regeneratePages) return
+        if (!recomputeGallery) return
 
         buildImageInformation(configuration)
         buildTags(cache)
@@ -143,18 +143,17 @@ abstract class AbstractGalleryGenerator(
             .any { it >= cacheTime }
     }
 
-    private suspend fun hasTextChanges(configuration: WebsiteConfiguration, cacheTime: ZonedDateTime) =
-        withContext(Dispatchers.IO) {
-            // A file has been modified, which is newer than the cache
-            val path = configuration.inPath withChild "gallery"
-            if (!path.exists())
-                return@withContext false
-            return@withContext Files.walk(path)
-                .asSequence()
-                .map { it.fileModifiedDateTime }
-                .filterNotNull()
-                .any { it >= cacheTime }
-        }
+    private fun hasTextChanges(configuration: WebsiteConfiguration, cacheTime: ZonedDateTime): Boolean {
+        // A file has been modified, which is newer than the cache
+        val path = configuration.inPath withChild "gallery"
+        if (!path.exists())
+            return false
+        return Files.walk(path)
+            .asSequence()
+            .map { it.fileModifiedDateTime }
+            .filterNotNull()
+            .any { it >= cacheTime }
+    }
 
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) =
         generateWebpages(configuration, cache, 0)
