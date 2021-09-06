@@ -29,6 +29,11 @@ import java.util.*
 import kotlin.streams.asSequence
 
 class MainView : View("Main View") {
+
+    companion object {
+        private val regularFilename = """\d{2}_.+?_\d+""".toRegex()
+    }
+
     private val imageView = ImageView().apply {
         isPreserveRatio = true
         maxWidth(Double.POSITIVE_INFINITY)
@@ -122,7 +127,7 @@ class MainView : View("Main View") {
                             ?.map { it.resolveSibling("${it.fileName.filenameWithoutExtension}.conf") }
                             ?.toList() ?: emptyList()
                     }
-                    if (path.isNullOrEmpty())
+                    if (path.isEmpty())
                         return@setOnAction
                     path.first().parent?.toFile()?.let {
                         initialDirectory = it
@@ -165,7 +170,7 @@ class MainView : View("Main View") {
                     val imagesNoConfig = Files.list(dir)
                         .map { it.resolveSibling(it.filenameWithoutExtension + ".conf") }
                         .filter { !Files.exists(it) }
-                        .map { it to ImageConfig("", tags = setOf()) }
+                        .map { it to ImageConfig("", tags = mutableSetOf()) }
                         .asSequence()
                     loadImageConfig(
                         imagesNoConfig + configNoTags
@@ -189,7 +194,7 @@ class MainView : View("Main View") {
     }
 
     private fun saveImageConfig() {
-        val tags = tagField.tags.toSet()
+        val tags = tagField.tags.toMutableSet()
         val title = titleField.text
         knownTags += tags
         renameImageIfNeeded()
@@ -250,6 +255,7 @@ class MainView : View("Main View") {
             Files.list(this)
                 .filter { it.isRegularFile() }
                 .filter { it.fileExtension.isJpeg() }
+                .filter { !regularFilename.matches(it.filenameWithoutExtension) }
                 .forEach { filenameChooser.accept(it) }
 
             println()
