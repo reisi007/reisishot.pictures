@@ -38,8 +38,8 @@ object Portrait {
         val overviewPageGenerator = OverviewPageGenerator(galleryGenerator)
         Mise.build(
             WebsiteConfiguration(
-                shortTitle = "Reisishot Porträt",
-                longTitle = "Reisishot Porträt - Immer im besten Licht",
+                shortTitle = "ReisiShot Porträt",
+                longTitle = "ReisiShot Porträt - Immer im besten Licht",
                 isDevMode = isDevMode,
                 websiteLocation = "https://$folderName",
                 inPath = Paths.get("input", folderName).toAbsolutePath(),

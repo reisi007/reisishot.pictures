@@ -47,8 +47,8 @@ object Couples {
         val overviewPageGenerator = OverviewPageGenerator(galleryGenerator)
         Mise.build(
             WebsiteConfiguration(
-                shortTitle = "Reisishot Couples",
-                longTitle = "Reisishot Couples - Fotograf Florian Reisinger",
+                shortTitle = "ReisiShot Couples",
+                longTitle = "ReisiShot Couples - Fotograf Florian Reisinger",
                 isDevMode = isDevMode,
                 websiteLocation = "https://$folderName",
                 inPath = Paths.get("input", folderName).toAbsolutePath(),

@@ -44,8 +44,8 @@ object Main {
         val overviewPageGenerator = OverviewPageGenerator(galleryGenerator)
         Mise.build(
             WebsiteConfiguration(
-                shortTitle = "Reisishot",
-                longTitle = "Reisishot - Fotograf Florian Reisinger",
+                shortTitle = "ReisiShot",
+                longTitle = "ReisiShot - Fotograf Florian Reisinger",
                 isDevMode = isDevMode,
                 websiteLocation = "https://$folderName",
                 inPath = Paths.get("input", folderName).toAbsolutePath(),

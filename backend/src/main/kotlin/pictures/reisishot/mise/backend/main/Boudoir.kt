@@ -41,8 +41,8 @@ object Boudoir {
 
         Mise.build(
             WebsiteConfiguration(
-                shortTitle = "Reisishot Boudoir",
-                longTitle = "Reisishot Boudoir - Intime Porträts",
+                shortTitle = "ReisiShot Boudoir",
+                longTitle = "ReisiShot Boudoir - Intime Porträts",
                 isDevMode = isDevMode,
                 websiteLocation = "https://$folderName",
                 inPath = Paths.get("input", folderName).toAbsolutePath(),
