@@ -31,7 +31,7 @@ import kotlin.streams.asSequence
 class MainView : View("Main View") {
 
     companion object {
-        private val regularFilename = """\d{2}_.+?_\d+""".toRegex()
+        private val regularFilename = """\d{2}_.+?_\d+(-Edit)*""".toRegex()
     }
 
     private val imageView = ImageView().apply {

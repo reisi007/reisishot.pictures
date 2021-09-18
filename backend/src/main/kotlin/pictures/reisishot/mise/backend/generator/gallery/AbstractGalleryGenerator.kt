@@ -216,7 +216,7 @@ abstract class AbstractGalleryGenerator(
                     thumbnailConfig,
                     SUBFOLDER_OUT + '/' + filenameWithoutExtension.lowercase(Locale.getDefault()),
                     imageConfig.title,
-                    imageConfig.tags,
+                    imageConfig.tags.toMutableSet(), // Needed because single element sets are not correctly loaded as MutableSet
                     exifData
                 )
 
