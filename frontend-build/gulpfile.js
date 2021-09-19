@@ -20,7 +20,7 @@ const arg = (argList => {
 
 const
     gulp = require('gulp'),
-    connect = require('gulp-connect'),
+    browserSync = require('browser-sync').create(),
     $ = require('gulp-load-plugins')({lazy: true}),
     target = arg.target,
     inBase = './../frontend-static/' + target + '/',
@@ -50,17 +50,24 @@ gulp.task('copyFrameworkJsCss', function (done) {
 });
 
 gulp.task('serve', function () {
-    connect.server({
-        root: [outBase],
-        port: 3000,
-        livereload: true
-    })
+    browserSync.init({
+        files: outBase + '**/*.*',
+        reloadOnRestart: true,
+        watchOptions: {
+            usePolling: false,
+            ignoreInitial: true
+        },
+        server: {
+            watch: true,
+            baseDir: outBase
+        }
+    });
 });
 
 gulp.task('watch', function () {
     // Watch framework
     gulp.watch(outBase + '/**/*.html')
-        .on('change', connect.reload);
+        .on('change', browserSync.reload);
     // Watch static files
     gulp.watch(staticSource, gulp.series('copyFrameworkStatic'));
     // Watch .js / .css  files
@@ -70,12 +77,14 @@ gulp.task('watch', function () {
 });
 
 gulp.task('default',
-    gulp.parallel(
+    gulp.series(
         'copyStatic',
         'copyFrameworkStatic',
         'copyFrameworkJsCss',
-        'serve',
-        'watch'
+        gulp.parallel(
+            'serve',
+            'watch'
+        )
     ));
 
 gulp.task('release',
