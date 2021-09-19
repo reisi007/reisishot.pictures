@@ -66,6 +66,10 @@ i {
   font-size: 2em;
 }
 
+.rs-star-full:before, .rs-star-half:before, .rs-star-empty:before {
+  margin: 0.05rem
+}
+
 // Display icons
 
 .rs-mail:before {
@@ -83,6 +87,11 @@ i {
 }
 
 /* '' */
+.rs-star-full:before {
+  content: '\e803';
+}
+
+/* '' */
 .rs-skype:before {
   content: '\e804';
 }
@@ -93,6 +102,16 @@ i {
 }
 
 /* '' */
+.rs-star-empty:before {
+  content: '\e806';
+}
+
+/* '' */
+.rs-star-half:before {
+  content: '\f123';
+}
+
+/* '' */
 .rs-link-ext:before {
   content: '\f14c';
 }

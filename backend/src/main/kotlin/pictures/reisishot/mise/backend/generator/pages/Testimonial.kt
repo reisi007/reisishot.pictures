@@ -7,6 +7,7 @@ import java.util.*
 
 data class Testimonial(
     val image: FilenameWithoutExtension?,
+    val rating: Int?, // between 0 and 100
     val video: String?,
     val name: String,
     val isoDateString: String,

@@ -69,9 +69,11 @@ class TemplateApi(
         val personName = getString("name")
         val date = getString("date")
         val type = getString("type")
+        val rating = getString("rating")?.toInt()
+
         if (personName == null || date == null || type == null || (imageFilename == null && ytCode == null))
             throw IllegalStateException("Das Testimonial in $p ist nicht vollständig!")
-        return Testimonial(imageFilename, ytCode, personName, date, type, contentHtml)
+        return Testimonial(imageFilename, rating, ytCode, personName, date, type, contentHtml)
     }
 
 

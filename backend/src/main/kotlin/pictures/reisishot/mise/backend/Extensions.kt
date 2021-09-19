@@ -41,3 +41,8 @@ internal inline fun <reified T> Path.fromXml(): T? =
         }
 
 internal fun writeToString(action: (Writer) -> Unit) = StringWriter().apply(action).toString()
+
+fun loop(count: Int, action: () -> Unit) {
+    for (i in 0 until count)
+        action()
+}

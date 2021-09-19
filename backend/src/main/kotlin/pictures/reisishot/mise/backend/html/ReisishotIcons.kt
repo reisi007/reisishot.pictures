@@ -12,7 +12,10 @@ enum class ReisishotIcons(internal val cssName: String) {
     WHATSAPP("whatsapp"),
     LINK("link-ext"),
     MAIL("mail"),
-    PODCAST("podcast")
+    PODCAST("podcast"),
+    STAR_FULL("star-full"),
+    STAR_HALF("star-half"),
+    STAR_NONE("star-empty")
 }
 
 @HtmlTagMarker

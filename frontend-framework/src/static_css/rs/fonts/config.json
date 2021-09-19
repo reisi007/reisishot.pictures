@@ -39,20 +39,6 @@
       ]
     },
     {
-      "uid": "efc4074d57b2c8a0068f15f748224785",
-      "css": "facebook",
-      "code": 59394,
-      "src": "custom_icons",
-      "selected": true,
-      "svg": {
-        "path": "M781.3 62.5H93.8A93.8 93.8 0 0 0 0 156.3V843.8A93.8 93.8 0 0 0 93.8 937.5H361.8V640H238.8V500H361.8V393.3C361.8 271.9 434.1 204.8 544.8 204.8 597.8 204.8 653.2 214.3 653.2 214.3V333.4H592.1C532 333.4 513.2 370.8 513.2 409.1V500H647.5L626 640H513.2V937.5H781.3A93.8 93.8 0 0 0 875 843.8V156.3A93.8 93.8 0 0 0 781.3 62.5Z",
-        "width": 875
-      },
-      "search": [
-        "facebook-square"
-      ]
-    },
-    {
       "uid": "ebe85dcc65b5d498df05255ddbc28cea",
       "css": "skype",
       "code": 59396,
@@ -83,8 +69,40 @@
         "width": 1000
       },
       "search": [
-        "anchor_fm"
+        "iconfinder_anchor_fm_media_social_5340278"
       ]
+    },
+    {
+      "uid": "efc4074d57b2c8a0068f15f748224785",
+      "css": "facebook",
+      "code": 59394,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M781.3 62.5H93.8A93.8 93.8 0 0 0 0 156.3V843.8A93.8 93.8 0 0 0 93.8 937.5H361.8V640H238.8V500H361.8V393.3C361.8 271.9 434.1 204.8 544.8 204.8 597.8 204.8 653.2 214.3 653.2 214.3V333.4H592.1C532 333.4 513.2 370.8 513.2 409.1V500H647.5L626 640H513.2V937.5H781.3A93.8 93.8 0 0 0 875 843.8V156.3A93.8 93.8 0 0 0 781.3 62.5Z",
+        "width": 875
+      },
+      "search": [
+        "facebook-square"
+      ]
+    },
+    {
+      "uid": "474656633f79ea2f1dad59ff63f6bf07",
+      "css": "star-full",
+      "code": 59395,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "d17030afaecc1e1c22349b99f3c4992a",
+      "css": "star-empty",
+      "code": 59398,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "84cf1fcc3fec556e7eaeb19679ca2dc9",
+      "css": "star-half",
+      "code": 61731,
+      "src": "fontawesome"
     }
   ]
 }

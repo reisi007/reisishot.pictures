@@ -14,7 +14,9 @@ import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThum
 import pictures.reisishot.mise.backend.generator.pages.Testimonial
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
 import pictures.reisishot.mise.backend.htmlparsing.PageMetadata
+import pictures.reisishot.mise.backend.loop
 import java.util.*
+import kotlin.math.roundToInt
 
 
 @HtmlTagMarker
@@ -195,6 +197,44 @@ fun DIV.renderTestimonial(
         }
         div("card-body") {
             h5("card-title") {
+                if (testimonial.rating != null) {
+                    val roundedRating = 10 * (testimonial.rating / 10f).roundToInt()
+                    val starSize = "sm"
+                    span {
+                        attributes.itemprop = "reviewRating"
+                        attributes.itemscope = ""
+                        attributes.itemtype = "https://schema.org/Rating"
+                        meta {
+                            attributes.itemprop = "worstRating"
+                            attributes.content = "0"
+                        }
+                        meta {
+                            attributes.itemprop = "bestRating"
+                            attributes.content = "100"
+                        }
+
+                        val fullStars = roundedRating / 20
+                        val halfStar = roundedRating.mod(20) >= 10
+                        val emptyStars = 5 - fullStars - (if (halfStar) 1 else 0)
+
+                        span {
+                            attributes.itemprop = "ratingValue"
+                            attributes.content = testimonial.rating.toString()
+
+                            loop(fullStars) {
+                                insertIcon(ReisishotIcons.STAR_FULL, starSize)
+                            }
+                            if (halfStar)
+                                insertIcon(ReisishotIcons.STAR_HALF, starSize)
+
+                            loop(emptyStars) {
+                                insertIcon(ReisishotIcons.STAR_NONE, starSize)
+                            }
+
+                            text(" ")
+                        }
+                    }
+                }
                 span {
                     attributes.itemprop = "author"
                     attributes.itemtype = "https://schema.org/Person"
