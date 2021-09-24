@@ -69,16 +69,7 @@ gulp.task('copyStatic', function (done) {
 
     gulp.src('./src/static_css/**/*', {dot: true})
         .on('end', doneLogic)
-        .pipe(gulp.dest('out/css'));
-});
-
-gulp.task('copyStaticCss', function (done) {
-    return gulp
-        .src('./src/static_css/**/*', {dot: true})
-        .on('end', function () {
-            done();
-        })
-        .pipe(gulp.dest('./../upload/static.reisishot.pictures/static'))
+        .pipe(gulp.dest('generated/css'));
 });
 
 gulp.task('copyReleaseInternal', function (done) {
@@ -114,7 +105,6 @@ gulp.task('watch', function () {
 
 gulp.task('default', gulp.parallel(
     'copyStatic',
-    'copyStaticCss',
     'scriptsDev',
     'styles',
     'watch'
@@ -124,6 +114,6 @@ gulp.task('release', gulp.parallel('copyStatic', 'scripts', 'styles'), function 
     done()
 });
 
-gulp.task('copyRelease', gulp.parallel('copyReleaseInternal', 'copyStaticCss'), function (done) {
+gulp.task('copyRelease', gulp.parallel('copyReleaseInternal'), function (done) {
     done()
 });
