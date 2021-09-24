@@ -28,6 +28,7 @@
     "gulp-concat": "^2.6.1",
     "gulp-load-plugins": "^1.6.0",
     "gulp-plumber": "^1.2.1",
+    "gulp-purgecss": "^4.0.3",
     "gulp-sass": "^4.1.0",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-uglify": "^3.0.2",

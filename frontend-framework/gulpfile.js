@@ -1,21 +1,19 @@
 const
     gulp = require('gulp'),
-    purgecss = require('gulp-purgecss'),
     $ = require('gulp-load-plugins')({lazy: true}),
     sites = ['reisishot.pictures', 'goto.reisishot.pictures', 'portrait.reisishot.pictures', 'couples.reisishot.pictures', 'boudoir.reisishot.pictures'];
 
 
-gulp.task('styles', function (done) {
+gulp.task('styles', function () {
     return gulp
         .src('./src/scss/main.scss')
         .pipe($.sass().on('error', $.sass.logError))
         .pipe($.cleanCss())
-        .pipe(purgecss({
+        .pipe($.purgecss({
             content: ['./generated/js/*.js'].concat(sites.map(s => '../upload/' + s + '/**/*.html'))
         }))
         .pipe($.concat('styles.css'))
-        .pipe(gulp.dest('generated/css'))
-        .on('end', done);
+        .pipe(gulp.dest('generated/css'));
 });
 
 function babelify() {
@@ -72,12 +70,10 @@ gulp.task('copyStatic', function (done) {
         .pipe(gulp.dest('generated/css'));
 });
 
-gulp.task('copyReleaseInternal', function (done) {
+gulp.task('copyReleaseInternal', function () {
     return gulp
         .src('./generated/**/*', {dot: true})
-        .on('end', function () {
-            done();
-        })
+
         .pipe(gulp.dest('./../upload/static.reisishot.pictures'))
 });
 
