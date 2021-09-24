@@ -106,10 +106,6 @@ gulp.task('default', gulp.parallel(
     'watch'
 ));
 
-gulp.task('release', gulp.parallel('copyStatic', 'scripts', 'styles'), function (done) {
-    done()
-});
+gulp.task('release', gulp.parallel('copyStatic', 'scripts', 'styles'));
 
-gulp.task('copyRelease', gulp.parallel('copyReleaseInternal'), function (done) {
-    done()
-});
+gulp.task('copyRelease', gulp.parallel('copyReleaseInternal'));
