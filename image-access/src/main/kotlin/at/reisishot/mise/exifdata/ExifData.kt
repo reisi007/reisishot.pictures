@@ -99,14 +99,19 @@ class ExifInformation(metadata: Metadata) {
 val defaultExifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { cur ->
     when (cur.first) {
         ExifdataKey.LENS_MODEL -> {
-            val value = cur.second
-            when (value) {
+            when (val value = cur.second) {
                 "105.0 mm", "105mm", "105 mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM"
                 "147.0 mm", "147mm", "147 mm", "147 mm mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM + 1.4 Sigma EX APO DG Telekonverter"
                 "56mm F1.4 DC DN" -> ExifdataKey.LENS_MODEL to "Sigma $value"
                 else -> if (value != null && value.contains(" |"))
                     cur.first to value.substringBefore(" |")
                 else cur
+            }
+        }
+        ExifdataKey.CAMERA_MODEL -> {
+            when (cur.second) {
+                "Canon EOS M50m2" -> ExifdataKey.CAMERA_MODEL to "Canon EOS M50 Mark II"
+                else -> cur
             }
         }
         else -> cur
