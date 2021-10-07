@@ -13,6 +13,7 @@ import pictures.reisishot.mise.backend.generator.multisite.ImageInfoImporter
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
 import pictures.reisishot.mise.backend.generator.pages.yamlConsumer.KeywordConsumer
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
+import pictures.reisishot.mise.backend.generator.testimonials.TestimonialLoaderImpl
 import pictures.reisishot.mise.backend.html.*
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -25,13 +26,15 @@ object Goto {
 
     fun build(isDevMode: Boolean) {
         val folderName = "goto.reisishot.pictures"
+        val inPath = Paths.get("input", folderName).toAbsolutePath()
+        val testimonialLoader = TestimonialLoaderImpl.fromInPath(inPath)
         Mise.build(
             WebsiteConfiguration(
                 shortTitle = "ReisiShot - Herzlich Willkommen",
                 longTitle = "ReisiShot Goto - Übersicht über meine Projekte",
                 isDevMode = isDevMode,
                 websiteLocation = "https://$folderName",
-                inPath = Paths.get("input", folderName).toAbsolutePath(),
+                inPath = inPath,
                 tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
                 outPath = Paths.get("upload", folderName).toAbsolutePath(),
                 interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
@@ -98,6 +101,7 @@ object Goto {
                         categoryBuilders = emptyArray(),
                         exifReplaceFunction = defaultExifReplaceFunction
                     ),
+                    testimonialLoader,
                     ImageInfoImporter(Main.tmpPath, "https://${Main.folderName}/"),
                     PageGenerator(KeywordConsumer()),
                     SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)

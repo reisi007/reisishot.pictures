@@ -129,4 +129,4 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
 
 fun List<WebsiteGenerator>.findTestimonialLoader() = find { it is TestimonialLoader }
         as? TestimonialLoader
-    ?: throw IllegalStateException("Gallery generator is needed for this generator!")
+    ?: throw IllegalStateException("Testimonial generator is needed for this generator!")
