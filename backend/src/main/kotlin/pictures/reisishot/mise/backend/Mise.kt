@@ -110,12 +110,10 @@ object Mise {
         ).asCoroutineDispatcher()
 
         val loopMs = interactiveDelayMs
-        var i = 1L
         while (loopMs != null) {
             delay(loopMs)
             try {
-                processEvents(watchKey, this, cache, i, inPath, generators, coroutineDispatcher)
-                i++
+                processEvents(watchKey, this, cache, inPath, generators, coroutineDispatcher)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -126,7 +124,6 @@ object Mise {
         watchKey: WatchKey,
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        updateId: Long,
         watchedDir: Path,
         generatorMap: Map<Int, List<WebsiteGenerator>>,
         coroutineDispatcher: CoroutineDispatcher
@@ -138,12 +135,12 @@ object Mise {
                 val changed = AtomicInteger(0)
                 generatorMap.forEachLimitedParallel {
                     val cacheChanged =
-                        it.fetchUpdateInformation(configuration, cache, updateId, generators, changedFileset)
+                        it.fetchUpdateInformation(configuration, cache, generators, changedFileset)
                     if (cacheChanged)
                         changed.addAndGet(1)
                 }
                 generatorMap.forEachLimitedParallel(coroutineDispatcher) {
-                    val cacheChanged = it.buildUpdateArtifacts(configuration, cache, updateId, changedFileset)
+                    val cacheChanged = it.buildUpdateArtifacts(configuration, cache, changedFileset)
                     if (cacheChanged)
                         changed.addAndGet(1)
                 }

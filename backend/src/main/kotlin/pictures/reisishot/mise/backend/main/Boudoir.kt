@@ -19,25 +19,30 @@ import pictures.reisishot.mise.backend.generator.pages.minimalistic.Minimalistic
 import pictures.reisishot.mise.backend.generator.pages.overview.OverviewPageGenerator
 import pictures.reisishot.mise.backend.generator.pages.yamlConsumer.KeywordConsumer
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
+import pictures.reisishot.mise.backend.generator.testimonials.TestimonialLoaderImpl
 import pictures.reisishot.mise.backend.html.*
 import java.nio.file.Path
 import java.nio.file.Paths
 
 object Boudoir {
+    const val folderName = "boudoir.reisishot.pictures"
+
     @JvmStatic
     fun main(args: Array<String>) {
         build(args.isEmpty())
     }
 
     fun build(isDevMode: Boolean) {
-        val folderName = "boudoir.reisishot.pictures"
+
 
         val galleryGenerator = GalleryGenerator(
             categoryBuilders = emptyArray(),
             exifReplaceFunction = defaultExifReplaceFunction
         )
-        val overviewPageGenerator = OverviewPageGenerator(galleryGenerator)
 
+        val inPath = Paths.get("input", folderName).toAbsolutePath()
+        val testimonialLoader = TestimonialLoaderImpl.fromInPath(inPath)
+        val overviewPageGenerator = OverviewPageGenerator(galleryGenerator, testimonialLoader)
 
         Mise.build(
             WebsiteConfiguration(
@@ -45,7 +50,7 @@ object Boudoir {
                 longTitle = "ReisiShot Boudoir - Intime Porträts",
                 isDevMode = isDevMode,
                 websiteLocation = "https://$folderName",
-                inPath = Paths.get("input", folderName).toAbsolutePath(),
+                inPath = inPath,
                 tmpPath = Paths.get("tmp", folderName).toAbsolutePath(),
                 outPath = Paths.get("upload", folderName).toAbsolutePath(),
                 interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
@@ -126,6 +131,7 @@ object Boudoir {
                         MinimalisticPageGenerator(galleryGenerator)
                     ),
                     overviewPageGenerator,
+                    testimonialLoader,
                     galleryGenerator,
                     ImageMagickThumbnailGenerator(),
                     ImageInfoImporter(Main.tmpPath, "https://${Main.folderName}/"),

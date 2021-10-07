@@ -8,6 +8,7 @@ import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.control.Button
+import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
 import javafx.scene.control.TextField
 import javafx.scene.image.Image
@@ -20,6 +21,7 @@ import javafx.stage.DirectoryChooser
 import javafx.stage.FileChooser
 import pictures.reisishot.mise.base.AutocompleteMultiSelectionBox
 import pictures.reisishot.mise.base.enableSpellcheck
+import pictures.reisishot.mise.base.insectsOf
 import tornadofx.*
 import java.io.File
 import java.nio.file.Files
@@ -52,6 +54,11 @@ class MainView : View("Main View") {
         }
     }
 
+    private val reset = CheckBox("Reset nach Bild").apply {
+        isSelected = false
+
+    }
+
     private val errorLabel = Label().apply {
         textFill = Color.DARKRED
     }
@@ -76,22 +83,38 @@ class MainView : View("Main View") {
                     ((children.size) * spacing)
         )
 
+        val resetButton = button("Reset") {
+            setOnAction {
+                if (filenameChooser.selectedItems.isNotEmpty())
+                    filenameChooser.selectedItems = listOf(filenameChooser.selectedItems.last())
+                titleField.clear()
+                tagField.suggestions.clear()
+                tagField.suggestions += knownTags
+                tagField.tags.clear()
+            }
+        }
+
         add(menuBar)
-        addInHBox(filenameChooser)
+        addInHBox(filenameChooser, resetButton, reset) {
+            HBox.setMargin(reset, insectsOf(right = 30))
+
+        }
         addInHBox(form)
         addInHBox(errorLabel)
         addInHBox(imageView)
 
     }
 
-    private fun VBox.addInHBox(child: Node, spacing: Double = 5.0) {
+
+    private fun VBox.addInHBox(vararg child: Node, spacing: Double = 5.0, configurator: HBox.() -> Unit = {}) {
         add(HBox(spacing).apply {
             vgrow = Priority.NEVER
             hgrow = Priority.ALWAYS
             alignment = Pos.CENTER
             with(children) {
-                add(child)
+                addAll(child)
             }
+            configurator(this)
         })
     }
 
@@ -184,6 +207,7 @@ class MainView : View("Main View") {
     private fun loadImageConfig(fileSequence: Sequence<Pair<Path, ImageConfig>>) {
         val files = fileSequence.toList()
         imageConfigs.addAll(files)
+
         imageConfigs.firstOrNull()?.let { (first, _) ->
             knownTags.clear()
             knownTags.addAll(first.loadTagList())
@@ -235,17 +259,26 @@ class MainView : View("Main View") {
             addAll(knownTags)
         }
         with(tagField.tags) {
-            clear()
+            if (resetValuesOnImageChange()) {
+                titleField.text = imageConfig.title
+                clear()
+            }
             addAll(imageConfig.tags)
         }
-        titleField.text = imageConfig.title
+        if (imageConfig.title.isNotBlank()) {
+            titleField.text = imageConfig.title
+        }
+
         FilenameData.fromPath(path).let {
             filenameChooser.selectedItems = filenameChooser.selectedItems
                 .firstOrNull()
+                ?.let { if (resetValuesOnImageChange()) null else it }
                 ?.let { sel -> listOf(sel, it).distinct() }
                 ?: listOf(it)
         }
     }
+
+    private fun resetValuesOnImageChange() = reset.isSelected
 
     private fun Path.loadFilenameData() {
         if (!Files.isDirectory(this))

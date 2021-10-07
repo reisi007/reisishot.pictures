@@ -96,7 +96,7 @@ gulp.task('watch', function () {
     );
     // Watch static files
     gulp.watch('src/static/**/*.*', gulp.parallel('copyStatic'));
-    gulp.watch('src/static_css/**/*.*', gulp.parallel('copyStaticCss'));
+    gulp.watch('src/static_css/**/*.*', gulp.parallel('copyStatic'));
 });
 
 gulp.task('default', gulp.parallel(

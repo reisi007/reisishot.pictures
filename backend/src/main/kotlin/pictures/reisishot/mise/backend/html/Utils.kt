@@ -11,8 +11,8 @@ import pictures.reisishot.mise.backend.generator.gallery.CategoryInformation
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.getOrThrow
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
-import pictures.reisishot.mise.backend.generator.pages.Testimonial
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
+import pictures.reisishot.mise.backend.generator.testimonials.Testimonial
 import pictures.reisishot.mise.backend.htmlparsing.PageMetadata
 import pictures.reisishot.mise.backend.loop
 import java.util.*
@@ -181,9 +181,17 @@ fun DIV.renderTestimonial(
     websiteConfiguration: WebsiteConfiguration,
     targetPath: TargetPath,
     galleryGenerator: AbstractGalleryGenerator,
+    mode: TestimonialMode,
     testimonial: Testimonial
 ) {
-    div("col-12 col-lg-5 card border-black") {
+    div("card border-black") {
+        when (mode) {
+            TestimonialMode.BIG -> {
+            }
+            else -> {
+                classes = classes + "col-12" + "col-lg-5"
+            }
+        }
         attributes.itemprop = "review"
         attributes.itemprop = ""
         attributes.itemtype = "https://schema.org/Review"
@@ -197,9 +205,9 @@ fun DIV.renderTestimonial(
         }
         div("card-body") {
             h5("card-title") {
-                if (testimonial.rating != null) {
-                    val roundedRating = 10 * (testimonial.rating / 10f).roundToInt()
-                    val starSize = "sm"
+                val rating: Int? = testimonial.rating
+                if (rating != null) {
+
                     span {
                         attributes.itemprop = "reviewRating"
                         attributes.itemscope = ""
@@ -213,26 +221,8 @@ fun DIV.renderTestimonial(
                             attributes.content = "100"
                         }
 
-                        val fullStars = roundedRating / 20
-                        val halfStar = roundedRating.mod(20) >= 10
-                        val emptyStars = 5 - fullStars - (if (halfStar) 1 else 0)
-
-                        span {
-                            attributes.itemprop = "ratingValue"
-                            attributes.content = testimonial.rating.toString()
-
-                            loop(fullStars) {
-                                insertIcon(ReisishotIcons.STAR_FULL, starSize)
-                            }
-                            if (halfStar)
-                                insertIcon(ReisishotIcons.STAR_HALF, starSize)
-
-                            loop(emptyStars) {
-                                insertIcon(ReisishotIcons.STAR_NONE, starSize)
-                            }
-
-                            text(" ")
-                        }
+                        renderRating(rating)
+                        text(" ")
                     }
                 }
                 span {
@@ -255,21 +245,95 @@ fun DIV.renderTestimonial(
     }
 }
 
+fun HtmlBlockTag.renderRating(rating: Int, starSize: String = "sm") {
+    renderRating(rating.toDouble(), starSize)
+}
+
+fun HtmlBlockTag.renderRating(rating: Double, starSize: String = "sm") {
+    val roundedRating = 10 * (rating / 10).roundToInt()
+    val fullStars = roundedRating / 20
+    val halfStar = roundedRating.mod(20) >= 10
+    val emptyStars = 5 - fullStars - (if (halfStar) 1 else 0)
+
+    span("align-sub") {
+        attributes.itemprop = "ratingValue"
+        attributes.content = rating.toString()
+
+        loop(fullStars) {
+            insertIcon(ReisishotIcons.STAR_FULL, starSize)
+        }
+        if (halfStar)
+            insertIcon(ReisishotIcons.STAR_HALF, starSize)
+
+        loop(emptyStars) {
+            insertIcon(ReisishotIcons.STAR_NONE, starSize)
+        }
+    }
+}
+
+enum class TestimonialMode {
+    DEFAULT,
+    BIG
+}
+
 @HtmlTagMarker
-fun StringBuilder.appendTestimonials(
+fun HtmlBlockTag.appendTestimonials(
     websiteConfiguration: WebsiteConfiguration,
     targetPath: TargetPath,
     galleryGenerator: AbstractGalleryGenerator,
+    mode: TestimonialMode,
     vararg testimonialsToDisplay: Testimonial
 ) {
-    appendHTML(false, true).div {
-        div("container-flex reviews") {
-            testimonialsToDisplay.forEach { testimonial ->
-                renderTestimonial(websiteConfiguration, targetPath, galleryGenerator, testimonial)
-            }
-
+    if (testimonialsToDisplay.isNotEmpty()) {
+        div("text-center") {
+            text("Durchschnittliche Bewertung:")
+            renderTestimonialStatistics(testimonialsToDisplay)
         }
     }
+    div {
+        when (mode) {
+            TestimonialMode.BIG -> {
+            }
+            else -> {
+                classes = classes + "container-flex" + "reviews"
+            }
+        }
+
+        testimonialsToDisplay.forEach { testimonial ->
+            renderTestimonial(websiteConfiguration, targetPath, galleryGenerator, mode, testimonial)
+        }
+
+    }
+}
+
+internal fun HtmlBlockTag.renderTestimonialStatistics(
+    testimonialsToDisplay: Array<out Testimonial>
+) {
+    val statisticsData = testimonialsToDisplay.asSequence()
+        .map { it.rating?.toDouble() }
+        .filterNotNull()
+        .statistics()
+    if (statisticsData != null && statisticsData.cnt > 0) {
+        span("lh-lg text-center align-middle") {
+            renderRating(statisticsData.avg, "2x")
+            text(" (${statisticsData.cnt})")
+        }
+    }
+}
+
+data class StatisticsData(val avg: Double, val cnt: Long)
+
+private fun Sequence<Double>.statistics(): StatisticsData? {
+    var cnt: Long = 0
+    var sum: Double = 0.toDouble()
+
+    forEach {
+        cnt++
+        sum += it
+    }
+    if (cnt == 0L)
+        return null
+    return StatisticsData(sum / cnt, cnt)
 }
 
 @HtmlTagMarker

@@ -12,7 +12,10 @@ import kotlinx.html.div
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.*
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
+import pictures.reisishot.mise.backend.generator.gallery.findGalleryGenerator
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.Yaml
+import pictures.reisishot.mise.backend.generator.testimonials.TestimonialLoader
+import pictures.reisishot.mise.backend.generator.testimonials.findTestimonialLoader
 import pictures.reisishot.mise.backend.html.*
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
@@ -33,6 +36,7 @@ class PageGenerator(vararg val extensions: PageGeneratorExtension) : WebsiteGene
     private lateinit var filesToProcess: List<PageMinimalInfo>
 
     internal lateinit var galleryGenerator: AbstractGalleryGenerator
+    internal lateinit var testimonialLoader: TestimonialLoader
 
     private val extensionFileExtensions =
         extensions.asSequence()
@@ -47,8 +51,8 @@ class PageGenerator(vararg val extensions: PageGeneratorExtension) : WebsiteGene
     ) {
         withContext(Dispatchers.IO) {
             extensions.forEach { it.init(configuration, cache) }
-            galleryGenerator = alreadyRunGenerators.find { it is AbstractGalleryGenerator } as? AbstractGalleryGenerator
-                ?: throw IllegalStateException("Gallery generator is needed for this generator!")
+            galleryGenerator = alreadyRunGenerators.findGalleryGenerator()
+            testimonialLoader = alreadyRunGenerators.findTestimonialLoader()
 
             cache.clearMenuItems { it.id.startsWith(generatorName + "_") }
             cache.resetLinkcacheFor(LINKTYPE_PAGE)
@@ -65,15 +69,14 @@ class PageGenerator(vararg val extensions: PageGeneratorExtension) : WebsiteGene
     }
 
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
-        buildArtifacts(configuration, cache, 0)
+        buildArtifacts(configuration, cache)
     }
 
-    fun PageMinimalInfo.buildArtifact(configuration: WebsiteConfiguration, cache: BuildingCache, state: Long) {
+    fun PageMinimalInfo.buildArtifact(configuration: WebsiteConfiguration, cache: BuildingCache) {
         convertMarkdown(
             this,
             configuration,
             cache,
-            state
         )
     }
 
@@ -113,13 +116,12 @@ class PageGenerator(vararg val extensions: PageGeneratorExtension) : WebsiteGene
     private fun convertMarkdown(
         info: PageMinimalInfo,
         configuration: WebsiteConfiguration,
-        buildingCache: BuildingCache,
-        state: Long,
+        buildingCache: BuildingCache
     ) {
         val (yaml, headManipulator, htmlInput) = MarkdownParser.parse(
             configuration,
             buildingCache,
-            { state },
+            testimonialLoader,
             info,
             galleryGenerator,
             *extensions
@@ -138,7 +140,6 @@ class PageGenerator(vararg val extensions: PageGeneratorExtension) : WebsiteGene
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        updateId: Long,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean {
@@ -182,21 +183,19 @@ class PageGenerator(vararg val extensions: PageGeneratorExtension) : WebsiteGene
     override suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        updateId: Long,
         changeFiles: ChangeFileset
     ): Boolean {
-        buildArtifacts(configuration, cache, updateId)
+        buildArtifacts(configuration, cache)
         return false
     }
 
     private fun buildArtifacts(
         configuration: WebsiteConfiguration,
-        cache: BuildingCache,
-        updateId: Long
+        cache: BuildingCache
     ) {
         filesToProcess
             .filter { (path) -> path.hasExtension(FileExtension::isMarkdown, FileExtension::isHtml) }
-            .forEach { it.buildArtifact(configuration, cache, updateId) }
+            .forEach { it.buildArtifact(configuration, cache) }
         extensions.forEach { it.processChanges(configuration, cache) }
     }
 

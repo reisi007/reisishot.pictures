@@ -40,11 +40,9 @@ class ImageInfoImporter constructor(
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        updateId: Long,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean {
-        //TODO enable  execute(alreadyRunGenerators)
         return false
     }
 
@@ -55,7 +53,6 @@ class ImageInfoImporter constructor(
     override suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        updateId: Long,
         changeFiles: ChangeFileset
     ): Boolean {
         // Nothing to do

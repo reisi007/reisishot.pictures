@@ -21,6 +21,7 @@ import pictures.reisishot.mise.backend.generator.pages.minimalistic.Minimalistic
 import pictures.reisishot.mise.backend.generator.pages.overview.OverviewPageGenerator
 import pictures.reisishot.mise.backend.generator.pages.yamlConsumer.KeywordConsumer
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
+import pictures.reisishot.mise.backend.generator.testimonials.TestimonialLoaderImpl
 import pictures.reisishot.mise.backend.html.*
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -43,15 +44,17 @@ object Couples {
             displayedMenuItems = emptySet(),
             exifReplaceFunction = defaultExifReplaceFunction
         )
+        val inPath = Paths.get("input", folderName).toAbsolutePath()
+        val testimonialLoader = TestimonialLoaderImpl.fromInPath(inPath)
+        val overviewPageGenerator = OverviewPageGenerator(galleryGenerator, testimonialLoader)
 
-        val overviewPageGenerator = OverviewPageGenerator(galleryGenerator)
         Mise.build(
             WebsiteConfiguration(
                 shortTitle = "ReisiShot Couples",
                 longTitle = "ReisiShot Couples - Fotograf Florian Reisinger",
                 isDevMode = isDevMode,
                 websiteLocation = "https://$folderName",
-                inPath = Paths.get("input", folderName).toAbsolutePath(),
+                inPath = inPath,
                 tmpPath = tmpPath,
                 outPath = Paths.get("upload", folderName).toAbsolutePath(),
                 interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
@@ -133,6 +136,7 @@ object Couples {
                     ),
                     ImageInfoImporter(Main.tmpPath, "https://${Main.folderName}/"),
                     overviewPageGenerator,
+                    testimonialLoader,
                     galleryGenerator,
                     ImageMagickThumbnailGenerator(),
                     LinkGenerator(),

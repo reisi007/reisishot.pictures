@@ -18,6 +18,7 @@ import pictures.reisishot.mise.backend.generator.pages.PageGenerator
 import pictures.reisishot.mise.backend.generator.pages.overview.OverviewPageGenerator
 import pictures.reisishot.mise.backend.generator.pages.yamlConsumer.KeywordConsumer
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
+import pictures.reisishot.mise.backend.generator.testimonials.TestimonialLoaderImpl
 import pictures.reisishot.mise.backend.html.*
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -41,7 +42,14 @@ object Main {
             exifReplaceFunction = defaultExifReplaceFunction
         )
 
-        val overviewPageGenerator = OverviewPageGenerator(galleryGenerator)
+        val base = Paths.get("input")
+        val testimonialLoader = TestimonialLoaderImpl(
+            base withChild Boudoir.folderName withChild TestimonialLoaderImpl.INPUT_FOLDER_NAME,
+            base withChild Portrait.folderName withChild TestimonialLoaderImpl.INPUT_FOLDER_NAME
+
+        )
+
+        val overviewPageGenerator = OverviewPageGenerator(galleryGenerator, testimonialLoader)
         Mise.build(
             WebsiteConfiguration(
                 shortTitle = "ReisiShot",
@@ -120,6 +128,7 @@ object Main {
                 generators = listOf(
                     PageGenerator(overviewPageGenerator, KeywordConsumer()),
                     overviewPageGenerator,
+                    testimonialLoader,
                     galleryGenerator,
                     ImageMagickThumbnailGenerator(),
                     LinkGenerator(),

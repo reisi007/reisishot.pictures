@@ -21,6 +21,8 @@ import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThum
 import pictures.reisishot.mise.backend.generator.pages.IPageMininmalInfo
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.SourcePath
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
+import pictures.reisishot.mise.backend.generator.testimonials.TestimonialLoader
+import pictures.reisishot.mise.backend.generator.testimonials.findTestimonialLoader
 import pictures.reisishot.mise.backend.html.insertSubcategoryThumbnail
 import pictures.reisishot.mise.backend.html.raw
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
@@ -53,7 +55,8 @@ abstract class AbstractGalleryGenerator(
 
     override val executionPriority: Int = 20_000
 
-    internal var cache = Cache()
+    var cache = Cache()
+    protected lateinit var testimonialLoader: TestimonialLoader
     private lateinit var cachePath: Path
     override val imageInformationData: Collection<ImageInformation> = cache.imageInformationData.values
     override val computedTags: Map<TagInformation, Set<ImageInformation>> = cache.computedTags
@@ -99,7 +102,10 @@ abstract class AbstractGalleryGenerator(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
-    ) = buildCache(configuration, cache)
+    ) {
+        buildCache(configuration, cache)
+        testimonialLoader = alreadyRunGenerators.findTestimonialLoader()
+    }
 
     private suspend fun buildCache(
         configuration: WebsiteConfiguration,
@@ -156,7 +162,7 @@ abstract class AbstractGalleryGenerator(
     }
 
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) =
-        generateWebpages(configuration, cache, 0)
+        generateWebpages(configuration, cache, testimonialLoader)
 
     private fun buildTags(cache: BuildingCache) = with(this.cache) {
         val shallAddToMenu = displayedMenuItems.contains(DisplayedMenuItems.TAGS)
@@ -336,17 +342,17 @@ abstract class AbstractGalleryGenerator(
     private suspend fun generateWebpages(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        state: Long
+        testimonialLoader: TestimonialLoader,
     ) {
-        generateImagePages(configuration, cache, state)
-        generateCategoryPages(configuration, cache, state)
-        generateTagPages(configuration, cache, state)
+        generateImagePages(configuration, cache, testimonialLoader)
+        generateCategoryPages(configuration, cache, testimonialLoader)
+        generateTagPages(configuration, cache, testimonialLoader)
     }
 
     private suspend fun generateImagePages(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        state: Long
+        testimonialLoader: TestimonialLoader,
     ) {
         this.cache.imageInformationData.values
             .asSequence()
@@ -354,55 +360,54 @@ abstract class AbstractGalleryGenerator(
             .filterNotNull()
             .asIterable()
             .forEachLimitedParallel(50) { curImageInformation ->
-                generateImagePage(configuration, cache, state, curImageInformation)
+                generateImagePage(configuration, cache, testimonialLoader, curImageInformation)
             }
     }
 
     protected abstract fun generateImagePage(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        state: Long,
+        testimonialLoader: TestimonialLoader,
         curImageInformation: InternalImageInformation
     )
 
     private fun generateCategoryPages(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        state: Long
+        testimonialLoader: TestimonialLoader,
     ) {
         this.cache.computedCategories.forEach { (categoryName, _) ->
-            generateCategoryPage(configuration, cache, state, categoryName)
+            generateCategoryPage(configuration, cache, testimonialLoader, categoryName)
         }
     }
 
     protected abstract fun generateCategoryPage(
         configuration: WebsiteConfiguration,
         buildingCache: BuildingCache,
-        state: Long,
+        testimonialLoader: TestimonialLoader,
         categoryName: CategoryName,
     )
 
     protected fun generateTagPages(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        state: Long
+        testimonialLoader: TestimonialLoader,
     ) {
         computedTags.keys.forEach { tagName ->
-            generateTagPage(configuration, cache, state, tagName)
+            generateTagPage(configuration, cache, testimonialLoader, tagName)
         }
     }
 
     protected abstract fun generateTagPage(
         configuration: WebsiteConfiguration,
         buildingCache: BuildingCache,
-        state: Long,
+        testimonialLoader: TestimonialLoader,
         tagName: TagInformation
     )
 
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        updateId: Long,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean = if (changeFiles.hasRelevantChanges()) {
@@ -414,7 +419,6 @@ abstract class AbstractGalleryGenerator(
     override suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        updateId: Long,
         changeFiles: ChangeFileset
     ) = if (changeFiles.hasRelevantChanges()) {
         buildInitialArtifacts(configuration, cache)
@@ -461,7 +465,7 @@ abstract class AbstractGalleryGenerator(
         type: String,
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        state: () -> Long
+        testimonialLoader: TestimonialLoader
     ): HEAD.() -> Unit {
         val inPath =
             configuration.inPath withChild configuration.outPath.relativize(outFolder) withChild "$type.gallery.md"
@@ -469,7 +473,7 @@ abstract class AbstractGalleryGenerator(
             val (_, manipulator, html) = MarkdownParser.parse(
                 configuration,
                 cache,
-                state,
+                testimonialLoader,
                 GalleryMinimalInfo(inPath, outFolder withChild "index.html"),
                 this@AbstractGalleryGenerator
             )
@@ -529,3 +533,8 @@ fun Map<FilenameWithoutExtension, ImageInformation>.getOrThrow(
 
 fun Map<FilenameWithoutExtension, ImageInformation>.getOrThrow(key: FilenameWithoutExtension, usage: String? = null) =
     this[key] ?: throw IllegalStateException("Cannot find picture with filename \"$key\" (used in ${usage})!")
+
+fun List<WebsiteGenerator>.findGalleryGenerator() =
+    find { it is AbstractGalleryGenerator }
+            as? AbstractGalleryGenerator
+        ?: throw IllegalStateException("Gallery generator is needed for this generator!")

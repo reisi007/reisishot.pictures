@@ -32,7 +32,6 @@ class CopyGenerator(private val matchRegex: List<Regex>) : WebsiteGenerator {
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        updateId: Long,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean {
@@ -67,7 +66,6 @@ class CopyGenerator(private val matchRegex: List<Regex>) : WebsiteGenerator {
     override suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        updateId: Long,
         changeFiles: ChangeFileset
     ): Boolean {
         // Nothing to do

@@ -1,4 +1,4 @@
-package pictures.reisishot.mise.backend.generator.pages
+package pictures.reisishot.mise.backend.generator.testimonials
 
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.backend.df_dd_MMMM_yyyy

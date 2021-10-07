@@ -32,7 +32,6 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        updateId: Long,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean {
@@ -73,7 +72,6 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
     override suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        updateId: Long,
         changeFiles: ChangeFileset
     ): Boolean {
         val fixNoChange = changeFiles.entries.asSequence().map { (k, v) -> k to v }.all { changeState ->

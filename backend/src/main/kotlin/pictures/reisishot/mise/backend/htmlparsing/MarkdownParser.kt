@@ -20,6 +20,7 @@ import pictures.reisishot.mise.backend.generator.pages.IPageMininmalInfo
 import pictures.reisishot.mise.backend.generator.pages.PageGeneratorExtension
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.SourcePath
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.Yaml
+import pictures.reisishot.mise.backend.generator.testimonials.TestimonialLoader
 import java.io.Reader
 import java.io.StringReader
 import java.lang.reflect.Modifier
@@ -69,7 +70,7 @@ object MarkdownParser {
     fun parse(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
-        state: () -> Long,
+        testimonialLoader: TestimonialLoader,
         pageMininmalInfo: IPageMininmalInfo,
         galleryGenerator: AbstractGalleryGenerator,
         vararg metaDataConsumers: PageGeneratorExtension
@@ -87,7 +88,7 @@ object MarkdownParser {
         val yaml: Yaml = yamlExtractor.data
         val metaData = yaml.asPageMetadata()
         val finalHtml = parsedMarkdown
-            .velocity(sourceFile, metaData, pageMininmalInfo, galleryGenerator, cache, state, configuration)
+            .velocity(sourceFile, metaData, pageMininmalInfo, testimonialLoader, galleryGenerator, cache, configuration)
         return Triple(yaml, headManipulator, finalHtml)
     }
 
@@ -95,10 +96,10 @@ object MarkdownParser {
         sourceFile: SourcePath,
         metadata: PageMetadata?,
         pageMininmalInfo: IPageMininmalInfo,
+        testimonialLoader: TestimonialLoader,
         galleryGenerator: AbstractGalleryGenerator,
         cache: BuildingCache,
-        state: () -> Long,
-        configuration: WebsiteConfiguration
+        configuration: WebsiteConfiguration,
     ) = VelocityApplier.runVelocity(
         StringReader(this),
         sourceFile.filenameWithoutExtension,
@@ -106,7 +107,7 @@ object MarkdownParser {
         galleryGenerator,
         cache,
         configuration,
-        state,
+        testimonialLoader,
         metadata
     )
 

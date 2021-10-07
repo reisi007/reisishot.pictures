@@ -1,27 +1,23 @@
 package pictures.reisishot.mise.backend.htmlparsing
 
-import at.reisishot.mise.commons.*
+import at.reisishot.mise.commons.CategoryName
+import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.exifdata.ExifdataKey
-import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.df_yyyMMdd
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.*
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
-import pictures.reisishot.mise.backend.generator.pages.Testimonial
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.Yaml
+import pictures.reisishot.mise.backend.generator.testimonials.Testimonial
+import pictures.reisishot.mise.backend.generator.testimonials.TestimonialLoader
 import pictures.reisishot.mise.backend.html.*
-import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser.markdown2Html
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Path
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.math.roundToInt
-import kotlin.streams.asSequence
 
 class TemplateApi(
     private val pageMetadata: PageMetadata?,
@@ -29,52 +25,11 @@ class TemplateApi(
     private val galleryGenerator: AbstractGalleryGenerator,
     private val cache: BuildingCache,
     private val websiteConfiguration: WebsiteConfiguration,
-    private val state: () -> Long
+    private val testimonialLoader: TestimonialLoader
 ) {
-    private var _cachedTestimonials: Map<String, Testimonial>? = null
-    private var _cachedState: Long
-    ? = null
 
-    private fun testimonials(): Map<String, Testimonial> {
-        val cachedTestimonials = _cachedTestimonials
-        val cachedState = _cachedState
-        val curState = state()
-
-
-        if (cachedTestimonials != null && curState != cachedState)
-            return cachedTestimonials
-
-        val newValue = Files.list(websiteConfiguration.inPath withChild "reviews")
-            .asSequence()
-            .filter { Files.isRegularFile(it) }
-            .filter { it.hasExtension({ it.isMarkdownPart("review") }) }
-            .map { path ->
-                val yamlContainer = AbstractYamlFrontMatterVisitor()
-                val html = Files.newBufferedReader(path, StandardCharsets.UTF_8).use {
-                    it.markdown2Html(yamlContainer)
-                }
-                path.fileName.toString().substringBefore('.') to yamlContainer.data.createTestimonial(path, html)
-            }
-            .toMap()
-
-        _cachedTestimonials = newValue
-        _cachedState = curState
-        return newValue
-    }
-
-
-    private fun Yaml.createTestimonial(p: Path, contentHtml: String): Testimonial {
-        val imageFilename = getString("image")
-        val ytCode = getString("video")
-        val personName = getString("name")
-        val date = getString("date")
-        val type = getString("type")
-        val rating = getString("rating")?.toInt()
-
-        if (personName == null || date == null || type == null || (imageFilename == null && ytCode == null))
-            throw IllegalStateException("Das Testimonial in $p ist nicht vollständig!")
-        return Testimonial(imageFilename, rating, ytCode, personName, date, type, contentHtml)
-    }
+    private val testimonials: Map<String, Testimonial>
+        get() = testimonialLoader.load()
 
 
     @SuppressWarnings("unused")
@@ -140,10 +95,48 @@ class TemplateApi(
     }
 
     @SuppressWarnings("unused")
-    fun insertTestimonial(name: String) = buildString {
-        val testimonialsToDisplay = testimonials().getValue(name)
-        appendTestimonials(websiteConfiguration, targetPath, galleryGenerator, testimonialsToDisplay)
+    @JvmOverloads
+    fun insertTestimonial(name: String, mode: TestimonialMode = TestimonialMode.DEFAULT) = buildString {
+        val testimonialsToDisplay = testimonials.getValue(name)
+        appendUnformattedHtml().div {
+            appendTestimonials(
+                websiteConfiguration,
+                targetPath,
+                galleryGenerator,
+                mode,
+                testimonialsToDisplay,
+            )
+        }
+    }
 
+
+    @SuppressWarnings("unused")
+    fun insertTestimonials(vararg testimonialTypes: String) = buildString {
+        val testimonialsToDisplay = computeMatchingTestimonials(testimonialTypes)
+        if (testimonialsToDisplay.isEmpty())
+            return@buildString
+        appendUnformattedHtml().div {
+            appendTestimonials(
+                websiteConfiguration,
+                targetPath,
+                galleryGenerator,
+                TestimonialMode.DEFAULT,
+                *testimonialsToDisplay
+            )
+        }
+
+    }
+
+    @SuppressWarnings("unused")
+    fun insertTestimonialStatistics(vararg testimonialTypes: String) = buildString {
+        val testimonialsToDisplay = computeMatchingTestimonials(testimonialTypes)
+        if (testimonialsToDisplay.isEmpty())
+            return@buildString
+        appendUnformattedHtml().div {
+            if (testimonialsToDisplay.isNotEmpty()) {
+                renderTestimonialStatistics(testimonialsToDisplay)
+            }
+        }
     }
 
     @SuppressWarnings("unused")
@@ -156,16 +149,8 @@ class TemplateApi(
         }
     }
 
-    @SuppressWarnings("unused")
-    fun insertTestimonials(vararg testimonialTypes: String) = buildString {
-        val testimonialsToDisplay = computeMatchingTestimonials(testimonialTypes)
-        if (testimonialsToDisplay.isEmpty())
-            return@buildString
-        appendTestimonials(websiteConfiguration, targetPath, galleryGenerator, *testimonialsToDisplay)
-    }
-
     private fun computeMatchingTestimonials(testimonialTypes: Array<out String>): Array<Testimonial> {
-        var tmpTestimonials = testimonials().values.asSequence()
+        var tmpTestimonials = testimonials.values.asSequence()
         if (testimonialTypes.isNotEmpty())
             tmpTestimonials = tmpTestimonials.filter { testimonialTypes.contains(it.type) }
         return tmpTestimonials
