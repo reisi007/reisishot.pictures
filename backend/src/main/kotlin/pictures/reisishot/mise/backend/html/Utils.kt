@@ -16,7 +16,6 @@ import pictures.reisishot.mise.backend.generator.testimonials.Testimonial
 import pictures.reisishot.mise.backend.htmlparsing.PageMetadata
 import pictures.reisishot.mise.backend.loop
 import java.util.*
-import kotlin.math.floor
 import kotlin.math.roundToInt
 
 
@@ -251,8 +250,9 @@ fun HtmlBlockTag.renderRating(rating: Int, starSize: String = "sm") {
 }
 
 fun HtmlBlockTag.renderRating(rating: Double, starSize: String = "sm") {
-    val stars = floor(rating / 20).roundToInt()
-    val halfStar = (rating - stars * 20) / 10 >= 0.5
+    val roundedRating = (rating / 10).roundToInt()
+    val stars = roundedRating / 2
+    val halfStar = 2 * stars < roundedRating
     val emptyStars = 5 - stars - (if (halfStar) 1 else 0)
 
     span("align-sub") {
