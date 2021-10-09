@@ -64,7 +64,7 @@ object Boudoir {
                 analyticsSiteId = "4",
                 fbMessengerChatPlugin = FacebookMessengerChatPlugin(
                     628453067544931,
-                    "#d3973b",
+                    "#27ae60",
                     "Hallo! Falls du noch Fragen zu deinem Boudoir Shooting hast, kannst du mich hier kontaktieren!"
                 ),
                 form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
