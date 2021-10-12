@@ -1,5 +1,6 @@
 package pictures.reisishot.mise.backend.generator.gallery.categories
 
+import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.commons.withChild
 import at.reisishot.mise.config.parseConfig
@@ -68,7 +69,14 @@ class ConfigurableCategoryBuilder : CategoryBuilder {
             )
 
         return computedCategories.asSequence().flatMap { (categoryConfig, filesInCategory) ->
-            categoryConfig.toCategoryInfotmation().let { categoryInformation ->
+            DefaultCategoryInformation(
+                CategoryName(
+                    categoryConfig.name,
+                    displayName = categoryConfig.name.substringAfterLast("/"),
+                ),
+                categoryConfig.name.lowercase(),
+                true
+            ).let { categoryInformation ->
                 filesInCategory.asSequence().map { filename ->
                     filename to categoryInformation
                 }

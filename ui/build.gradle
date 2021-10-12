@@ -1,0 +1,13 @@
+plugins {
+    id "org.openjfx.javafxplugin" version "0.0.10"
+}
+
+subprojects { subproject ->
+
+    subproject.apply plugin: "org.openjfx.javafxplugin"
+
+    javafx {
+        version = "17"
+        modules = ['javafx.controls']
+    }
+}

@@ -26,6 +26,7 @@ import tornadofx.*
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.util.*
 import kotlin.streams.asSequence
@@ -65,7 +66,11 @@ class MainView : View("Main View") {
 
     private val knownTags = mutableSetOf<String>()
     private val imageConfigs = LinkedList<Pair<Path, ImageConfig>>()
-    private var initialDirectory: File = File("D:\\Reisishot\\MiSe\\input\\reisishot.pictures\\images")
+    private var initialDirectory: File =
+        Paths.get(".", "input\\reisishot.pictures\\images")
+            .toAbsolutePath()
+            .normalize()
+            .toFile()
 
     override val root = vbox(5) {
 

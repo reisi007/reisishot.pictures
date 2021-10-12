@@ -1,13 +1,10 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="[PROD] Build all HTML files" type="JetRunConfigurationType">
-    <module name="My_website_(reisishot.pictures).backend.main" />
-    <option name="VM_PARAMETERS" value="" />
-    <option name="PROGRAM_PARAMETERS" value="" />
-    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-    <option name="ALTERNATIVE_JRE_PATH" />
-    <option name="PASS_PARENT_ENVS" value="true" />
     <option name="MAIN_CLASS_NAME" value="pictures.reisishot.mise.backend.main.ProductionAll" />
-    <option name="WORKING_DIRECTORY" value="" />
+    <module name="My_website_(reisishot.pictures).backend.main" />
+    <option name="PROGRAM_PARAMETERS" value="-Xopt-in=kotlin.RequiresOptI" />
+    <shortenClasspath name="NONE" />
+    <option name="VM_PARAMETERS" value="-Xms4G -Xmx9G --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

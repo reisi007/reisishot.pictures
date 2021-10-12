@@ -12,8 +12,9 @@ import kotlinx.coroutines.withContext
 import kotlinx.html.DIV
 import kotlinx.html.HEAD
 import kotlinx.html.div
+import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.fromXml
+import pictures.reisishot.mise.backend.fromJson
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.ChangeFileset
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
@@ -26,7 +27,7 @@ import pictures.reisishot.mise.backend.generator.testimonials.findTestimonialLoa
 import pictures.reisishot.mise.backend.html.insertSubcategoryThumbnail
 import pictures.reisishot.mise.backend.html.raw
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
-import pictures.reisishot.mise.backend.toXml
+import pictures.reisishot.mise.backend.toJson
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDate
@@ -72,6 +73,7 @@ abstract class AbstractGalleryGenerator(
             ExifdataKey.SHUTTER_SPEED -> "Verschlusszeit"
         }
 
+    @Serializable
     data class Cache(
         val imageInformationData: MutableMap<FilenameWithoutExtension, ImageInformation> = concurrentSkipListMap(),
         val categoryInformation: MutableMap<CategoryName, CategoryInformation> = concurrentSkipListMap(),
@@ -122,7 +124,7 @@ abstract class AbstractGalleryGenerator(
                     .all { it < cacheTime }
 
         if (cacheStillValid) {
-            this.cache = cachePath.fromXml()
+            this.cache = cachePath.fromJson()
                 ?: throw IllegalStateException("Cache has a modified date, but cannot be parsed!")
         }
 
@@ -202,7 +204,7 @@ abstract class AbstractGalleryGenerator(
                 val filenameWithoutExtension = jpegPath.filenameWithoutExtension
                 val configPath = jpegPath.parent withChild "$filenameWithoutExtension.conf"
                 val thumbnailInfoPath =
-                    configuration.tmpPath withChild AbstractThumbnailGenerator.NAME_THUMBINFO_SUBFOLDER withChild "$filenameWithoutExtension.cache.xml"
+                    configuration.tmpPath withChild AbstractThumbnailGenerator.NAME_THUMBINFO_SUBFOLDER withChild "$filenameWithoutExtension.cache.json"
                 if (!configPath.exists())
                     throw IllegalStateException("Config path does not exist for $jpegPath!")
                 if (!jpegPath.exists())
@@ -215,7 +217,7 @@ abstract class AbstractGalleryGenerator(
                     ?: throw IllegalStateException("Could not load config file $configPath. Please check if the format is valid!")
                 val exifData = jpegPath.readExif(exifReplaceFunction)
                 val thumbnailConfig: HashMap<AbstractThumbnailGenerator.ImageSize, AbstractThumbnailGenerator.ImageSizeInformation> =
-                    thumbnailInfoPath.fromXml() ?: throw IllegalStateException("Thumbnail info not found...")
+                    thumbnailInfoPath.fromJson() ?: throw IllegalStateException("Thumbnail info not found...")
 
                 val imageInformation = InternalImageInformation(
                     filenameWithoutExtension,
@@ -290,7 +292,7 @@ abstract class AbstractGalleryGenerator(
 
             categoryLevelMap.values.asSequence()
                 .flatMap { it.asSequence() }
-                .map { it.internalName to it.subcategoryComputator(categoryLevelMap) }
+                .map { it.internalName to it.convert(categoryLevelMap) }
                 .forEach { (category, subcategories) ->
                     computedSubcategories[category] = subcategories
                 }
@@ -443,13 +445,13 @@ abstract class AbstractGalleryGenerator(
 
     override suspend fun loadCache(configuration: WebsiteConfiguration, cache: BuildingCache) {
         super.loadCache(configuration, cache)
-        cachePath = configuration.tmpPath withChild "gallery.cache.xml"
+        cachePath = configuration.tmpPath withChild "gallery.cache.json"
         categoryBuilders.forEach { it.setup(configuration, cache) }
     }
 
     override suspend fun saveCache(configuration: WebsiteConfiguration, cache: BuildingCache) {
         super.saveCache(configuration, cache)
-        this.cache.toXml(cachePath)
+        this.cache.toJson(cachePath)
         categoryBuilders.forEach { it.teardown(configuration, cache) }
     }
 

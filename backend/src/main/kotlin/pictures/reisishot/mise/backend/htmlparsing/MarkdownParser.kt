@@ -18,13 +18,18 @@ import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.pages.IPageMininmalInfo
 import pictures.reisishot.mise.backend.generator.pages.PageGeneratorExtension
+import pictures.reisishot.mise.backend.generator.pages.PageMetadata
+import pictures.reisishot.mise.backend.generator.pages.getPageMetadata
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.SourcePath
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.Yaml
 import pictures.reisishot.mise.backend.generator.testimonials.TestimonialLoader
 import java.io.Reader
 import java.io.StringReader
+import java.lang.invoke.MethodHandles
+import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 import java.nio.file.Files
+
 
 object MarkdownParser {
     private val extensions =
@@ -61,9 +66,9 @@ object MarkdownParser {
     private fun Class<*>.setField(fieldName: String, value: Any?) {
         val field = getDeclaredField(fieldName)
         field.isAccessible = true
-        val modifiers = field.javaClass.getDeclaredField("modifiers")
-        modifiers.isAccessible = true
-        modifiers.setInt(field, field.modifiers and Modifier.FINAL.inv())
+        val lookup = MethodHandles.privateLookupIn(Field::class.java, MethodHandles.lookup())
+        val modifiers = lookup.findVarHandle(Field::class.java, "modifiers", Int::class.javaPrimitiveType)
+        modifiers.set(field, field.modifiers and Modifier.FINAL.inv())
         field.set(this, value)
     }
 
@@ -86,7 +91,7 @@ object MarkdownParser {
         val parsedMarkdown = Files.newBufferedReader(sourceFile, Charsets.UTF_8)
             .markdown2Html(yamlExtractor)
         val yaml: Yaml = yamlExtractor.data
-        val metaData = yaml.asPageMetadata()
+        val metaData = yaml.getPageMetadata()
         val finalHtml = parsedMarkdown
             .velocity(sourceFile, metaData, pageMininmalInfo, testimonialLoader, galleryGenerator, cache, configuration)
         return Triple(yaml, headManipulator, finalHtml)

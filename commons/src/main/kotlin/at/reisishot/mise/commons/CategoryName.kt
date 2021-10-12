@@ -1,5 +1,8 @@
 package at.reisishot.mise.commons
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 class CategoryName(
     val complexName: ComplexName,
     val sortKey: String = complexName,

@@ -5,9 +5,9 @@ import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.pages.IPageMininmalInfo
 import pictures.reisishot.mise.backend.generator.pages.PageGeneratorExtension
+import pictures.reisishot.mise.backend.generator.pages.getString
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.raw
-import pictures.reisishot.mise.backend.htmlparsing.getString
 import java.nio.file.Files
 import java.nio.file.Path
 

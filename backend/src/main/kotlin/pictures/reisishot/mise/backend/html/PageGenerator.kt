@@ -6,6 +6,7 @@ import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.MenuLink
 import pictures.reisishot.mise.backend.generator.MenuLinkContainer
+import pictures.reisishot.mise.backend.generator.MenuLinkContainerItem
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import java.io.BufferedWriter
 import java.net.URLEncoder
@@ -182,7 +183,7 @@ object PageGenerator {
                                         }
                                     }
 
-                                } else {
+                                } else if (curItem is MenuLinkContainerItem) {
                                     a(
                                         classes = "nav-link"
                                     ) {
@@ -197,9 +198,9 @@ object PageGenerator {
         }
     }
 
-    private fun A.accept(curItem: MenuLink, websiteConfiguration: WebsiteConfiguration) {
+    private fun A.accept(curItem: MenuLinkContainerItem, websiteConfiguration: WebsiteConfiguration) {
         curItem.target?.let { target = it }
-        curItem.href?.let { href = BuildingCache.getLinkFromFragment(websiteConfiguration, it) }
+        curItem.href.let { href = BuildingCache.getLinkFromFragment(websiteConfiguration, it) }
         text(curItem.text)
     }
 

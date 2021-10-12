@@ -38,6 +38,7 @@ class DateCategoryBuilder(val rootCategoryName: String) : CategoryBuilder {
                     )).mapToCategory(websiteConfiguration)
             }
 
+
     private fun <A> Pair<A, DateCategoryData>.mapToCategory(websiteConfiguration: WebsiteConfiguration): Sequence<Pair<A, CategoryInformation>> {
         val tmp = mutableListOf<Pair<A, CategoryInformation>>()
 
@@ -46,11 +47,11 @@ class DateCategoryBuilder(val rootCategoryName: String) : CategoryBuilder {
                 complexName = second.computeComplexName(websiteConfiguration, it),
                 displayName = second.computeDisplayName(websiteConfiguration, it)
             )
-            tmp += first to CategoryInformation(
+            tmp += first to DateCategoryInformation(
                 internalName,
                 internalName.complexName.lowercase(),
                 false,
-                if (it == DateCategoryTypes.ROOT) chronologisch else getDateCategoryBuilder(internalName.complexName)
+                it == DateCategoryTypes.ROOT
             )
         }
         return tmp.asSequence()
@@ -94,21 +95,4 @@ class DateCategoryBuilder(val rootCategoryName: String) : CategoryBuilder {
 
     private fun Month.toPrettyString(websiteConfiguration: WebsiteConfiguration) =
         getDisplayName(TextStyle.FULL, websiteConfiguration.locale)
-
-    private val chronologisch: SubcategoryComputator = {
-        (it[0]?.asSequence() ?: emptySequence())
-            .filter { it.displayName.toIntOrNull() != null }
-            .map { it.internalName }
-            .toSet()
-    }
-
-    private fun getDateCategoryBuilder(curCategoryName: ComplexName): SubcategoryComputator =
-        curCategoryName.count { it == '/' }.let { categoryLevel ->
-            return@let { map ->
-                (map[categoryLevel + 1]?.asSequence() ?: emptySequence())
-                    .filter { it.complexName.startsWith(curCategoryName) }
-                    .map { it.internalName }
-                    .toSet()
-            }
-        }
 }

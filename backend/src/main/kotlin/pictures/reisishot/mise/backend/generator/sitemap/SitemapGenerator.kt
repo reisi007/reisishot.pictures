@@ -42,7 +42,7 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) =
         withContext(Dispatchers.IO) {
             PrintWriter(
-                configuration.outPath.resolve("sitemap.xml").toFile(),
+                configuration.outPath.resolve("sitemap.json").toFile(),
                 Charsets.UTF_8.toString()
             ).use { writer ->
                 writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")

@@ -2,8 +2,8 @@ package pictures.reisishot.mise.backend.generator
 
 import at.reisishot.mise.commons.withChild
 import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.fromXml
-import pictures.reisishot.mise.backend.toXml
+import pictures.reisishot.mise.backend.fromJson
+import pictures.reisishot.mise.backend.toJson
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -72,8 +72,7 @@ class BuildingCache {
         elementIndex: Int = 0
     ): Unit = synchronized(internalMenuLinks) {
         internalMenuLinks.find {
-            it is MenuLinkContainer && it.id == containerId && it.text == containerText
-                    && it.uniqueIndex == containerIndex && it.children.any {
+            it is MenuLinkContainer && it.id == containerId && it.uniqueIndex == containerIndex && it.children.any {
                 it.text == text && it.href == link
             }
         }.let {
@@ -125,23 +124,23 @@ class BuildingCache {
 
     internal fun loadCache(config: WebsiteConfiguration) {
         with(config.tmpPath) {
-            menuLinkPath = withChild("menueItems.cache.xml")
-            linkPath = withChild("links.cache.xml")
+            menuLinkPath = withChild("menueItems.cache.json")
+            linkPath = withChild("links.cache.json")
         }
 
 
 
-        menuLinkPath.fromXml<List<MenuLink>>()?.let {
+        menuLinkPath.fromJson<List<MenuLink>>()?.let {
             internalMenuLinks += it
         }
 
-        linkPath.fromXml<Map<String, MutableMap<String, String>>>()?.let {
+        linkPath.fromJson<Map<String, MutableMap<String, String>>>()?.let {
             linkCache += it
         }
     }
 
     internal fun saveCache() {
-        internalMenuLinks.toList().toXml(menuLinkPath)
-        linkCache.toXml(linkPath)
+        internalMenuLinks.toList().toJson(menuLinkPath)
+        linkCache.toJson(linkPath)
     }
 }

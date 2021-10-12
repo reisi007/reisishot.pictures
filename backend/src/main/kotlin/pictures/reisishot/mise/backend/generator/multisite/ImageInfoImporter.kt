@@ -2,7 +2,7 @@ package pictures.reisishot.mise.backend.generator.multisite
 
 import at.reisishot.mise.commons.withChild
 import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.fromXml
+import pictures.reisishot.mise.backend.fromJson
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.ChangeFileset
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
@@ -21,7 +21,7 @@ class ImageInfoImporter constructor(
         val galleryGenerator = alreadyRunGenerators.find { it is AbstractGalleryGenerator } as? AbstractGalleryGenerator
             ?: throw IllegalStateException("Gallery generator is needed for this generator!")
 
-        (otherCacheDir withChild "gallery.cache.xml").fromXml<AbstractGalleryGenerator.Cache>()
+        (otherCacheDir withChild "gallery.cache.json").fromJson<AbstractGalleryGenerator.Cache>()
             ?.imageInformationData
             ?.forEach { (name, data) ->
                 galleryGenerator.cache.imageInformationData[name] = data.toExternal(rootUrl)

@@ -11,9 +11,9 @@ import pictures.reisishot.mise.backend.generator.gallery.CategoryInformation
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.getOrThrow
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
+import pictures.reisishot.mise.backend.generator.pages.PageMetadata
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
 import pictures.reisishot.mise.backend.generator.testimonials.Testimonial
-import pictures.reisishot.mise.backend.htmlparsing.PageMetadata
 import pictures.reisishot.mise.backend.loop
 import java.util.*
 import kotlin.math.roundToInt
@@ -196,12 +196,7 @@ fun DIV.renderTestimonial(
         attributes.itemprop = ""
         attributes.itemtype = "https://schema.org/Review"
         with(galleryGenerator.cache) {
-            if (testimonial.video != null) {
-                insertYoutube(testimonial.video, 4, 5, "card-img-top")
-            } else if (testimonial.image != null) {
-                val curImageInfo = imageInformationData.getOrThrow(testimonial.image, targetPath)
-                insertLazyPicture(curImageInfo, websiteConfiguration, "card-img-top")
-            } else throw IllegalStateException("No media available for testimonial $testimonial")
+            renderTestimonialVisual(this@div, testimonial, this, targetPath, websiteConfiguration)
         }
         div("card-body") {
             h5("card-title") {
@@ -241,6 +236,80 @@ fun DIV.renderTestimonial(
                 attributes.itemprop = "reviewBody"
                 raw(testimonial.html)
             }
+        }
+    }
+}
+
+private fun renderTestimonialVisual(
+    div: HtmlBlockTag,
+    testimonial: Testimonial,
+    cache: AbstractGalleryGenerator.Cache,
+    targetPath: TargetPath,
+    websiteConfiguration: WebsiteConfiguration
+) = with(div) {
+    if (testimonial.video != null) {
+        insertYoutube(testimonial.video, 4, 5, "card-img-top")
+    } else if (testimonial.image != null) {
+        val curImageInfo = cache.imageInformationData.getOrThrow(testimonial.image, targetPath)
+        insertLazyPicture(curImageInfo, websiteConfiguration, "card-img-top")
+    } else if (testimonial.images != null) {
+        renderCarousel(
+            "test-" + testimonial.id,
+            5000,
+            testimonial.images.toTypedArray(),
+            cache,
+            targetPath,
+            websiteConfiguration
+        )
+    } else throw IllegalStateException("No media available for testimonial $testimonial")
+}
+
+fun HtmlBlockTag.renderCarousel(
+    id: String,
+    changeMs: Int,
+    filename: Array<out String>,
+    cache: AbstractGalleryGenerator.Cache,
+    targetPath: TargetPath,
+    websiteConfiguration: WebsiteConfiguration
+) {
+    div("carousel slide") {
+        this.id = id
+        attributes["data-bs-interval"] = changeMs.toString()
+        attributes["data-bs-ride"] = "carousel"
+        div("carousel-inner") {
+            filename.forEachIndexed { idx, filename ->
+                div {
+                    classes = classes + "carousel-item"
+                    if (idx == 0)
+                        classes = classes + "active"
+
+                    with(cache) {
+                        insertLazyPicture(
+                            imageInformationData.getOrThrow(filename, targetPath),
+                            websiteConfiguration,
+                            "d-block w-100"
+                        )
+                    }
+                }
+            }
+        }
+
+        a("#$id", classes = "carousel-control-prev") {
+            role = "button"
+            attributes["data-bs-slide"] = "prev"
+            span("carousel-control-prev-icon") {
+                attributes["aria-hidden"] = "true"
+            }
+            span("visually-hidden") { text("Vorheriges Bild") }
+        }
+
+        a("#$id", classes = "carousel-control-next") {
+            role = "button"
+            attributes["data-bs-slide"] = "next"
+            span("carousel-control-next-icon") {
+                attributes["aria-hidden"] = "true"
+            }
+            span("visually-hidden") { text("Nächstes Bild") }
         }
     }
 }
@@ -286,7 +355,8 @@ fun HtmlBlockTag.appendTestimonials(
 ) {
     if (testimonialsToDisplay.isNotEmpty()) {
         div("text-center") {
-            text("Durchschnittliche Bewertung:")
+            if (testimonialsToDisplay.find { it.rating != null } != null)
+                text("Durchschnittliche Bewertung:")
             renderTestimonialStatistics(testimonialsToDisplay)
         }
     }

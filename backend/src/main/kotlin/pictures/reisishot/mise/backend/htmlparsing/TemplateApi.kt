@@ -5,18 +5,16 @@ import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.exifdata.ExifdataKey
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.df_yyyMMdd
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.*
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
+import pictures.reisishot.mise.backend.generator.pages.PageMetadata
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
-import pictures.reisishot.mise.backend.generator.pages.minimalistic.Yaml
 import pictures.reisishot.mise.backend.generator.testimonials.Testimonial
 import pictures.reisishot.mise.backend.generator.testimonials.TestimonialLoader
 import pictures.reisishot.mise.backend.html.*
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
 import kotlin.math.roundToInt
 
 class TemplateApi(
@@ -170,50 +168,13 @@ class TemplateApi(
     }
 
     @SuppressWarnings("unused")
-    fun insertCarousel(changeMs: Int, vararg filename: String) =
+    fun insertCarousel(changeMs: Int, vararg filename: FilenameWithoutExtension) =
         insertCarousel("carousel", changeMs, *filename)
 
     @SuppressWarnings("unused")
-    fun insertCarousel(id: String, changeMs: Int, vararg filename: String) = buildString {
-        appendUnformattedHtml().div("carousel slide") {
-            this.id = id
-            attributes["data-bs-interval"] = changeMs.toString()
-            attributes["data-bs-ride"] = "carousel"
-            div("carousel-inner") {
-                filename.forEachIndexed { idx, filename ->
-                    div {
-                        classes = classes + "carousel-item"
-                        if (idx == 0)
-                            classes = classes + "active"
-
-                        with(galleryGenerator.cache) {
-                            insertLazyPicture(
-                                imageInformationData.getOrThrow(filename, targetPath),
-                                websiteConfiguration,
-                                "d-block w-100"
-                            )
-                        }
-                    }
-                }
-            }
-
-            a("#$id", classes = "carousel-control-prev") {
-                role = "button"
-                attributes["data-bs-slide"] = "prev"
-                span("carousel-control-prev-icon") {
-                    attributes["aria-hidden"] = "true"
-                }
-                span("visually-hidden") { text("Vorheriges Bild") }
-            }
-
-            a("#$id", classes = "carousel-control-next") {
-                role = "button"
-                attributes["data-bs-slide"] = "next"
-                span("carousel-control-next-icon") {
-                    attributes["aria-hidden"] = "true"
-                }
-                span("visually-hidden") { text("Nächstes Bild") }
-            }
+    fun insertCarousel(id: String, changeMs: Int, vararg imageFilenames: FilenameWithoutExtension) = buildString {
+        appendUnformattedHtml().div {
+            renderCarousel(id, changeMs, imageFilenames, galleryGenerator.cache, targetPath, websiteConfiguration)
         }
     }
 
@@ -228,6 +189,7 @@ class TemplateApi(
         }
     }
 
+    @SuppressWarnings("unused")
     fun insertTextCarousel(id: String, changeMs: Int, vararg text: String) = buildString {
         appendUnformattedHtml().div("carousel slide") {
             this.id = id
@@ -352,33 +314,4 @@ class TemplateApi(
             insertWartelisteInfo()
         }
     }
-}
-
-fun Yaml.getString(key: String): String? {
-    val value = getOrDefault(key, null)
-    return value?.firstOrNull()?.trim()
-}
-
-fun Yaml.getOrder() = getString("order")
-
-data class PageMetadata(
-    val order: String,
-    val created: Date,
-    val edited: Date?
-)
-
-fun Yaml.asPageMetadata(): PageMetadata? {
-    val order = getOrder()
-    val created = getString("created")
-    val edited = getString("updated")
-
-    val computedOrder = order ?: edited ?: created
-    // Ensure we have all required fields
-    if (computedOrder == null || created == null)
-        return null
-    return PageMetadata(
-        computedOrder,
-        df_yyyMMdd.parse(created),
-        edited?.let { df_yyyMMdd.parse(it) }
-    )
 }

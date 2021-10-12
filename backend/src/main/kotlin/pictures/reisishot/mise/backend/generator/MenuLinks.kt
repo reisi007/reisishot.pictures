@@ -1,18 +1,16 @@
 package pictures.reisishot.mise.backend.generator
 
+import kotlinx.serialization.Serializable
 import java.util.*
 
 typealias  Link = String
 typealias  LinkText = String
 
-sealed class MenuLink(
-    val id: String,
-    val uniqueIndex: Int,
-    val href: Link?,
-    val text: LinkText,
-    val target: String?
-) : Comparable<MenuLink> {
-
+@Serializable
+sealed class MenuLink : Comparable<MenuLink> {
+    abstract val id: String
+    abstract val uniqueIndex: Int
+    abstract val text: LinkText
     override fun compareTo(other: MenuLink) = compareValuesBy(
         this,
         other,
@@ -22,22 +20,24 @@ sealed class MenuLink(
 
 }
 
+@Serializable
 class MenuLinkContainerItem(
-    id: String,
-    uniqueIndex: Int,
-    href: Link,
-    text: LinkText,
-    target: String?
-) : MenuLink(id, uniqueIndex, href, text, target)
+    override val id: String,
+    override val uniqueIndex: Int,
+    val href: Link,
+    override val text: LinkText,
+    val target: String?
+) : MenuLink()
 
+@Serializable
 class MenuLinkContainer(
-    id: String,
-    uniqueIndex: Int,
-    text: LinkText,
+    override val id: String,
+    override val uniqueIndex: Int,
+    override val text: LinkText,
     private val orderFunction: (MenuLinkContainerItem) -> Int,
-    addChildren: MenuLinkContainer.() -> Unit = {}
-) : MenuLink(id, uniqueIndex, null, text, null) {
-    private val internalChildren = mutableMapOf<Int, TreeSet<MenuLinkContainerItem>>()
+) : MenuLink() {
+    private val internalChildren: MutableMap<Int, SortedSet<MenuLinkContainerItem>> =
+        mutableMapOf()
 
     val children: Sequence<MenuLinkContainerItem>
         get() = internalChildren
@@ -46,12 +46,8 @@ class MenuLinkContainer(
 
     fun addChild(child: MenuLinkContainerItem) {
         val key = orderFunction(child)
-        internalChildren.computeIfAbsent(key) { TreeSet() }.add(child)
+        internalChildren.getOrPut(key) { TreeSet() }.add(child)
     }
 
     operator fun plusAssign(child: MenuLinkContainerItem) = addChild(child)
-
-    init {
-        addChildren(this)
-    }
 }

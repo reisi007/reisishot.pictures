@@ -6,12 +6,13 @@ import com.drew.metadata.jpeg.JpegDirectory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.ChangeFileset
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.hasDeletions
-import pictures.reisishot.mise.backend.toXml
+import pictures.reisishot.mise.backend.toJson
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
@@ -28,6 +29,7 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
 
     override val executionPriority: Int = 1_000
 
+    @Serializable
     data class ImageSizeInformation(val filename: String, val width: Int, val height: Int)
 
     enum class Interpolation(val value: String) {
@@ -152,7 +154,7 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
                                 configuration.inPath.resolve(
                                     jpegImage
                                 ).filenameWithoutExtension
-                            }.cache.xml"
+                            }.cache.json"
                         if (!(thumbnailInfoPath.exists() && thumbnailInfoPath.isNewerThan(jpegImage))) {
                             val baseOutPath =
                                 configuration.outPath.resolve(NAME_IMAGE_SUBFOLDER).resolve(jpegImage.fileName)
@@ -165,7 +167,7 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
                                 .map { size -> generateThumbnails(baseOutPath, jpegImage, sourceInfo, size) }
                                 .filterNotNull()
                                 .toMap()
-                                .toXml(thumbnailInfoPath)
+                                .toJson(thumbnailInfoPath)
                         }
                     }
             }

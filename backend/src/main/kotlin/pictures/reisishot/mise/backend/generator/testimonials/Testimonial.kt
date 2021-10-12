@@ -6,9 +6,11 @@ import pictures.reisishot.mise.backend.df_yyyy_MM_dd
 import java.util.*
 
 data class Testimonial(
+    val id: String,
     val image: FilenameWithoutExtension?,
-    val rating: Int?, // between 0 and 100
+    val images: List<FilenameWithoutExtension>?,
     val video: String?,
+    val rating: Int?, // between 0 and 100
     val name: String,
     val isoDateString: String,
     val type: String,

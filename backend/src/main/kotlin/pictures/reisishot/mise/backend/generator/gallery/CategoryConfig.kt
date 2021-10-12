@@ -6,3 +6,7 @@ data class CategoryConfig(
     val excludedTagNames: List<String> = emptyList(),
     val includeSubcategories: Boolean = false
 )
+
+
+
+

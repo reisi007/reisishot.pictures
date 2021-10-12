@@ -1,8 +1,8 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
-import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.commons.toFriendlyPathName
+import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
 
@@ -34,45 +34,8 @@ interface CategoryBuilder {
     }
 }
 
-data class CategoryInformation(
-    val internalName: CategoryName,
-    val urlFragment: String,
-    val visible: Boolean = true,
-    val subcategoryComputator: SubcategoryComputator
-) {
-    val complexName
-        get() = internalName.complexName
 
-    val displayName
-        get() = internalName.displayName
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as CategoryInformation
-
-        if (this.complexName != other.complexName) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return this.complexName.hashCode()
-    }
-}
-
-fun CategoryConfig.toCategoryInfotmation(visible: Boolean = true) =
-    CategoryInformation(CategoryName(name), name.toFriendlyPathName(), visible) { levelMap ->
-        name.count { it == '/' }.plus(1).let { subcategoryLevel ->
-            (levelMap[subcategoryLevel]?.asSequence() ?: emptySequence())
-                .filter { it.complexName.startsWith(name) }
-                .map { it.internalName }
-                .toSet()
-        }
-
-    }
-
+@Serializable
 class TagInformation(val name: String) : Comparator<TagInformation> {
     val url by lazy { name.toFriendlyPathName() }
 
@@ -97,6 +60,3 @@ class TagInformation(val name: String) : Comparator<TagInformation> {
         return "TagName(name='$name')"
     }
 }
-
-
-typealias SubcategoryComputator = (Map<Int, Set<CategoryInformation>>) -> Set<CategoryName>

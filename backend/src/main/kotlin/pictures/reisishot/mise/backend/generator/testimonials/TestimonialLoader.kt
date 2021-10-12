@@ -1,17 +1,14 @@
 package pictures.reisishot.mise.backend.generator.testimonials
 
-import at.reisishot.mise.commons.fileModifiedDateTime
-import at.reisishot.mise.commons.hasExtension
-import at.reisishot.mise.commons.isMarkdownPart
-import at.reisishot.mise.commons.withChild
+import at.reisishot.mise.commons.*
 import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.ChangeFileset
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
+import pictures.reisishot.mise.backend.generator.pages.getString
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.Yaml
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser.markdown2Html
-import pictures.reisishot.mise.backend.htmlparsing.getString
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
@@ -73,15 +70,26 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
 
     private fun Yaml.createTestimonial(p: Path, contentHtml: String): Testimonial {
         val imageFilename = getString("image")
+        val imageFilenames = get("images")
         val ytCode = getString("video")
         val personName = getString("name")
         val date = getString("date")
         val type = getString("type")
         val rating = getString("rating")?.toInt()
 
-        if (personName == null || date == null || type == null || (imageFilename == null && ytCode == null))
+        if (personName == null || date == null || type == null || (imageFilename == null && imageFilenames == null && ytCode == null))
             throw IllegalStateException("Das Testimonial in $p ist nicht vollständig!")
-        return Testimonial(imageFilename, rating, ytCode, personName, date, type, contentHtml)
+        return Testimonial(
+            p.filenameWithoutExtension,
+            imageFilename,
+            imageFilenames,
+            ytCode,
+            rating,
+            personName,
+            date,
+            type,
+            contentHtml
+        )
     }
 
     override suspend fun fetchInitialInformation(

@@ -12,7 +12,6 @@ import org.languagetool.language.AustrianGerman
 import org.languagetool.rules.spelling.SpellingCheckRule
 import tornadofx.*
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.streams.toList
 
 private val spellchecker by lazy {
     val spellchecker = JLanguageTool(AustrianGerman())

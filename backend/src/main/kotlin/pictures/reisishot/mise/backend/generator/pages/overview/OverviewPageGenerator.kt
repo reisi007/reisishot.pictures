@@ -12,14 +12,14 @@ import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.ChangeFileset
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
-import pictures.reisishot.mise.backend.generator.pages.IPageMininmalInfo
-import pictures.reisishot.mise.backend.generator.pages.PageGeneratorExtension
+import pictures.reisishot.mise.backend.generator.pages.*
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.SourcePath
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.TargetPath
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.Yaml
 import pictures.reisishot.mise.backend.generator.testimonials.TestimonialLoader
 import pictures.reisishot.mise.backend.html.*
-import pictures.reisishot.mise.backend.htmlparsing.*
+import pictures.reisishot.mise.backend.html.PageGenerator
+import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -170,7 +170,7 @@ class OverviewPageGenerator(
                             ?.sortedByDescending { it.order }
                             ?.forEach { entry ->
                                 val image = galleryGenerator.cache.imageInformationData[entry.picture]
-                                    ?: throw IllegalStateException("Cannot find Image Information")
+                                    ?: throw IllegalStateException("Cannot find Image Information for key ${entry.picture}")
                                 val url = entry.configuredUrl
                                     ?: kotlin.run {
                                         BuildingCache.getLinkFromFragment(
@@ -282,7 +282,7 @@ class OverviewPageGenerator(
         val group = getString("group")
         val picture = getString("picture")
         val title = getString("title")
-        val metaData = this.asPageMetadata()
+        val metaData = getPageMetadata()
         val order = (metaData?.order ?: getOrder())?.toInt()
         val description = getString("description")
         val groupConfig = overviewConfigs[group]
