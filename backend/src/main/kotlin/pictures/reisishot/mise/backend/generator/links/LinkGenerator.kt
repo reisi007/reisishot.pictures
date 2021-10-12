@@ -1,8 +1,9 @@
 package pictures.reisishot.mise.backend.generator.links
 
 import at.reisishot.mise.commons.exists
-import at.reisishot.mise.config.parseConfig
+import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.fromJson
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.ChangeFileset
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
@@ -13,7 +14,7 @@ class LinkGenerator : WebsiteGenerator {
 
     companion object {
         const val LINK_TYPE = "MANUAL"
-        const val FILENAME = "urls.conf"
+        const val FILENAME = "urls.json"
     }
 
     override suspend fun fetchInitialInformation(
@@ -23,10 +24,10 @@ class LinkGenerator : WebsiteGenerator {
     ) {
         val configFile = configuration.getConfigFile()
         if (configFile.exists()) {
-            val data: ManualLinks = configFile.parseConfig() ?: ManualLinks(emptyList())
-            if (data.menuItems.isNotEmpty()) {
+            val data = configFile.fromJson<List<ManualLink>>() ?: emptyList<ManualLink>()
+            if (data.isNotEmpty()) {
                 cache.clearMenuItems { it.id.startsWith(LINK_TYPE) }
-                data.menuItems.forEach { (name, index, value, target) ->
+                data.forEach { (name, index, value, target) ->
                     val url = value.let {
                         if (value.startsWith("/"))
                             it.substringAfter("/")
@@ -72,6 +73,5 @@ class LinkGenerator : WebsiteGenerator {
     }
 }
 
-data class ManualLink(val name: String, val index: Int, val value: String, val target: String?)
-
-data class ManualLinks(val menuItems: List<ManualLink>)
+@Serializable
+data class ManualLink(val name: String, val index: Int, val value: String, val target: String? = null)

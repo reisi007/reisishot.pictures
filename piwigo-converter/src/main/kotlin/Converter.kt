@@ -84,7 +84,7 @@ object Converter {
                 .use { inputStream ->
                     Files.copy(inputStream, outFile)
                 }
-            Files.newBufferedWriter(baseFolder.resolve("$filenameWithoutExtension.conf")).use {
+            Files.newBufferedWriter(baseFolder.resolve("$filenameWithoutExtension.json")).use {
                 it.write(hoconFile)
             }
         }

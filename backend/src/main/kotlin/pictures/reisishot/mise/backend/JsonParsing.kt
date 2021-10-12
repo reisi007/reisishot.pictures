@@ -1,6 +1,5 @@
 package pictures.reisishot.mise.backend
 
-
 import at.reisishot.mise.commons.exists
 import at.reisishot.mise.commons.isRegularFile
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -18,7 +17,6 @@ private val JSON by lazy {
         allowStructuredMapKeys = true
     }
 }
-
 
 @OptIn(ExperimentalSerializationApi::class)
 internal inline fun <reified T> T.toJson(path: Path) {

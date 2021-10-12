@@ -10,7 +10,7 @@ fun FileExtension.isMarkdown() = equals("md", true)
 
 fun FileExtension.isMarkdownPart(type: String) = equals("$type.md", true)
 
-fun FileExtension.isConf() = equals("conf", true)
+fun FileExtension.isJson() = equals("json", true)
 
 fun FileExtension.isHtml() = equals("html", true)
 

@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Hocon2JsonKt" type="JetRunConfigurationType" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="Hocon2JsonKt" />
+    <module name="My_website_(reisishot.pictures).hocon2json.main" />
+    <option name="PROGRAM_PARAMETERS" value="-Xopt-in=kotlin.RequiresOptI" />
+    <shortenClasspath name="NONE" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

@@ -1,10 +1,6 @@
 dependencies {
     api project(':commons')
 
-    // https://mvnrepository.com/artifact/com.typesafe/config
-    api group: 'com.typesafe', name: 'config', version: '1.4.1'
     // https://mvnrepository.com/artifact/com.drewnoakes/metadata-extractor
     api group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.15.0'
-    // https://javadoc.io/doc/io.github.config4k/config4k/latest/index.html
-    api 'io.github.config4k:config4k:0.4.2'
 }

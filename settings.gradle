@@ -6,6 +6,7 @@ include "image-access"
 include "backend"
 include "mise-utils"
 include "piwigo-converter"
+include "hocon2json"
 // Meta Subproject for all uis
 include "ui"
 include "ui:base-ui"

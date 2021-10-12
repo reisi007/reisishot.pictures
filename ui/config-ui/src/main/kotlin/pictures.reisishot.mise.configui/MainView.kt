@@ -2,8 +2,6 @@ package pictures.reisishot.mise.configui
 
 import at.reisishot.mise.commons.*
 import at.reisishot.mise.config.ImageConfig
-import at.reisishot.mise.config.parseConfig
-import at.reisishot.mise.config.writeConfig
 import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.Node
@@ -152,7 +150,7 @@ class MainView : View("Main View") {
                         path = showOpenMultipleDialog
                             ?.asSequence()
                             ?.map { it.toPath() }
-                            ?.map { it.resolveSibling("${it.fileName.filenameWithoutExtension}.conf") }
+                            ?.map { it.resolveSibling("${it.fileName.filenameWithoutExtension}.json") }
                             ?.toList() ?: emptyList()
                     }
                     if (path.isEmpty())
@@ -163,7 +161,7 @@ class MainView : View("Main View") {
                     val configs = path.asSequence()
                         .map {
                             it to if (it.exists())
-                                it.parseConfig<ImageConfig>()
+                                it.fromJson<ImageConfig>()
                                     ?: throw IllegalStateException("Cannot load image config from file \"$it\"!")
                             else
                                 ImageConfig("", tags = mutableSetOf())
@@ -183,12 +181,12 @@ class MainView : View("Main View") {
                             this.initialDirectory = result
                             result
                         }?.toPath()
-                    } while (dir == null || !Files.list(dir).anyMatch { it.fileExtension.isConf() })
+                    } while (dir == null || !Files.list(dir).anyMatch { it.fileExtension.isJson() })
 
                     initialDirectory = dir.toFile()
                     val configNoTags = Files.list(dir)
-                        .filter { it.fileExtension.isConf() }
-                        .map { p -> p to p.parseConfig<ImageConfig>() }
+                        .filter { it.fileExtension.isJson() }
+                        .map { p -> p to p.fromJson<ImageConfig>() }
                         .filter { (_, config) -> config != null }
                         .map {
                             @Suppress("UNCHECKED_CAST")
@@ -196,7 +194,7 @@ class MainView : View("Main View") {
                         }.filter { (_, config) -> config.tags.isEmpty() }
                         .asSequence()
                     val imagesNoConfig = Files.list(dir)
-                        .map { it.resolveSibling(it.filenameWithoutExtension + ".conf") }
+                        .map { it.resolveSibling(it.filenameWithoutExtension + ".json") }
                         .filter { !Files.exists(it) }
                         .map { it to ImageConfig("", tags = mutableSetOf()) }
                         .asSequence()
@@ -227,9 +225,9 @@ class MainView : View("Main View") {
         val title = titleField.text
         knownTags += tags
         renameImageIfNeeded()
-        if (!lastPath.hasExtension(FileExtension::isConf))
+        if (!lastPath.hasExtension(FileExtension::isJson))
             throw IllegalStateException("Cannot write to file $lastPath, it is not a valid config file!")
-        ImageConfig(title, tags = tags).writeConfig(lastPath)
+        ImageConfig(title, tags = tags).toJson(lastPath)
         loadNextImage()
     }
 
@@ -241,7 +239,7 @@ class MainView : View("Main View") {
             return
 
         val newConfigPath = newFilenameData.getNextFreePath(oldConfigPath)
-            .let { it.resolveSibling(it.filenameWithoutExtension + ".conf") }
+            .let { it.resolveSibling(it.filenameWithoutExtension + ".json") }
         val oldImagePath = oldConfigPath.resolveSibling(oldConfigPath.filenameWithoutExtension + ".jpg")
         val newImagePath = newConfigPath.resolveSibling(newConfigPath.filenameWithoutExtension + ".jpg")
 
@@ -311,8 +309,8 @@ class MainView : View("Main View") {
         return Files.list(this)
             .asSequence()
             .filter { Files.exists(it) }
-            .filter { it.fileExtension.isConf() }
-            .map { it.parseConfig<ImageConfig>() }
+            .filter { it.fileExtension.isJson() }
+            .map { it.fromJson<ImageConfig>() }
             .filterNotNull()
             .flatMap { it.tags.asSequence() }
             .toList()

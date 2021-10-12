@@ -1,13 +1,12 @@
 package pictures.reisishot.mise.backend.generator.pages.overview
 
 import at.reisishot.mise.commons.*
-import at.reisishot.mise.config.getConfig
 import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
-import io.github.config4k.extract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.fromJson
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.ChangeFileset
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
@@ -91,9 +90,8 @@ class OverviewPageGenerator(
     }
 
     override fun init(configuration: WebsiteConfiguration, cache: BuildingCache) {
-        overviewConfigs = (configuration.inPath withChild "overview.conf")
-            .getConfig()
-            ?.extract("entries")
+        overviewConfigs = (configuration.inPath withChild "overview.json")
+            .fromJson<Map<String, OverviewConfig>>()
             ?: emptyMap()
     }
 

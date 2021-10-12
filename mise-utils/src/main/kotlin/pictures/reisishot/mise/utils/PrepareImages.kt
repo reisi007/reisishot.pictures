@@ -34,7 +34,7 @@ object PrepareImages {
                                         )
                                     }
                                 }
-                                .map { it.resolveSibling("${it.filenameWithoutExtension}.conf") }
+                                .map { it.resolveSibling("${it.filenameWithoutExtension}.json") }
                                 .filter { !Files.exists(it) }
                                 .map { it.normalized }
                                 .forEach { p ->

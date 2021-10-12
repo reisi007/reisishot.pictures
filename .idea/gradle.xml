@@ -14,6 +14,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/backend" />
             <option value="$PROJECT_DIR$/commons" />
+            <option value="$PROJECT_DIR$/hocon2json" />
             <option value="$PROJECT_DIR$/image-access" />
             <option value="$PROJECT_DIR$/mise-utils" />
             <option value="$PROJECT_DIR$/piwigo-converter" />

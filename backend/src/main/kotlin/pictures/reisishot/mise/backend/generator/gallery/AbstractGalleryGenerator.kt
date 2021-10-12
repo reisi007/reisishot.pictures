@@ -2,11 +2,8 @@ package pictures.reisishot.mise.backend.generator.gallery
 
 import at.reisishot.mise.commons.*
 import at.reisishot.mise.config.ImageConfig
-import at.reisishot.mise.config.getConfig
-import at.reisishot.mise.config.parseConfig
 import at.reisishot.mise.exifdata.ExifdataKey
 import at.reisishot.mise.exifdata.readExif
-import com.typesafe.config.ConfigList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.DIV
@@ -143,8 +140,8 @@ abstract class AbstractGalleryGenerator(
 
     private fun hasConfigChanges(configuration: WebsiteConfiguration, cacheTime: ZonedDateTime): Boolean {
         return sequenceOf(
-            "categories.conf",
-            "tags.conf"
+            "categories.json",
+            "tags.json"
         ).map { configuration.inPath withChild it }
             .map { it.fileModifiedDateTime }
             .filterNotNull()
@@ -202,7 +199,7 @@ abstract class AbstractGalleryGenerator(
             .asIterable()
             .forEachLimitedParallel(20) { jpegPath ->
                 val filenameWithoutExtension = jpegPath.filenameWithoutExtension
-                val configPath = jpegPath.parent withChild "$filenameWithoutExtension.conf"
+                val configPath = jpegPath.parent withChild "$filenameWithoutExtension.json"
                 val thumbnailInfoPath =
                     configuration.tmpPath withChild AbstractThumbnailGenerator.NAME_THUMBINFO_SUBFOLDER withChild "$filenameWithoutExtension.cache.json"
                 if (!configPath.exists())
@@ -213,7 +210,7 @@ abstract class AbstractGalleryGenerator(
                     throw IllegalStateException("Thumbnail Info path does not exist for $jpegPath!")
 
 
-                val imageConfig: ImageConfig = configPath.parseConfig()
+                val imageConfig = configPath.fromJson<ImageConfig>()
                     ?: throw IllegalStateException("Could not load config file $configPath. Please check if the format is valid!")
                 val exifData = jpegPath.readExif(exifReplaceFunction)
                 val thumbnailConfig: HashMap<AbstractThumbnailGenerator.ImageSize, AbstractThumbnailGenerator.ImageSizeInformation> =
@@ -245,30 +242,21 @@ abstract class AbstractGalleryGenerator(
 
     private fun buildTransitiveTags(configuration: WebsiteConfiguration) {
         val computedTags = cache.computedTags
-
-        configuration.inPath.withChild("tags.conf")
-            .getConfig()
-            ?.root()
+        configuration.inPath.withChild("tags.json")
+            .fromJson<Map<String, List<String>>>()
             ?.forEach { (key, value) ->
-                (value as? ConfigList)?.let { list ->
-                    val tagStrings = list.asSequence()
-                        .map { it.unwrapped() as? String }
-                        .filterNotNull()
-                        .toList()
+                val tags = value.map { TagInformation(it) }
+                computedTags[TagInformation(key)]?.let { images ->
+                    tags.forEach { newTag ->
+                        computedTags[newTag]?.let { imageInformations ->
+                            imageInformations.addAll(images)
 
-                    val tags = tagStrings.map { TagInformation(it) }
-                    computedTags[TagInformation(key)]?.let { images ->
-                        tags.forEach { newTag ->
-                            computedTags[newTag]?.let { imageInformations ->
-                                imageInformations.addAll(images)
-
-                                images.asSequence()
-                                    .map { it as? InternalImageInformation }
-                                    .filterNotNull()
-                                    .forEach { image ->
-                                        image.tags.addAll(tagStrings)
-                                    }
-                            }
+                            images.asSequence()
+                                .map { it as? InternalImageInformation }
+                                .filterNotNull()
+                                .forEach { image ->
+                                    image.tags.addAll(value)
+                                }
                         }
                     }
                 }
@@ -429,7 +417,7 @@ abstract class AbstractGalleryGenerator(
 
     private fun ChangeFileset.hasRelevantChanges() =
         keys.asSequence()
-            .any { it.hasExtension(FileExtension::isConf) }
+            .any { it.hasExtension(FileExtension::isJson) }
 
     override suspend fun cleanup(configuration: WebsiteConfiguration, cache: BuildingCache) {
         withContext(Dispatchers.IO) {

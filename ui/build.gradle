@@ -10,4 +10,8 @@ subprojects { subproject ->
         version = "17"
         modules = ['javafx.controls']
     }
+
+    dependencies {
+        implementation project(":commons")
+    }
 }

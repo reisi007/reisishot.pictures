@@ -2,8 +2,8 @@ package pictures.reisishot.mise.backend.generator.gallery.categories
 
 import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.FilenameWithoutExtension
+import at.reisishot.mise.commons.fromJson
 import at.reisishot.mise.commons.withChild
-import at.reisishot.mise.config.parseConfig
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.*
@@ -94,8 +94,8 @@ class ConfigurableCategoryBuilder : CategoryBuilder {
         cache: BuildingCache
     ) {
         super.setup(configuration, cache)
-        categoryConfigs = configuration.inPath.withChild("categories.conf").let {
-            it.parseConfig<List<CategoryConfig>>("categories")
+        categoryConfigs = configuration.inPath.withChild("categories.json").let {
+            it.fromJson<List<CategoryConfig>>()
                 ?: throw IllegalStateException("Could not find config file \"$it\"!")
         }
     }
