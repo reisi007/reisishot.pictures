@@ -232,10 +232,11 @@ fun DIV.renderTestimonial(
                     text(testimonial.formattedDate)
                 }
             }
-            div("card-text") {
-                attributes.itemprop = "reviewBody"
-                raw(testimonial.html)
-            }
+            if (testimonial.html != null)
+                div("card-text") {
+                    attributes.itemprop = "reviewBody"
+                    raw(testimonial.html)
+                }
         }
     }
 }
@@ -261,7 +262,7 @@ private fun renderTestimonialVisual(
             targetPath,
             websiteConfiguration
         )
-    } else throw IllegalStateException("No media available for testimonial $testimonial")
+    }
 }
 
 fun HtmlBlockTag.renderCarousel(
@@ -324,7 +325,7 @@ fun HtmlBlockTag.renderRating(rating: Double, starSize: String = "sm") {
     val halfStar = 2 * stars < roundedRating
     val emptyStars = 5 - stars - (if (halfStar) 1 else 0)
 
-    span("align-sub") {
+    span("align-base") {
         attributes.itemprop = "ratingValue"
         attributes.content = rating.toString()
 
@@ -351,9 +352,10 @@ fun HtmlBlockTag.appendTestimonials(
     targetPath: TargetPath,
     galleryGenerator: AbstractGalleryGenerator,
     mode: TestimonialMode,
+    displayStatistics: Boolean,
     vararg testimonialsToDisplay: Testimonial
 ) {
-    if (testimonialsToDisplay.isNotEmpty()) {
+    if (displayStatistics && testimonialsToDisplay.isNotEmpty()) {
         div("text-center") {
             if (testimonialsToDisplay.find { it.rating != null } != null)
                 text("Durchschnittliche Bewertung:")
@@ -369,9 +371,21 @@ fun HtmlBlockTag.appendTestimonials(
             }
         }
 
-        testimonialsToDisplay.forEach { testimonial ->
-            renderTestimonial(websiteConfiguration, targetPath, galleryGenerator, mode, testimonial)
-        }
+        val sortTestimonials =
+            compareBy<Testimonial>(
+                { it.image == null && it.video == null && it.images == null },
+                { it.html == null }
+            )
+                .thenByDescending { it.isoDateString }
+                .thenByDescending { it.rating ?: -1 }
+                .thenByDescending { it.html?.length ?: -1 }
+
+
+        testimonialsToDisplay.asSequence()
+            .sortedWith(sortTestimonials)
+            .forEach { testimonial ->
+                renderTestimonial(websiteConfiguration, targetPath, galleryGenerator, mode, testimonial)
+            }
 
     }
 }
@@ -386,7 +400,9 @@ internal fun HtmlBlockTag.renderTestimonialStatistics(
     if (statisticsData != null && statisticsData.cnt > 0) {
         span("lh-lg text-center align-middle") {
             renderRating(statisticsData.avg, "2x")
-            text(" (${statisticsData.cnt})")
+            span("align-text-bottom") {
+                text(" (${statisticsData.cnt})")
+            }
         }
     }
 }

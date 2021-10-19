@@ -4,15 +4,15 @@ object ProductionAll {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        System.out.println(">> Main")
+        println(">> Main")
         Main.build(false)
-        System.out.println(">> Couples")
+        println(">> Couples")
         Couples.build(false)
-        System.out.println(">> Portrait")
+        println(">> Portrait")
         Portrait.build(false)
-        System.out.println(">> Boudoir")
+        println(">> Boudoir")
         Boudoir.build(false)
-        System.out.println(">> Goto")
+        println(">> Goto")
         Goto.build(false)
     }
 }

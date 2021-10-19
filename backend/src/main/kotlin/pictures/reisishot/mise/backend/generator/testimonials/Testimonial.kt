@@ -14,7 +14,7 @@ data class Testimonial(
     val name: String,
     val isoDateString: String,
     val type: String,
-    val html: String
+    val html: String?
 ) {
     val date: Date by lazy {
         df_yyyy_MM_dd.parse(isoDateString)

@@ -77,7 +77,7 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
         val type = getString("type")
         val rating = getString("rating")?.toInt()
 
-        if (personName == null || date == null || type == null || (imageFilename == null && imageFilenames == null && ytCode == null))
+        if (personName == null || date == null || type == null)
             throw IllegalStateException("Das Testimonial in $p ist nicht vollständig!")
         return Testimonial(
             p.filenameWithoutExtension,
@@ -88,7 +88,7 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
             personName,
             date,
             type,
-            contentHtml
+            contentHtml.ifBlank { null }
         )
     }
 

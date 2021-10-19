@@ -102,6 +102,7 @@ class TemplateApi(
                 targetPath,
                 galleryGenerator,
                 mode,
+                false,
                 testimonialsToDisplay,
             )
         }
@@ -119,6 +120,7 @@ class TemplateApi(
                 targetPath,
                 galleryGenerator,
                 TestimonialMode.DEFAULT,
+                true,
                 *testimonialsToDisplay
             )
         }

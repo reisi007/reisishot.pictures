@@ -21,7 +21,7 @@ import java.nio.file.Paths
 object Goto {
     @JvmStatic
     fun main(args: Array<String>) {
-        build(args.isEmpty())
+        build(!args.contains("prod"))
     }
 
     fun build(isDevMode: Boolean) {
