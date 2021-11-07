@@ -5,10 +5,7 @@ import at.reisishot.mise.exifdata.defaultExifReplaceFunction
 import kotlinx.html.InputType
 import kotlinx.html.h2
 import kotlinx.html.h3
-import pictures.reisishot.mise.backend.FacebookMessengerChatPlugin
-import pictures.reisishot.mise.backend.Mise
-import pictures.reisishot.mise.backend.SocialMediaAccounts
-import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.categories.ConfigurableCategoryBuilder
@@ -71,7 +68,7 @@ object Couples {
                     "couples@reisishot.pictures",
                     "436702017710"
                 ),
-                // fbMessengerChatPlugin = generateDefaultChatPlugin(),
+                serviceInfo = ServiceInfo("Pärchen Fotoshooting"),
                 form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
                     buildForm(
                         title = { h2 { text("Kontaktiere mich") } },

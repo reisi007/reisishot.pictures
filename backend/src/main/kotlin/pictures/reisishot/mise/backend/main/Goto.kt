@@ -6,6 +6,7 @@ import kotlinx.html.InputType
 import kotlinx.html.h2
 import kotlinx.html.h3
 import pictures.reisishot.mise.backend.Mise
+import pictures.reisishot.mise.backend.ServiceInfo
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
@@ -40,6 +41,7 @@ object Goto {
                 interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
                 cleanupGeneration = false,
                 analyticsSiteId = "6",
+                serviceInfo = ServiceInfo("Fotoshooting"),
                 form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
                     buildForm(
                         title = { h2 { text("Kontaktiere mich") } },

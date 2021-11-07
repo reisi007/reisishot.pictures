@@ -6,6 +6,7 @@ import kotlinx.html.InputType
 import kotlinx.html.h2
 import kotlinx.html.h3
 import pictures.reisishot.mise.backend.Mise
+import pictures.reisishot.mise.backend.ServiceInfo
 import pictures.reisishot.mise.backend.SocialMediaAccounts
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
@@ -68,7 +69,7 @@ object Main {
                     "florian@reisishot.pictures",
                     "436702017710"
                 ),
-                // fbMessengerChatPlugin = generateDefaultChatPlugin(),
+                serviceInfo = ServiceInfo("Fotoshooting"),
                 form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
                     buildForm(
                         title = { h2 { text("Kontaktiere mich") } },

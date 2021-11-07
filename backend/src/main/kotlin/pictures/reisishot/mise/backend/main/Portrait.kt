@@ -5,10 +5,7 @@ import at.reisishot.mise.exifdata.defaultExifReplaceFunction
 import kotlinx.html.InputType
 import kotlinx.html.h2
 import kotlinx.html.h3
-import pictures.reisishot.mise.backend.FacebookMessengerChatPlugin
-import pictures.reisishot.mise.backend.Mise
-import pictures.reisishot.mise.backend.SocialMediaAccounts
-import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.BuildingCache.Companion.getLinkFromFragment
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
@@ -64,6 +61,7 @@ object Portrait {
                 "436702017710"
             ),
             analyticsSiteId = "5",
+            serviceInfo = ServiceInfo("Beauty Fotoshooting"),
             form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
                 buildForm(
                     title = { h2 { text("Möchtest du mit mir ein Porträt Shooting haben?") } },

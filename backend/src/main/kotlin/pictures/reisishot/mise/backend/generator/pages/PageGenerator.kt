@@ -8,7 +8,6 @@ import at.reisishot.mise.commons.isMarkdown
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.HEAD
-import kotlinx.html.div
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.*
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
@@ -16,8 +15,8 @@ import pictures.reisishot.mise.backend.generator.gallery.findGalleryGenerator
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.Yaml
 import pictures.reisishot.mise.backend.generator.testimonials.TestimonialLoader
 import pictures.reisishot.mise.backend.generator.testimonials.findTestimonialLoader
-import pictures.reisishot.mise.backend.html.*
 import pictures.reisishot.mise.backend.html.PageGenerator
+import pictures.reisishot.mise.backend.html.raw
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
 import java.nio.file.Files
 import java.nio.file.Path
@@ -97,16 +96,7 @@ class PageGenerator(vararg val extensions: PageGeneratorExtension) : WebsiteGene
             buildingCache = buildingCache,
             additionalHeadContent = headManipulator,
             galleryGenerator = galleryGenerator,
-            pageContent = {
-                div {
-                    attributes.itemscope = ""
-                    attributes.itemtype = Itemtypes.ARTICLE
-                    div {
-                        attributes.itemprop = "articleBody"
-                        raw(body)
-                    }
-                }
-            }
+            pageContent = { raw(body) }
         )
 
         extensions.forEach { it.postCreatePage(websiteConfiguration, buildingCache, pageMinimalInfo, metadata, body) }

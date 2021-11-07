@@ -5,10 +5,7 @@ import at.reisishot.mise.exifdata.defaultExifReplaceFunction
 import kotlinx.html.InputType
 import kotlinx.html.h2
 import kotlinx.html.h3
-import pictures.reisishot.mise.backend.FacebookMessengerChatPlugin
-import pictures.reisishot.mise.backend.Mise
-import pictures.reisishot.mise.backend.SocialMediaAccounts
-import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.generator.BuildingCache.Companion.getLinkFromFragment
 import pictures.reisishot.mise.backend.generator.gallery.GalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
@@ -67,6 +64,7 @@ object Boudoir {
                     "#27ae60",
                     "Hallo! Falls du noch Fragen zu deinem Boudoir Shooting hast, kannst du mich hier kontaktieren!"
                 ),
+                serviceInfo = ServiceInfo("Boudoir Fotoshooting"),
                 form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
                     buildForm(
                         title = { h2 { text("Möchtest du selbst ein Boudoir Shooting haben?") } },

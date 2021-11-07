@@ -128,16 +128,17 @@ class TemplateApi(
     }
 
     @SuppressWarnings("unused")
-    fun insertTestimonialStatistics(vararg testimonialTypes: String) = buildString {
-        val testimonialsToDisplay = computeMatchingTestimonials(testimonialTypes)
-        if (testimonialsToDisplay.isEmpty())
-            return@buildString
-        appendUnformattedHtml().div {
-            if (testimonialsToDisplay.isNotEmpty()) {
-                renderTestimonialStatistics(testimonialsToDisplay)
+    fun insertTestimonialStatistics(vararg testimonialTypes: String) =
+        buildString {
+            val testimonialsToDisplay = computeMatchingTestimonials(testimonialTypes)
+            if (testimonialsToDisplay.isEmpty())
+                return@buildString
+            appendUnformattedHtml().div {
+                if (testimonialsToDisplay.isNotEmpty()) {
+                    renderTestimonialStatistics(websiteConfiguration, testimonialsToDisplay)
+                }
             }
         }
-    }
 
     @SuppressWarnings("unused")
     @JvmOverloads

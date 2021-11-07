@@ -136,6 +136,15 @@ fun FlowOrInteractiveOrPhrasingContent.smallButtonLink(
         text(text)
     }
 
+internal var DelegatingMap.value
+    get() = this["value"]
+    set(value) {
+        if (value == null)
+            this.remove("value")
+        else
+            this["value"] = value
+    }
+
 internal var DelegatingMap.itemprop
     get() = this["itemprop"]
     set(value) {
@@ -207,14 +216,7 @@ fun DIV.renderTestimonial(
                         attributes.itemprop = "reviewRating"
                         attributes.itemscope = ""
                         attributes.itemtype = "https://schema.org/Rating"
-                        meta {
-                            attributes.itemprop = "worstRating"
-                            attributes.content = "0"
-                        }
-                        meta {
-                            attributes.itemprop = "bestRating"
-                            attributes.content = "100"
-                        }
+                        minMaxRatingMeta()
 
                         renderRating(rating)
                         text(" ")
@@ -359,7 +361,7 @@ fun HtmlBlockTag.appendTestimonials(
         div("text-center") {
             if (testimonialsToDisplay.find { it.rating != null } != null)
                 text("Durchschnittliche Bewertung:")
-            renderTestimonialStatistics(testimonialsToDisplay)
+            renderTestimonialStatistics(websiteConfiguration, testimonialsToDisplay)
         }
     }
     div {
@@ -391,6 +393,7 @@ fun HtmlBlockTag.appendTestimonials(
 }
 
 internal fun HtmlBlockTag.renderTestimonialStatistics(
+    websiteConfiguration: WebsiteConfiguration,
     testimonialsToDisplay: Array<out Testimonial>
 ) {
     val statisticsData = testimonialsToDisplay.asSequence()
@@ -399,11 +402,39 @@ internal fun HtmlBlockTag.renderTestimonialStatistics(
         .statistics()
     if (statisticsData != null && statisticsData.cnt > 0) {
         span("lh-lg text-center align-middle") {
+            attributes.itemprop = "aggregateRating"
+            attributes.itemscope = ""
+            attributes.itemtype = "https://schema.org/AggregateRating"
             renderRating(statisticsData.avg, "2x")
+            minMaxRatingMeta()
+            meta {
+                attributes.itemprop = "itemReviewed"
+                attributes.itemscope = ""
+                attributes.itemtype = "https://schema.org/LocalBusiness"
+
+                meta {
+                    attributes.itemprop = "name"
+                    attributes.value = websiteConfiguration.shortTitle
+                }
+
+            }
             span("align-text-bottom") {
+                attributes.itemprop = "ratingCount"
+                attributes.content = statisticsData.cnt.toString()
                 text(" (${statisticsData.cnt})")
             }
         }
+    }
+}
+
+internal fun FlowOrPhrasingContent.minMaxRatingMeta() {
+    meta {
+        attributes.itemprop = "worstRating"
+        attributes.content = "0"
+    }
+    meta {
+        attributes.itemprop = "bestRating"
+        attributes.content = "100"
     }
 }
 
