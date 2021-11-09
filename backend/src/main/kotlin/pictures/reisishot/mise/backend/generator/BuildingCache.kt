@@ -35,7 +35,7 @@ class BuildingCache {
     fun resetLinkcacheFor(linkType: String) = linkCache.computeIfAbsent(linkType) { ConcurrentHashMap() }.clear()
 
     fun addLinkcacheEntryFor(linkType: String, linkKey: String, link: Link) = synchronized(linkCache) {
-        linkCache.computeIfAbsent(linkType) { ConcurrentHashMap() }.put(linkKey, link)
+        linkCache.computeIfAbsent(linkType) { ConcurrentHashMap() }.put(linkKey.lowercase(), link)
     }
 
     fun getLinkcacheEntryFor(config: WebsiteConfiguration, linkType: String, linkKey: String): Link =
@@ -84,7 +84,6 @@ class BuildingCache {
                     text,
                     link,
                     target,
-                    orderFunction,
                     elementIndex
                 )
         }
@@ -97,7 +96,6 @@ class BuildingCache {
         text: LinkText,
         link: Link,
         target: String? = null,
-        orderFunction: (MenuLinkContainerItem) -> Int = { it.uniqueIndex },
         elementIndex: Int = 0
     ) = synchronized(internalMenuLinks) {
         val menuLinkContainer = internalMenuLinks.find {
@@ -106,8 +104,7 @@ class BuildingCache {
             val newContainer = MenuLinkContainer(
                 containerId,
                 containerIndex,
-                containerText,
-                orderFunction
+                containerText
             )
             internalMenuLinks.add(newContainer)
             newContainer

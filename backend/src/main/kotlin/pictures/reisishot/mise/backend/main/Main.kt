@@ -6,7 +6,6 @@ import kotlinx.html.InputType
 import kotlinx.html.h2
 import kotlinx.html.h3
 import pictures.reisishot.mise.backend.Mise
-import pictures.reisishot.mise.backend.ServiceInfo
 import pictures.reisishot.mise.backend.SocialMediaAccounts
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache
@@ -16,6 +15,7 @@ import pictures.reisishot.mise.backend.generator.gallery.categories.DateCategory
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.links.LinkGenerator
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
+import pictures.reisishot.mise.backend.generator.pages.minimalistic.MinimalisticPageGenerator
 import pictures.reisishot.mise.backend.generator.pages.overview.OverviewPageGenerator
 import pictures.reisishot.mise.backend.generator.pages.yamlConsumer.KeywordConsumer
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
@@ -42,22 +42,18 @@ object Main {
             displayedMenuItems = emptySet(),
             exifReplaceFunction = defaultExifReplaceFunction
         )
-
-        val base = Paths.get("input")
-        val testimonialLoader = TestimonialLoaderImpl(
-            base withChild Boudoir.folderName withChild TestimonialLoaderImpl.INPUT_FOLDER_NAME,
-            base withChild Portrait.folderName withChild TestimonialLoaderImpl.INPUT_FOLDER_NAME
-
-        )
+        val inPath = Paths.get("input", folderName).toAbsolutePath()
+        val testimonialLoader = TestimonialLoaderImpl.fromInPath(inPath)
 
         val overviewPageGenerator = OverviewPageGenerator(galleryGenerator, testimonialLoader)
+
         Mise.build(
             WebsiteConfiguration(
                 shortTitle = "ReisiShot",
                 longTitle = "ReisiShot - Fotograf Florian Reisinger",
                 isDevMode = isDevMode,
                 websiteLocation = "https://$folderName",
-                inPath = Paths.get("input", folderName).toAbsolutePath(),
+                inPath = inPath,
                 tmpPath = tmpPath,
                 outPath = Paths.get("upload", folderName).toAbsolutePath(),
                 interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
@@ -69,7 +65,6 @@ object Main {
                     "florian@reisishot.pictures",
                     "436702017710"
                 ),
-                serviceInfo = ServiceInfo("Fotoshooting"),
                 form = { target: Path, websiteConfiguration: WebsiteConfiguration ->
                     buildForm(
                         title = { h2 { text("Kontaktiere mich") } },
@@ -127,7 +122,11 @@ object Main {
                         })
                 },
                 generators = listOf(
-                    PageGenerator(overviewPageGenerator, KeywordConsumer()),
+                    PageGenerator(
+                        overviewPageGenerator,
+                        MinimalisticPageGenerator(galleryGenerator),
+                        KeywordConsumer()
+                    ),
                     overviewPageGenerator,
                     testimonialLoader,
                     galleryGenerator,

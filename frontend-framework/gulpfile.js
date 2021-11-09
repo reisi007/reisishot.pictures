@@ -1,7 +1,7 @@
 const
     gulp = require('gulp'),
     $ = require('gulp-load-plugins')({lazy: true}),
-    sites = ['reisishot.pictures', 'goto.reisishot.pictures', 'portrait.reisishot.pictures', 'couples.reisishot.pictures', 'boudoir.reisishot.pictures'];
+    sites = ['reisishot.pictures'];
 
 
 gulp.task('styles', function () {

@@ -166,7 +166,10 @@ class GalleryGenerator(
             }
             div("card-body btn-flex") {
                 curImageInformation.tags.forEach { category ->
-                    smallButtonLink(category, cache.getLinkcacheEntryFor(configuration, LINKTYPE_TAGS, category))
+                    smallButtonLink(
+                        category,
+                        cache.getLinkcacheEntryFor(configuration, LINKTYPE_TAGS, category.lowercase())
+                    )
                 }
             }
         }
@@ -185,7 +188,7 @@ class GalleryGenerator(
                 curImageInformation.categories.forEach { category ->
                     smallButtonLink(
                         category.displayName,
-                        cache.getLinkcacheEntryFor(configuration, LINKTYPE_CATEGORIES, category.complexName)
+                        cache.getLinkcacheEntryFor(configuration, LINKTYPE_CATEGORIES, category.complexName.lowercase())
                     )
                 }
             }

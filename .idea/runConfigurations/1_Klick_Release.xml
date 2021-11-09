@@ -1,8 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="1 Klick Release" type="Multirun" separateTabs="false" reuseTabsWithFailures="false" startOneByOne="false" markFailedProcess="true" hideSuccessProcess="true" delayTime="0.0">
-    <runConfiguration name="Frontend Release Build" type="Multirun" />
-    <method v="2">
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="[PROD] Build all HTML files" run_configuration_type="JetRunConfigurationType" />
-    </method>
-  </configuration>
-</component>

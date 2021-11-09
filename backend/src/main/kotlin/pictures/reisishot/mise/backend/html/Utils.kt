@@ -355,13 +355,14 @@ fun HtmlBlockTag.appendTestimonials(
     galleryGenerator: AbstractGalleryGenerator,
     mode: TestimonialMode,
     displayStatistics: Boolean,
+    type: String,
     vararg testimonialsToDisplay: Testimonial
 ) {
     if (displayStatistics && testimonialsToDisplay.isNotEmpty()) {
         div("text-center") {
             if (testimonialsToDisplay.find { it.rating != null } != null)
                 text("Durchschnittliche Bewertung:")
-            renderTestimonialStatistics(websiteConfiguration, testimonialsToDisplay)
+            renderTestimonialStatistics(type, websiteConfiguration, testimonialsToDisplay)
         }
     }
     div {
@@ -393,6 +394,7 @@ fun HtmlBlockTag.appendTestimonials(
 }
 
 internal fun HtmlBlockTag.renderTestimonialStatistics(
+    serviceName: String,
     websiteConfiguration: WebsiteConfiguration,
     testimonialsToDisplay: Array<out Testimonial>
 ) {
@@ -408,12 +410,18 @@ internal fun HtmlBlockTag.renderTestimonialStatistics(
             renderRating(statisticsData.avg, "2x")
             minMaxRatingMeta()
             meta {
+                attributes.itemprop = "name"
+                attributes.itemscope = ""
+                attributes.value = serviceName
+            }
+            span {
                 attributes.itemprop = "itemReviewed"
                 attributes.itemscope = ""
                 attributes.itemtype = "https://schema.org/LocalBusiness"
 
                 meta {
                     attributes.itemprop = "name"
+                    attributes.itemscope = ""
                     attributes.value = websiteConfiguration.shortTitle
                 }
 

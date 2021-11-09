@@ -317,7 +317,7 @@ abstract class AbstractGalleryGenerator(
                         if (shallAddToMenu && categoryInformation.visible) {
                             cache.addMenuItemInContainer(
                                 LINKTYPE_CATEGORIES, "Kategorien", 200, categoryInformation.displayName,
-                                link, orderFunction = { idx }, elementIndex = idx
+                                link, elementIndex = idx
                             )
                         }
                         mutableSetOf()

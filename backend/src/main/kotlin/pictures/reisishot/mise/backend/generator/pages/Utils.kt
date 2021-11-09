@@ -16,6 +16,8 @@ data class PageInformation(
 )
 
 private val displayReplacePattern = Regex("[\\-_]")
+private val filenameParser =
+    Regex("""^(?<globalPriority>\d+)--((?<menuContainerPriority>\d+)--(?<menuContainerName>.+?))?--(?<menuItemName>.+?)(--(?<folderName>.+?))?${'$'}""")
 
 fun Path.computeMinimalInfo(
     generatorName: String,
@@ -69,31 +71,40 @@ fun Path.computeMinimalInfo(
     }
 }
 
-fun Path.computePageInformation(configuration: WebsiteConfiguration): PageInformation {
-    var inFilename = filenameWithoutExtension
-
-    val globalPriority = inFilename.substringBefore(PageGenerator.FILENAME_SEPERATOR).toIntOrNull() ?: 0
-    inFilename = inFilename.substringAfter(PageGenerator.FILENAME_SEPERATOR)
+private fun String.displayReplace() =
+    replace(displayReplacePattern, " ")
         .replace('❔', '?')
 
-    val menuContainerName =
-        inFilename.substringBefore(PageGenerator.FILENAME_SEPERATOR).replace(displayReplacePattern, " ")
-    inFilename = inFilename.substringAfter(PageGenerator.FILENAME_SEPERATOR)
-    val menuItemPriority = inFilename.substringBefore(PageGenerator.FILENAME_SEPERATOR)
-        .toIntOrNull()
-        ?.also { inFilename = inFilename.substringAfter(PageGenerator.FILENAME_SEPERATOR) }
-        ?: 0
 
-    val rawMenuItemName = inFilename.substringBefore(PageGenerator.FILENAME_SEPERATOR)
-    val rawFolderName = inFilename.substringAfter(PageGenerator.FILENAME_SEPERATOR)
+fun Path.computePageInformation(configuration: WebsiteConfiguration): PageInformation {
+    val inFilename = filenameWithoutExtension
 
-    val menuItemName = rawMenuItemName.replace(displayReplacePattern, " ")
-    val folderName = rawFolderName.replace(displayReplacePattern, " ")
+    val match =
+        filenameParser.matchEntire(inFilename) ?: throw IllegalStateException("$inFilename is not a valid filename")
 
+    val globalPriority = match.groups["globalPriority"]?.value?.toIntOrNull() ?: 0
+    val menuItemPriority = match.groups["menuContainerPriority"]?.value?.toIntOrNull() ?: 0
+
+    val menuContainerName = match.groups["menuContainerName"]
+        ?.value
+        ?.displayReplace()
+        ?: ""
+
+    val rawMenuItemName = match.groups["menuItemName"]
+        ?.value
+        ?: throw IllegalStateException("No menu item name")
+
+    val menuItemName = rawMenuItemName.displayReplace()
+
+
+    val rawFolderName = match.groups["folderName"]?.value ?: rawMenuItemName
+
+    val folderName = rawFolderName.displayReplace()
 
     val outFile = configuration.inPath.relativize(this)
         .resolveSibling("${rawFolderName.lowercase(Locale.getDefault())}/index.html")
         .let { configuration.outPath.resolve(it) }
+
 
     return PageInformation(
         menuContainerName,

@@ -1,7 +1,6 @@
 package pictures.reisishot.mise.backend.generator
 
 import kotlinx.serialization.Serializable
-import java.util.*
 
 typealias  Link = String
 typealias  LinkText = String
@@ -33,20 +32,19 @@ class MenuLinkContainerItem(
 class MenuLinkContainer(
     override val id: String,
     override val uniqueIndex: Int,
-    override val text: LinkText,
-    private val orderFunction: (MenuLinkContainerItem) -> Int,
+    override val text: LinkText
 ) : MenuLink() {
-    private val internalChildren: MutableMap<Int, SortedSet<MenuLinkContainerItem>> =
-        mutableMapOf()
+    private var internalChildren: List<MenuLinkContainerItem> = listOf()
 
     val children: Sequence<MenuLinkContainerItem>
-        get() = internalChildren
-            .asSequence()
-            .flatMap { (_, v) -> v.asSequence() }
+        get() = internalChildren.asSequence()
+
 
     fun addChild(child: MenuLinkContainerItem) {
-        val key = orderFunction(child)
-        internalChildren.getOrPut(key) { TreeSet() }.add(child)
+        internalChildren = (internalChildren.asSequence() + child)
+            .sorted()
+            .distinct()
+            .toList()
     }
 
     operator fun plusAssign(child: MenuLinkContainerItem) = addChild(child)

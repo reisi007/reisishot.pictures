@@ -26,7 +26,6 @@ class WebsiteConfiguration(
     val isDevMode: Boolean = false,
     val bootsrapMenuBreakpoint: String = "md",
     val fbMessengerChatPlugin: FacebookMessengerChatPlugin? = null,
-    val serviceInfo: ServiceInfo,
     val navbarBrandFunction: A.(WebsiteConfiguration, AbstractGalleryGenerator) -> Unit = { config, _ -> text(config.shortTitle) },
     val interactiveIgnoredFiles: Array<((FileExtension) -> Boolean)> = arrayOf({ _: String -> false })
 ) {
@@ -51,8 +50,4 @@ data class FacebookMessengerChatPlugin(
     val pageId: Long,
     val themeColor: String,
     val message: String
-)
-
-data class ServiceInfo(
-    val name: String
 )

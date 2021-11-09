@@ -65,6 +65,7 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
 
     private fun loadAllFIles() = paths.asSequence()
         .flatMap { Files.list(it).asSequence() }
+        .flatMap { Files.list(it).asSequence() }
         .filter { Files.isRegularFile(it) }
         .filter { it.hasExtension({ it.isMarkdownPart("review") }) }
 

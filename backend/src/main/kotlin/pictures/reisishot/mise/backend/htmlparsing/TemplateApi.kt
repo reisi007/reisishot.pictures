@@ -103,6 +103,7 @@ class TemplateApi(
                 galleryGenerator,
                 mode,
                 false,
+                "",// Unused
                 testimonialsToDisplay,
             )
         }
@@ -110,7 +111,7 @@ class TemplateApi(
 
 
     @SuppressWarnings("unused")
-    fun insertTestimonials(vararg testimonialTypes: String) = buildString {
+    fun insertTestimonials(serviceType: String, vararg testimonialTypes: String) = buildString {
         val testimonialsToDisplay = computeMatchingTestimonials(testimonialTypes)
         if (testimonialsToDisplay.isEmpty())
             return@buildString
@@ -121,6 +122,7 @@ class TemplateApi(
                 galleryGenerator,
                 TestimonialMode.DEFAULT,
                 true,
+                serviceType,
                 *testimonialsToDisplay
             )
         }
@@ -128,15 +130,13 @@ class TemplateApi(
     }
 
     @SuppressWarnings("unused")
-    fun insertTestimonialStatistics(vararg testimonialTypes: String) =
+    fun insertTestimonialStatistics(serviceType: String, vararg testimonialTypes: String) =
         buildString {
             val testimonialsToDisplay = computeMatchingTestimonials(testimonialTypes)
             if (testimonialsToDisplay.isEmpty())
                 return@buildString
             appendUnformattedHtml().div {
-                if (testimonialsToDisplay.isNotEmpty()) {
-                    renderTestimonialStatistics(websiteConfiguration, testimonialsToDisplay)
-                }
+                renderTestimonialStatistics(serviceType, websiteConfiguration, testimonialsToDisplay)
             }
         }
 

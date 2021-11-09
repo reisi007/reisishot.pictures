@@ -83,7 +83,7 @@ object PageGenerator {
                                     text("© ${websiteConfiguration.longTitle}")
                                 }
                                 p("text-muted center") {
-                                    a(buildingCache.getLinkcacheEntryFor(websiteConfiguration, "PAGE", "Impressum")) {
+                                    a(buildingCache.getLinkcacheEntryFor(websiteConfiguration, "PAGE", "impressum")) {
                                         text("Impressum & Datenschutz")
                                     }
                                 }
