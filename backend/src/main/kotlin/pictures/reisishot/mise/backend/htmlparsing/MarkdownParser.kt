@@ -51,16 +51,10 @@ object MarkdownParser {
             .build()
     }
     private val htmlRenderer by lazy {
-        // Dirty fix for HTML renderer.... ->"<- should not be changed to &quot;
-        hackRenderer()
         HtmlRenderer
             .builder()
             .extensions(extensions)
             .build()
-    }
-
-    private fun hackRenderer() {
-        Escaping::class.java.setField("UNSAFE_CHAR_REPLACER", HackReplacer())
     }
 
     private fun Class<*>.setField(fieldName: String, value: Any?) {

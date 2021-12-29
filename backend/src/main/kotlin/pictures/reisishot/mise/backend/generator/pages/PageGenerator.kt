@@ -28,7 +28,6 @@ class PageGenerator(vararg val extensions: PageGeneratorExtension) : WebsiteGene
     override val generatorName: String = "Reisishot Page"
 
     companion object {
-        const val FILENAME_SEPERATOR = "--"
         const val LINKTYPE_PAGE = "PAGE"
     }
 
