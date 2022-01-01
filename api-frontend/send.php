@@ -11,8 +11,8 @@ if (sendMail($inputJSON)) {
 
 function sendMail($inputJSON)
 {
-    $from = utf8_decode($inputJSON["E-Mail"]);
-    $betreff = utf8_decode($inputJSON["Betreff"]);
+    $from = safeString($inputJSON["E-Mail"]);
+    $betreff = safeString($inputJSON["Betreff"]);
     $to = "florian@reisishot.pictures";
     // To send HTML mail, the Content-type header must be set
     $headers = 'MIME-Version: 1.0' . "\r\n";
@@ -25,11 +25,19 @@ function sendMail($inputJSON)
     $message = '<html lang="de"><body>';
     $message .= '<h1>Neue Nachricht vom Kontaktformular!</h1>';
     foreach ($inputJSON as $key => $value) {
-        $message .= "<b>" . utf8_decode($key) . "</b><br/>"
-            . utf8_decode($value) . "<br/>\n";
+        $message .= "<b>" . safeString($key) . "</b><br/>"
+            . safeString($value) . "<br/>\n";
     }
     $message .= '</body></html>';
-    return mail($to, "[Kontaktformular] Neue Anfrage: " . $betreff, $message, $headers);
+    if (empty($from) || empty($betreff) || !str_contains($from, "@")) {
+        print_r($inputJSON);
+    } else
+        return mail($to, "[Kontaktformular] Neue Anfrage: " . $betreff, $message, $headers);
+}
+
+function safeString(string $string)
+{
+    return utf8_decode(htmlspecialchars($string, ENT_XML1));
 }
 
 ?>
