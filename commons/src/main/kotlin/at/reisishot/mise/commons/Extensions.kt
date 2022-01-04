@@ -119,3 +119,5 @@ fun <K, V : Collection<*>> Map<K, V>.prettyPrint() = keys.forEach { k ->
     println(getValue(k).joinToString("\n\t", "\t"))
     println()
 }
+
+fun Path.replaceFileExtension(newExt: String) = parent withChild "$fileName.$newExt"

@@ -10,6 +10,7 @@ import com.drew.metadata.file.FileSystemDescriptor
 import com.drew.metadata.file.FileSystemDirectory
 import com.drew.metadata.jpeg.JpegDescriptor
 import com.drew.metadata.jpeg.JpegDirectory
+import com.drew.metadata.webp.WebpDirectory
 import java.nio.file.Path
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -132,3 +133,10 @@ fun Path.readExif(exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<Exif
                 }
             }
     }
+
+
+val WebpDirectory.width
+    get() = getInt(WebpDirectory.TAG_IMAGE_WIDTH)
+
+val WebpDirectory.height
+    get() = getInt(WebpDirectory.TAG_IMAGE_HEIGHT)

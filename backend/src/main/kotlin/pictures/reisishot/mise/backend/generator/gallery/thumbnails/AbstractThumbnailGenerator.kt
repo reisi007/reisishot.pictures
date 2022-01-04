@@ -1,8 +1,12 @@
 package pictures.reisishot.mise.backend.generator.gallery.thumbnails
 
 import at.reisishot.mise.commons.*
+import at.reisishot.mise.exifdata.height
+import at.reisishot.mise.exifdata.width
 import com.drew.imaging.ImageMetadataReader
+import com.drew.metadata.Directory
 import com.drew.metadata.jpeg.JpegDirectory
+import com.drew.metadata.webp.WebpDirectory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -68,10 +72,6 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
             get() = _data.get(ordinal + 1)
         val smallerSize: ImageSize?
             get() = _data.get(ordinal - 1)
-
-        fun decoratePath(p: Path): Path = with(p) {
-            parent withChild fileName.filenameWithoutExtension + '_' + identifier + ".jpg"
-        }
 
         private fun <T> ListIterator<T>.find(imageSize: ImageSize): ListIterator<T>? {
             while (hasNext()) {
@@ -141,51 +141,54 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
+    ): Unit = Executors.newFixedThreadPool(4)
+        .asCoroutineDispatcher()
+        .use { preparation ->
+            configuration.inPath.withChild(NAME_IMAGE_SUBFOLDER).list()
+                .filter { it.fileExtension.isJpeg() }
+                .asIterable()
+                .forEachParallel(preparation) { originalImage -> processImage(configuration, originalImage) }
+        }
+
+
+    private suspend fun processImage(
+        configuration: WebsiteConfiguration,
+        originalImage: Path
     ) {
-        Executors.newFixedThreadPool(4)
-            .asCoroutineDispatcher()
-            .use { preparation ->
-                configuration.inPath.withChild(NAME_IMAGE_SUBFOLDER).list()
-                    .filter { it.fileExtension.isJpeg() }
-                    .asIterable()
-                    .forEachParallel(preparation) { jpegImage ->
-                        val thumbnailInfoPath =
-                            configuration.tmpPath withChild NAME_THUMBINFO_SUBFOLDER withChild "${
-                                configuration.inPath.resolve(
-                                    jpegImage
-                                ).filenameWithoutExtension
-                            }.cache.json"
-                        if (!(thumbnailInfoPath.exists() && thumbnailInfoPath.isNewerThan(jpegImage))) {
-                            val baseOutPath =
-                                configuration.outPath.resolve(NAME_IMAGE_SUBFOLDER).resolve(jpegImage.fileName)
-                            withContext(Dispatchers.IO) {
-                                Files.createDirectories(baseOutPath.parent)
-                            }
-                            val sourceInfo = getThumbnailInfo(jpegImage)
-                            ImageSize.values()
-                                .asSequence()
-                                .map { size -> generateThumbnails(baseOutPath, jpegImage, sourceInfo, size) }
-                                .filterNotNull()
-                                .toMap()
-                                .toJson(thumbnailInfoPath)
-                        }
-                    }
+        val thumbnailInfoPath =
+            configuration.tmpPath withChild NAME_THUMBINFO_SUBFOLDER withChild "${
+                configuration.inPath.resolve(
+                    originalImage
+                ).filenameWithoutExtension
+            }.cache.json"
+        if (!(thumbnailInfoPath.exists() && thumbnailInfoPath.isNewerThan(originalImage))) {
+            val baseOutPath =
+                configuration.outPath.resolve(NAME_IMAGE_SUBFOLDER).resolve(originalImage.fileName)
+            withContext(Dispatchers.IO) {
+                Files.createDirectories(baseOutPath.parent)
             }
+            val sourceInfo = getJpegThumbnailInfo(originalImage)
+            ImageSize.values()
+                .asSequence()
+                .map { size -> generateThumbnails(baseOutPath, originalImage, sourceInfo, size) }
+                .toMap()
+                .toJson(thumbnailInfoPath)
+        }
     }
 
     private fun generateThumbnails(
         baseOutPath: Path,
-        jpegImage: Path,
+        originalImage: Path,
         sourceInfo: ImageSizeInformation,
         size: ImageSize
     ): Pair<ImageSize, ImageSizeInformation> {
-        val outFile = size.decoratePath(baseOutPath)
+        val outFile = baseOutPath.parent withChild ("${baseOutPath.fileName}_${size.identifier}.webp")
 
-        (forceRegeneration.thumbnails || !outFile.exists() || jpegImage.isNewerThan(outFile)).let { actionNeeded ->
+        (forceRegeneration.thumbnails || !outFile.exists() || originalImage.isNewerThan(outFile)).let { actionNeeded ->
             if (actionNeeded)
-                convertImageInternally(jpegImage, sourceInfo, outFile, size)
+                convertImageInternally(originalImage, sourceInfo, outFile, size)
         }
-        return size to getThumbnailInfo(outFile)
+        return size to getWebPThumbnailInfo(outFile)
     }
 
     private fun convertImageInternally(
@@ -200,12 +203,26 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
         convertImage(jpegImage, outFile, size)
     }
 
+    /**
+     * Should convert an image to Webp and jpeg at the moment -> jpeg will not be needed in the future
+     */
     protected abstract fun convertImage(inFile: Path, outFile: Path, prefferedSize: ImageSize)
 
-    private fun getThumbnailInfo(jpegImage: Path): ImageSizeInformation {
-        val exifData = ImageMetadataReader.readMetadata(jpegImage.toFile())
-        val jpegExifData = exifData.getFirstDirectoryOfType(JpegDirectory::class.java)
-        return ImageSizeInformation(jpegImage.fileName.toString(), jpegExifData.imageWidth, jpegExifData.imageHeight)
+    private fun getJpegThumbnailInfo(jpegImage: Path): ImageSizeInformation {
+        val exifData = findDirectory<JpegDirectory>(jpegImage)
+        return ImageSizeInformation(jpegImage.fileName.toString(), exifData.imageWidth, exifData.imageHeight)
+    }
+
+    private fun getWebPThumbnailInfo(webpImage: Path): ImageSizeInformation {
+        val exifData = findDirectory<WebpDirectory>(webpImage)
+        return ImageSizeInformation(webpImage.fileName.toString(), exifData.width, exifData.height)
+    }
+
+    private inline fun <reified D : Directory> findDirectory(image: Path): D {
+        val exifData = ImageMetadataReader.readMetadata(image.toFile())
+        val directoryClass = D::class.java
+        return exifData.getFirstDirectoryOfType(directoryClass)
+            ?: throw IllegalStateException("$directoryClass not found")
     }
 
     protected open fun computeOriginalFilename(generatedFilename: FilenameWithoutExtension): FilenameWithoutExtension =
