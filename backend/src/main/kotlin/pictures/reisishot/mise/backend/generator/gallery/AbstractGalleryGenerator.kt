@@ -11,6 +11,7 @@ import kotlinx.html.HEAD
 import kotlinx.html.div
 import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.config.*
 import pictures.reisishot.mise.backend.fromJson
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.ChangeFileset
@@ -32,19 +33,19 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
 import kotlin.streams.asSequence
 
 
 abstract class AbstractGalleryGenerator(
-    private val categoryBuilders: Array<CategoryBuilder>,
+    private val tagConfig: TagConfig,
+    private val categoryConfig: CategoryConfigRoot,
     private val displayedMenuItems: Set<DisplayedMenuItems> = setOf(
         DisplayedMenuItems.CATEGORIES,
         DisplayedMenuItems.TAGS
     ),
     private val exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }
-) : WebsiteGenerator, ImageInformationRepository {
+) : WebsiteGenerator {
 
     enum class DisplayedMenuItems {
         CATEGORIES,
@@ -56,8 +57,6 @@ abstract class AbstractGalleryGenerator(
     var cache = Cache()
     protected lateinit var testimonialLoader: TestimonialLoader
     private lateinit var cachePath: Path
-    override val imageInformationData: Collection<ImageInformation> = cache.imageInformationData.values
-    override val computedTags: Map<TagInformation, Set<ImageInformation>> = cache.computedTags
     protected val ExifdataKey.displayName
         get() = when (this) {
             ExifdataKey.CREATION_DATETIME -> "Erstellt am"
@@ -73,13 +72,12 @@ abstract class AbstractGalleryGenerator(
     @Serializable
     data class Cache(
         val imageInformationData: MutableMap<FilenameWithoutExtension, ImageInformation> = concurrentSkipListMap(),
-        val categoryInformation: MutableMap<CategoryName, CategoryInformation> = concurrentSkipListMap(),
         val computedTags: MutableMap<TagInformation, MutableSet<ImageInformation>> = concurrentSkipListMap(
             compareBy(
                 TagInformation::name
             )
         ),
-        val computedCategories: MutableMap<CategoryName, MutableSet<FilenameWithoutExtension>> = concurrentSkipListMap(),
+        var categoryInformation: CategoryInformationRoot? = null,
         val computedSubcategories: MutableMap<CategoryName, Set<CategoryName>> = concurrentSkipListMap(),
         val computedCategoryThumbnails: MutableMap<CategoryName, ImageInformation> = concurrentSkipListMap()
     ) {
@@ -266,65 +264,34 @@ abstract class AbstractGalleryGenerator(
     private suspend fun buildCategories(
         websiteConfiguration: WebsiteConfiguration,
         cache: BuildingCache
-    ) {
-        with(this.cache) {
-            val shallAddToMenu = displayedMenuItems.contains(DisplayedMenuItems.CATEGORIES)
+    ) = with(this.cache) {
 
-            val categoryLevelMap: MutableMap<Int, MutableSet<CategoryInformation>> = ConcurrentHashMap()
-            cache.clearMenuItems { LINKTYPE_CATEGORIES == it.id }
-            cache.resetLinkcacheFor(LINKTYPE_CATEGORIES)
+        val images = imageInformationData.values.asSequence()
+            .map { it as? InternalImageInformation }
+            .filterNotNull()
+            .toList()
 
-            categoryBuilders.forEach { categoryBuilder ->
-                buildCategory(categoryBuilder, websiteConfiguration, categoryLevelMap, cache, shallAddToMenu)
-            }
+        val computedCategories = categoryConfig.computeCategoryInformation(images, websiteConfiguration)
+        categoryInformation = computedCategories
 
-            categoryLevelMap.values.asSequence()
-                .flatMap { it.asSequence() }
-                .map { it.internalName to it.convert(categoryLevelMap) }
-                .forEach { (category, subcategories) ->
-                    computedSubcategories[category] = subcategories
-                }
+        val shallAddToMenu = displayedMenuItems.contains(DisplayedMenuItems.CATEGORIES)
 
-            // Add first level subcategories
-            categoryLevelMap[0]
-                ?.asSequence()
-                ?.filter { it.visible }
-                ?.map { it.internalName }
-                ?.filter { it.complexName.isNotBlank() }
-                ?.toSet()
-                ?.let { firstLevelCategories ->
-                    computedSubcategories.put(CategoryName(""), firstLevelCategories)
-                }
-        }
-    }
+        computedCategories.flatten()
+            .sortedBy { it.categoryName.sortKey }
+            .forEachIndexed { idx, category ->
+                val link = "gallery/categories/${category.urlFragment}"
 
-    private suspend fun Cache.buildCategory(
-        categoryBuilder: CategoryBuilder,
-        websiteConfiguration: WebsiteConfiguration,
-        categoryLevelMap: MutableMap<Int, MutableSet<CategoryInformation>>,
-        cache: BuildingCache,
-        shallAddToMenu: Boolean
-    ) {
-        categoryBuilder.generateCategories(this@AbstractGalleryGenerator, websiteConfiguration)
-            .forEachIndexed { idx, (filename, categoryInformation) ->
-                categoryInformation.internalName.let { categoryName ->
-                    categoryName.complexName.count { it == '/' }.let { subcategoryLevel ->
-                        categoryLevelMap.computeIfAbsent(subcategoryLevel) { mutableSetOf() } += categoryInformation
-                    }
-                    computedCategories.computeIfAbsent(categoryInformation.internalName) {
-                        val link = "gallery/categories/${categoryInformation.urlFragment}"
-                        cache.addLinkcacheEntryFor(LINKTYPE_CATEGORIES, categoryInformation.complexName, link)
-                        if (shallAddToMenu && categoryInformation.visible) {
-                            cache.addMenuItemInContainer(
-                                LINKTYPE_CATEGORIES, "Kategorien", 200, categoryInformation.displayName,
-                                link, elementIndex = idx
-                            )
-                        }
-                        mutableSetOf()
-                    } += filename
+                cache.addLinkcacheEntryFor(LINKTYPE_CATEGORIES, category.categoryName.complexName, link)
 
-                    (imageInformationData[filename] as? InternalImageInformation)?.categories?.add(categoryInformation)
-                    this.categoryInformation.computeIfAbsent(categoryInformation.internalName) { categoryInformation }
+                if (shallAddToMenu && category.visible) {
+                    cache.addMenuItemInContainer(
+                        LINKTYPE_CATEGORIES,
+                        "Kategorien",
+                        200,
+                        category.categoryName.displayName,
+                        link,
+                        elementIndex = idx
+                    )
                 }
             }
     }
@@ -349,7 +316,7 @@ abstract class AbstractGalleryGenerator(
             .map { it as? InternalImageInformation }
             .filterNotNull()
             .asIterable()
-            .forEachLimitedParallel(50) { curImageInformation ->
+            .forEachParallel { curImageInformation ->
                 generateImagePage(configuration, cache, testimonialLoader, curImageInformation)
             }
     }
@@ -361,13 +328,15 @@ abstract class AbstractGalleryGenerator(
         curImageInformation: InternalImageInformation
     )
 
-    private fun generateCategoryPages(
+    private suspend fun generateCategoryPages(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
         testimonialLoader: TestimonialLoader,
     ) {
-        this.cache.computedCategories.forEach { (categoryName, _) ->
-            generateCategoryPage(configuration, cache, testimonialLoader, categoryName)
+        val categories = this.cache.categoryInformation?.flatten() ?: emptySequence()
+
+        categories.asIterable().forEachParallel {
+            generateCategoryPage(configuration, cache, testimonialLoader, it)
         }
     }
 
@@ -375,15 +344,15 @@ abstract class AbstractGalleryGenerator(
         configuration: WebsiteConfiguration,
         buildingCache: BuildingCache,
         testimonialLoader: TestimonialLoader,
-        categoryName: CategoryName,
+        categoryInformation: CategoryInformation,
     )
 
-    protected fun generateTagPages(
+    protected suspend fun generateTagPages(
         configuration: WebsiteConfiguration,
         cache: BuildingCache,
         testimonialLoader: TestimonialLoader,
     ) {
-        computedTags.keys.forEach { tagName ->
+        this.cache.computedTags.keys.forEachParallel { tagName ->
             generateTagPage(configuration, cache, testimonialLoader, tagName)
         }
     }
@@ -434,13 +403,11 @@ abstract class AbstractGalleryGenerator(
     override suspend fun loadCache(configuration: WebsiteConfiguration, cache: BuildingCache) {
         super.loadCache(configuration, cache)
         cachePath = configuration.tmpPath withChild "gallery.cache.json"
-        categoryBuilders.forEach { it.setup(configuration, cache) }
     }
 
     override suspend fun saveCache(configuration: WebsiteConfiguration, cache: BuildingCache) {
         super.saveCache(configuration, cache)
         this.cache.toJson(cachePath)
-        categoryBuilders.forEach { it.teardown(configuration, cache) }
     }
 
     class GalleryMinimalInfo(override val sourcePath: SourcePath, override val targetPath: TargetPath) :
@@ -474,37 +441,31 @@ abstract class AbstractGalleryGenerator(
     }
 }
 
-fun Map<CategoryName, ImageInformation>.getThumbnailImageInformation(
-    name: CategoryName,
-    generator: AbstractGalleryGenerator
-): ImageInformation =
-    get(name)
-        ?: generator.cache.imageInformationData[generator.cache.computedCategories[name]?.first()]
-        ?: throw IllegalStateException("Could not find thumbnail for \"$name\"!")
-
 fun DIV.insertSubcategoryThumbnails(
-    categoryName: CategoryName?,
-    configuration: WebsiteConfiguration,
-    generator: AbstractGalleryGenerator
+    subcategories: Set<CategoryInformation>,
+    configuration: WebsiteConfiguration
 ) {
-    val subcategories = generator.cache.computedSubcategories[categoryName] ?: emptySet()
     if (subcategories.isEmpty()) return
-    insertCategoryThumbnails(subcategories, configuration, generator)
+    insertCategoryThumbnails(subcategories, configuration)
 }
 
 fun DIV.insertCategoryThumbnails(
-    subcategories: Set<CategoryName>,
-    configuration: WebsiteConfiguration,
-    generator: AbstractGalleryGenerator
+    categoriesToDisplay: Set<CategoryInformation>,
+    configuration: WebsiteConfiguration
 ) {
-    if (subcategories.isNotEmpty())
+    if (categoriesToDisplay.isNotEmpty())
         div("category-thumbnails") {
-            subcategories.asSequence()
+            categoriesToDisplay.asSequence()
                 .map {
-                    generator.cache.categoryInformation.getValue(it) to
-                            generator.cache.computedCategoryThumbnails.getThumbnailImageInformation(it, generator)
+                    it to it.images.firstOrNull()
+
                 }
-                .sortedBy { (categoryInformation, _) -> categoryInformation.complexName }
+                .filter { (_, it) -> it != null }
+                .map {
+                    @Suppress("UNCHECKED_CAST")
+                    it as Pair<CategoryInformation, InternalImageInformation>
+                }
+                .sortedBy { (categoryInformation, _) -> categoryInformation.categoryName.sortKey }
                 .forEach { (categoryName, imageInformation) ->
                     insertSubcategoryThumbnail(
                         categoryName,

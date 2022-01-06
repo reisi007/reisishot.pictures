@@ -4,10 +4,10 @@ import kotlinx.html.*
 import kotlinx.html.impl.DelegatingMap
 import kotlinx.html.stream.appendHTML
 import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.config.CategoryInformation
 import pictures.reisishot.mise.backend.df_dd_MM_YYYY
 import pictures.reisishot.mise.backend.df_yyyy_MM_dd
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
-import pictures.reisishot.mise.backend.generator.gallery.CategoryInformation
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.getOrThrow
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
@@ -119,7 +119,7 @@ internal fun HtmlBlockTag.insertSubcategoryThumbnail(
         }
         div("card-body") {
             h4("card-title") {
-                text(categoryInformation.displayName)
+                text(categoryInformation.categoryName.displayName)
             }
         }
     }

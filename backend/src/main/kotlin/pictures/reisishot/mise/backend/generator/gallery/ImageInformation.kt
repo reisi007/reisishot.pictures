@@ -1,6 +1,8 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
+import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.FilenameWithoutExtension
+import at.reisishot.mise.commons.concurrentSetOf
 import at.reisishot.mise.exifdata.ExifdataKey
 import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.WebsiteConfiguration
@@ -26,13 +28,28 @@ class InternalImageInformation(
     override val title: String,
     val tags: MutableSet<String>,
     val exifInformation: MutableMap<ExifdataKey, String>,
-    val categories: MutableSet<CategoryInformation> = mutableSetOf(),
+    val categories: MutableSet<CategoryName> = concurrentSetOf(),
 ) : ImageInformation() {
     override fun getUrl(websiteConfiguration: WebsiteConfiguration): String =
         BuildingCache.getLinkFromFragment(websiteConfiguration, relativeLocation)
 
     override fun toString(): String {
         return "InternalImageInformation(tags=$tags, exifInformation=$exifInformation, categories=$categories)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as InternalImageInformation
+
+        if (filename != other.filename) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return filename.hashCode()
     }
 
 
@@ -49,6 +66,24 @@ class ExternalImageInformation(
     override fun getUrl(websiteConfiguration: WebsiteConfiguration): String = host + relativeLocation
     override fun toString(): String {
         return "ExternalImageInformation(host='$host')"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ExternalImageInformation
+
+        if (host != other.host) return false
+        if (filename != other.filename) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = host.hashCode()
+        result = 31 * result + filename.hashCode()
+        return result
     }
 
 

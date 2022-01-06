@@ -11,10 +11,8 @@ class CategoryName(
     override fun compareTo(other: CategoryName): Int = compareValuesBy(
         this, other,
         CategoryName::sortKey,
-        CategoryName::displayName,
         CategoryName::complexName
     )
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -22,14 +20,14 @@ class CategoryName(
         other as CategoryName
 
         if (complexName != other.complexName) return false
-        if (displayName != other.displayName) return false
+        if (sortKey != other.sortKey) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = complexName.hashCode()
-        result = 31 * result + displayName.hashCode()
+        result = 31 * result + sortKey.hashCode()
         return result
     }
 

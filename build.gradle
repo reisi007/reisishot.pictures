@@ -33,7 +33,9 @@ subprojects {
     }
 
     compileJava {
-        options.compilerArgs = Arrays.asList("--add-exports", "java.base/java.util=ALL-UNNAMED")
+        options.compilerArgs = Arrays.asList(
+                "--add-exports", "java.base/java.util=ALL-UNNAMED"
+        )
         options.forkOptions.executable = "javac" // required for above?
     }
 

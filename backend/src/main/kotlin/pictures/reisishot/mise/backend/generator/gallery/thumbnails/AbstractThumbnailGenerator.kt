@@ -182,7 +182,7 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
         sourceInfo: ImageSizeInformation,
         size: ImageSize
     ): Pair<ImageSize, ImageSizeInformation> {
-        val outFile = baseOutPath.parent withChild ("${baseOutPath.fileName}_${size.identifier}.webp")
+        val outFile = baseOutPath.parent withChild ("${baseOutPath.filenameWithoutExtension}_${size.identifier}.webp")
 
         (forceRegeneration.thumbnails || !outFile.exists() || originalImage.isNewerThan(outFile)).let { actionNeeded ->
             if (actionNeeded)

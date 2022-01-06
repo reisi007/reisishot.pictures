@@ -1,10 +1,12 @@
 package pictures.reisishot.mise.backend.htmlparsing
 
-import at.reisishot.mise.commons.CategoryName
+import at.reisishot.mise.commons.ComplexName
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.exifdata.ExifdataKey
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.config.CategoryInformation
+import pictures.reisishot.mise.backend.config.flatten
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.*
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator
@@ -75,20 +77,45 @@ class TemplateApi(
     }
 
     @SuppressWarnings("unused")
-    fun insertSubalbumThumbnails(albumName: String?): String = buildString {
+    fun insertSubalbumThumbnails(albumName: String): String = buildString {
         appendUnformattedHtml().div {
-            insertSubcategoryThumbnails(CategoryName(albumName ?: ""), websiteConfiguration, galleryGenerator)
+            val categoryInformation = galleryGenerator.cache.categoryInformation
+                ?: error("No categories computed")
+            val subcategories: Set<CategoryInformation> = if (albumName.isBlank()) {
+                categoryInformation
+            } else {
+                categoryInformation.flatten()
+                    .find { it.categoryName.complexName.equals(albumName, true) }
+                    ?.subcategories
+                    ?: error("No category $albumName found")
+            }
+
+            insertSubcategoryThumbnails(subcategories, websiteConfiguration)
         }
     }
 
     @SuppressWarnings("unused")
     fun insertCategoryOverview(vararg albumName: String) = buildString {
         if (albumName.isEmpty()) return@buildString
+        val albumNameSet = setOf<ComplexName>(*albumName)
+
         appendUnformattedHtml().div {
-            val albums = albumName.asSequence()
-                .map { CategoryName(it) }
-                .toCollection(LinkedHashSet())
-            insertCategoryThumbnails(albums, websiteConfiguration, galleryGenerator)
+            val albums = (
+                    galleryGenerator.cache
+                        .categoryInformation ?: error("Categories have not been computed")
+                    )
+                .flatten()
+                .filter {
+                    val name = it.categoryName.complexName
+                    albumNameSet.contains(name)
+                }
+                .toSet()
+
+            if (albumName.size != albums.size) {
+                error("Not all categories found! $albumName")
+            }
+
+            insertCategoryThumbnails(albums, websiteConfiguration)
         }
     }
 

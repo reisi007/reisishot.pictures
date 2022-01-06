@@ -8,6 +8,7 @@ import java.nio.file.Path
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import javax.swing.ImageIcon
 import kotlin.streams.asSequence
@@ -121,3 +122,5 @@ fun <K, V : Collection<*>> Map<K, V>.prettyPrint() = keys.forEach { k ->
 }
 
 fun Path.replaceFileExtension(newExt: String) = parent withChild "$fileName.$newExt"
+
+fun <T> concurrentSetOf(): MutableSet<T> = Collections.newSetFromMap(ConcurrentHashMap())

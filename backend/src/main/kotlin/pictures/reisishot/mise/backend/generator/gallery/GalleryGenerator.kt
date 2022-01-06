@@ -1,11 +1,14 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
-import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.commons.withChild
 import at.reisishot.mise.exifdata.ExifdataKey
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.config.CategoryConfigRoot
+import pictures.reisishot.mise.backend.config.CategoryInformation
+import pictures.reisishot.mise.backend.config.TagConfig
+import pictures.reisishot.mise.backend.config.flatten
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.ChangeFileset
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
@@ -19,13 +22,15 @@ import java.time.format.DateTimeFormatter
 
 
 class GalleryGenerator(
-    val categoryBuilders: Array<CategoryBuilder>,
+    tagConfig: TagConfig,
+    categoryConfig: CategoryConfigRoot,
     displayedMenuItems: Set<DisplayedMenuItems> = setOf(DisplayedMenuItems.CATEGORIES, DisplayedMenuItems.TAGS),
     exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }
 ) : AbstractGalleryGenerator(
-    categoryBuilders,
-    displayedMenuItems = displayedMenuItems,
-    exifReplaceFunction = exifReplaceFunction
+    tagConfig,
+    categoryConfig,
+    displayedMenuItems,
+    exifReplaceFunction
 ) {
 
     override val generatorName: String = "Reisishot Gallery"
@@ -73,25 +78,26 @@ class GalleryGenerator(
         configuration: WebsiteConfiguration,
         buildingCache: BuildingCache,
         testimonialLoader: TestimonialLoader,
-        categoryName: CategoryName,
+        categoryInformation: CategoryInformation,
     ) {
-        val categoryImages: Set<FilenameWithoutExtension> = cache.computedCategories.getValue(categoryName)
+        val categoryImages: List<FilenameWithoutExtension> = categoryInformation.images.asSequence()
+            .map { it.filename }
+            .toList()
+
         (configuration.outPath withChild "gallery/categories").let { baseHtmlPath ->
 
-            val categoryMetaInformation = cache.categoryInformation[categoryName]
-                ?: throw IllegalStateException("No category information found for name \"$categoryName\"!")
-            val targetFolder = baseHtmlPath withChild categoryMetaInformation.urlFragment
+            val targetFolder = baseHtmlPath withChild categoryInformation.urlFragment
             PageGenerator.generatePage(
                 websiteConfiguration = configuration,
                 buildingCache = buildingCache,
                 target = targetFolder withChild "index.html",
-                title = categoryMetaInformation.displayName,
+                title = categoryInformation.categoryName.displayName,
                 galleryGenerator = this,
                 pageContent = {
                     h1("text-center") {
                         text("Kategorie - ")
                         i {
-                            text(("\"${categoryMetaInformation.displayName}\""))
+                            text(("\"${categoryInformation.categoryName.displayName}\""))
                         }
                     }
 
@@ -106,9 +112,8 @@ class GalleryGenerator(
                     }
 
                     insertSubcategoryThumbnails(
-                        categoryMetaInformation.internalName,
-                        configuration,
-                        this@GalleryGenerator
+                        categoryInformation.subcategories,
+                        configuration
                     )
 
                     insertImageGallery("1", configuration, imageInformations)
@@ -125,7 +130,7 @@ class GalleryGenerator(
         buildingCache: BuildingCache,
         testimonialLoader: TestimonialLoader,
         tagName: TagInformation
-    ) {
+    ): Unit = with(cache) {
         val tagImages = computedTags.getValue(tagName)
         val baseHtmlPath = configuration.outPath withChild "gallery/tags"
         val targetFolder = baseHtmlPath withChild tagName.url
@@ -134,7 +139,7 @@ class GalleryGenerator(
             buildingCache = buildingCache,
             target = targetFolder withChild "index.html",
             title = tagName.name,
-            galleryGenerator = this,
+            galleryGenerator = this@GalleryGenerator,
             pageContent = {
                 h1("text-center") {
                     text("Tag - ")
@@ -188,7 +193,11 @@ class GalleryGenerator(
                 curImageInformation.categories.forEach { category ->
                     smallButtonLink(
                         category.displayName,
-                        cache.getLinkcacheEntryFor(configuration, LINKTYPE_CATEGORIES, category.complexName.lowercase())
+                        cache.getLinkcacheEntryFor(
+                            configuration,
+                            LINKTYPE_CATEGORIES,
+                            category.complexName.lowercase()
+                        )
                     )
                 }
             }
@@ -260,17 +269,16 @@ class GalleryGenerator(
         configuration: WebsiteConfiguration,
         buildingCache: BuildingCache,
         testimonialLoader: TestimonialLoader
-    ) {
+    ): Unit = with(cache) {
         val type = path.getName(1).toString()
         val value = path.subpath(2, path.nameCount - 1)
             .toString()
             .replace('\\', '/')
         when (type) {
             "categories" -> {
-                val categoryName = cache.categoryInformation
-                    .keys
-                    .first { it.complexName.equals(value, true) }
-                generateCategoryPage(configuration, buildingCache, testimonialLoader, categoryName)
+                val categoryInformation = (categoryInformation?.flatten() ?: emptySequence())
+                    .first { it.urlFragment.equals(value, true) }
+                generateCategoryPage(configuration, buildingCache, testimonialLoader, categoryInformation)
             }
             "tags" -> {
                 val tagName = computedTags
@@ -279,10 +287,10 @@ class GalleryGenerator(
                 generateTagPage(configuration, buildingCache, testimonialLoader, tagName)
             }
             "images" -> {
-                val imageInformation = cache.imageInformationData
+                val imageInformation = imageInformationData
                     .keys
                     .first { it.equals(value, true) }
-                    .let { cache.imageInformationData.getValue(it) }
+                    .let { imageInformationData.getValue(it) }
                 (imageInformation as? InternalImageInformation)?.let { internalImageInformation ->
                     generateImagePage(configuration, buildingCache, testimonialLoader, internalImageInformation)
                 }
