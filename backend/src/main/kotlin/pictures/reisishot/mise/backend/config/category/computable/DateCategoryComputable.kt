@@ -4,6 +4,7 @@ import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.concurrentSetOf
 import at.reisishot.mise.exifdata.ExifdataKey
 import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.config.category.CategoryInformation
 import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
 import java.time.Month
 import java.time.ZonedDateTime

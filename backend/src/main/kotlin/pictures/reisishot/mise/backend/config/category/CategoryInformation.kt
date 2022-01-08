@@ -1,4 +1,4 @@
-package pictures.reisishot.mise.backend.config
+package pictures.reisishot.mise.backend.config.category
 
 import at.reisishot.mise.commons.CategoryName
 import kotlinx.serialization.Serializable

@@ -6,8 +6,8 @@ import at.reisishot.mise.exifdata.ExifdataKey
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.config.CategoryConfigRoot
-import pictures.reisishot.mise.backend.config.CategoryInformation
 import pictures.reisishot.mise.backend.config.TagConfig
+import pictures.reisishot.mise.backend.config.category.CategoryInformation
 import pictures.reisishot.mise.backend.config.flatten
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.ChangeFileset
@@ -170,10 +170,10 @@ class GalleryGenerator(
                 text("Tags")
             }
             div("card-body btn-flex") {
-                curImageInformation.tags.forEach { category ->
+                curImageInformation.tags.forEach { tagInformation ->
                     smallButtonLink(
-                        category,
-                        cache.getLinkcacheEntryFor(configuration, LINKTYPE_TAGS, category.lowercase())
+                        tagInformation.name,
+                        cache.getLinkcacheEntryFor(configuration, LINKTYPE_TAGS, tagInformation.url)
                     )
                 }
             }

@@ -5,6 +5,8 @@ import at.reisishot.mise.commons.concurrentSetOf
 import at.reisishot.mise.commons.forEachParallel
 import kotlinx.coroutines.runBlocking
 import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.config.category.CategoryInformation
+import pictures.reisishot.mise.backend.config.category.CategoryInformationRoot
 import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
 
 interface CategoryComputable {

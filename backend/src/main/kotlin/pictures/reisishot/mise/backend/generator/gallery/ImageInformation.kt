@@ -1,6 +1,7 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
 import at.reisishot.mise.commons.CategoryName
+import at.reisishot.mise.commons.ConcurrentSet
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.commons.concurrentSetOf
 import at.reisishot.mise.exifdata.ExifdataKey
@@ -26,9 +27,9 @@ class InternalImageInformation(
     override val thumbnailSizes: MutableMap<ImageSize, ImageSizeInformation>,
     override val relativeLocation: String,
     override val title: String,
-    val tags: MutableSet<String>,
+    val tags: ConcurrentSet<TagInformation>,
     val exifInformation: MutableMap<ExifdataKey, String>,
-    val categories: MutableSet<CategoryName> = concurrentSetOf(),
+    val categories: ConcurrentSet<CategoryName> = concurrentSetOf(),
 ) : ImageInformation() {
     override fun getUrl(websiteConfiguration: WebsiteConfiguration): String =
         BuildingCache.getLinkFromFragment(websiteConfiguration, relativeLocation)

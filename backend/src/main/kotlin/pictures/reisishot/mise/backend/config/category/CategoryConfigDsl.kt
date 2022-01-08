@@ -1,10 +1,12 @@
 package pictures.reisishot.mise.backend.config
 
-@ConfigDsl
+import pictures.reisishot.mise.backend.generator.gallery.TagInformation
+
+@CategoryConfigDsl
 fun buildCategoryConfig(action: CategoryConfigRoot.() -> Unit): CategoryConfigRoot =
     mutableSetOf<CategoryComputable>().also(action)
 
-@ConfigDsl
+@CategoryConfigDsl
 fun CategoryConfigRoot.withSubCategory(
     name: String,
     action: NewCategoryConfig.() -> Unit
@@ -12,8 +14,7 @@ fun CategoryConfigRoot.withSubCategory(
     add(categoryOf(name, null, action))
 }
 
-
-@ConfigDsl
+@CategoryConfigDsl
 inline fun CategoryConfigRoot.withComputedSubCategories(
     name: String,
     instanceCreator: (String/*Name*/) -> CategoryComputable
@@ -21,7 +22,7 @@ inline fun CategoryConfigRoot.withComputedSubCategories(
     add(instanceCreator(name))
 }
 
-@ConfigDsl
+@CategoryConfigDsl
 fun NewCategoryConfig.withSubCategory(
     name: String,
     action: NewCategoryConfig.() -> Unit
@@ -29,7 +30,7 @@ fun NewCategoryConfig.withSubCategory(
     subcategories += categoryOf(name, this, action)
 }
 
-@ConfigDsl
+@CategoryConfigDsl
 inline fun NewCategoryConfig.withComputedSubCategories(
     name: String,
     instanceCreator: (String/*Name*/, NewCategoryConfig/*Base*/) -> CategoryComputable
@@ -37,43 +38,43 @@ inline fun NewCategoryConfig.withComputedSubCategories(
     subcategories += instanceCreator(name, this)
 }
 
-@ConfigDsl
+@CategoryConfigDsl
 fun categoryOf(name: String, base: NewCategoryConfig? = null, action: NewCategoryConfig.() -> Unit): NewCategoryConfig {
     val realName = if (base != null) "${base.name}/$name" else name
     return NewCategoryConfig(realName).apply(action)
 }
 
-@ConfigDsl
+@CategoryConfigDsl
 fun NewCategoryConfig.includeTagsAndSubcategories(vararg allowedTags: String) = complexMatchOr(
     buildIncludeSubdirectoriesMatcher(),
     buildIncludeTagsMatcher(*allowedTags)
 )
 
-@ConfigDsl
+@CategoryConfigDsl
 fun buildIncludeTagsMatcher(vararg allowedTags: String): CategoryMatcher =
-    { i -> allowedTags.any { i.tags.contains(it) } }
+    { i -> allowedTags.any { i.tags.contains(TagInformation(it)) } }
 
-@ConfigDsl
+@CategoryConfigDsl
 fun NewCategoryConfig.excludedTags(vararg allowedTags: String) {
     matcher = buildExcludeMatcher(*allowedTags)
 }
 
-@ConfigDsl
+@CategoryConfigDsl
 fun CategoryComputable.buildIncludeSubdirectoriesMatcher(): CategoryMatcher =
     { i -> subcategories.any { it.images.contains(i) } }
 
-@ConfigDsl
+@CategoryConfigDsl
 fun buildExcludeMatcher(vararg allowedTags: String): CategoryMatcher =
-    { i -> allowedTags.none { i.tags.contains(it) } }
+    { i -> allowedTags.none { i.tags.contains(TagInformation(it)) } }
 
-@ConfigDsl
+@CategoryConfigDsl
 fun NewCategoryConfig.complexMatchAnd(vararg matchedByAnd: CategoryMatcher) {
     matcher = { imageInformation ->
         matchedByAnd.all { it(imageInformation) }
     }
 }
 
-@ConfigDsl
+@CategoryConfigDsl
 fun NewCategoryConfig.complexMatchOr(vararg matchedByAnd: CategoryMatcher) {
     matcher = { imageInformation ->
         matchedByAnd.any { it(imageInformation) }

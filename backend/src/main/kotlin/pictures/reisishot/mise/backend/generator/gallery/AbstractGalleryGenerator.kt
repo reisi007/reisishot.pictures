@@ -12,6 +12,8 @@ import kotlinx.html.div
 import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.config.*
+import pictures.reisishot.mise.backend.config.category.CategoryInformation
+import pictures.reisishot.mise.backend.config.category.CategoryInformationRoot
 import pictures.reisishot.mise.backend.fromJson
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.ChangeFileset
@@ -132,7 +134,6 @@ abstract class AbstractGalleryGenerator(
 
         buildImageInformation(configuration)
         buildTags(cache)
-        buildTransitiveTags(configuration)
         buildCategories(configuration, cache)
     }
 
@@ -162,19 +163,25 @@ abstract class AbstractGalleryGenerator(
         generateWebpages(configuration, cache, testimonialLoader)
 
     private fun buildTags(cache: BuildingCache) = with(this.cache) {
+        val internalImageInformation = imageInformationData.values.asSequence()
+            .map { it as? InternalImageInformation }
+            .filterNotNull()
+            .toList()
+        this@AbstractGalleryGenerator.tagConfig.computeTags(internalImageInformation)
+
         val shallAddToMenu = displayedMenuItems.contains(DisplayedMenuItems.TAGS)
         cache.clearMenuItems { LINKTYPE_TAGS == it.id }
         cache.resetLinkcacheFor(LINKTYPE_TAGS)
-        imageInformationData.values.asSequence()
-            .map { it as? InternalImageInformation }
-            .filterNotNull()
+
+        // Add to menu
+        internalImageInformation
             .forEachIndexed { idx, imageInformation ->
                 imageInformation.tags.forEach { tagName ->
-                    val tag = TagInformation(tagName)
+                    val tag = tagName
                     computedTags.computeIfAbsent(tag) { mutableSetOf() } += imageInformation
                     // Add tag URLs to global cache
                     "gallery/tags/${tag.url}".let { link ->
-                        cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag.name, link)
+                        cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag.url, link)
                         if (shallAddToMenu)
                             cache.addMenuItemInContainerNoDupes(
                                 LINKTYPE_TAGS,
@@ -214,12 +221,15 @@ abstract class AbstractGalleryGenerator(
                 val thumbnailConfig: HashMap<AbstractThumbnailGenerator.ImageSize, AbstractThumbnailGenerator.ImageSizeInformation> =
                     thumbnailInfoPath.fromJson() ?: throw IllegalStateException("Thumbnail info not found...")
 
+                val tags = imageConfig.tags
+                    .map { TagInformation(it) }
+                    .toCollection(concurrentSetOf())
                 val imageInformation = InternalImageInformation(
                     filenameWithoutExtension,
                     thumbnailConfig,
                     SUBFOLDER_OUT + '/' + filenameWithoutExtension.lowercase(Locale.getDefault()),
                     imageConfig.title,
-                    imageConfig.tags.toMutableSet(), // Needed because single element sets are not correctly loaded as MutableSet
+                    tags, // Needed because single element sets are not correctly loaded as MutableSet
                     exifData
                 )
 
@@ -232,29 +242,6 @@ abstract class AbstractGalleryGenerator(
                                 throw IllegalStateException("A thumbnail for $category has already been set! (\"${it.title}\"")
                             else
                                 thumbnails[categoryName] = imageInformation
-                        }
-                    }
-                }
-            }
-    }
-
-    private fun buildTransitiveTags(configuration: WebsiteConfiguration) {
-        val computedTags = cache.computedTags
-        configuration.inPath.withChild("tags.json")
-            .fromJson<Map<String, List<String>>>()
-            ?.forEach { (key, value) ->
-                val tags = value.map { TagInformation(it) }
-                computedTags[TagInformation(key)]?.let { images ->
-                    tags.forEach { newTag ->
-                        computedTags[newTag]?.let { imageInformations ->
-                            imageInformations.addAll(images)
-
-                            images.asSequence()
-                                .map { it as? InternalImageInformation }
-                                .filterNotNull()
-                                .forEach { image ->
-                                    image.tags.addAll(value)
-                                }
                         }
                     }
                 }
