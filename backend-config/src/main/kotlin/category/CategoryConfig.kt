@@ -31,7 +31,7 @@ interface CategoryComputable {
 
 }
 
-fun CategoryConfigRoot.toCategoryInformationRoot(): CategoryInformationRoot =
+fun CategoryConfigRoot.toCategoryInformation(): CategoryInformationRoot =
     asSequence()
         .map { it.toCategoryInformation() }
         .toSet()
@@ -83,6 +83,15 @@ fun CategoryConfigRoot.computeCategoryInformation(
             }
         }
     }
-    return toCategoryInformationRoot()
+    val computedCategories = toCategoryInformation()
+    //Throw an error if there are categories without images
+    val emptyCategories = computedCategories.flatten()
+        .filter { it.images.isEmpty() }
+        .toList()
+    if (emptyCategories.isNotEmpty()) {
+        error("The following categories are empty: " + emptyCategories.joinToString { it.categoryName.complexName })
+    }
+
+    return computedCategories
 }
 

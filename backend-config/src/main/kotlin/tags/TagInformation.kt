@@ -1,11 +1,11 @@
 package pictures.reisishot.mise.backend.config.tags
 
-import at.reisishot.mise.commons.toFriendlyPathName
+import at.reisishot.mise.commons.toUrlsafeString
 import kotlinx.serialization.Serializable
 
 @Serializable
 class TagInformation(val name: String, val type: String = "MANUAL") : Comparator<TagInformation> {
-    val url by lazy { name.toFriendlyPathName() }
+    val url by lazy { name.toUrlsafeString() }
 
     override fun compare(o1: TagInformation?, o2: TagInformation?): Int = o1!!.name.compareTo(o2!!.name)
 

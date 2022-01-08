@@ -1,6 +1,7 @@
 package pictures.reisishot.mise.backend.config.category
 
 import at.reisishot.mise.commons.CategoryName
+import at.reisishot.mise.commons.toUrlsafeString
 import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.config.ImageInformation
 
@@ -16,11 +17,7 @@ data class CategoryInformation(
     fun flatten(): Sequence<CategoryInformation> =
         sequenceOf(this) + subcategories.asSequence().flatMap { it.flatten() }
 
-    val urlFragment by lazy {
-        categoryName.complexName
-            .lowercase()
-            .replace(' ', '-')
-    }
+    val urlFragment by lazy { categoryName.complexName.toUrlsafeString() }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

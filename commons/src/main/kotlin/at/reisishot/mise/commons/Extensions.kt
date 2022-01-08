@@ -7,8 +7,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import javax.swing.ImageIcon
 import kotlin.streams.asSequence
@@ -90,11 +88,6 @@ inline fun <reified T> Sequence<T>.toArray(size: Int): Array<T> {
 fun Path.isNewerThan(other: Path): Boolean =
     Files.getLastModifiedTime(this) > Files.getLastModifiedTime(other)
 
-private val whiteSpace = """\s""".toRegex()
-fun String.toFriendlyPathName(): String {
-    return replace(whiteSpace, "-").lowercase(Locale.getDefault())
-}
-
 fun Array<String>.runAndWaitOnConsole() {
     ProcessBuilder(*this)
         .inheritIO()
@@ -123,9 +116,4 @@ fun <K, V : Collection<*>> Map<K, V>.prettyPrint() = keys.forEach { k ->
 
 fun Path.replaceFileExtension(newExt: String) = parent withChild "$filenameWithoutExtension.$newExt"
 
-fun <T> concurrentSetOf(): ConcurrentSet<T> = Collections.newSetFromMap(ConcurrentHashMap())
-fun <T> concurrentSetOf(vararg elements: T): ConcurrentSet<T> = concurrentSetOf<T>().apply { addAll(elements) }
-fun <T> concurrentSetOf(elements: Iterable<T>): ConcurrentSet<T> = concurrentSetOf<T>().apply { addAll(elements) }
-fun <T> concurrentSetOf(element: T): ConcurrentSet<T> = concurrentSetOf<T>().apply { add(element) }
-
-typealias ConcurrentSet<T> = MutableSet<T>
+inline fun <reified T> Sequence<T>.toTypedArray() = toList().toTypedArray()

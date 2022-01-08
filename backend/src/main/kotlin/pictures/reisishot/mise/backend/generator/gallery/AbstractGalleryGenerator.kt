@@ -203,7 +203,7 @@ abstract class AbstractGalleryGenerator(
             .list()
             .filter { it.fileExtension.isJpeg() }
             .asIterable()
-            .forEachLimitedParallel(20) { jpegPath ->
+            .forEachParallel { jpegPath ->
                 val filenameWithoutExtension = jpegPath.filenameWithoutExtension
                 val configPath = jpegPath.parent withChild "$filenameWithoutExtension.json"
                 val thumbnailInfoPath =
@@ -249,7 +249,7 @@ abstract class AbstractGalleryGenerator(
             }
     }
 
-    private suspend fun buildCategories(
+    private fun buildCategories(
         websiteConfiguration: WebsiteConfiguration,
         cache: BuildingCache
     ) = with(this.cache) {
