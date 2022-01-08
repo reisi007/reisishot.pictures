@@ -1,7 +1,7 @@
 package pictures.reisishot.mise.backend.config
 
-import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
-import pictures.reisishot.mise.backend.generator.gallery.TagInformation
+import pictures.reisishot.mise.backend.config.tags.TagInformation
+
 
 @TagConfigDsl
 fun TagConfig.additionalTags(action: AdditionalTagConfigBuilder.() -> Unit) {
@@ -41,7 +41,7 @@ fun TagConfig.additionalTags(action: AdditionalTagConfigBuilder.() -> Unit) {
 
 
     computable += object : TagComputable {
-        override fun processImage(imageInformation: InternalImageInformation) {
+        override fun processImage(imageInformation: ImageInformation) {
             val original = imageInformation.tags.toSet()
             original.forEach { sourceTag ->
                 additionalTagConfig[sourceTag.name]?.let { newTags ->

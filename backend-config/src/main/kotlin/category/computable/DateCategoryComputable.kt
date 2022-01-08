@@ -3,9 +3,9 @@ package pictures.reisishot.mise.backend.config
 import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.concurrentSetOf
 import at.reisishot.mise.exifdata.ExifdataKey
-import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.config.category.CategoryComputable
 import pictures.reisishot.mise.backend.config.category.CategoryInformation
-import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
+import pictures.reisishot.mise.backend.config.category.LocaleProvider
 import java.time.Month
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
@@ -19,10 +19,10 @@ class DateCategoryComputable(private val name: String, private val baseName: Str
     override val subcategories: MutableSet<CategoryComputable>
         get() = yearSubcategoryMap.values.toMutableSet()
 
-    override val images: MutableSet<InternalImageInformation> = concurrentSetOf()
+    override val images: MutableSet<ImageInformation> = concurrentSetOf()
     override val categoryName by lazy { CategoryName(complexName) }
 
-    override fun matchImage(imageToProcess: InternalImageInformation, websiteConfiguration: WebsiteConfiguration) {
+    override fun matchImage(imageToProcess: ImageInformation, localeProvider: LocaleProvider) {
         val captureDate = imageToProcess.exifInformation[ExifdataKey.CREATION_DATETIME]
             ?.let { ZonedDateTime.parse(it) } ?: return
 
@@ -36,7 +36,7 @@ class DateCategoryComputable(private val name: String, private val baseName: Str
                     yearMatcher.complexName,
                     captureDate.year,
                     captureDate.month,
-                    websiteConfiguration.locale
+                    localeProvider.locale
                 )
             }
 
@@ -48,7 +48,7 @@ class DateCategoryComputable(private val name: String, private val baseName: Str
                     captureDate.year,
                     captureDate.month,
                     captureDate.dayOfMonth,
-                    websiteConfiguration.locale
+                    localeProvider.locale
                 )
             }
 
@@ -69,7 +69,7 @@ class DateCategoryComputable(private val name: String, private val baseName: Str
 }
 
 private abstract class NoOpComputable : CategoryComputable {
-    override fun matchImage(imageToProcess: InternalImageInformation, websiteConfiguration: WebsiteConfiguration) {
+    override fun matchImage(imageToProcess: ImageInformation, localeProvider: LocaleProvider) {
         error("No implementation needed as DateCategoryComputable does the computation")
     }
 }
@@ -79,7 +79,7 @@ private class YearMatcher(baseName: String, year: Int) : NoOpComputable() {
 
     override val categoryName: CategoryName
         get() = CategoryName(complexName)
-    override val images: MutableSet<InternalImageInformation> = concurrentSetOf()
+    override val images: MutableSet<ImageInformation> = concurrentSetOf()
     override val subcategories: MutableSet<CategoryComputable>
         get() = monthSubcategoryMap.values.toMutableSet()
 
@@ -97,7 +97,7 @@ private class MonthMatcher(
 
     override val categoryName: CategoryName
         get() = CategoryName(complexName, displayName = month.getDisplayName(TextStyle.FULL, locale) + " " + year)
-    override val images: MutableSet<InternalImageInformation> = concurrentSetOf()
+    override val images: MutableSet<ImageInformation> = concurrentSetOf()
     override val subcategories: MutableSet<CategoryComputable>
         get() = daySubcategoryMap.values.toMutableSet()
 
@@ -125,7 +125,7 @@ private class DayMatcher(
                     month.getDisplayName(TextStyle.FULL, locale) + " " +
                     year
         )
-    override val images: MutableSet<InternalImageInformation> = concurrentSetOf()
+    override val images: MutableSet<ImageInformation> = concurrentSetOf()
     override val subcategories: MutableSet<CategoryComputable> = mutableSetOf()
 
 }

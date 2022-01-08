@@ -1,4 +1,4 @@
-package pictures.reisishot.mise.backend.generator.gallery
+package pictures.reisishot.mise.backend.config.tags
 
 import at.reisishot.mise.commons.toFriendlyPathName
 import kotlinx.serialization.Serializable

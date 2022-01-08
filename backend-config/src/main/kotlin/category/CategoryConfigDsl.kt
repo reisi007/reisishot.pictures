@@ -1,6 +1,10 @@
 package pictures.reisishot.mise.backend.config
 
-import pictures.reisishot.mise.backend.generator.gallery.TagInformation
+import pictures.reisishot.mise.backend.config.category.CategoryComputable
+import pictures.reisishot.mise.backend.config.category.CategoryConfigRoot
+import pictures.reisishot.mise.backend.config.category.CategoryMatcher
+import pictures.reisishot.mise.backend.config.category.NewCategoryConfig
+import pictures.reisishot.mise.backend.config.tags.TagInformation
 
 @CategoryConfigDsl
 fun buildCategoryConfig(action: CategoryConfigRoot.() -> Unit): CategoryConfigRoot =

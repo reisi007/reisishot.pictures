@@ -7,12 +7,14 @@ import at.reisishot.mise.commons.concurrentSetOf
 import at.reisishot.mise.exifdata.ExifdataKey
 import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.WebsiteConfiguration
+import pictures.reisishot.mise.backend.config.tags.TagInformation
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSize
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.AbstractThumbnailGenerator.ImageSizeInformation
+import pictures.reisishot.mise.backend.config.ImageInformation as ConfigImageInformation
 
 @Serializable
-sealed class ImageInformation {
+abstract class ImageInformation {
     abstract val filename: FilenameWithoutExtension
     abstract val relativeLocation: String
     abstract val thumbnailSizes: Map<ImageSize, ImageSizeInformation>
@@ -27,10 +29,10 @@ class InternalImageInformation(
     override val thumbnailSizes: MutableMap<ImageSize, ImageSizeInformation>,
     override val relativeLocation: String,
     override val title: String,
-    val tags: ConcurrentSet<TagInformation>,
-    val exifInformation: MutableMap<ExifdataKey, String>,
-    val categories: ConcurrentSet<CategoryName> = concurrentSetOf(),
-) : ImageInformation() {
+    override val tags: ConcurrentSet<TagInformation>,
+    override val exifInformation: MutableMap<ExifdataKey, String>,
+    override val categories: ConcurrentSet<CategoryName> = concurrentSetOf(),
+) : ConfigImageInformation, ImageInformation() {
     override fun getUrl(websiteConfiguration: WebsiteConfiguration): String =
         BuildingCache.getLinkFromFragment(websiteConfiguration, relativeLocation)
 

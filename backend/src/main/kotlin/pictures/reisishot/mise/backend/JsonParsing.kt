@@ -6,15 +6,31 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
+import pictures.reisishot.mise.backend.generator.gallery.ExternalImageInformation
+import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
+import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
 import java.io.StringWriter
 import java.io.Writer
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
+import pictures.reisishot.mise.backend.config.ImageInformation as ConfigImageInformation
 
 private val JSON by lazy {
     Json {
         allowStructuredMapKeys = true
+        serializersModule = SerializersModule {
+            polymorphic(ConfigImageInformation::class) {
+                subclass(InternalImageInformation::class)
+            }
+            polymorphic(ImageInformation::class) {
+                subclass(InternalImageInformation::class)
+                subclass(ExternalImageInformation::class)
+            }
+        }
     }
 }
 

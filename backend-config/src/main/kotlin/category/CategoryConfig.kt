@@ -1,22 +1,19 @@
-package pictures.reisishot.mise.backend.config
+package pictures.reisishot.mise.backend.config.category
 
 import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.concurrentSetOf
 import at.reisishot.mise.commons.forEachParallel
 import kotlinx.coroutines.runBlocking
-import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.config.category.CategoryInformation
-import pictures.reisishot.mise.backend.config.category.CategoryInformationRoot
-import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
+import pictures.reisishot.mise.backend.config.ImageInformation
 
 interface CategoryComputable {
     val categoryName: CategoryName
-    val images: MutableSet<InternalImageInformation>
+    val images: MutableSet<ImageInformation>
     val subcategories: MutableSet<CategoryComputable>
 
     fun matchImage(
-        imageToProcess: InternalImageInformation,
-        websiteConfiguration: WebsiteConfiguration
+        imageToProcess: ImageInformation,
+        localeProvider: LocaleProvider
     )
 
     fun toCategoryInformation(): CategoryInformation {
@@ -43,16 +40,16 @@ class NewCategoryConfig(
     var matcher: CategoryMatcher = { false }
 ) : CategoryComputable {
     override val subcategories: MutableSet<CategoryComputable> = mutableSetOf()
-    override val images: MutableSet<InternalImageInformation> = concurrentSetOf()
+    override val images: MutableSet<ImageInformation> = concurrentSetOf()
     override val categoryName by lazy { CategoryName(name) }
 
     override fun matchImage(
-        imageToProcess: InternalImageInformation,
-        websiteConfiguration: WebsiteConfiguration
+        imageToProcess: ImageInformation,
+        localeProvider: LocaleProvider
     ) {
         // Depth first
         subcategories.forEach {
-            it.matchImage(imageToProcess, websiteConfiguration)
+            it.matchImage(imageToProcess, localeProvider)
         }
 
         if (matcher(imageToProcess)) {
@@ -63,17 +60,17 @@ class NewCategoryConfig(
 }
 
 typealias CategoryConfigRoot = MutableSet<CategoryComputable>
-typealias  CategoryMatcher = (InternalImageInformation) -> Boolean
+typealias  CategoryMatcher = (ImageInformation) -> Boolean
 
 
 fun CategoryConfigRoot.computeCategoryInformation(
-    imagesToProcess: List<InternalImageInformation>,
-    websiteConfiguration: WebsiteConfiguration
+    imagesToProcess: List<ImageInformation>,
+    localeProvider: LocaleProvider
 ): CategoryInformationRoot {
     runBlocking {
         imagesToProcess.forEachParallel {
             this@computeCategoryInformation.forEach { cc ->
-                cc.matchImage(it, websiteConfiguration)
+                cc.matchImage(it, localeProvider)
             }
         }
     }

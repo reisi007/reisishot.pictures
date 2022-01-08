@@ -10,8 +10,6 @@ import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterExtension
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.ast.Document
-import com.vladsch.flexmark.util.sequence.Escaping
-import com.vladsch.flexmark.util.sequence.HackReplacer
 import kotlinx.html.HEAD
 import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.generator.BuildingCache

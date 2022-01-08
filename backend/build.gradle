@@ -1,5 +1,5 @@
 dependencies {
-    implementation project(':image-access')
+    implementation project(':backend-config')
     // https://mvnrepository.com/artifact/org.apache.velocity/velocity-engine-core
     implementation group: 'org.apache.velocity', name: 'velocity-engine-core', version: '2.2'
     // https://mvnrepository.com/artifact/com.vladsch.flexmark/flexmark

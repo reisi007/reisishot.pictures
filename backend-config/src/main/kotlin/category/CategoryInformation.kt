@@ -2,12 +2,12 @@ package pictures.reisishot.mise.backend.config.category
 
 import at.reisishot.mise.commons.CategoryName
 import kotlinx.serialization.Serializable
-import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
+import pictures.reisishot.mise.backend.config.ImageInformation
 
 @Serializable
 data class CategoryInformation(
     val categoryName: CategoryName,
-    val images: Set<InternalImageInformation>,
+    val images: Set<ImageInformation>,
     val subcategories: Set<CategoryInformation>,
     val visible: Boolean = true
 

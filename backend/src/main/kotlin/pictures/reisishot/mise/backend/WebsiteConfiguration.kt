@@ -3,6 +3,7 @@ package pictures.reisishot.mise.backend
 import at.reisishot.mise.commons.FileExtension
 import kotlinx.html.A
 import kotlinx.html.DIV
+import pictures.reisishot.mise.backend.config.category.LocaleProvider
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import java.nio.file.Path
@@ -25,10 +26,10 @@ class WebsiteConfiguration(
     val generators: List<WebsiteGenerator> = emptyList(),
     val bootsrapMenuBreakpoint: String = "md",
     val fbMessengerChatPlugin: FacebookMessengerChatPlugin? = null,
-    val locale: Locale = Locale.getDefault(),
+    override val locale: Locale = Locale.getDefault(),
     val navbarBrandFunction: A.(WebsiteConfiguration, AbstractGalleryGenerator) -> Unit = { config, _ -> text(config.shortTitle) },
     val interactiveIgnoredFiles: Array<((FileExtension) -> Boolean)> = arrayOf({ false })
-) {
+) : LocaleProvider {
     val interactiveDelayMs: Long?
         get() = if (isDevMode) _interactiveDelayMs else null
 

@@ -5,10 +5,11 @@ import at.reisishot.mise.commons.withChild
 import at.reisishot.mise.exifdata.ExifdataKey
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.config.CategoryConfigRoot
 import pictures.reisishot.mise.backend.config.TagConfig
+import pictures.reisishot.mise.backend.config.category.CategoryConfigRoot
 import pictures.reisishot.mise.backend.config.category.CategoryInformation
-import pictures.reisishot.mise.backend.config.flatten
+import pictures.reisishot.mise.backend.config.category.flatten
+import pictures.reisishot.mise.backend.config.tags.TagInformation
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.ChangeFileset
 import pictures.reisishot.mise.backend.generator.WebsiteGenerator
@@ -81,6 +82,8 @@ class GalleryGenerator(
         categoryInformation: CategoryInformation,
     ) {
         val categoryImages: List<FilenameWithoutExtension> = categoryInformation.images.asSequence()
+            .map { it as? InternalImageInformation }
+            .filterNotNull()
             .map { it.filename }
             .toList()
 
@@ -122,7 +125,6 @@ class GalleryGenerator(
                 }
             )
         }
-
     }
 
     override fun generateTagPage(
