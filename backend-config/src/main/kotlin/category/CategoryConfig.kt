@@ -8,33 +8,6 @@ import kotlinx.coroutines.runBlocking
 import pictures.reisishot.mise.backend.config.CategoryConfigDsl
 import pictures.reisishot.mise.backend.config.ImageInformation
 
-interface CategoryComputable {
-    val categoryName: CategoryName
-    val defaultImage: FilenameWithoutExtension?
-    val images: MutableSet<ImageInformation>
-    val subcategories: MutableSet<CategoryComputable>
-
-    fun matchImage(
-        imageToProcess: ImageInformation,
-        localeProvider: LocaleProvider
-    )
-
-    fun toCategoryInformation(): CategoryInformation {
-        val categoryInformation = CategoryInformation(
-            categoryName,
-            images,
-            defaultImage?.let { di ->
-                images.find { it.filename == di }
-                    ?: error("Image $di cannot be found in category $categoryName")
-            } ?: images.firstOrNull(),
-            subcategories.asSequence().map { it.toCategoryInformation() }.toSet()
-        )
-
-        return categoryInformation
-    }
-
-}
-
 fun CategoryConfigRoot.toCategoryInformation(): CategoryInformationRoot =
     asSequence()
         .map { it.toCategoryInformation() }

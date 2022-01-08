@@ -3,7 +3,6 @@ package pictures.reisishot.mise.backend.config.tags
 import pictures.reisishot.mise.backend.config.ImageInformation
 import pictures.reisishot.mise.backend.config.TagConfigDsl
 
-
 @TagConfigDsl
 fun TagConfig.additionalTags(action: AdditionalTagConfigBuilder.() -> Unit) {
     val data = AdditionalTagConfigBuilder()
@@ -40,16 +39,16 @@ fun TagConfig.additionalTags(action: AdditionalTagConfigBuilder.() -> Unit) {
         curIteration = nextIteration
     }
 
-
-    computables += object : TagComputable {
-        override fun processImage(imageInformation: ImageInformation) {
-            val original = imageInformation.tags.toSet()
-            original.forEach { sourceTag ->
-                additionalTagConfig[sourceTag.name]?.let { newTags ->
-                    imageInformation.tags += newTags.map { TagInformation(it, "COMPUTED") }
+    withComputable {
+        object : TagComputable {
+            override fun processImage(imageInformation: ImageInformation) {
+                val original = imageInformation.tags.toSet()
+                original.forEach { sourceTag ->
+                    additionalTagConfig[sourceTag.name]?.let { newTags ->
+                        imageInformation.tags += newTags.map { TagInformation(it, "COMPUTED") }
+                    }
                 }
             }
         }
-
     }
 }

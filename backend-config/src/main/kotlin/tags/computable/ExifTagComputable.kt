@@ -29,6 +29,6 @@ class ExifTagComputable : TagComputable {
 }
 
 @TagConfigDsl
-fun TagConfig.computeTagsFromExif() {
-    computables += ExifTagComputable()
+fun TagConfig.computeTagsFromExif() = withComputable {
+    ExifTagComputable()
 }

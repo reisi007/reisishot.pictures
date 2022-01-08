@@ -8,6 +8,7 @@ import pictures.reisishot.mise.backend.config.ImageInformation
 import pictures.reisishot.mise.backend.config.category.CategoryComputable
 import pictures.reisishot.mise.backend.config.category.CategoryInformation
 import pictures.reisishot.mise.backend.config.category.LocaleProvider
+import pictures.reisishot.mise.backend.config.category.NoOpComputable
 import java.time.Month
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
@@ -65,26 +66,17 @@ class DateCategoryComputable(private val name: String, private val baseName: Str
         return CategoryInformation(
             categoryName,
             images,
-            images.firstOrNull(),
+            images.lastOrNull(),
             subcategories.asSequence().map { it.toCategoryInformation() }.toSet(),
             false
         )
     }
 }
 
-private abstract class NoOpComputable : CategoryComputable {
-    override val defaultImage: FilenameWithoutExtension? = null
-
-    override fun matchImage(imageToProcess: ImageInformation, localeProvider: LocaleProvider) {
-        error("No implementation needed as DateCategoryComputable does the computation")
-    }
-}
-
 private class YearMatcher(baseName: String, year: Int) : NoOpComputable() {
     val complexName = "$baseName/$year"
 
-    override val categoryName: CategoryName
-        get() = CategoryName(complexName)
+    override val categoryName: CategoryName by lazy { CategoryName(complexName) }
     override val images: MutableSet<ImageInformation> = concurrentSetOf()
     override val subcategories: MutableSet<CategoryComputable>
         get() = monthSubcategoryMap.values.toMutableSet()
@@ -101,15 +93,17 @@ private class MonthMatcher(
 ) : NoOpComputable() {
     val complexName = "$baseName/${month.value.toString().padStart(2, '0')}"
 
-    override val categoryName: CategoryName
-        get() = CategoryName(complexName, displayName = month.getDisplayName(TextStyle.FULL, locale) + " " + year)
+    override val categoryName: CategoryName by lazy {
+        CategoryName(
+            complexName,
+            displayName = month.getDisplayName(TextStyle.FULL, locale) + " " + year
+        )
+    }
     override val images: MutableSet<ImageInformation> = concurrentSetOf()
     override val subcategories: MutableSet<CategoryComputable>
         get() = daySubcategoryMap.values.toMutableSet()
 
     val daySubcategoryMap = ConcurrentHashMap<Int, DayMatcher>()
-
-
 }
 
 
@@ -124,14 +118,15 @@ private class DayMatcher(
 
     private val complexName = "$baseName/$dayString"
 
-    override val categoryName: CategoryName
-        get() = CategoryName(
+    override val categoryName: CategoryName by lazy {
+        CategoryName(
             complexName,
             displayName = dayString + ". " +
                     month.getDisplayName(TextStyle.FULL, locale) + " " +
                     year
         )
+    }
+
     override val images: MutableSet<ImageInformation> = concurrentSetOf()
     override val subcategories: MutableSet<CategoryComputable> = mutableSetOf()
-
 }
