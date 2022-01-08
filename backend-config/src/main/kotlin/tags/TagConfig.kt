@@ -1,7 +1,8 @@
-package pictures.reisishot.mise.backend.config
+package pictures.reisishot.mise.backend.config.tags
 
 import at.reisishot.mise.commons.forEachParallel
 import kotlinx.coroutines.runBlocking
+import pictures.reisishot.mise.backend.config.ImageInformation
 
 data class TagConfig(
     val computable: MutableList<TagComputable> = mutableListOf()

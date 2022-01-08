@@ -11,10 +11,10 @@ import kotlinx.html.HEAD
 import kotlinx.html.div
 import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.config.TagConfig
 import pictures.reisishot.mise.backend.config.category.*
-import pictures.reisishot.mise.backend.config.computeTags
+import pictures.reisishot.mise.backend.config.tags.TagConfig
 import pictures.reisishot.mise.backend.config.tags.TagInformation
+import pictures.reisishot.mise.backend.config.tags.computeTags
 import pictures.reisishot.mise.backend.fromJson
 import pictures.reisishot.mise.backend.generator.BuildingCache
 import pictures.reisishot.mise.backend.generator.ChangeFileset

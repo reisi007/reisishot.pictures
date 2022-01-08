@@ -5,8 +5,8 @@ import at.reisishot.mise.commons.ConcurrentSet
 import at.reisishot.mise.commons.concurrentSetOf
 import at.reisishot.mise.exifdata.ExifdataKey
 import org.junit.jupiter.api.Test
-import pictures.reisishot.mise.backend.config.*
-import pictures.reisishot.mise.backend.config.tags.TagInformation
+import pictures.reisishot.mise.backend.config.ImageInformation
+import pictures.reisishot.mise.backend.config.tags.*
 
 class TagConfigTest {
 

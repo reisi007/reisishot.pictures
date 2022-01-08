@@ -1,8 +1,9 @@
-package pictures.reisishot.mise.backend.config
+package pictures.reisishot.mise.backend.config.category.computable
 
 import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.concurrentSetOf
 import at.reisishot.mise.exifdata.ExifdataKey
+import pictures.reisishot.mise.backend.config.ImageInformation
 import pictures.reisishot.mise.backend.config.category.CategoryComputable
 import pictures.reisishot.mise.backend.config.category.CategoryInformation
 import pictures.reisishot.mise.backend.config.category.LocaleProvider

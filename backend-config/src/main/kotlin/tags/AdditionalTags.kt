@@ -1,4 +1,6 @@
-package pictures.reisishot.mise.backend.config
+package pictures.reisishot.mise.backend.config.tags
+
+import pictures.reisishot.mise.backend.config.TagConfigDsl
 
 class AdditionalTagConfigBuilder(
     private val entries: MutableList<Pair<NewTag, Array<TargetTag>>> = mutableListOf()

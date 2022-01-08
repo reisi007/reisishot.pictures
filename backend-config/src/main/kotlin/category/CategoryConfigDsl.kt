@@ -1,9 +1,6 @@
-package pictures.reisishot.mise.backend.config
+package pictures.reisishot.mise.backend.config.category
 
-import pictures.reisishot.mise.backend.config.category.CategoryComputable
-import pictures.reisishot.mise.backend.config.category.CategoryConfigRoot
-import pictures.reisishot.mise.backend.config.category.CategoryMatcher
-import pictures.reisishot.mise.backend.config.category.NewCategoryConfig
+import pictures.reisishot.mise.backend.config.CategoryConfigDsl
 import pictures.reisishot.mise.backend.config.tags.TagInformation
 
 @CategoryConfigDsl

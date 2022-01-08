@@ -1,6 +1,7 @@
-package pictures.reisishot.mise.backend.config
+package pictures.reisishot.mise.backend.config.tags
 
-import pictures.reisishot.mise.backend.config.tags.TagInformation
+import pictures.reisishot.mise.backend.config.ImageInformation
+import pictures.reisishot.mise.backend.config.TagConfigDsl
 
 
 @TagConfigDsl
