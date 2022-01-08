@@ -10,7 +10,7 @@ fun buildCategoryConfig(action: CategoryConfigRoot.() -> Unit): CategoryConfigRo
 @CategoryConfigDsl
 fun CategoryConfigRoot.withSubCategory(
     name: String,
-    action: NewCategoryConfig.() -> Unit
+    action: CategoryConfig.() -> Unit
 ) {
     add(categoryOf(name, null, action))
 }
@@ -24,29 +24,29 @@ inline fun CategoryConfigRoot.withComputedSubCategories(
 }
 
 @CategoryConfigDsl
-fun NewCategoryConfig.withSubCategory(
+fun CategoryConfig.withSubCategory(
     name: String,
-    action: NewCategoryConfig.() -> Unit
+    action: CategoryConfig.() -> Unit
 ) {
     subcategories += categoryOf(name, this, action)
 }
 
 @CategoryConfigDsl
-inline fun NewCategoryConfig.withComputedSubCategories(
+inline fun CategoryConfig.withComputedSubCategories(
     name: String,
-    instanceCreator: (String/*Name*/, NewCategoryConfig/*Base*/) -> CategoryComputable
+    instanceCreator: (String/*Name*/, CategoryConfig/*Base*/) -> CategoryComputable
 ) {
     subcategories += instanceCreator(name, this)
 }
 
 @CategoryConfigDsl
-fun categoryOf(name: String, base: NewCategoryConfig? = null, action: NewCategoryConfig.() -> Unit): NewCategoryConfig {
+fun categoryOf(name: String, base: CategoryConfig? = null, action: CategoryConfig.() -> Unit): CategoryConfig {
     val realName = if (base != null) "${base.name}/$name" else name
-    return NewCategoryConfig(realName).apply(action)
+    return CategoryConfig(realName).apply(action)
 }
 
 @CategoryConfigDsl
-fun NewCategoryConfig.includeTagsAndSubcategories(vararg allowedTags: String) = complexMatchOr(
+fun CategoryConfig.includeTagsAndSubcategories(vararg allowedTags: String) = complexMatchOr(
     buildIncludeSubdirectoriesMatcher(),
     buildIncludeTagsMatcher(*allowedTags)
 )
@@ -56,7 +56,7 @@ fun buildIncludeTagsMatcher(vararg allowedTags: String): CategoryMatcher =
     { i -> allowedTags.any { i.tags.contains(TagInformation(it)) } }
 
 @CategoryConfigDsl
-fun NewCategoryConfig.excludedTags(vararg allowedTags: String) {
+fun CategoryConfig.excludedTags(vararg allowedTags: String) {
     matcher = buildExcludeMatcher(*allowedTags)
 }
 
@@ -69,14 +69,14 @@ fun buildExcludeMatcher(vararg allowedTags: String): CategoryMatcher =
     { i -> allowedTags.none { i.tags.contains(TagInformation(it)) } }
 
 @CategoryConfigDsl
-fun NewCategoryConfig.complexMatchAnd(vararg matchedByAnd: CategoryMatcher) {
+fun CategoryConfig.complexMatchAnd(vararg matchedByAnd: CategoryMatcher) {
     matcher = { imageInformation ->
         matchedByAnd.all { it(imageInformation) }
     }
 }
 
 @CategoryConfigDsl
-fun NewCategoryConfig.complexMatchOr(vararg matchedByAnd: CategoryMatcher) {
+fun CategoryConfig.complexMatchOr(vararg matchedByAnd: CategoryMatcher) {
     matcher = { imageInformation ->
         matchedByAnd.any { it(imageInformation) }
     }

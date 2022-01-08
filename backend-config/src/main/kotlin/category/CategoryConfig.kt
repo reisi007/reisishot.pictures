@@ -1,6 +1,7 @@
 package pictures.reisishot.mise.backend.config.category
 
 import at.reisishot.mise.commons.CategoryName
+import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.commons.concurrentSetOf
 import at.reisishot.mise.commons.forEachParallel
 import kotlinx.coroutines.runBlocking
@@ -8,6 +9,7 @@ import pictures.reisishot.mise.backend.config.ImageInformation
 
 interface CategoryComputable {
     val categoryName: CategoryName
+    val defaultImage: FilenameWithoutExtension?
     val images: MutableSet<ImageInformation>
     val subcategories: MutableSet<CategoryComputable>
 
@@ -20,6 +22,7 @@ interface CategoryComputable {
         val categoryInformation = CategoryInformation(
             categoryName,
             images,
+            defaultImage?.let { di -> images.find { it.filename == di } } ?: images.firstOrNull(),
             subcategories.asSequence().map { it.toCategoryInformation() }.toSet()
         )
 
@@ -35,8 +38,9 @@ fun CategoryConfigRoot.toCategoryInformationRoot(): CategoryInformationRoot =
 
 fun CategoryInformationRoot.flatten(): Sequence<CategoryInformation> = asSequence().flatMap { it.flatten() }
 
-class NewCategoryConfig(
+class CategoryConfig(
     val name: String,
+    override val defaultImage: FilenameWithoutExtension? = null,
     var matcher: CategoryMatcher = { false }
 ) : CategoryComputable {
     override val subcategories: MutableSet<CategoryComputable> = mutableSetOf()
@@ -57,6 +61,11 @@ class NewCategoryConfig(
             imageToProcess.categories += categoryName
         }
     }
+
+    override fun toString(): String {
+        return "CategoryConfig(name='$name', subcategories=$subcategories, images=$images)"
+    }
+
 }
 
 typealias CategoryConfigRoot = MutableSet<CategoryComputable>

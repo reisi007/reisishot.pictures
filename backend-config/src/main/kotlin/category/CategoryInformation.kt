@@ -8,6 +8,7 @@ import pictures.reisishot.mise.backend.config.ImageInformation
 data class CategoryInformation(
     val categoryName: CategoryName,
     val images: Set<ImageInformation>,
+    val thumbnailImage: ImageInformation?,
     val subcategories: Set<CategoryInformation>,
     val visible: Boolean = true
 

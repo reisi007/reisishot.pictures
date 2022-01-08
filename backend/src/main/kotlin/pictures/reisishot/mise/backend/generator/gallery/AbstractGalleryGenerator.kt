@@ -444,9 +444,9 @@ fun DIV.insertCategoryThumbnails(
     if (categoriesToDisplay.isNotEmpty())
         div("category-thumbnails") {
             categoriesToDisplay.asSequence()
+                .filter { it.visible }
                 .map {
-                    it to it.images.firstOrNull()
-
+                    it to it.thumbnailImage
                 }
                 .filter { (_, it) -> it != null }
                 .map {

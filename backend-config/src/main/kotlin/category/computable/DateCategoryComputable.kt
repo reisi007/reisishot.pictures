@@ -1,6 +1,7 @@
 package pictures.reisishot.mise.backend.config.category.computable
 
 import at.reisishot.mise.commons.CategoryName
+import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.commons.concurrentSetOf
 import at.reisishot.mise.exifdata.ExifdataKey
 import pictures.reisishot.mise.backend.config.ImageInformation
@@ -22,6 +23,7 @@ class DateCategoryComputable(private val name: String, private val baseName: Str
 
     override val images: MutableSet<ImageInformation> = concurrentSetOf()
     override val categoryName by lazy { CategoryName(complexName) }
+    override val defaultImage: FilenameWithoutExtension? = null
 
     override fun matchImage(imageToProcess: ImageInformation, localeProvider: LocaleProvider) {
         val captureDate = imageToProcess.exifInformation[ExifdataKey.CREATION_DATETIME]
@@ -53,7 +55,7 @@ class DateCategoryComputable(private val name: String, private val baseName: Str
                 )
             }
 
-        sequenceOf(yearMatcher, monthMatcher, dayMatcher).forEach {
+        sequenceOf(this, yearMatcher, monthMatcher, dayMatcher).forEach {
             it.images += imageToProcess
             imageToProcess.categories += it.categoryName
         }
@@ -63,6 +65,7 @@ class DateCategoryComputable(private val name: String, private val baseName: Str
         return CategoryInformation(
             categoryName,
             images,
+            images.firstOrNull(),
             subcategories.asSequence().map { it.toCategoryInformation() }.toSet(),
             false
         )
@@ -70,6 +73,8 @@ class DateCategoryComputable(private val name: String, private val baseName: Str
 }
 
 private abstract class NoOpComputable : CategoryComputable {
+    override val defaultImage: FilenameWithoutExtension? = null
+
     override fun matchImage(imageToProcess: ImageInformation, localeProvider: LocaleProvider) {
         error("No implementation needed as DateCategoryComputable does the computation")
     }
