@@ -5,6 +5,7 @@ import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.commons.concurrentSetOf
 import at.reisishot.mise.commons.forEachParallel
 import kotlinx.coroutines.runBlocking
+import pictures.reisishot.mise.backend.config.CategoryConfigDsl
 import pictures.reisishot.mise.backend.config.ImageInformation
 
 interface CategoryComputable {
@@ -44,8 +45,8 @@ fun CategoryInformationRoot.flatten(): Sequence<CategoryInformation> = asSequenc
 class CategoryConfig(
     val name: String,
     override val defaultImage: FilenameWithoutExtension? = null,
-    var matcher: CategoryMatcher = { false }
 ) : CategoryComputable {
+    private var matcher: CategoryMatcher? = null
     override val subcategories: MutableSet<CategoryComputable> = mutableSetOf()
     override val images: MutableSet<ImageInformation> = concurrentSetOf()
     override val categoryName by lazy { CategoryName(name) }
@@ -59,10 +60,21 @@ class CategoryConfig(
             it.matchImage(imageToProcess, localeProvider)
         }
 
-        if (matcher(imageToProcess)) {
+        val addImage = matcher
+            ?.let { it(imageToProcess) }
+            ?: error("No matcher configured!")
+
+        if (addImage) {
             images += imageToProcess
             imageToProcess.categories += categoryName
         }
+    }
+
+    @CategoryConfigDsl
+    fun complexMatcher(action: () -> CategoryMatcher) {
+        if (matcher != null)
+            error("Matcher already configured! You can only configure one matcher!")
+        matcher = action()
     }
 
     override fun toString(): String {

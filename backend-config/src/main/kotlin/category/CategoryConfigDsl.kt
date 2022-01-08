@@ -60,18 +60,8 @@ fun CategoryConfig.includeTagsAndSubcategories(vararg allowedTags: String) = com
 )
 
 @CategoryConfigDsl
-fun CategoryConfig.includeSubcategories() {
-    matcher = buildIncludeSubdirectoriesMatcher()
-}
-
-@CategoryConfigDsl
 fun buildIncludeTagsMatcher(vararg allowedTags: String): CategoryMatcher =
     { i -> allowedTags.any { i.tags.contains(TagInformation(it)) } }
-
-@CategoryConfigDsl
-fun CategoryConfig.excludedTags(vararg allowedTags: String) {
-    matcher = buildExcludeMatcher(*allowedTags)
-}
 
 @CategoryConfigDsl
 fun CategoryComputable.buildIncludeSubdirectoriesMatcher(): CategoryMatcher =
@@ -81,30 +71,34 @@ fun CategoryComputable.buildIncludeSubdirectoriesMatcher(): CategoryMatcher =
 fun buildExcludeMatcher(vararg allowedTags: String): CategoryMatcher =
     { i -> allowedTags.none { i.tags.contains(TagInformation(it)) } }
 
-
-
-typealias ComplexMatcherRoot = CategoryMatcher
-
 @CategoryConfigDsl
 fun matchAnd(vararg matchedByAnd: CategoryMatcher): CategoryMatcher = { imageInformation ->
     matchedByAnd.all { it(imageInformation) }
 }
-
 
 @CategoryConfigDsl
 fun matchOr(vararg matchedByAnd: CategoryMatcher): CategoryMatcher = { imageInformation ->
     matchedByAnd.any { it(imageInformation) }
 }
 
-
-fun CategoryConfig.complexMatcher(action: () -> ComplexMatcherRoot) {
-    matcher = action()
-}
-
+@CategoryConfigDsl
 fun CategoryConfig.complexMatchAnd(vararg and: CategoryMatcher) = complexMatcher {
     matchAnd(*and)
 }
 
+@CategoryConfigDsl
 fun CategoryConfig.complexMatchOr(vararg and: CategoryMatcher) = complexMatcher {
     matchOr(*and)
 }
+
+@CategoryConfigDsl
+fun CategoryConfig.includeSubcategories() = complexMatcher {
+    buildIncludeSubdirectoriesMatcher()
+}
+
+@CategoryConfigDsl
+fun CategoryConfig.excludedTags(vararg allowedTags: String) = complexMatcher {
+    buildExcludeMatcher(*allowedTags)
+}
+
+
