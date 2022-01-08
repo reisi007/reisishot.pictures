@@ -1,6 +1,6 @@
 package at.reisishot.mise.commons
 
-private val ILLEGAL_CHAR_REGEX = """[:/\s\-]+""".toRegex()
+private val ILLEGAL_CHAR_REGEX = """[:\s\-]+""".toRegex()
 
 fun ComplexName.toUrlsafeString() = lowercase()
     .replace(ILLEGAL_CHAR_REGEX, "-")
