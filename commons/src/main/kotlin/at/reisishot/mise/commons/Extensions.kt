@@ -121,7 +121,7 @@ fun <K, V : Collection<*>> Map<K, V>.prettyPrint() = keys.forEach { k ->
     println()
 }
 
-fun Path.replaceFileExtension(newExt: String) = parent withChild "$fileName.$newExt"
+fun Path.replaceFileExtension(newExt: String) = parent withChild "$filenameWithoutExtension.$newExt"
 
 fun <T> concurrentSetOf(): ConcurrentSet<T> = Collections.newSetFromMap(ConcurrentHashMap())
 fun <T> concurrentSetOf(vararg elements: T): ConcurrentSet<T> = concurrentSetOf<T>().apply { addAll(elements) }
