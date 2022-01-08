@@ -41,7 +41,7 @@ fun TagConfig.additionalTags(action: AdditionalTagConfigBuilder.() -> Unit) {
     }
 
 
-    computable += object : TagComputable {
+    computables += object : TagComputable {
         override fun processImage(imageInformation: ImageInformation) {
             val original = imageInformation.tags.toSet()
             original.forEach { sourceTag ->

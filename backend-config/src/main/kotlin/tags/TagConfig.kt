@@ -5,12 +5,12 @@ import kotlinx.coroutines.runBlocking
 import pictures.reisishot.mise.backend.config.ImageInformation
 
 data class TagConfig(
-    val computable: MutableList<TagComputable> = mutableListOf()
+    val computables: MutableList<TagComputable> = mutableListOf()
 )
 
 fun TagConfig.computeTags(images: List<ImageInformation>): Unit = runBlocking {
     images.forEachParallel { iii ->
-        computable.forEach { computable ->
+        computables.forEach { computable ->
             computable.processImage(iii)
         }
     }
