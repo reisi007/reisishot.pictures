@@ -22,7 +22,10 @@ interface CategoryComputable {
         val categoryInformation = CategoryInformation(
             categoryName,
             images,
-            defaultImage?.let { di -> images.find { it.filename == di } } ?: images.firstOrNull(),
+            defaultImage?.let { di ->
+                images.find { it.filename == di }
+                    ?: error("Image $di cannot be found in category $categoryName")
+            } ?: images.firstOrNull(),
             subcategories.asSequence().map { it.toCategoryInformation() }.toSet()
         )
 
