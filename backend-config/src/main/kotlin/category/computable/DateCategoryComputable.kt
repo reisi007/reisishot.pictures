@@ -15,23 +15,33 @@ import java.time.format.TextStyle
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
-class DateCategoryComputable(private val name: String, private val baseName: String? = null) : CategoryComputable {
-    private val complexName: String
-        get() = (if (baseName == null) "" else "$baseName/") + name
+class DateCategoryComputable(
+    name: String,
+    baseName: String? = null,
+    _defaultImages: () -> Map<Triple<Int?/*year*/, Month?, Int?/*Day*/>, FilenameWithoutExtension> = { emptyMap() }
+) : CategoryComputable {
+    private val defaultImages = _defaultImages()
+    override val complexName: String = (if (baseName == null) "" else "$baseName/") + name
     private val yearSubcategoryMap = ConcurrentHashMap<Int, YearMatcher>()
     override val subcategories: MutableSet<CategoryComputable>
         get() = yearSubcategoryMap.values.toMutableSet()
 
     override val images: MutableSet<ImageInformation> = concurrentSetOf()
     override val categoryName by lazy { CategoryName(complexName) }
-    override val defaultImage: FilenameWithoutExtension? = null
+    override val defaultImage: FilenameWithoutExtension? = defaultImages[Triple(null, null, null)]
 
     override fun matchImage(imageToProcess: ImageInformation, localeProvider: LocaleProvider) {
         val captureDate = imageToProcess.exifInformation[ExifdataKey.CREATION_DATETIME]
             ?.let { ZonedDateTime.parse(it) } ?: return
 
         val yearMatcher = yearSubcategoryMap
-            .computeIfAbsent(captureDate.year) { YearMatcher(complexName, captureDate.year) }
+            .computeIfAbsent(captureDate.year) {
+                YearMatcher(
+                    complexName,
+                    captureDate.year,
+                    defaultImages
+                )
+            }
 
         val monthMatcher = yearMatcher
             .monthSubcategoryMap
@@ -40,6 +50,7 @@ class DateCategoryComputable(private val name: String, private val baseName: Str
                     yearMatcher.complexName,
                     captureDate.year,
                     captureDate.month,
+                    defaultImages,
                     localeProvider.locale
                 )
             }
@@ -52,13 +63,14 @@ class DateCategoryComputable(private val name: String, private val baseName: Str
                     captureDate.year,
                     captureDate.month,
                     captureDate.dayOfMonth,
+                    defaultImages,
                     localeProvider.locale
                 )
             }
 
         sequenceOf(this, yearMatcher, monthMatcher, dayMatcher).forEach {
             it.images += imageToProcess
-            imageToProcess.categories += it.categoryName
+            imageToProcess.categories += it.complexName
         }
     }
 
@@ -73,11 +85,18 @@ class DateCategoryComputable(private val name: String, private val baseName: Str
     }
 }
 
-private class YearMatcher(baseName: String, year: Int) : NoOpComputable() {
-    val complexName = "$baseName/$year"
+private class YearMatcher(
+    baseName: String,
+    year: Int,
+    defaultImages: Map<Triple<Int?, Month?, Int?>, FilenameWithoutExtension>
+) : NoOpComputable() {
+    override val complexName = "$baseName/$year"
 
     override val categoryName: CategoryName by lazy { CategoryName(complexName) }
     override val images: MutableSet<ImageInformation> = concurrentSetOf()
+    override val defaultImage: FilenameWithoutExtension? by lazy {
+        defaultImages[Triple(year, null, null)]
+    }
     override val subcategories: MutableSet<CategoryComputable>
         get() = monthSubcategoryMap.values.toMutableSet()
 
@@ -89,9 +108,10 @@ private class MonthMatcher(
     baseName: String,
     private val year: Int,
     private val month: Month,
+    defaultImages: Map<Triple<Int?, Month?, Int?>, FilenameWithoutExtension>,
     val locale: Locale
 ) : NoOpComputable() {
-    val complexName = "$baseName/${month.value.toString().padStart(2, '0')}"
+    override val complexName = "$baseName/${month.value.toString().padStart(2, '0')}"
 
     override val categoryName: CategoryName by lazy {
         CategoryName(
@@ -100,23 +120,26 @@ private class MonthMatcher(
         )
     }
     override val images: MutableSet<ImageInformation> = concurrentSetOf()
+    override val defaultImage: FilenameWithoutExtension? by lazy {
+        defaultImages[Triple(year, month, null)]
+    }
     override val subcategories: MutableSet<CategoryComputable>
         get() = daySubcategoryMap.values.toMutableSet()
 
     val daySubcategoryMap = ConcurrentHashMap<Int, DayMatcher>()
 }
 
-
 private class DayMatcher(
     baseName: String,
     private val year: Int,
     private val month: Month,
     day: Int,
+    defaultImages: Map<Triple<Int?, Month?, Int?>, String>,
     private val locale: Locale
 ) : NoOpComputable() {
     val dayString = day.toString().padStart(2, '0')
 
-    private val complexName = "$baseName/$dayString"
+    override val complexName = "$baseName/$dayString"
 
     override val categoryName: CategoryName by lazy {
         CategoryName(
@@ -128,5 +151,8 @@ private class DayMatcher(
     }
 
     override val images: MutableSet<ImageInformation> = concurrentSetOf()
+    override val defaultImage: FilenameWithoutExtension? by lazy {
+        defaultImages[Triple(year, month, day)]
+    }
     override val subcategories: MutableSet<CategoryComputable> = mutableSetOf()
 }

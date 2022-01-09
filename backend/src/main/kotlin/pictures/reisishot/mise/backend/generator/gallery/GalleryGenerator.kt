@@ -192,16 +192,19 @@ class GalleryGenerator(
                 text("Kategorien")
             }
             div("card-body btn-flex") {
-                curImageInformation.categories.forEach { category ->
-                    smallButtonLink(
-                        category.displayName,
-                        cache.getLinkcacheEntryFor(
-                            configuration,
-                            LINKTYPE_CATEGORIES,
-                            category.complexName.lowercase()
+                curImageInformation.categories.asSequence()
+                    .map { this@GalleryGenerator.cache.categoryNameMapping[it]?.categoryName }
+                    .filterNotNull()
+                    .forEach { category ->
+                        smallButtonLink(
+                            category.displayName,
+                            cache.getLinkcacheEntryFor(
+                                configuration,
+                                LINKTYPE_CATEGORIES,
+                                category.complexName.lowercase()
+                            )
                         )
-                    )
-                }
+                    }
             }
         }
     }
@@ -278,7 +281,7 @@ class GalleryGenerator(
             .replace('\\', '/')
         when (type) {
             "categories" -> {
-                val categoryInformation = (categoryInformation?.flatten() ?: emptySequence())
+                val categoryInformation = categoryInformation.flatten()
                     .first { it.urlFragment.equals(value, true) }
                 generateCategoryPage(configuration, buildingCache, testimonialLoader, categoryInformation)
             }

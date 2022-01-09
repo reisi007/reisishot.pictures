@@ -6,6 +6,7 @@ import at.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.backend.config.ImageInformation
 
 interface CategoryComputable {
+    val complexName: String
     val categoryName: CategoryName
     val defaultImage: FilenameWithoutExtension?
     val images: ConcurrentSet<ImageInformation>
@@ -17,17 +18,23 @@ interface CategoryComputable {
     )
 
     fun toCategoryInformation(): CategoryInformation {
-        val categoryInformation = CategoryInformation(
+        val mappedSubcategories =
+            if (subcategories.size == 1)
+                emptySet()
+            else
+                subcategories.asSequence()
+                    .map { it.toCategoryInformation() }
+                    .toSet()
+
+        return CategoryInformation(
             categoryName,
             images,
             defaultImage?.let { di ->
                 images.find { it.filename == di }
                     ?: error("Image $di cannot be found in category $categoryName")
-            } ?: images.first(),
-            subcategories.asSequence().map { it.toCategoryInformation() }.toSet()
+            } ?: images.last(),
+            mappedSubcategories
         )
-
-        return categoryInformation
     }
 
 }

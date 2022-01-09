@@ -16,13 +16,13 @@ fun CategoryConfigRoot.toCategoryInformation(): CategoryInformationRoot =
 fun CategoryInformationRoot.flatten(): Sequence<CategoryInformation> = asSequence().flatMap { it.flatten() }
 
 class CategoryConfig(
-    val name: String,
+    override val complexName: String,
     override val defaultImage: FilenameWithoutExtension? = null,
 ) : CategoryComputable {
     private var matcher: CategoryMatcher? = null
     override val subcategories: MutableSet<CategoryComputable> = mutableSetOf()
     override val images: MutableSet<ImageInformation> = concurrentSetOf()
-    override val categoryName by lazy { CategoryName(name) }
+    override val categoryName by lazy { CategoryName(complexName) }
 
     override fun matchImage(
         imageToProcess: ImageInformation,
@@ -39,7 +39,7 @@ class CategoryConfig(
 
         if (addImage) {
             images += imageToProcess
-            imageToProcess.categories += categoryName
+            imageToProcess.categories += complexName
         }
     }
 
@@ -51,7 +51,7 @@ class CategoryConfig(
     }
 
     override fun toString(): String {
-        return "CategoryConfig(name='$name', subcategories=$subcategories, images=$images)"
+        return "CategoryConfig(name='$complexName', subcategories=$subcategories, images=$images)"
     }
 
 }
@@ -82,4 +82,3 @@ fun CategoryConfigRoot.computeCategoryInformation(
 
     return computedCategories
 }
-

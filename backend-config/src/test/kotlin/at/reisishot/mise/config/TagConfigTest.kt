@@ -7,7 +7,6 @@ import pictures.reisishot.mise.backend.config.ImageInformation
 import pictures.reisishot.mise.backend.config.tags.TagConfig
 import pictures.reisishot.mise.backend.config.tags.additionalTags
 import pictures.reisishot.mise.backend.config.tags.buildTagConfig
-import pictures.reisishot.mise.backend.config.tags.computeTags
 
 class TagConfigTest {
 

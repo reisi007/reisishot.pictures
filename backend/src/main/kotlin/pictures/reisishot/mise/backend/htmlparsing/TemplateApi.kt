@@ -80,7 +80,6 @@ class TemplateApi(
     fun insertSubalbumThumbnails(albumName: String): String = buildString {
         appendUnformattedHtml().div {
             val categoryInformation = galleryGenerator.cache.categoryInformation
-                ?: error("No categories computed")
             val subcategories: Set<CategoryInformation> = if (albumName.isBlank()) {
                 categoryInformation
             } else {
@@ -97,13 +96,12 @@ class TemplateApi(
     @SuppressWarnings("unused")
     fun insertCategoryOverview(vararg albumName: String) = buildString {
         if (albumName.isEmpty()) return@buildString
+        @Suppress("RemoveExplicitTypeArguments")
         val albumNameSet = setOf<ComplexName>(*albumName)
 
         appendUnformattedHtml().div {
-            val albums = (
-                    galleryGenerator.cache
-                        .categoryInformation ?: error("Categories have not been computed")
-                    )
+            val albums = galleryGenerator.cache
+                .categoryInformation
                 .flatten()
                 .filter {
                     val name = it.categoryName.complexName

@@ -79,10 +79,12 @@ abstract class AbstractGalleryGenerator(
                 TagInformation::name
             )
         ),
-        var categoryInformation: CategoryInformationRoot? = null,
         val computedSubcategories: MutableMap<CategoryName, Set<CategoryName>> = concurrentSkipListMap(),
         val computedCategoryThumbnails: MutableMap<CategoryName, ImageInformation> = concurrentSkipListMap()
     ) {
+        lateinit var categoryInformation: CategoryInformationRoot
+        lateinit var categoryNameMapping: Map<String, CategoryInformation>
+
         companion object {
             private fun <K, V> concurrentSkipListMap(comparator: Comparator<in K>): MutableMap<K, V> =
                 ConcurrentSkipListMap(comparator)
@@ -258,12 +260,12 @@ abstract class AbstractGalleryGenerator(
             .filterNotNull()
             .toList()
 
-        val computedCategories = categoryConfig.computeCategoryInformation(images, websiteConfiguration)
-        categoryInformation = computedCategories
+        categoryInformation = categoryConfig.computeCategoryInformation(images, websiteConfiguration)
+        categoryNameMapping = categoryInformation.flatten().associateBy { it.categoryName.complexName }
 
         val shallAddToMenu = displayedMenuItems.contains(DisplayedMenuItems.CATEGORIES)
 
-        computedCategories.flatten()
+        categoryInformation.flatten()
             .sortedBy { it.categoryName.sortKey }
             .forEachIndexed { idx, category ->
                 val link = "gallery/categories/${category.urlFragment}"
@@ -320,7 +322,7 @@ abstract class AbstractGalleryGenerator(
         cache: BuildingCache,
         testimonialLoader: TestimonialLoader,
     ) {
-        val categories = this.cache.categoryInformation?.flatten() ?: emptySequence()
+        val categories = this.cache.categoryInformation.flatten()
 
         categories.asIterable().forEachParallel {
             generateCategoryPage(configuration, cache, testimonialLoader, it)

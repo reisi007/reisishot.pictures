@@ -49,7 +49,7 @@ fun categoryOf(
     base: CategoryConfig? = null,
     action: CategoryConfig.() -> Unit
 ): CategoryConfig {
-    val realName = if (base != null) "${base.name}/$name" else name
+    val realName = if (base != null) "${base.complexName}/$name" else name
     return CategoryConfig(realName, thumbnailImage).apply(action)
 }
 
