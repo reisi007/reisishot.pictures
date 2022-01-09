@@ -119,7 +119,7 @@ internal fun HtmlBlockTag.insertSubcategoryThumbnail(
         }
         div("card-body") {
             h4("card-title") {
-                text(categoryInformation.categoryName.displayName)
+                text("${categoryInformation.categoryName.displayName} (${categoryInformation.images.size})")
             }
         }
     }
