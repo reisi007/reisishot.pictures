@@ -1,9 +1,0 @@
-DirectorySlash Off
-
-Require all granted
-RewriteEngine On
-
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^(.*[^/])$ /$1/
-
-RedirectMatch 301  ^/shootings.*$ https://portrait.reisishot.pictures/testimonials

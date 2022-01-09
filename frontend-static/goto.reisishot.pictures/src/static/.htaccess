@@ -1,7 +1,0 @@
-DirectorySlash Off
-
-Require all granted
-RewriteEngine On
-
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^(.*[^/])$ /$1/
