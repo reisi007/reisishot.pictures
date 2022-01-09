@@ -11,32 +11,35 @@ interface CategoryComputable {
     val defaultImage: FilenameWithoutExtension?
     val images: ConcurrentSet<ImageInformation>
     val subcategories: MutableSet<CategoryComputable>
+    val visible: Boolean
+        get() = true
 
     fun matchImage(
         imageToProcess: ImageInformation,
         localeProvider: LocaleProvider
     )
 
-    fun toCategoryInformation(): CategoryInformation {
-        val mappedSubcategories =
-            if (subcategories.size == 1)
-                emptySet()
-            else
-                subcategories.asSequence()
-                    .map { it.toCategoryInformation() }
-                    .toSet()
+}
 
-        return CategoryInformation(
-            categoryName,
-            images,
-            defaultImage?.let { di ->
-                images.find { it.filename == di }
-                    ?: error("Image $di cannot be found in category $categoryName")
-            } ?: images.last(),
-            mappedSubcategories
-        )
-    }
+fun CategoryComputable.toCategoryInformation(): CategoryInformation {
+    val mappedSubcategories =
+        if (subcategories.size == 1)
+            emptySet()
+        else
+            subcategories.asSequence()
+                .map { it.toCategoryInformation() }
+                .toSet()
 
+    return CategoryInformation(
+        categoryName,
+        images,
+        defaultImage?.let { di ->
+            images.find { it.filename == di }
+                ?: error("Image $di cannot be found in category $categoryName")
+        } ?: images.last(),
+        mappedSubcategories,
+        visible
+    )
 }
 
 internal abstract class NoOpComputable : CategoryComputable {

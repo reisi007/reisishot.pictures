@@ -18,10 +18,11 @@ fun CategoryConfigRoot.withSubCategory(
 }
 
 @CategoryConfigDsl
-inline fun CategoryConfigRoot.withComputedSubCategories(
+fun CategoryConfigRoot.withComputedSubCategories(
     name: String,
     instanceCreator: (String/*Name*/) -> CategoryComputable
 ) {
+    ensureValidName(name)
     add(instanceCreator(name))
 }
 
@@ -35,10 +36,11 @@ fun CategoryConfig.withSubCategory(
 }
 
 @CategoryConfigDsl
-inline fun CategoryConfig.withComputedSubCategories(
+fun CategoryConfig.withComputedSubCategories(
     name: String,
     instanceCreator: (String/*Name*/, CategoryConfig/*Base*/) -> CategoryComputable
 ) {
+    ensureValidName(name)
     subcategories += instanceCreator(name, this)
 }
 
@@ -49,6 +51,7 @@ fun categoryOf(
     base: CategoryConfig? = null,
     action: CategoryConfig.() -> Unit
 ): CategoryConfig {
+    ensureValidName(name)
     val realName = if (base != null) "${base.complexName}/$name" else name
     return CategoryConfig(realName, thumbnailImage).apply(action)
 }
@@ -101,4 +104,8 @@ fun CategoryConfig.excludedTags(vararg allowedTags: String) = complexMatcher {
     buildExcludeMatcher(*allowedTags)
 }
 
-
+private fun ensureValidName(name: String) {
+    val isInvalid = name.contains("/")
+    if (isInvalid)
+        error("$name is not a valid name for a Category")
+}

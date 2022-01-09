@@ -6,7 +6,6 @@ import at.reisishot.mise.commons.concurrentSetOf
 import at.reisishot.mise.exifdata.ExifdataKey
 import pictures.reisishot.mise.backend.config.ImageInformation
 import pictures.reisishot.mise.backend.config.category.CategoryComputable
-import pictures.reisishot.mise.backend.config.category.CategoryInformation
 import pictures.reisishot.mise.backend.config.category.LocaleProvider
 import pictures.reisishot.mise.backend.config.category.NoOpComputable
 import java.time.Month
@@ -29,6 +28,8 @@ class DateCategoryComputable(
     override val images: MutableSet<ImageInformation> = concurrentSetOf()
     override val categoryName by lazy { CategoryName(complexName) }
     override val defaultImage: FilenameWithoutExtension? = defaultImages[Triple(null, null, null)]
+    override val visible: Boolean
+        get() = false
 
     override fun matchImage(imageToProcess: ImageInformation, localeProvider: LocaleProvider) {
         val captureDate = imageToProcess.exifInformation[ExifdataKey.CREATION_DATETIME]
@@ -72,16 +73,6 @@ class DateCategoryComputable(
             it.images += imageToProcess
             imageToProcess.categories += it.complexName
         }
-    }
-
-    override fun toCategoryInformation(): CategoryInformation {
-        return CategoryInformation(
-            categoryName,
-            images,
-            images.lastOrNull(),
-            subcategories.asSequence().map { it.toCategoryInformation() }.toSet(),
-            false
-        )
     }
 }
 

@@ -11,7 +11,7 @@ data class CategoryInformation(
     val images: Set<ImageInformation>,
     val thumbnailImage: ImageInformation?,
     val subcategories: Set<CategoryInformation>,
-    val visible: Boolean = true
+    val visible: Boolean
 
 ) {
     fun flatten(): Sequence<CategoryInformation> =

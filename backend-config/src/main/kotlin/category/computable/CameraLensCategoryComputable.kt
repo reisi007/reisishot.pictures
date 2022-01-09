@@ -25,7 +25,8 @@ class CameraLensCategoryComputable(
     override val images: ConcurrentSet<ImageInformation> = concurrentSetOf()
     override val subcategories: MutableSet<CategoryComputable>
         get() = cameraMap.values.toMutableSet()
-
+    override val visible: Boolean
+        get() = false
     private val cameraMap = ConcurrentHashMap<String, CameraMatcher>()
 
     override fun matchImage(imageToProcess: ImageInformation, localeProvider: LocaleProvider) {
@@ -58,7 +59,6 @@ class CameraLensCategoryComputable(
             it.images += imageToProcess
             imageToProcess.categories += it.complexName
         }
-
     }
 }
 
