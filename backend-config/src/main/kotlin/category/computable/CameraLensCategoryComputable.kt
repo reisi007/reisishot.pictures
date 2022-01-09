@@ -62,6 +62,8 @@ class CameraLensCategoryComputable(
     }
 }
 
+private const val LOTS_OF_IMAGES = 9999999
+
 private class CameraMatcher(
     baseName: String,
     private val defaultImages: Map<Pair<String?, String?>, FilenameWithoutExtension>,
@@ -69,7 +71,7 @@ private class CameraMatcher(
 ) : NoOpComputable() {
     override val complexName: String = "$baseName/$cameraName"
     override val categoryName: CategoryName by lazy {
-        CategoryName(complexName, images.size.toString().padStart(7, '0'), cameraName)
+        CategoryName(complexName, "${(LOTS_OF_IMAGES - images.size)}$cameraName", cameraName)
     }
     override val images: ConcurrentSet<ImageInformation> = concurrentSetOf()
     override val defaultImage: FilenameWithoutExtension? by lazy { defaultImages[cameraName to null] }
@@ -87,7 +89,7 @@ private class CameraLensMatcher(
 ) : NoOpComputable() {
     override val complexName: String = "$baseName/$lensName"
     override val categoryName: CategoryName by lazy {
-        CategoryName(complexName, displayName = "$cameraName und dem $lensName")
+        CategoryName(complexName, "${(LOTS_OF_IMAGES - images.size)}$cameraName", "$cameraName und dem $lensName")
     }
     override val images: ConcurrentSet<ImageInformation> = concurrentSetOf()
     override val defaultImage: FilenameWithoutExtension? by lazy { defaultImages[cameraName to lensName] }
