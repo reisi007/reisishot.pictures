@@ -34,5 +34,5 @@ object Dependencies {
     const val CONFIG4K_VERSION = "0.4.2"
     const val METADATA_EXTRACTOR_VERSION = "2.16.0"
     const val TORNADOFX_VERSION = "1.7.20"
-    const val LANUAGETOOL_VERSION = "5.6"
+    const val LANGUAGETOOL_VERSION = "5.6"
 }
