@@ -1,8 +1,0 @@
-dependencies {
-    api project(":image-access")
-
-    // https://mvnrepository.com/artifact/no.tornado/tornadofx
-    api group: 'no.tornado', name: 'tornadofx', version: '1.7.20'
-    // https://mvnrepository.com/artifact/org.languagetool/language-de
-    api group: 'org.languagetool', name: 'language-de', version: '5.2'
-}

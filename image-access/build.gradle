@@ -1,6 +1,0 @@
-dependencies {
-    api project(':commons')
-
-    // https://mvnrepository.com/artifact/com.drewnoakes/metadata-extractor
-    api group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.15.0'
-}

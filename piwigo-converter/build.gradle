@@ -1,9 +1,0 @@
-dependencies {
-    // https://mvnrepository.com/artifact/org.jdbi/jdbi3-kotlin-sqlobject
-    implementation group: 'org.jdbi', name: 'jdbi3-kotlin-sqlobject', version: '3.9.0'
-    // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
-    implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.4.2'
-    // https://mvnrepository.com/artifact/com.beust/klaxon
-    implementation group: 'com.beust', name: 'klaxon', version: '5.5'
-    implementation project(':commons')
-}

@@ -1,4 +1,0 @@
-dependencies {
-    api project(':image-access')
-    testApi(project(":commons").sourceSets.test.output)
-}

@@ -1,9 +1,0 @@
-dependencies {
-    def kotlinx_serialization_version = '1.3.0'
-    implementation project(":image-access")
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-hocon:$kotlinx_serialization_version"
-    // https://mvnrepository.com/artifact/com.typesafe/config
-    implementation group: 'com.typesafe', name: 'config', version: '1.4.1'
-    // https://mvnrepository.com/artifact/io.github.config4k/config4k
-    implementation group: 'io.github.config4k', name: 'config4k', version: '0.4.2'
-}
