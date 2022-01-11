@@ -1,4 +1,4 @@
-val projectTestOutput: SourceSetOutput = project(":commons").sourceSets["test"].output
+val projectTestOutput = project(":commons").testSources
 
 dependencies {
     api(project(":image-access"))
