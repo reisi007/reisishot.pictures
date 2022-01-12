@@ -43,7 +43,6 @@ subprojects {
     dependencies {
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Kotlin.VERSION}")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:${KotlinX.COROUTINE_VERSION}")
-        implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:${KotlinX.HTML_VERSION}")
         implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${KotlinX.SERIALISATION_VERSION}")
 
         testImplementation("com.willowtreeapps.assertk:assertk-jvm:${Dependencies.ASSERTK_VERSION}")

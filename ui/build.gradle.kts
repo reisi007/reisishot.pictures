@@ -2,6 +2,9 @@ plugins {
     id("org.openjfx.javafxplugin") version JavaFx.PLUGIN_VERSION
 }
 
+dependencies {
+}
+
 subprojects {
     apply(plugin = "org.openjfx.javafxplugin")
 

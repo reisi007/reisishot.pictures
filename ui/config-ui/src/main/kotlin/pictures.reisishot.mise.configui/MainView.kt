@@ -2,6 +2,8 @@ package pictures.reisishot.mise.configui
 
 import at.reisishot.mise.commons.*
 import at.reisishot.mise.config.ImageConfig
+import at.reisishot.mise.ui.json.fromJson
+import at.reisishot.mise.ui.json.toJson
 import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.Node
