@@ -1,6 +1,5 @@
 package at.reisishot.mise.ui.json
 
-import at.reisishot.mise.commons.exists
 import at.reisishot.mise.commons.isRegularFile
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -9,6 +8,7 @@ import kotlinx.serialization.json.encodeToStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
+import kotlin.io.path.exists
 
 val JSON by lazy {
     Json {

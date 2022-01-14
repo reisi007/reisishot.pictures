@@ -1,12 +1,12 @@
 package pictures.reisishot.mise.backend.config.category.computable
 
+import at.reisishot.mise.backend.config.LocaleProvider
 import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.ConcurrentSet
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.commons.concurrentSetOf
 import pictures.reisishot.mise.backend.config.ImageInformation
 import pictures.reisishot.mise.backend.config.category.CategoryComputable
-import pictures.reisishot.mise.backend.config.category.LocaleProvider
 import pictures.reisishot.mise.backend.config.category.NoOpComputable
 import pictures.reisishot.mise.backend.config.tags.computable.ExifTagComputable.Companion.TAG_CAMERA
 import pictures.reisishot.mise.backend.config.tags.computable.ExifTagComputable.Companion.TAG_LENS

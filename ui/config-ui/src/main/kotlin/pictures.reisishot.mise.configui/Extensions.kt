@@ -1,10 +1,10 @@
 package pictures.reisishot.mise.configui
 
-import at.reisishot.mise.commons.exists
 import javafx.beans.property.ReadOnlyDoubleProperty
 import tornadofx.*
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.exists
 
 operator fun Int.times(value: ReadOnlyDoubleProperty) = value * this
 operator fun Double.times(value: ReadOnlyDoubleProperty) = value * this

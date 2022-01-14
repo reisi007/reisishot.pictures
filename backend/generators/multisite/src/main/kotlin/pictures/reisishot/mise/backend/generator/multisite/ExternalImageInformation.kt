@@ -1,11 +1,12 @@
 package pictures.reisishot.mise.backend.generator.multisite
 
+import at.reisishot.mise.backend.config.WebsiteConfig
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import kotlinx.serialization.Serializable
-import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
-import pictures.reisishot.mise.backend.generator.gallery.pictures.reisishot.mise.backend.generator.gallery.AbstractThumbnailGenerator.ImageSize
-import pictures.reisishot.mise.backend.generator.gallery.pictures.reisishot.mise.backend.generator.gallery.AbstractThumbnailGenerator.ImageSizeInformation
+import pictures.reisishot.mise.backend.ImageInformation
+import pictures.reisishot.mise.backend.ImageSize
+import pictures.reisishot.mise.backend.ImageSizeInformation
+
 
 @Serializable
 class ExternalImageInformation(
@@ -15,7 +16,7 @@ class ExternalImageInformation(
     override val relativeLocation: String,
     override val title: String
 ) : ImageInformation() {
-    override fun getUrl(websiteConfiguration: WebsiteConfiguration): String = host + relativeLocation
+    override fun getUrl(websiteConfig: WebsiteConfig): String = host + relativeLocation
     override fun toString(): String {
         return "ExternalImageInformation(host='$host')"
     }

@@ -1,12 +1,8 @@
 package pictures.reisishot.mise.backend.generator.multisite
 
+import at.reisishot.mise.backend.config.*
 import at.reisishot.mise.commons.withChild
-import pictures.reisishot.mise.backend.BuildingCache
-import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.generator.ChangeFileset
-import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
-import pictures.reisishot.mise.backend.parser
 import java.nio.file.Path
 
 class ImageInfoImporter constructor(
@@ -16,8 +12,8 @@ class ImageInfoImporter constructor(
     override val executionPriority: Int = 25_000
     override val generatorName: String = "ImageInfoImport"
 
-    private fun execute(alreadyRunGenerators: List<WebsiteGenerator>, configuration: WebsiteConfiguration) =
-        with(configuration.parser) {
+    private fun execute(alreadyRunGenerators: List<WebsiteGenerator>, configuration: WebsiteConfig) =
+        configuration.useJsonParser {
             val galleryGenerator =
                 alreadyRunGenerators.find { it is AbstractGalleryGenerator } as? AbstractGalleryGenerator
                     ?: throw IllegalStateException("Gallery generator is needed for this generator!")
@@ -31,7 +27,7 @@ class ImageInfoImporter constructor(
 
 
     override suspend fun fetchInitialInformation(
-        configuration: WebsiteConfiguration,
+        configuration: WebsiteConfig,
         cache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
     ) {
@@ -39,7 +35,7 @@ class ImageInfoImporter constructor(
     }
 
     override suspend fun fetchUpdateInformation(
-        configuration: WebsiteConfiguration,
+        configuration: WebsiteConfig,
         cache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
@@ -47,12 +43,12 @@ class ImageInfoImporter constructor(
         return false
     }
 
-    override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
+    override suspend fun buildInitialArtifacts(configuration: WebsiteConfig, cache: BuildingCache) {
         // Nothing to do
     }
 
     override suspend fun buildUpdateArtifacts(
-        configuration: WebsiteConfiguration,
+        configuration: WebsiteConfig,
         cache: BuildingCache,
         changeFiles: ChangeFileset
     ): Boolean {
@@ -60,7 +56,7 @@ class ImageInfoImporter constructor(
         return false
     }
 
-    override suspend fun cleanup(configuration: WebsiteConfiguration, cache: BuildingCache) {
+    override suspend fun cleanup(configuration: WebsiteConfig, cache: BuildingCache) {
         // Nothing to do
     }
 }

@@ -75,8 +75,6 @@ val Path.fileExtension: FileExtension
 
 fun Path.list(): Sequence<Path> = Files.list(this).asSequence()
 
-fun Path.exists() = Files.exists(this)
-
 fun Path.isRegularFile() = Files.isRegularFile(this)
 
 

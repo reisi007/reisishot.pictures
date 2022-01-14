@@ -1,3 +1,4 @@
 dependencies {
-    implementation(project(":backend:base"))
+    implementation(project(":backend:root"))
+    implementation(project(":backend:generators:gallery-abstract"))
 }

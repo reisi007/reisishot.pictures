@@ -22,6 +22,5 @@ fun FileExtension.isJetbrainsTemp() = contains("__jb_")
 
 fun FileExtension.isTemp() = contains('~')
 
-fun Path.hasExtension(vararg predicates: (FileExtension) -> Boolean) = fileExtension.isAny(*predicates)
-
-fun FileExtension.isAny(vararg predicates: (FileExtension) -> Boolean) = predicates.any { it(this) }
+fun Path.hasExtension(vararg predicates: (FileExtension) -> Boolean) = predicates.any { it(fileExtension) }
+fun Path.hasExtension(predicates: List<(FileExtension) -> Boolean>) = predicates.any { it(fileExtension) }

@@ -1,5 +1,6 @@
 package pictures.reisishot.mise.backend.config.category
 
+import at.reisishot.mise.backend.config.LocaleProvider
 import at.reisishot.mise.commons.CategoryName
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.commons.concurrentSetOf

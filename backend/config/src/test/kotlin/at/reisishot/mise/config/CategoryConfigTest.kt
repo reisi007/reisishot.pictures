@@ -1,5 +1,6 @@
 package at.reisishot.mise.config
 
+import at.reisishot.mise.backend.config.LocaleProvider
 import at.reisishot.mise.commons.testfixtures.softAssert
 import at.reisishot.mise.commons.toTypedArray
 import org.junit.jupiter.api.Test
@@ -54,7 +55,6 @@ class CategoryConfigTest {
         computeCategoryInformation(
             charImages, object : LocaleProvider {
                 override val locale: Locale = Locale.ENGLISH
-
             }
         )
 }

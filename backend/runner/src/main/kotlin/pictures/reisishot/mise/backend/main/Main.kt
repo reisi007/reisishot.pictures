@@ -1,17 +1,21 @@
 package pictures.reisishot.mise.backend.main
 
 import GalleryGenerator
+import at.reisishot.mise.backend.config.*
 import at.reisishot.mise.commons.*
 import at.reisishot.mise.exifdata.defaultExifReplaceFunction
-import kotlinx.html.DIV
+import kotlinx.coroutines.runBlocking
 import kotlinx.html.InputType
 import kotlinx.html.h2
 import kotlinx.html.h3
-import pictures.reisishot.mise.backend.BuildingCache
-import pictures.reisishot.mise.backend.Mise
-import pictures.reisishot.mise.backend.SocialMediaAccounts
-import pictures.reisishot.mise.backend.WebsiteConfiguration
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
+import pictures.reisishot.mise.backend.*
+import pictures.reisishot.mise.backend.Mise.generate
 import pictures.reisishot.mise.backend.config.private.PrivateConfig
+import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
+import pictures.reisishot.mise.backend.generator.gallery.context.createCategoryApi
+import pictures.reisishot.mise.backend.generator.gallery.context.createHtmlApi
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.links.LinkGenerator
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
@@ -20,9 +24,16 @@ import pictures.reisishot.mise.backend.generator.pages.overview.OverviewPageGene
 import pictures.reisishot.mise.backend.generator.pages.yamlConsumer.KeywordConsumer
 import pictures.reisishot.mise.backend.generator.sitemap.SitemapGenerator
 import pictures.reisishot.mise.backend.generator.testimonials.TestimonialLoaderImpl
+import pictures.reisishot.mise.backend.generator.testimonials.createTestimonialApi
 import pictures.reisishot.mise.backend.html.*
+import pictures.reisishot.mise.backend.html.config.SocialMediaAccounts
+import pictures.reisishot.mise.backend.html.config.buildHtmlConfig
+import pictures.reisishot.mise.backend.html.config.registerAll
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.*
+import pictures.reisishot.mise.backend.config.ImageInformation as ConfigImageInformation
+import pictures.reisishot.mise.backend.generator.gallery.pictures.reisishot.mise.backend.generator.gallery.AbstractThumbnailGenerator.AbstractThumbnailGeneratorImageSize as DefaultImageSize
 
 object Main {
     const val folderName = "reisishot.pictures"
@@ -34,117 +45,149 @@ object Main {
     }
 
     fun build(isDevMode: Boolean) {
+        val inPath = Paths.get("input", folderName).toAbsolutePath()
+
+        val testimonialLoader = TestimonialLoaderImpl.fromInPath(inPath)
+
         val galleryGenerator = GalleryGenerator(
             PrivateConfig.TAG_CONFIG,
             PrivateConfig.CATEGORY_CONFIG,
             emptySet(),
             defaultExifReplaceFunction
         )
-        val inPath = Paths.get("input", folderName).toAbsolutePath()
-        val testimonialLoader = TestimonialLoaderImpl.fromInPath(inPath)
 
-        val overviewPageGenerator = OverviewPageGenerator(galleryGenerator, testimonialLoader)
+        val overviewPageGenerator = OverviewPageGenerator(
+            DefaultImageSize.values,
+            DefaultImageSize.LARGEST,
+            galleryGenerator.imageFetcher
+        )
 
-        Mise.build(
-            WebsiteConfiguration(
+
+        val generators = listOf(
+            PageGenerator(
+                overviewPageGenerator,
+                MinimalisticPageGenerator(),
+                KeywordConsumer()
+            ),
+            overviewPageGenerator,
+            testimonialLoader,
+            galleryGenerator,
+            ImageMagickThumbnailGenerator(),
+            LinkGenerator(),
+            SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
+        )
+
+        val websiteConfig = buildWebsiteConfig(
+            PathInformation(
+                inPath,
+                tmpPath,
+                Paths.get("upload", folderName).toAbsolutePath()
+            ),
+            GeneralWebsiteInformation(
                 "ReisiShot",
                 "ReisiShot - Fotograf Florian Reisinger",
                 "https://$folderName",
-                inPath,
-                tmpPath,
-                Paths.get("upload", folderName).toAbsolutePath(),
-                cleanupGeneration = false,
+                Locale.GERMANY,
+
+                ),
+            MiseConfig(
                 isDevMode,
-                interactiveIgnoredFiles = arrayOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
-                form = buildForm(),
-                analyticsSiteId = "1",
-                socialMediaLinks = SocialMediaAccounts(
+                interactiveIgnoredFiles = listOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
+            )
+        ) {
+            this.generators += generators
+
+            configureJsonParser {
+                polymorphic(ConfigImageInformation::class) {
+                    subclass(InternalImageInformation::class)
+                }
+                polymorphic(ImageInformation::class) {
+                    subclass(InternalImageInformation::class)
+                }
+
+                polymorphic(ImageSize::class) {
+                    subclass(DefaultImageSize::class)
+                }
+            }
+
+            buildHtmlConfig(
+                1,
+                SocialMediaAccounts(
                     "reisishot",
                     "florian.reisinger.photography",
                     "florian@reisishot.pictures",
                     "436702017710"
                 ),
-                generators = generators(overviewPageGenerator, galleryGenerator, testimonialLoader),
-
-                )
-        )
-    }
-
-    private fun buildForm(): DIV.(Path, WebsiteConfiguration) -> Unit =
-        { target: Path, websiteConfiguration: WebsiteConfiguration ->
-            buildForm(
-                title = { h2 { text("Kontaktiere mich") } },
-                thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich innerhalb von 48h!") } },
-                formStructure = {
-                    FormRoot(
-                        "footer",
-                        HiddenFormInput(
-                            "Seite",
-                            BuildingCache.getLinkFromFragment(
-                                websiteConfiguration,
-                                websiteConfiguration.outPath.relativize(target.parent).toString()
+                formBuilder = { target: Path, websiteConfig: WebsiteConfig ->
+                    buildForm(
+                        title = { h2 { text("Kontaktiere mich") } },
+                        thankYouText = { h3 { text("Vielen Dank für deine Nachricht! Ich melde mich innerhalb von 48h!") } },
+                        formStructure = {
+                            FormRoot(
+                                "footer",
+                                HiddenFormInput(
+                                    "Seite",
+                                    BuildingCache.getLinkFromFragment(
+                                        websiteConfig,
+                                        websiteConfig.paths.targetFolder.relativize(target.parent).toString()
+                                    )
+                                ),
+                                FormHtml { insertWartelisteInfo() },
+                                FormHGroup(
+                                    FormInput(
+                                        "Name",
+                                        "Name",
+                                        "Dein Name",
+                                        "Bitte sag mir, wie du heißt",
+                                        InputType.text
+                                    ),
+                                    FormInput(
+                                        "E-Mail",
+                                        "E-Mail Adresse",
+                                        "Deine E-Mail-Adresse, auf die du deine Antwort bekommst",
+                                        "Ich kann dich ohne deine E-Mail Adresse nicht kontaktieren",
+                                        InputType.email
+                                    ),
+                                    FormInput(
+                                        "Telefonnummer",
+                                        "Wie kann ich dich telefonisch erreichen?",
+                                        "Bitte schicke mir deine Telefonnummer, falls du ein Shooting mit mir möchtest",
+                                        "Bitte gib deine Telefonnummer ein",
+                                        type = InputType.tel,
+                                        required = false
+                                    )
+                                ),
+                                FormInput(
+                                    "Betreff",
+                                    "Betreff",
+                                    "Thema deines Anliegens",
+                                    "Der Betreff der E-Mail, die ich bekomme",
+                                    InputType.text
+                                ),
+                                FormTextArea(
+                                    "Freitext",
+                                    "Deine Nachricht an mich",
+                                    "Anfragen für Zusammenarbeit (Bitte gib auch einen Link zu deinen Bildern in die Nachricht dazu), Feedback zu meinen Bildern oder was dir sonst so am Herzen liegt",
+                                    "Bitte vergiss nicht mir eine Nachricht zu hinterlassen"
+                                ),
+                                zustimmung
                             )
-                        ),
-                        FormHtml { insertWartelisteInfo() },
-                        FormHGroup(
-                            FormInput(
-                                "Name",
-                                "Name",
-                                "Dein Name",
-                                "Bitte sag mir, wie du heißt",
-                                InputType.text
-                            ),
-                            FormInput(
-                                "E-Mail",
-                                "E-Mail Adresse",
-                                "Deine E-Mail-Adresse, auf die du deine Antwort bekommst",
-                                "Ich kann dich ohne deine E-Mail Adresse nicht kontaktieren",
-                                InputType.email
-                            ),
-                            FormInput(
-                                "Telefonnummer",
-                                "Wie kann ich dich telefonisch erreichen?",
-                                "Bitte schicke mir deine Telefonnummer, falls du ein Shooting mit mir möchtest",
-                                "Bitte gib deine Telefonnummer ein",
-                                type = InputType.tel,
-                                required = false
-                            )
-                        ),
-                        FormInput(
-                            "Betreff",
-                            "Betreff",
-                            "Thema deines Anliegens",
-                            "Der Betreff der E-Mail, die ich bekomme",
-                            InputType.text
-                        ),
-                        FormTextArea(
-                            "Freitext",
-                            "Deine Nachricht an mich",
-                            "Anfragen für Zusammenarbeit (Bitte gib auch einen Link zu deinen Bildern in die Nachricht dazu), Feedback zu meinen Bildern oder was dir sonst so am Herzen liegt",
-                            "Bitte vergiss nicht mir eine Nachricht zu hinterlassen"
-                        ),
-                        zustimmung
+                        })
+                }) {
+                registerAll(
+                    galleryGenerator.createCategoryApi(),
+                    galleryGenerator.createHtmlApi(),
+                    testimonialLoader.createTestimonialApi(
+                        DefaultImageSize.values,
+                        DefaultImageSize.LARGEST,
+                        galleryGenerator.imageFetcher
                     )
-                })
+                )
+            }
         }
 
-    private fun generators(
-        overviewPageGenerator: OverviewPageGenerator,
-        galleryGenerator: GalleryGenerator,
-        testimonialLoader: TestimonialLoaderImpl
-    ) = listOf(
-        PageGenerator(
-            overviewPageGenerator,
-            MinimalisticPageGenerator(galleryGenerator),
-            KeywordConsumer()
-        ),
-        overviewPageGenerator,
-        testimonialLoader,
-        galleryGenerator,
-        ImageMagickThumbnailGenerator(),
-        LinkGenerator(),
-        SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
-    )
 
-
+        runBlocking { websiteConfig.generate() }
+    }
 }
+

@@ -1,3 +1,3 @@
 dependencies {
-    implementation(project(":backend:base"))
+    api(project(":backend:generators:thumbnail-abstract"))
 }

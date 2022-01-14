@@ -1,3 +1,3 @@
 dependencies {
-    implementation(project(":backend:base"))
+    implementation(project(":backend:root"))
 }

@@ -1,12 +1,8 @@
 package pictures.reisishot.mise.backend.generator.links
 
-import at.reisishot.mise.commons.exists
+import at.reisishot.mise.backend.config.*
 import kotlinx.serialization.Serializable
-import pictures.reisishot.mise.backend.BuildingCache
-import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.generator.ChangeFileset
-import pictures.reisishot.mise.backend.generator.WebsiteGenerator
-import pictures.reisishot.mise.backend.parser
+import kotlin.io.path.exists
 
 class LinkGenerator : WebsiteGenerator {
 
@@ -18,10 +14,10 @@ class LinkGenerator : WebsiteGenerator {
     }
 
     override suspend fun fetchInitialInformation(
-        configuration: WebsiteConfiguration,
+        configuration: WebsiteConfig,
         cache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
-    ) = with(configuration.parser) {
+    ) = configuration.useJsonParserParallel {
         val configFile = configuration.getConfigFile()
         if (configFile.exists()) {
             val data = configFile.fromJson<List<ManualLink>>() ?: emptyList<ManualLink>()
@@ -40,7 +36,7 @@ class LinkGenerator : WebsiteGenerator {
     }
 
     override suspend fun fetchUpdateInformation(
-        configuration: WebsiteConfiguration,
+        configuration: WebsiteConfig,
         cache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
@@ -52,15 +48,15 @@ class LinkGenerator : WebsiteGenerator {
         } else return false
     }
 
-    private fun WebsiteConfiguration.getConfigFile() =
-        inPath.resolve(FILENAME)
+    private fun WebsiteConfig.getConfigFile() =
+        paths.sourceFolder.resolve(FILENAME)
 
-    override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) {
+    override suspend fun buildInitialArtifacts(configuration: WebsiteConfig, cache: BuildingCache) {
         // No action needed
     }
 
     override suspend fun buildUpdateArtifacts(
-        configuration: WebsiteConfiguration,
+        configuration: WebsiteConfig,
         cache: BuildingCache,
         changeFiles: ChangeFileset
     ): Boolean {
@@ -68,7 +64,7 @@ class LinkGenerator : WebsiteGenerator {
         return false
     }
 
-    override suspend fun cleanup(configuration: WebsiteConfiguration, cache: BuildingCache) {
+    override suspend fun cleanup(configuration: WebsiteConfig, cache: BuildingCache) {
         // No action needed
     }
 }

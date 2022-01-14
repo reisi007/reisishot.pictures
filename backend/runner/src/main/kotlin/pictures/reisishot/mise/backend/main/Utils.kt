@@ -1,7 +1,7 @@
 package pictures.reisishot.mise.backend.main
 
-import pictures.reisishot.mise.backend.FacebookMessengerChatPlugin
 import pictures.reisishot.mise.backend.html.FormCheckbox
+import pictures.reisishot.mise.backend.html.config.FacebookMessengerChatPlugin
 
 fun generateDefaultChatPlugin(): FacebookMessengerChatPlugin = FacebookMessengerChatPlugin(
     628453067544931,

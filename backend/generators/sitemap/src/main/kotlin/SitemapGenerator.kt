@@ -1,15 +1,12 @@
 package pictures.reisishot.mise.backend.generator.sitemap
 
+import at.reisishot.mise.backend.config.*
+import at.reisishot.mise.backend.config.BuildingCache.Companion.getLinkFromFragment
 import at.reisishot.mise.commons.FileExtension
 import at.reisishot.mise.commons.hasExtension
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import pictures.reisishot.mise.backend.BuildingCache
-import pictures.reisishot.mise.backend.BuildingCache.Companion.getLinkFromFragment
-import pictures.reisishot.mise.backend.WebsiteConfiguration
-import pictures.reisishot.mise.backend.generator.ChangeFileset
-import pictures.reisishot.mise.backend.generator.WebsiteGenerator
-import pictures.reisishot.mise.backend.generator.isStateEdited
+
 import java.io.PrintWriter
 import java.nio.file.Files
 import java.nio.file.Path
@@ -22,7 +19,7 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
     override val executionPriority: Int = 100_000
 
     override suspend fun fetchInitialInformation(
-        configuration: WebsiteConfiguration,
+        configuration: WebsiteConfig,
         cache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
     ) {
@@ -30,7 +27,7 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
     }
 
     override suspend fun fetchUpdateInformation(
-        configuration: WebsiteConfiguration,
+        configuration: WebsiteConfig,
         cache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
@@ -39,15 +36,15 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
         return false
     }
 
-    override suspend fun buildInitialArtifacts(configuration: WebsiteConfiguration, cache: BuildingCache) =
+    override suspend fun buildInitialArtifacts(configuration: WebsiteConfig, cache: BuildingCache) =
         withContext(Dispatchers.IO) {
             PrintWriter(
-                configuration.outPath.resolve("sitemap.json").toFile(),
+                configuration.paths.targetFolder.resolve("sitemap.json").toFile(),
                 Charsets.UTF_8.toString()
             ).use { writer ->
                 writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
                 writer.println("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">")
-                configuration.outPath.findIndexHtmlFiles()
+                configuration.paths.targetFolder.findIndexHtmlFiles()
                     .map { it.normalize().toString().replace('\\', '/') }
                     .map { getLinkFromFragment(configuration, it) }
                     .map { if (it.endsWith('/')) it.substringBeforeLast('/') else it }
@@ -70,7 +67,7 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
         .map { relativize(it) }
 
     override suspend fun buildUpdateArtifacts(
-        configuration: WebsiteConfiguration,
+        configuration: WebsiteConfig,
         cache: BuildingCache,
         changeFiles: ChangeFileset
     ): Boolean {
@@ -82,7 +79,7 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
         return false
     }
 
-    override suspend fun cleanup(configuration: WebsiteConfiguration, cache: BuildingCache) {
+    override suspend fun cleanup(configuration: WebsiteConfig, cache: BuildingCache) {
         // Nothing to do
     }
 }

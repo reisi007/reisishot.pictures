@@ -1,26 +1,26 @@
+import at.reisishot.mise.backend.config.BuildingCache
+import at.reisishot.mise.backend.config.ChangeFileset
+import at.reisishot.mise.backend.config.WebsiteConfig
+import at.reisishot.mise.backend.config.WebsiteGenerator
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.commons.withChild
 import at.reisishot.mise.exifdata.ExifdataKey
 import kotlinx.html.*
-import pictures.reisishot.mise.backend.BuildingCache
-import pictures.reisishot.mise.backend.WebsiteConfiguration
 import pictures.reisishot.mise.backend.config.category.CategoryConfigRoot
 import pictures.reisishot.mise.backend.config.category.CategoryInformation
 import pictures.reisishot.mise.backend.config.category.flatten
 import pictures.reisishot.mise.backend.config.tags.TagConfig
 import pictures.reisishot.mise.backend.config.tags.TagInformation
-import pictures.reisishot.mise.backend.generator.ChangeFileset
-import pictures.reisishot.mise.backend.generator.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbnails
-import pictures.reisishot.mise.backend.generator.testimonials.TestimonialLoader
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.insertImageGallery
 import pictures.reisishot.mise.backend.html.smallButtonLink
 import java.nio.file.Path
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import pictures.reisishot.mise.backend.generator.gallery.pictures.reisishot.mise.backend.generator.gallery.AbstractThumbnailGenerator.AbstractThumbnailGeneratorImageSize as ImageSize
 
 
 class GalleryGenerator(
@@ -40,46 +40,43 @@ class GalleryGenerator(
     private val dateTimeFormatter = DateTimeFormatter.ofPattern("eeee 'den' dd.MM.YYYY 'um' HH:mm:ss z")
 
     override fun generateImagePage(
-        configuration: WebsiteConfiguration,
-        cache: BuildingCache,
-        testimonialLoader: TestimonialLoader,
+        configuration: WebsiteConfig,
+        buildingCache: BuildingCache,
         curImageInformation: InternalImageInformation
     ) {
-        val baseHtmlPath = configuration.outPath withChild "gallery/images"
+        val baseHtmlPath = configuration.paths.targetFolder withChild "gallery/images"
         val targetFolder = baseHtmlPath withChild curImageInformation.filename.lowercase()
         PageGenerator.generatePage(
-            websiteConfiguration = configuration,
-            buildingCache = cache,
+            websiteConfig = configuration,
+            buildingCache = buildingCache,
             target = targetFolder withChild "index.html",
-            title = curImageInformation.title,
-            galleryGenerator = this
+            title = curImageInformation.title
         ) {
             div("singleImage") {
                 h1("text-center") {
                     text(curImageInformation.title)
                 }
 
-                insertCustomMarkdown(targetFolder, "start", configuration, cache, testimonialLoader)
+                insertCustomMarkdown(targetFolder, "start", configuration, buildingCache)
 
-                insertImageGallery("1", configuration, curImageInformation)
+                insertImageGallery(ImageSize.values, ImageSize.LARGEST, "1", configuration, curImageInformation)
 
-                insertCategoryLinks(curImageInformation, configuration, cache)
+                insertCategoryLinks(curImageInformation, configuration, buildingCache)
 
-                insertTagLinks(curImageInformation, configuration, cache)
+                insertTagLinks(curImageInformation, configuration, buildingCache)
 
-                insertCustomMarkdown(targetFolder, "beforeExif", configuration, cache, testimonialLoader)
+                insertCustomMarkdown(targetFolder, "beforeExif", configuration, buildingCache)
 
                 insertExifInformation(curImageInformation, dateTimeFormatter)
 
-                insertCustomMarkdown(targetFolder, "end", configuration, cache, testimonialLoader)
+                insertCustomMarkdown(targetFolder, "end", configuration, buildingCache)
             }
         }
     }
 
     override fun generateCategoryPage(
-        configuration: WebsiteConfiguration,
+        configuration: WebsiteConfig,
         buildingCache: BuildingCache,
-        testimonialLoader: TestimonialLoader,
         categoryInformation: CategoryInformation,
     ) {
         val categoryImages: List<FilenameWithoutExtension> = categoryInformation.images.asSequence()
@@ -88,15 +85,14 @@ class GalleryGenerator(
             .map { it.filename }
             .toList()
 
-        (configuration.outPath withChild "gallery/categories").let { baseHtmlPath ->
+        (configuration.paths.targetFolder withChild "gallery/categories").let { baseHtmlPath ->
 
             val targetFolder = baseHtmlPath withChild categoryInformation.urlFragment
             PageGenerator.generatePage(
-                websiteConfiguration = configuration,
+                websiteConfig = configuration,
                 buildingCache = buildingCache,
                 target = targetFolder withChild "index.html",
                 title = categoryInformation.categoryName.displayName,
-                galleryGenerator = this,
                 pageContent = {
                     h1("text-center") {
                         text("Kategorie - ")
@@ -105,7 +101,7 @@ class GalleryGenerator(
                         }
                     }
 
-                    insertCustomMarkdown(targetFolder, "start", configuration, buildingCache, testimonialLoader)
+                    insertCustomMarkdown(targetFolder, "start", configuration, buildingCache)
 
                     val imageInformations = with(categoryImages) {
                         asSequence()
@@ -120,29 +116,27 @@ class GalleryGenerator(
                         configuration
                     )
 
-                    insertImageGallery("1", configuration, imageInformations)
+                    insertImageGallery(ImageSize.values, ImageSize.LARGEST, "1", configuration, imageInformations)
 
-                    insertCustomMarkdown(targetFolder, "end", configuration, buildingCache, testimonialLoader)
+                    insertCustomMarkdown(targetFolder, "end", configuration, buildingCache)
                 }
             )
         }
     }
 
     override fun generateTagPage(
-        configuration: WebsiteConfiguration,
+        configuration: WebsiteConfig,
         buildingCache: BuildingCache,
-        testimonialLoader: TestimonialLoader,
         tagName: TagInformation
     ): Unit = with(cache) {
         val tagImages = computedTags.getValue(tagName)
-        val baseHtmlPath = configuration.outPath withChild "gallery/tags"
+        val baseHtmlPath = configuration.paths.targetFolder withChild "gallery/tags"
         val targetFolder = baseHtmlPath withChild tagName.url
         PageGenerator.generatePage(
-            websiteConfiguration = configuration,
+            websiteConfig = configuration,
             buildingCache = buildingCache,
             target = targetFolder withChild "index.html",
             title = tagName.name,
-            galleryGenerator = this@GalleryGenerator,
             pageContent = {
                 h1("text-center") {
                     text("Tag - ")
@@ -151,21 +145,21 @@ class GalleryGenerator(
                     }
                 }
 
-                insertCustomMarkdown(targetFolder, "start", configuration, buildingCache, testimonialLoader)
+                insertCustomMarkdown(targetFolder, "start", configuration, buildingCache)
 
                 val imageInformations = tagImages.asSequence()
                     .map { it as? InternalImageInformation }
                     .filterNotNull()
                     .toOrderedByTime()
-                insertImageGallery("1", configuration, imageInformations)
+                insertImageGallery(ImageSize.values, ImageSize.LARGEST, "1", configuration, imageInformations)
 
-                insertCustomMarkdown(targetFolder, "end", configuration, buildingCache, testimonialLoader)
+                insertCustomMarkdown(targetFolder, "end", configuration, buildingCache)
             })
     }
 
     private fun DIV.insertTagLinks(
         curImageInformation: InternalImageInformation,
-        configuration: WebsiteConfiguration,
+        configuration: WebsiteConfig,
         cache: BuildingCache
     ) {
         div("card") {
@@ -185,7 +179,7 @@ class GalleryGenerator(
 
     private fun DIV.insertCategoryLinks(
         curImageInformation: InternalImageInformation,
-        configuration: WebsiteConfiguration,
+        configuration: WebsiteConfig,
         cache: BuildingCache
     ) {
         div("card") {
@@ -194,7 +188,7 @@ class GalleryGenerator(
             }
             div("card-body btn-flex") {
                 curImageInformation.categories.asSequence()
-                    .map { this@GalleryGenerator.cache.categoryNameMapping[it]?.categoryName }
+                    .map { this@GalleryGenerator.cache.subcategoryMap[it]?.categoryName }
                     .filterNotNull()
                     .forEach { category ->
                         smallButtonLink(
@@ -242,7 +236,7 @@ class GalleryGenerator(
     }
 
     override suspend fun fetchUpdateInformation(
-        configuration: WebsiteConfiguration,
+        configuration: WebsiteConfig,
         cache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
@@ -250,11 +244,11 @@ class GalleryGenerator(
         // find files & compute changes on the go
         val filesToProcess = changeFiles.asSequence()
             .map { it.key }
-            .map { configuration.inPath.relativize(it) }
+            .map { configuration.paths.sourceFolder.relativize(it) }
             .filter { it.getName(0).toString() == "gallery" }
             .toList()
         val curUpdate = filesToProcess.isNotEmpty()
-        updatePages(filesToProcess, configuration, cache, testimonialLoader)
+        updatePages(filesToProcess, configuration, cache)
         // Keep super call. Extra variable -> should be executed in any case
         val superUpdate =
             super.fetchUpdateInformation(configuration, cache, alreadyRunGenerators, changeFiles)
@@ -263,18 +257,16 @@ class GalleryGenerator(
 
     private fun updatePages(
         filesToProcess: List<Path>,
-        configuration: WebsiteConfiguration,
-        cache: BuildingCache,
-        testimonialLoader: TestimonialLoader
+        configuration: WebsiteConfig,
+        cache: BuildingCache
     ) {
-        filesToProcess.forEach { updatePage(it, configuration, cache, testimonialLoader) }
+        filesToProcess.forEach { updatePage(it, configuration, cache) }
     }
 
     private fun updatePage(
         path: Path,
-        configuration: WebsiteConfiguration,
+        configuration: WebsiteConfig,
         buildingCache: BuildingCache,
-        testimonialLoader: TestimonialLoader
     ): Unit = with(cache) {
         val type = path.getName(1).toString()
         val value = path.subpath(2, path.nameCount - 1)
@@ -282,15 +274,15 @@ class GalleryGenerator(
             .replace('\\', '/')
         when (type) {
             "categories" -> {
-                val categoryInformation = categoryInformation.flatten()
+                val categoryInformation = rootCategory.flatten()
                     .first { it.urlFragment.equals(value, true) }
-                generateCategoryPage(configuration, buildingCache, testimonialLoader, categoryInformation)
+                generateCategoryPage(configuration, buildingCache, categoryInformation)
             }
             "tags" -> {
                 val tagName = computedTags
                     .keys
                     .first { it.name.equals(value, true) }
-                generateTagPage(configuration, buildingCache, testimonialLoader, tagName)
+                generateTagPage(configuration, buildingCache, tagName)
             }
             "images" -> {
                 val imageInformation = imageInformationData
@@ -298,7 +290,7 @@ class GalleryGenerator(
                     .first { it.equals(value, true) }
                     .let { imageInformationData.getValue(it) }
                 (imageInformation as? InternalImageInformation)?.let { internalImageInformation ->
-                    generateImagePage(configuration, buildingCache, testimonialLoader, internalImageInformation)
+                    generateImagePage(configuration, buildingCache, internalImageInformation)
                 }
 
             }
