@@ -145,7 +145,9 @@ object PageGenerator {
             val navId = "navbarCollapse"
             div("container-fluid") {
                 a(classes = "navbar-brand", href = "/") {
-                    websiteConfig.htmlConfig.navbarBrandCreator?.let { it(this, websiteConfig) }
+                    websiteConfig.htmlConfig.navbarBrandCreator
+                        ?.let { it(this, websiteConfig) }
+                        ?: run { text(websiteConfig.websiteInformation.shortTitle) }
                 }
                 if (items.isNotEmpty())
                     button(classes = "navbar-toggler") {
