@@ -5,8 +5,7 @@ import appendTestimonials
 import at.reisishot.mise.backend.config.WebsiteConfig
 import at.reisishot.mise.backend.config.WebsiteConfigBuilderDsl
 import kotlinx.html.div
-import pictures.reisishot.mise.backend.ImageFetcher
-import pictures.reisishot.mise.backend.ImageSize
+import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.testimonials.Testimonial
 import pictures.reisishot.mise.backend.generator.testimonials.TestimonialLoader
 import pictures.reisishot.mise.backend.html.appendUnformattedHtml
@@ -17,18 +16,14 @@ import renderTestimonialStatistics
 @WebsiteConfigBuilderDsl
 fun createTestimonialApi(
     testimonialLoader: TestimonialLoader,
-    imageSizes: Array<out ImageSize>,
-    fallback: ImageSize,
-    imageFetcher: ImageFetcher
+    galleryGenerator: AbstractGalleryGenerator
 ): Pair<String, VelocityTemplateObjectCreator> =
     "testimonials" to { _, websiteConfig, _ ->
-        TestimonialApi(imageSizes, fallback, imageFetcher, websiteConfig, testimonialLoader)
+        TestimonialApi(galleryGenerator, websiteConfig, testimonialLoader)
     }
 
 class TestimonialApi(
-    private val imageSizes: Array<out ImageSize>,
-    private val fallback: ImageSize,
-    private val galleryGenerator: ImageFetcher,
+    private val galleryGenerator: AbstractGalleryGenerator,
     private val websiteConfig: WebsiteConfig,
     private val testimonialLoader: TestimonialLoader
 ) : TemplateObject {
@@ -41,10 +36,8 @@ class TestimonialApi(
         val testimonialsToDisplay = testimonials.getValue(name)
         appendUnformattedHtml().div {
             appendTestimonials(
-                imageSizes,
-                fallback,
-                websiteConfig,
                 galleryGenerator,
+                websiteConfig,
                 mode,
                 false,
                 "",// Unused
@@ -60,10 +53,8 @@ class TestimonialApi(
             return@buildString
         appendUnformattedHtml().div {
             appendTestimonials(
-                imageSizes,
-                fallback,
-                websiteConfig,
                 galleryGenerator,
+                websiteConfig,
                 TestimonialMode.DEFAULT,
                 true,
                 serviceType,

@@ -13,9 +13,9 @@ import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.config.category.*
 import pictures.reisishot.mise.backend.config.tags.TagConfig
 import pictures.reisishot.mise.backend.config.tags.TagInformation
+import pictures.reisishot.mise.backend.generator.gallery.context.insertLazyPicture
 import pictures.reisishot.mise.backend.generator.gallery.pictures.reisishot.mise.backend.generator.gallery.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.pages.htmlparsing.MarkdownParser
-import pictures.reisishot.mise.backend.html.insertLazyPicture
 import pictures.reisishot.mise.backend.html.raw
 import java.nio.file.Files
 import java.nio.file.Path
@@ -39,9 +39,6 @@ abstract class AbstractGalleryGenerator(
     ),
     private val exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }
 ) : WebsiteGenerator {
-
-    val imageFetcher: ImageFetcher
-        get() = { filename -> cache.imageInformationData.get(filename) ?: error("Image $filename not found") }
 
     enum class DisplayedMenuItems {
         CATEGORIES,
@@ -410,14 +407,16 @@ abstract class AbstractGalleryGenerator(
 }
 
 fun DIV.insertSubcategoryThumbnails(
+    galleryGenerator: AbstractGalleryGenerator,
     subcategories: Set<CategoryInformation>,
     configuration: WebsiteConfig
 ) {
     if (subcategories.isEmpty()) return
-    insertCategoryThumbnails(subcategories, configuration)
+    insertCategoryThumbnails(galleryGenerator, subcategories, configuration)
 }
 
 fun DIV.insertCategoryThumbnails(
+    galleryGenerator: AbstractGalleryGenerator,
     categoriesToDisplay: Set<CategoryInformation>,
     configuration: WebsiteConfig
 ) {
@@ -438,8 +437,6 @@ fun DIV.insertCategoryThumbnails(
                     a("/gallery/categories/${categoryName.urlFragment}", classes = "card") {
                         div("card-img-top") {
                             insertLazyPicture(
-                                ImageSize.values,
-                                ImageSize.LARGEST,
                                 imageInformation,
                                 configuration
                             )
@@ -453,12 +450,3 @@ fun DIV.insertCategoryThumbnails(
                 }
         }
 }
-
-
-fun Map<FilenameWithoutExtension, ImageInformation>.getOrThrow(key: FilenameWithoutExtension, usage: String? = null) =
-    this[key] ?: throw IllegalStateException("Cannot find picture with filename \"$key\" (used in ${usage})!")
-
-fun List<WebsiteGenerator>.findGalleryGenerator() =
-    find { it is AbstractGalleryGenerator }
-            as? AbstractGalleryGenerator
-        ?: throw IllegalStateException("Gallery generator is needed for this generator!")

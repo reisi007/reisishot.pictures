@@ -6,7 +6,11 @@ import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.*
-import pictures.reisishot.mise.backend.*
+import pictures.reisishot.mise.backend.IPageMinimalInfo
+import pictures.reisishot.mise.backend.SourcePath
+import pictures.reisishot.mise.backend.TargetPath
+import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
+import pictures.reisishot.mise.backend.generator.gallery.context.insertLazyPicture
 import pictures.reisishot.mise.backend.generator.pages.htmlparsing.MarkdownParser
 import pictures.reisishot.mise.backend.html.*
 import pictures.reisishot.mise.backend.htmlparsing.*
@@ -15,12 +19,9 @@ import java.nio.file.Path
 import kotlin.io.path.exists
 
 class OverviewPageGenerator(
-    private val imageSizes: Array<out ImageSize>,
-    private val fallbackSize: ImageSize,
-    private val imageInfoFetcher: (FilenameWithoutExtension) -> ImageInformation,
+    private val galleryGenerator: AbstractGalleryGenerator,
     private val metaDataConsumers: Array<out PageGeneratorExtension> = emptyArray(),
-
-    ) : PageGeneratorExtension, WebsiteGenerator {
+) : PageGeneratorExtension, WebsiteGenerator {
 
     override val generatorName: String = "Overview Page Generator"
     override val executionPriority: Int = 35_000
@@ -161,7 +162,7 @@ class OverviewPageGenerator(
                         this@OverviewPageGenerator.data[name]?.asSequence()
                             ?.sortedByDescending { it.order }
                             ?.forEach { entry ->
-                                val image = imageInfoFetcher(entry.picture)
+                                val image = galleryGenerator.cache.imageInformationData.getValue(entry.picture)
                                 val url = entry.configuredUrl
                                     ?: kotlin.run {
                                         BuildingCache.getLinkFromFragment(
@@ -175,7 +176,7 @@ class OverviewPageGenerator(
                                         if (entry.configuredUrl != null)
                                             this.target = "_blank"
                                         div(classes = "card-img-top") {
-                                            insertLazyPicture(imageSizes, fallbackSize, image, configuration)
+                                            insertLazyPicture(image, configuration)
                                         }
                                         div(classes = "card-body") {
                                             h5("card-title") { text(entry.title) }

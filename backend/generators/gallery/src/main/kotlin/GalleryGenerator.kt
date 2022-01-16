@@ -13,14 +13,13 @@ import pictures.reisishot.mise.backend.config.tags.TagConfig
 import pictures.reisishot.mise.backend.config.tags.TagInformation
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
+import pictures.reisishot.mise.backend.generator.gallery.context.insertImageGallery
 import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbnails
 import pictures.reisishot.mise.backend.html.PageGenerator
-import pictures.reisishot.mise.backend.html.insertImageGallery
 import pictures.reisishot.mise.backend.html.smallButtonLink
 import java.nio.file.Path
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import pictures.reisishot.mise.backend.generator.gallery.pictures.reisishot.mise.backend.generator.gallery.AbstractThumbnailGenerator.AbstractThumbnailGeneratorImageSize as ImageSize
 
 
 class GalleryGenerator(
@@ -59,7 +58,7 @@ class GalleryGenerator(
 
                 insertCustomMarkdown(targetFolder, "start", configuration, buildingCache)
 
-                insertImageGallery(ImageSize.values, ImageSize.LARGEST, "1", configuration, curImageInformation)
+                insertImageGallery("1", configuration, curImageInformation)
 
                 insertCategoryLinks(curImageInformation, configuration, buildingCache)
 
@@ -112,11 +111,12 @@ class GalleryGenerator(
                     }
 
                     insertSubcategoryThumbnails(
+                        this@GalleryGenerator,
                         categoryInformation.subcategories,
                         configuration
                     )
 
-                    insertImageGallery(ImageSize.values, ImageSize.LARGEST, "1", configuration, imageInformations)
+                    insertImageGallery("1", configuration, imageInformations)
 
                     insertCustomMarkdown(targetFolder, "end", configuration, buildingCache)
                 }
@@ -151,7 +151,7 @@ class GalleryGenerator(
                     .map { it as? InternalImageInformation }
                     .filterNotNull()
                     .toOrderedByTime()
-                insertImageGallery(ImageSize.values, ImageSize.LARGEST, "1", configuration, imageInformations)
+                insertImageGallery("1", configuration, imageInformations)
 
                 insertCustomMarkdown(targetFolder, "end", configuration, buildingCache)
             })

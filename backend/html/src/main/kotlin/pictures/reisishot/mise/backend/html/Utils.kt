@@ -1,13 +1,8 @@
 package pictures.reisishot.mise.backend.html
 
-import at.reisishot.mise.backend.config.WebsiteConfig
-import at.reisishot.mise.commons.FilenameWithoutExtension
 import kotlinx.html.*
 import kotlinx.html.impl.DelegatingMap
 import kotlinx.html.stream.appendHTML
-import pictures.reisishot.mise.backend.ImageFetcher
-import pictures.reisishot.mise.backend.ImageInformation
-import pictures.reisishot.mise.backend.ImageSize
 import pictures.reisishot.mise.backend.df_dd_MM_YYYY
 import pictures.reisishot.mise.backend.htmlparsing.PageMetadata
 import java.util.*
@@ -36,77 +31,6 @@ fun FlowContent.container(block: DIV.() -> Unit = {}) = div("container", block)
 @HtmlTagMarker
 fun FlowContent.fluidContainer(block: DIV.() -> Unit = {}) = div("container-fluid", block)
 
-@HtmlTagMarker
-fun HtmlBlockTag.insertImageGallery(
-    imageSizes: Array<out ImageSize>,
-    fallback: ImageSize,
-    galleryName: String,
-    configuration: WebsiteConfig,
-    imageInformation: List<ImageInformation>
-) = with(imageInformation) {
-    if (isEmpty())
-        return@with
-    div {
-        val isSingleImageGallery = imageInformation.size == 1
-        classes = classes + "gallery center mt-3" + if (isSingleImageGallery) "single" else "row multiple"
-        attributes["data-name"] = galleryName
-        val additionalClasses = if (isSingleImageGallery)
-            ""
-        else
-            "col-12 col-sm-6 col-lg-4 col-xl-3 col-xxl-2"
-        imageInformation.forEach { curImageInfo ->
-            insertLazyPicture(imageSizes, fallback, curImageInfo, configuration, additionalClasses)
-        }
-    }
-}
-
-fun HtmlBlockTag.insertImageGallery(
-    imageSizes: Array<out ImageSize>,
-    fallback: ImageSize,
-    galleryName: String,
-    configuration: WebsiteConfig,
-    vararg imageInformation: ImageInformation
-) = insertImageGallery(imageSizes, fallback, galleryName, configuration, listOf(*imageInformation))
-
-fun HtmlBlockTag.insertLazyPicture(
-    imageSizes: Array<out ImageSize>,
-    fallback: ImageSize,
-    curImageInfo: ImageInformation,
-    configuration: WebsiteConfig,
-    additionalClasses: String? = null
-) {
-    div("pic-holder " + (additionalClasses ?: "")) {
-        div(PageGenerator.LAZYLOADER_CLASSNAME) {
-            attributes["data-alt"] = curImageInfo.title
-            attributes["data-id"] = curImageInfo.filename
-            attributes["data-url"] = curImageInfo.getUrl(configuration)
-            curImageInfo.thumbnailSizes.values.first().let {
-                style = "padding-top: ${(it.height * 100f) / it.width}%"
-            }
-            imageSizes.forEachIndexed { idx, curSize ->
-                val thumbnailSize = curImageInfo.thumbnailSizes[curSize] ?: error("Size $curSize not found!")
-                attributes["data-$idx"] = """{
-                    |"jpg":"${curImageInfo.getJpgUrl(configuration, curSize)}",
-                    |"webp":"${curImageInfo.getWebPUrl(configuration, curSize)}",
-                    |"w":${thumbnailSize.width},
-                    |"h":${thumbnailSize.height}
-                    |}""".trimMargin()
-            }
-            attributes["data-sizes"] = imageSizes.size.toString()
-            noScript {
-                img(curImageInfo.title, curImageInfo.getJpgUrl(configuration, fallback))
-            }
-        }
-    }
-}
-
-private fun ImageInformation.getJpgUrl(configuration: WebsiteConfig, imageSize: ImageSize): String {
-    return getUrl(configuration).substringBefore("gallery/images") + "images/" + filename + '_' + imageSize.identifier + ".jpg"
-}
-
-private fun ImageInformation.getWebPUrl(configuration: WebsiteConfig, imageSize: ImageSize): String {
-    return getUrl(configuration).substringBefore("gallery/images") + "images/" + filename + '_' + imageSize.identifier + ".webp"
-}
 
 @HtmlTagMarker
 fun FlowOrInteractiveOrPhrasingContent.smallButtonLink(
@@ -167,58 +91,6 @@ var DelegatingMap.content
         else
             this["content"] = value
     }
-
-fun HtmlBlockTag.renderCarousel(
-    imageSizes: Array<out ImageSize>,
-    fallback: ImageSize,
-    id: String,
-    changeMs: Int,
-    filename: Array<out FilenameWithoutExtension>,
-    imageFetcher: ImageFetcher,
-    websiteConfig: WebsiteConfig
-) {
-    div("carousel slide") {
-        this.id = id
-        attributes["data-bs-interval"] = changeMs.toString()
-        attributes["data-bs-ride"] = "carousel"
-        div("carousel-inner") {
-            filename.forEachIndexed { idx, filename ->
-                div {
-                    classes = classes + "carousel-item"
-                    if (idx == 0)
-                        classes = classes + "active"
-
-
-                    insertLazyPicture(
-                        imageSizes,
-                        fallback,
-                        imageFetcher(filename),
-                        websiteConfig,
-                        "d-block w-100"
-                    )
-                }
-            }
-        }
-
-        a("#$id", classes = "carousel-control-prev") {
-            role = "button"
-            attributes["data-bs-slide"] = "prev"
-            span("carousel-control-prev-icon") {
-                attributes["aria-hidden"] = "true"
-            }
-            span("visually-hidden") { text("Vorheriges Bild") }
-        }
-
-        a("#$id", classes = "carousel-control-next") {
-            role = "button"
-            attributes["data-bs-slide"] = "next"
-            span("carousel-control-next-icon") {
-                attributes["aria-hidden"] = "true"
-            }
-            span("visually-hidden") { text("Nächstes Bild") }
-        }
-    }
-}
 
 @HtmlTagMarker
 fun HtmlBlockTag.insertYoutube(codeOrLinkFragment: String, w: Int, h: Int, vararg additionalClasses: String) {

@@ -1,17 +1,16 @@
 import at.reisishot.mise.backend.config.WebsiteConfig
 import kotlinx.html.*
-import pictures.reisishot.mise.backend.ImageFetcher
-import pictures.reisishot.mise.backend.ImageSize
+import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
+import pictures.reisishot.mise.backend.generator.gallery.context.insertLazyPicture
+import pictures.reisishot.mise.backend.generator.gallery.context.renderCarousel
 import pictures.reisishot.mise.backend.generator.testimonials.Testimonial
 import pictures.reisishot.mise.backend.html.*
 import kotlin.math.roundToInt
 
 @HtmlTagMarker
 fun DIV.renderTestimonial(
-    imageSizes: Array<out ImageSize>,
-    fallback: ImageSize,
+    galleryGenerator: AbstractGalleryGenerator,
     websiteConfig: WebsiteConfig,
-    galleryCache: ImageFetcher,
     mode: TestimonialMode,
     testimonial: Testimonial
 ) {
@@ -27,7 +26,7 @@ fun DIV.renderTestimonial(
         attributes.itemprop = ""
         attributes.itemtype = "https://schema.org/Review"
 
-        renderTestimonialVisual(imageSizes, fallback, this, testimonial, galleryCache, websiteConfig)
+        renderTestimonialVisual(galleryGenerator, testimonial, websiteConfig)
 
         div("card-body") {
             h5("card-title") {
@@ -65,27 +64,22 @@ fun DIV.renderTestimonial(
     }
 }
 
-private fun renderTestimonialVisual(
-    imageSizes: Array<out ImageSize>,
-    fallback: ImageSize,
-    div: HtmlBlockTag,
+private fun HtmlBlockTag.renderTestimonialVisual(
+    galleryGenerator: AbstractGalleryGenerator,
     testimonial: Testimonial,
-    cache: ImageFetcher,
     websiteConfig: WebsiteConfig
-) = with(div) {
+) {
     if (testimonial.video != null) {
         insertYoutube(testimonial.video, 4, 5, "card-img-top")
     } else if (testimonial.image != null) {
-        val curImageInfo = cache(testimonial.image)
-        insertLazyPicture(imageSizes, fallback, curImageInfo, websiteConfig, "card-img-top")
+        val curImageInfo = galleryGenerator.cache.imageInformationData.getValue(testimonial.image)
+        insertLazyPicture(curImageInfo, websiteConfig, "card-img-top")
     } else if (testimonial.images != null) {
         renderCarousel(
-            imageSizes,
-            fallback,
+            galleryGenerator,
             "test-" + testimonial.id,
             5000,
             testimonial.images.toTypedArray(),
-            cache,
             websiteConfig
         )
     }
@@ -93,10 +87,8 @@ private fun renderTestimonialVisual(
 
 @HtmlTagMarker
 fun HtmlBlockTag.appendTestimonials(
-    imageSizes: Array<out ImageSize>,
-    fallback: ImageSize,
+    galleryGenerator: AbstractGalleryGenerator,
     websiteConfig: WebsiteConfig,
-    galleryGenerator: ImageFetcher,
     mode: TestimonialMode,
     displayStatistics: Boolean,
     type: String,
@@ -117,7 +109,7 @@ fun HtmlBlockTag.appendTestimonials(
                 classes = classes + "container-flex" + "reviews"
             }
         }
-        1
+
         val sortTestimonials =
             compareBy<Testimonial>(
                 { it.image == null && it.video == null && it.images == null },
@@ -132,10 +124,8 @@ fun HtmlBlockTag.appendTestimonials(
             .sortedWith(sortTestimonials)
             .forEach { testimonial ->
                 renderTestimonial(
-                    imageSizes,
-                    fallback,
-                    websiteConfig,
                     galleryGenerator,
+                    websiteConfig,
                     mode,
                     testimonial
                 )

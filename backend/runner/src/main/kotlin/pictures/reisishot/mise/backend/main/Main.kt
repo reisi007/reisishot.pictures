@@ -15,10 +15,10 @@ import pictures.reisishot.mise.backend.Mise.generate
 import pictures.reisishot.mise.backend.config.private.PrivateConfig
 import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.context.createCategoryApi
-import pictures.reisishot.mise.backend.generator.gallery.context.createHtmlApi
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.links.LinkGenerator
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
+import pictures.reisishot.mise.backend.generator.pages.htmlparsing.context.createHtmlApi
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.MinimalisticPageGenerator
 import pictures.reisishot.mise.backend.generator.pages.overview.OverviewPageGenerator
 import pictures.reisishot.mise.backend.generator.pages.yamlConsumer.KeywordConsumer
@@ -37,7 +37,6 @@ import pictures.reisishot.mise.backend.generator.gallery.pictures.reisishot.mise
 
 object Main {
     const val folderName = "reisishot.pictures"
-    val tmpPath: Path = Paths.get("tmp", folderName).toAbsolutePath()
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -45,9 +44,8 @@ object Main {
     }
 
     fun build(isDevMode: Boolean) {
-        val inPath = Paths.get("input", folderName).toAbsolutePath()
 
-        val testimonialLoader = TestimonialLoaderImpl.fromInPath(inPath)
+        val testimonialLoader = TestimonialLoaderImpl.fromInPath(Paths.get("input", folderName).toAbsolutePath())
 
         val galleryGenerator = GalleryGenerator(
             PrivateConfig.TAG_CONFIG,
@@ -57,9 +55,7 @@ object Main {
         )
 
         val overviewPageGenerator = OverviewPageGenerator(
-            DefaultImageSize.values,
-            DefaultImageSize.LARGEST,
-            galleryGenerator.imageFetcher
+            galleryGenerator,
         )
 
 
@@ -79,8 +75,8 @@ object Main {
 
         val websiteConfig = buildWebsiteConfig(
             PathInformation(
-                inPath,
-                tmpPath,
+                Paths.get("input", folderName).toAbsolutePath(),
+                Paths.get("tmp", folderName).toAbsolutePath(),
                 Paths.get("upload", folderName).toAbsolutePath()
             ),
             GeneralWebsiteInformation(
@@ -176,12 +172,8 @@ object Main {
                 }) {
                 registerAll(
                     galleryGenerator.createCategoryApi(),
-                    galleryGenerator.createHtmlApi(),
-                    testimonialLoader.createTestimonialApi(
-                        DefaultImageSize.values,
-                        DefaultImageSize.LARGEST,
-                        galleryGenerator.imageFetcher
-                    )
+                    createHtmlApi(),
+                    testimonialLoader.createTestimonialApi(galleryGenerator)
                 )
             }
         }

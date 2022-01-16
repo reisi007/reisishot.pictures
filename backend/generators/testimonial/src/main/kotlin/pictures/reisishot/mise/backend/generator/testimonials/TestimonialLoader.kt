@@ -3,8 +3,7 @@ package pictures.reisishot.mise.backend.generator.testimonials
 import at.reisishot.mise.backend.config.*
 import at.reisishot.mise.commons.*
 import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
-import pictures.reisishot.mise.backend.ImageFetcher
-import pictures.reisishot.mise.backend.ImageSize
+import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.pages.htmlparsing.MarkdownParser.markdown2Html
 import pictures.reisishot.mise.backend.html.config.VelocityTemplateObjectCreator
 import pictures.reisishot.mise.backend.htmlparsing.Yaml
@@ -137,8 +136,5 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
 }
 
 @WebsiteConfigBuilderDsl
-fun TestimonialLoader.createTestimonialApi(
-    imageSizes: Array<out ImageSize>,
-    fallback: ImageSize,
-    imageFetcher: ImageFetcher
-): Pair<String, VelocityTemplateObjectCreator> = createBaseTestimonialApi(this, imageSizes, fallback, imageFetcher)
+fun TestimonialLoader.createTestimonialApi(galleryGenerator: AbstractGalleryGenerator): Pair<String, VelocityTemplateObjectCreator> =
+    createBaseTestimonialApi(this, galleryGenerator)

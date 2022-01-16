@@ -1,3 +1,5 @@
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
 package pictures.reisishot.mise.backend.generator.gallery.context
 
 import at.reisishot.mise.backend.config.WebsiteConfig
@@ -33,8 +35,6 @@ internal class CategoryApi(
 
     private val galleryInfoDateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.uuuu")
 
-
-    @SuppressWarnings("unused")
     fun insertSubalbumThumbnails(albumName: String): String = buildString {
         appendUnformattedHtml().div {
             val categoryInformation = cache.rootCategory
@@ -47,11 +47,10 @@ internal class CategoryApi(
                     ?: error("No category $albumName found")
             }
 
-            insertSubcategoryThumbnails(subcategories, websiteConfig)
+            insertSubcategoryThumbnails(galleryGenerator, subcategories, websiteConfig)
         }
     }
 
-    @SuppressWarnings("unused")
     fun insertCategoryOverview(vararg albumName: String) = buildString {
         if (albumName.isEmpty()) return@buildString
         @Suppress("RemoveExplicitTypeArguments")
@@ -70,12 +69,10 @@ internal class CategoryApi(
             if (albumName.size != albums.size) {
                 error("Not all categories found! $albumName")
             }
-
-            insertCategoryThumbnails(albums, websiteConfig)
+            insertCategoryThumbnails(galleryGenerator, albums, websiteConfig)
         }
     }
 
-    @SuppressWarnings("unused")
     fun insertGalleryInfo(): String = buildString {
         appendUnformattedHtml().p {
             val images = cache.imageInformationData.values
