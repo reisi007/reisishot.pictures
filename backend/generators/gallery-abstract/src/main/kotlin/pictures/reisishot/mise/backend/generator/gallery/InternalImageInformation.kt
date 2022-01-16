@@ -7,8 +7,10 @@ import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.commons.concurrentSetOf
 import at.reisishot.mise.exifdata.ExifdataKey
 import kotlinx.serialization.Serializable
-import pictures.reisishot.mise.backend.*
+import pictures.reisishot.mise.backend.ImageInformation
 import pictures.reisishot.mise.backend.config.tags.TagInformation
+import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator.ImageSize
+import pictures.reisishot.mise.backend.generator.thumbnail.ImageSizeInformation
 import pictures.reisishot.mise.backend.config.ImageInformation as ConfigImageInformation
 
 
@@ -46,5 +48,6 @@ class InternalImageInformation(
 
 
 }
+
 
 

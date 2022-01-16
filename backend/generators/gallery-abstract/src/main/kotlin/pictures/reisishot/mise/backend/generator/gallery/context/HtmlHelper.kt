@@ -6,10 +6,10 @@ import at.reisishot.mise.backend.config.WebsiteConfig
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.ImageInformation
-import pictures.reisishot.mise.backend.ImageSize
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
+import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.html.PageGenerator
-import pictures.reisishot.mise.backend.generator.gallery.pictures.reisishot.mise.backend.generator.gallery.AbstractThumbnailGenerator.AbstractThumbnailGeneratorImageSize.Companion as DefaultImageSize
+import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator.ImageSize.Companion as DefaultImageSize
 
 
 fun HtmlBlockTag.insertLazyPicture(
@@ -42,11 +42,17 @@ fun HtmlBlockTag.insertLazyPicture(
     }
 }
 
-private fun ImageInformation.getJpgUrl(configuration: WebsiteConfig, imageSize: ImageSize): String {
+private fun ImageInformation.getJpgUrl(
+    configuration: WebsiteConfig,
+    imageSize: AbstractThumbnailGenerator.ImageSize
+): String {
     return getUrl(configuration).substringBefore("gallery/images") + "images/" + filename + '_' + imageSize.identifier + ".jpg"
 }
 
-private fun ImageInformation.getWebPUrl(configuration: WebsiteConfig, imageSize: ImageSize): String {
+private fun ImageInformation.getWebPUrl(
+    configuration: WebsiteConfig,
+    imageSize: AbstractThumbnailGenerator.ImageSize
+): String {
     return getUrl(configuration).substringBefore("gallery/images") + "images/" + filename + '_' + imageSize.identifier + ".webp"
 }
 

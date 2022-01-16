@@ -4,15 +4,15 @@ import at.reisishot.mise.backend.config.WebsiteConfig
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.ImageInformation
-import pictures.reisishot.mise.backend.ImageSize
-import pictures.reisishot.mise.backend.ImageSizeInformation
+import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator
+import pictures.reisishot.mise.backend.generator.thumbnail.ImageSizeInformation
 
 
 @Serializable
 class ExternalImageInformation(
     private val host: String,
     override val filename: FilenameWithoutExtension,
-    override val thumbnailSizes: Map<ImageSize, ImageSizeInformation>,
+    override val thumbnailSizes: Map<AbstractThumbnailGenerator.ImageSize, ImageSizeInformation>,
     override val relativeLocation: String,
     override val title: String
 ) : ImageInformation() {

@@ -4,15 +4,14 @@ package pictures.reisishot.mise.backend.generator.gallery.thumbnails
 import at.reisishot.mise.commons.replaceFileExtension
 import at.reisishot.mise.commons.runAndWaitOnConsole
 import at.reisishot.mise.commons.toNormalizedString
-import pictures.reisishot.mise.backend.ImageSize
-import pictures.reisishot.mise.backend.generator.gallery.pictures.reisishot.mise.backend.generator.gallery.AbstractThumbnailGenerator
+import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator
 import java.nio.file.Path
 
 open class ImageMagickThumbnailGenerator(forceRegeneration: ForceRegeneration = ForceRegeneration()) :
     AbstractThumbnailGenerator(forceRegeneration) {
     override val generatorName: String = "Image Magick Thumbnail"
 
-    override fun convertImage(inFile: Path, outFile: Path, prefferedSize: AbstractThumbnailGeneratorImageSize) {
+    override fun convertImage(inFile: Path, outFile: Path, prefferedSize: ImageSize) {
         val normalizedOut = outFile.normalize()
 
         generateWebP(inFile, prefferedSize, normalizedOut)

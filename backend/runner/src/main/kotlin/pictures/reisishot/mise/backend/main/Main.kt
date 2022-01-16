@@ -15,6 +15,7 @@ import pictures.reisishot.mise.backend.Mise.generate
 import pictures.reisishot.mise.backend.config.private.PrivateConfig
 import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.context.createCategoryApi
+import pictures.reisishot.mise.backend.generator.gallery.context.createPictureApi
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.links.LinkGenerator
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
@@ -28,12 +29,11 @@ import pictures.reisishot.mise.backend.generator.testimonials.createTestimonialA
 import pictures.reisishot.mise.backend.html.*
 import pictures.reisishot.mise.backend.html.config.SocialMediaAccounts
 import pictures.reisishot.mise.backend.html.config.buildHtmlConfig
-import pictures.reisishot.mise.backend.html.config.registerAll
+import pictures.reisishot.mise.backend.html.config.registerAllTemplateObjects
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
 import pictures.reisishot.mise.backend.config.ImageInformation as ConfigImageInformation
-import pictures.reisishot.mise.backend.generator.gallery.pictures.reisishot.mise.backend.generator.gallery.AbstractThumbnailGenerator.AbstractThumbnailGeneratorImageSize as DefaultImageSize
 
 object Main {
     const val folderName = "reisishot.pictures"
@@ -99,10 +99,6 @@ object Main {
                 }
                 polymorphic(ImageInformation::class) {
                     subclass(InternalImageInformation::class)
-                }
-
-                polymorphic(ImageSize::class) {
-                    subclass(DefaultImageSize::class)
                 }
             }
 
@@ -170,9 +166,10 @@ object Main {
                             )
                         })
                 }) {
-                registerAll(
-                    galleryGenerator.createCategoryApi(),
+                registerAllTemplateObjects(
                     createHtmlApi(),
+                    galleryGenerator.createPictureApi(),
+                    galleryGenerator.createCategoryApi(),
                     testimonialLoader.createTestimonialApi(galleryGenerator)
                 )
             }

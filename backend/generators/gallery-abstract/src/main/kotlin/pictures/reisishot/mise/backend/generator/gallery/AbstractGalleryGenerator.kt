@@ -9,13 +9,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.*
 import kotlinx.serialization.Serializable
-import pictures.reisishot.mise.backend.*
+import pictures.reisishot.mise.backend.IPageMinimalInfo
+import pictures.reisishot.mise.backend.ImageInformation
+import pictures.reisishot.mise.backend.SourcePath
+import pictures.reisishot.mise.backend.TargetPath
 import pictures.reisishot.mise.backend.config.category.*
 import pictures.reisishot.mise.backend.config.tags.TagConfig
 import pictures.reisishot.mise.backend.config.tags.TagInformation
 import pictures.reisishot.mise.backend.generator.gallery.context.insertLazyPicture
-import pictures.reisishot.mise.backend.generator.gallery.pictures.reisishot.mise.backend.generator.gallery.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.pages.htmlparsing.MarkdownParser
+import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator
+import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator.ImageSize
+import pictures.reisishot.mise.backend.generator.thumbnail.ImageSizeInformation
 import pictures.reisishot.mise.backend.html.raw
 import java.nio.file.Files
 import java.nio.file.Path
@@ -27,7 +32,6 @@ import java.util.*
 import java.util.concurrent.ConcurrentMap
 import kotlin.io.path.exists
 import kotlin.streams.asSequence
-import pictures.reisishot.mise.backend.generator.gallery.pictures.reisishot.mise.backend.generator.gallery.AbstractThumbnailGenerator.AbstractThumbnailGeneratorImageSize as ImageSize
 
 
 abstract class AbstractGalleryGenerator(

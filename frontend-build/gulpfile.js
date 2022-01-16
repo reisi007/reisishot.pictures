@@ -53,8 +53,7 @@ gulp.task('serve', function () {
     browserSync.init({
         files: outBase + '**/*.*',
         reloadOnRestart: true,
-        reloadDebounce: 2000,
-        reloadDelay: 100,
+        reloadThrottle: 2000,
         watchOptions: {
             usePolling: false,
             ignoreInitial: true

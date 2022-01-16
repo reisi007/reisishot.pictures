@@ -1,4 +1,4 @@
-package pictures.reisishot.mise.backend.generator.gallery.pictures.reisishot.mise.backend.generator.gallery
+package pictures.reisishot.mise.backend.generator.thumbnail
 
 import at.reisishot.mise.backend.config.*
 import at.reisishot.mise.commons.*
@@ -12,9 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import pictures.reisishot.mise.backend.ImageSize
-import pictures.reisishot.mise.backend.ImageSizeInformation
-import pictures.reisishot.mise.backend.Interpolation
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.Executors
@@ -37,28 +34,41 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfig, cache: BuildingCache) {
     }
 
+    enum class Interpolation(val value: String) {
+        NONE("4:4:4"),
+        LOW("4:2:2"),
+        MEDIUM("4:2:0"),
+        HIGH("4:1:1")
+    }
+
     @Serializable
-    data class AbstractThumbnailGeneratorImageSize(
-        override val identifier: String,
-        override val longestSidePx: Int,
-        override val quality: Float,
-        override val interpolation: Interpolation
-    ) : ImageSize {
+    enum class ImageSize(
+        val identifier: String,
+        val longestSidePx: Int,
+        val quality: Float,
+        val interpolation: Interpolation
+    ) {
+
+        EMBED("embed", 400, 0.5f, Interpolation.MEDIUM),
+        THUMB("thumb", 700, 0.5f, Interpolation.MEDIUM),
+        MEDIUM("medium", 1200, 0.5f, Interpolation.MEDIUM),
+        LARGE("large", 2050, 0.6f, Interpolation.MEDIUM);
+
         companion object {
-            private val EMBED = AbstractThumbnailGeneratorImageSize("embed", 400, 0.5f, Interpolation.MEDIUM)
-            private val THUMB = AbstractThumbnailGeneratorImageSize("thumb", 700, 0.5f, Interpolation.MEDIUM)
-            private val MEDIUM = AbstractThumbnailGeneratorImageSize("medium", 1200, 0.5f, Interpolation.MEDIUM)
-            private val LARGE = AbstractThumbnailGeneratorImageSize("large", 2050, 0.6f, Interpolation.MEDIUM)
-            val values = arrayOf(EMBED, THUMB, MEDIUM, LARGE)
+            val values = values()
 
             val LARGEST
                 get() = values.last()
         }
 
-        override val smallerSize: ImageSize?
+        val smallerSize: ImageSize?
             get() = values.getOrNull(values.indexOf(this) - 1)
-        override val largerSize: ImageSize?
+        val largerSize: ImageSize?
             get() = values.getOrNull(values.indexOf(this) + 1)
+
+        override fun toString(): String {
+            return identifier
+        }
     }
 
     override suspend fun fetchUpdateInformation(
@@ -143,7 +153,7 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
                 Files.createDirectories(baseOutPath.parent)
             }
             val sourceInfo = getJpegThumbnailInfo(originalImage)
-            AbstractThumbnailGeneratorImageSize.values
+            ImageSize.values
                 .asSequence()
                 .map { size -> generateThumbnails(baseOutPath, originalImage, sourceInfo, size) }
                 .toMap()
@@ -155,8 +165,8 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
         baseOutPath: Path,
         originalImage: Path,
         sourceInfo: ImageSizeInformation,
-        size: AbstractThumbnailGeneratorImageSize
-    ): Pair<AbstractThumbnailGeneratorImageSize, ImageSizeInformation> {
+        size: ImageSize
+    ): Pair<ImageSize, ImageSizeInformation> {
         val outFile = baseOutPath.parent withChild ("${baseOutPath.filenameWithoutExtension}_${size.identifier}.webp")
 
         (forceRegeneration.thumbnails || !outFile.exists() || originalImage.isNewerThan(outFile)).let { actionNeeded ->
@@ -170,7 +180,7 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
         jpegImage: Path,
         sourceInfo: ImageSizeInformation,
         outFile: Path,
-        size: AbstractThumbnailGeneratorImageSize
+        size: ImageSize
     ) {
         size.smallerSize?.let {
             if (max(sourceInfo.height, sourceInfo.width) < it.longestSidePx) return
@@ -181,7 +191,7 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
     /**
      * Should convert an image to Webp and jpeg at the moment -> jpeg will not be needed in the future
      */
-    protected abstract fun convertImage(inFile: Path, outFile: Path, prefferedSize: AbstractThumbnailGeneratorImageSize)
+    protected abstract fun convertImage(inFile: Path, outFile: Path, prefferedSize: ImageSize)
 
     private fun getJpegThumbnailInfo(jpegImage: Path): ImageSizeInformation {
         val exifData = findDirectory<JpegDirectory>(jpegImage)
