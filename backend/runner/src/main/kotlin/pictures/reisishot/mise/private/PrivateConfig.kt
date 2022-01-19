@@ -1,0 +1,232 @@
+package pictures.reisishot.mise.backend.config.private
+
+import pictures.reisishot.mise.backend.config.category.*
+import pictures.reisishot.mise.backend.config.category.computable.CameraLensCategoryComputable
+import pictures.reisishot.mise.backend.config.category.computable.DateCategoryComputable
+import pictures.reisishot.mise.backend.config.tags.additionalTags
+import pictures.reisishot.mise.backend.config.tags.buildTagConfig
+import pictures.reisishot.mise.backend.config.tags.computable.computeTagsFromExif
+
+object PrivateConfig {
+
+    val TAG_CONFIG = buildTagConfig {
+
+        computeTagsFromExif()
+
+        additionalTags {
+
+            "Frau" to arrayOf(
+                "Anja H",
+                "Eva Mair",
+                "Jessica Hettich",
+                "Julia Eder",
+                "Laura Schmiedinger"
+            )
+
+            "Mann" to arrayOf(
+                "Simon Luger"
+            )
+
+            "Style in Motion" to arrayOf(
+                "JC Crew",
+                "Synergy Crew"
+            )
+
+            "Tiere" to arrayOf(
+                "Eichhörnchen"
+            )
+
+            "Zoo" to arrayOf(
+                "Tiergarten Schoenbrunn",
+                "Aqua-Terra Zoo Wien",
+                "BÄRENPARK Arbersbach",
+                "Welser Tiergarten"
+            )
+
+            "Simon Luger" withTags arrayOf("Back to Saturday")
+
+            "Style in Motion" withTags "Tanz"
+
+            "Steel Wings Linz" withTags "Eishockey"
+        }
+    }
+
+    val CATEGORY_CONFIG = buildCategoryConfig {
+        withComputedSubCategories("Chronologisch") { DateCategoryComputable(it) }
+        withComputedSubCategories("Ausrüstung") {
+            CameraLensCategoryComputable(it) {
+                mapOf(
+                    Pair(null, null) to "Eichhörnchen002",
+                    Pair("Canon EOS M50", null) to "Wien009"
+                )
+            }
+        }
+
+        withSubCategory("Natur", "Schmetterling023") {
+            includeTagsAndSubcategories("Natur")
+
+            withSubCategory("Tiere") {
+                includeTagsAndSubcategories("Tiere")
+
+                withSubCategory("Zoo") {
+                    includeTagsAndSubcategories("Zoo")
+                }
+
+                withSubCategory("Hund") {
+                    includeTagsAndSubcategories("Hund")
+                }
+
+                withSubCategory("Insekten") {
+                    includeTagsAndSubcategories("Insekten")
+
+                    withSubCategory("Wollschweber") {
+                        includeTagsAndSubcategories("Wollschweber")
+                    }
+
+                    withSubCategory("Bienen") {
+                        includeTagsAndSubcategories("Biene")
+                    }
+
+                    withSubCategory("Grashüpfer") {
+                        includeTagsAndSubcategories("Grashuepfer")
+                    }
+                    withSubCategory("Schmetterling") {
+                        includeTagsAndSubcategories("Schmetterling")
+                    }
+                }
+
+                withSubCategory("Vögel") {
+                    includeTagsAndSubcategories("Vogel")
+                }
+
+                withSubCategory("Katzen") {
+                    includeTagsAndSubcategories("Katze")
+                }
+            }
+
+            withSubCategory("Blumen") {
+                includeTagsAndSubcategories("Blume")
+
+                withSubCategory("Wassertropfen") {
+                    includeTagsAndSubcategories("Wassertropfen")
+                }
+            }
+        }
+
+        withSubCategory("Detailaufnahmen", "Schwebfliege003") {
+            includeTagsAndSubcategories("Detailaufnahme")
+        }
+
+        withSubCategory("Schwarz-Weiß", "Tier014") {
+            includeTagsAndSubcategories("Schwarz Weiss")
+        }
+
+        withSubCategory("Nacht") {
+            includeTagsAndSubcategories("Nacht")
+
+            withSubCategory("Feuerwerk") {
+                includeTagsAndSubcategories("Feuerwerk")
+            }
+            withSubCategory("Urfahranermarkt") {
+                includeTagsAndSubcategories("Urfahranermarkt")
+            }
+        }
+
+        withSubCategory("Österreich", "OperWien02") {
+
+            complexMatchAnd(
+                matchOr(
+                    buildIncludeSubdirectoriesMatcher(),
+                    buildIncludeTagsMatcher("Österreich"),
+                ),
+                buildExcludeMatcher("Natur")
+            )
+
+            withSubCategory("Baden bei Wien") {
+                includeTagsAndSubcategories("Baden bei Wien")
+            }
+            withSubCategory("Ebensee") {
+                includeTagsAndSubcategories("Ebensee")
+            }
+            withSubCategory("Traunkirchen") {
+                includeTagsAndSubcategories("Traunkirchen")
+            }
+            withSubCategory("St. Pölten") {
+                includeTagsAndSubcategories("St. Poelten")
+            }
+            withSubCategory("Graz") {
+                includeTagsAndSubcategories("Graz")
+            }
+            withSubCategory("Krems") {
+                includeTagsAndSubcategories("Krems")
+            }
+            withSubCategory("Salzburg") {
+                includeTagsAndSubcategories("Salzburg")
+            }
+            withSubCategory("Semmering") {
+                includeTagsAndSubcategories("Semmering")
+            }
+            withSubCategory("Ötscher") {
+                includeTagsAndSubcategories("Ötschergräben")
+            }
+            withSubCategory("Wien") {
+                includeTagsAndSubcategories("Wien")
+            }
+        }
+
+        withSubCategory("Reisen") {
+            includeSubcategories()
+
+            withSubCategory("Zypern", "2019-Zypern30") {
+                includeTagsAndSubcategories("Zypern")
+            }
+            withSubCategory("Prag") {
+                includeTagsAndSubcategories("Prag")
+            }
+        }
+
+        withSubCategory("Fotoshootings", "Frau33") {
+            includeSubcategories()
+
+            withSubCategory("Frauen", "AnjaH016") {
+                includeTagsAndSubcategories("Frau")
+            }
+            withSubCategory("Männer") {
+                includeTagsAndSubcategories("Mann")
+            }
+            withSubCategory("Paare") {
+                includeTagsAndSubcategories("Paare")
+            }
+            withSubCategory("Boudoir", "Boudoir0001") {
+                includeTagsAndSubcategories("Boudoir")
+            }
+            withSubCategory("Musiker") {
+                includeTagsAndSubcategories("Musiker")
+
+                withSubCategory("Back to Saturday") {
+                    includeTagsAndSubcategories("Back to Saturday")
+                }
+            }
+
+            withSubCategory("Sport", "SteelWings0034") {
+                includeTagsAndSubcategories("Sport")
+
+                withSubCategory("Beachvolleyball") {
+                    includeTagsAndSubcategories("Beachvolleyball")
+                }
+
+                withSubCategory("Floorball") {
+                    includeTagsAndSubcategories("Floorball")
+                }
+
+                withSubCategory("Eishockey") {
+                    includeTagsAndSubcategories("Eishockey")
+                }
+
+                withSubCategory("Tanz") {
+                    includeTagsAndSubcategories("Tanz")
+                }
+            }
+        }
+    }
+}
