@@ -7,12 +7,6 @@ import pictures.reisishot.mise.backend.df_dd_MM_YYYY
 import pictures.reisishot.mise.backend.htmlparsing.PageMetadata
 import java.util.*
 
-
-@HtmlTagMarker
-fun HTMLTag.raw(block: StringBuilder.() -> Unit): Unit = consumer.onTagContentUnsafe {
-    this.raw(buildString(block))
-}
-
 @HtmlTagMarker
 fun HTMLTag.raw(content: String): Unit = consumer.onTagContentUnsafe {
     this.raw(content)
@@ -27,10 +21,6 @@ fun FlowContent.divId(divId: String, classes: String? = null, block: DIV.() -> U
 
 @HtmlTagMarker
 fun FlowContent.container(block: DIV.() -> Unit = {}) = div("container", block)
-
-@HtmlTagMarker
-fun FlowContent.fluidContainer(block: DIV.() -> Unit = {}) = div("container-fluid", block)
-
 
 @HtmlTagMarker
 fun FlowOrInteractiveOrPhrasingContent.smallButtonLink(
@@ -78,10 +68,6 @@ var DelegatingMap.itemtype
         else
             this["itemtype"] = value
     }
-
-object Itemtypes {
-    const val ARTICLE = "http://schema.org/Article"
-}
 
 var DelegatingMap.content
     get() = this["content"]
@@ -149,4 +135,4 @@ fun Tag.text(date: Date) {
     text(df_dd_MM_YYYY.format(date))
 }
 
-fun <T : Appendable> T.appendUnformattedHtml() = appendHTML(false, true)
+fun <T : Appendable> T.appendUnformattedHtml() = appendHTML(prettyPrint = false, xhtmlCompatible = true)

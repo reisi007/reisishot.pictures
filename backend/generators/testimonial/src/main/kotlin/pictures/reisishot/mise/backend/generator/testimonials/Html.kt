@@ -1,9 +1,10 @@
+package pictures.reisishot.mise.backend.generator.testimonials
+
 import at.reisishot.mise.backend.config.WebsiteConfig
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.context.insertLazyPicture
 import pictures.reisishot.mise.backend.generator.gallery.context.renderCarousel
-import pictures.reisishot.mise.backend.generator.testimonials.Testimonial
 import pictures.reisishot.mise.backend.html.*
 import kotlin.math.roundToInt
 

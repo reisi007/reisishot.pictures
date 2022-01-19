@@ -10,13 +10,13 @@ object RenameDo {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val csvPath = Paths.get(args.get(0))
-        val inputFolder = Paths.get(args.get(1))
+        val csvPath = Paths.get(args[0])
+        val inputFolder = Paths.get(args[1])
 
         val targetFilenames = mutableSetOf<String>()
 
-        Files.newBufferedReader(csvPath, Charsets.UTF_8).useLines {
-            val entiesToChange = it.map { it.split(',', limit = 2) }
+        Files.newBufferedReader(csvPath, Charsets.UTF_8).useLines { lines ->
+            val entiesToChange = lines.map { it.split(',', limit = 2) }
                 .map { it[0] to it[1] }
                 .peek { (_, targetFilename) ->
                     if (!targetFilenames.add(targetFilename))

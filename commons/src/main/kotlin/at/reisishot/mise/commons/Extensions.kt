@@ -1,25 +1,16 @@
 package at.reisishot.mise.commons
 
-import kotlinx.coroutines.*
-import java.awt.image.BufferedImage
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.concurrent.Executors
-import javax.swing.ImageIcon
 import kotlin.streams.asSequence
 
-suspend inline fun <E> Iterable<E>.forEachLimitedParallel(
-    maxThreadCount: Int, noinline callable: suspend (E) -> Unit
-): List<Job> {
-    return Executors.newFixedThreadPool(
-        maxThreadCount.coerceAtMost(Runtime.getRuntime().availableProcessors())
-    ).asCoroutineDispatcher().use {
-        forEachParallel(it, callable)
-    }
-}
 
 suspend fun <E> Iterable<E>.forEachParallel(
     dispatcher: CoroutineDispatcher = Dispatchers.Default, callable: suspend (E) -> Unit
@@ -49,13 +40,6 @@ infix fun Path.withChild(fileOrFolder: Path): Path = resolve(fileOrFolder)
 inline fun <T> Path.useBufferedReader(callable: (BufferedReader) -> T): T =
     Files.newBufferedReader(this, Charsets.UTF_8).use(callable)
 
-fun Path.readImage(): BufferedImage =
-    ImageIcon(toUri().toURL()).let {
-        BufferedImage(it.iconWidth, it.iconHeight, BufferedImage.TYPE_INT_RGB).apply {
-            it.paintIcon(null, createGraphics(), 0, 0)
-        }
-    }
-
 val Path.fileModifiedDateTime: ZonedDateTime?
     get() = if (Files.exists(this) && Files.isRegularFile(this))
         Files.getLastModifiedTime(this).toInstant().atZone(ZoneId.systemDefault())
@@ -77,12 +61,6 @@ fun Path.list(): Sequence<Path> = Files.list(this).asSequence()
 
 fun Path.isRegularFile() = Files.isRegularFile(this)
 
-
-inline fun <reified T> Sequence<T>.toArray(size: Int): Array<T> {
-    val iter = iterator()
-    return Array(size) { iter.next() }
-}
-
 fun Path.isNewerThan(other: Path): Boolean =
     Files.getLastModifiedTime(this) > Files.getLastModifiedTime(other)
 
@@ -102,9 +80,6 @@ inline fun <T> Sequence<T>.peek(crossinline peekingAction: (T) -> Unit) =
         peekingAction(it)
         it
     }
-
-fun <T> Iterator<T>.nextOrNull(): T? = if (hasNext()) next() else null
-fun <T> ListIterator<T>.previousOrNull(): T? = if (hasPrevious()) previous() else null
 
 fun <K, V : Collection<*>> Map<K, V>.prettyPrint() = keys.forEach { k ->
     println(k.toString())

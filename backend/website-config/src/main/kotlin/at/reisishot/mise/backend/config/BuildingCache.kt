@@ -1,7 +1,6 @@
 package at.reisishot.mise.backend.config
 
 import at.reisishot.mise.commons.withChild
-import pictures.reisishot.mise.backend.config.*
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -70,8 +69,8 @@ class BuildingCache {
         elementIndex: Int = 0
     ): Unit = synchronized(internalMenuLinks) {
         internalMenuLinks.find {
-            it is MenuLinkContainer && it.id == containerId && it.uniqueIndex == containerIndex && it.children.any {
-                it.text == text && it.href == link
+            it is MenuLinkContainer && it.id == containerId && it.uniqueIndex == containerIndex && it.children.any { child ->
+                child.text == text && child.href == link
             }
         }.let {
             if (it == null)

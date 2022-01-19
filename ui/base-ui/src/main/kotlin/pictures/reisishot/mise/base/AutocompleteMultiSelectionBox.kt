@@ -3,7 +3,6 @@ package pictures.reisishot.mise.base
 import javafx.collections.FXCollections
 import javafx.collections.ListChangeListener
 import javafx.collections.ListChangeListener.Change
-import javafx.collections.ObservableSet
 import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Pos
@@ -82,7 +81,7 @@ class AutocompleteMultiSelectionBox<T : Comparable<T>>(
         //Build list as set of labels
         val menuItems = searchResult.asSequence()
             .take(MAX_ENTRIES)// Limit to MAX_ENTRIES in the suggestions
-            .minus(tags)
+            .minus(tags.toSet())
             .map { result ->
                 //label with graphic (text flow) to highlight founded subtext in suggestions
                 val textFlow = buildTextFlow(result.toString(), searchRequest)
@@ -102,17 +101,6 @@ class AutocompleteMultiSelectionBox<T : Comparable<T>>(
         //"Refresh" context menu
         entriesPopup.items.clear()
         entriesPopup.items.addAll(menuItems)
-    }
-
-    /**
-     * Clears then repopulates the entries with the new set of data.
-     *
-     * @param suggestions set of items.
-     */
-
-    fun setSuggestions(suggestions: ObservableSet<T>) {
-        this.suggestions.clear()
-        this.suggestions.addAll(suggestions)
     }
 
     private inner class Tag(tag: T) : HBox() {
@@ -202,9 +190,7 @@ class AutocompleteMultiSelectionBox<T : Comparable<T>>(
         inputTextField.onKeyTyped = EventHandler { event ->
             if (event.character == "\r" && inputTextField.text.isNotEmpty()) {
                 val newTag = inputTextField.text
-                val element = entryGenerator(newTag)
-                if (element == null)
-                    return@EventHandler
+                val element = entryGenerator(newTag) ?: return@EventHandler
                 suggestions.add(element)
                 tags.add(element)
                 inputTextField.text = ""

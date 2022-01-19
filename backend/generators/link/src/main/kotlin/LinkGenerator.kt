@@ -20,7 +20,7 @@ class LinkGenerator : WebsiteGenerator {
     ) = configuration.useJsonParserParallel {
         val configFile = configuration.getConfigFile()
         if (configFile.exists()) {
-            val data = configFile.fromJson<List<ManualLink>>() ?: emptyList<ManualLink>()
+            val data = configFile.fromJson<List<ManualLink>>() ?: emptyList()
             if (data.isNotEmpty()) {
                 cache.clearMenuItems { it.id.startsWith(LINK_TYPE) }
                 data.forEach { (name, index, value, target) ->
@@ -42,10 +42,10 @@ class LinkGenerator : WebsiteGenerator {
         changeFiles: ChangeFileset
     ): Boolean {
         val configFile = configuration.getConfigFile()
-        if (changeFiles.keys.any(configFile::equals)) {
+        return if (changeFiles.keys.any(configFile::equals)) {
             fetchInitialInformation(configuration, cache, alreadyRunGenerators)
-            return true
-        } else return false
+            true
+        } else false
     }
 
     private fun WebsiteConfig.getConfigFile() =

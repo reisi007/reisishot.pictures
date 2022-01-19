@@ -10,9 +10,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.HEAD
 import pictures.reisishot.mise.backend.IPageMinimalInfo
-import pictures.reisishot.mise.backend.generator.pages.htmlparsing.MarkdownParser
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.raw
+import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
 import pictures.reisishot.mise.backend.htmlparsing.PageGeneratorExtension
 import pictures.reisishot.mise.backend.htmlparsing.Yaml
 import java.nio.file.Files
@@ -20,7 +20,7 @@ import java.nio.file.Path
 import kotlin.streams.asSequence
 
 class PageGenerator(
-    vararg val extensions: PageGeneratorExtension
+    private vararg val extensions: PageGeneratorExtension
 ) : WebsiteGenerator {
 
     override val executionPriority: Int = 30_000
@@ -65,7 +65,7 @@ class PageGenerator(
         buildArtifacts(configuration, cache)
     }
 
-    fun PageMinimalInfo.buildArtifact(configuration: WebsiteConfig, cache: BuildingCache) {
+    private fun PageMinimalInfo.buildArtifact(configuration: WebsiteConfig, cache: BuildingCache) {
         convertMarkdown(
             this,
             configuration,

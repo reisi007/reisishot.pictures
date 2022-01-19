@@ -1,5 +1,4 @@
-package pictures.reisishot.mise.backend.generator.pages.htmlparsing
-
+package pictures.reisishot.mise.backend.htmlparsing
 
 import at.reisishot.mise.backend.config.BuildingCache
 import at.reisishot.mise.backend.config.WebsiteConfig
@@ -16,15 +15,8 @@ import com.vladsch.flexmark.util.ast.Document
 import kotlinx.html.HEAD
 import pictures.reisishot.mise.backend.IPageMinimalInfo
 import pictures.reisishot.mise.backend.SourcePath
-import pictures.reisishot.mise.backend.htmlparsing.PageGeneratorExtension
-import pictures.reisishot.mise.backend.htmlparsing.PageMetadata
-import pictures.reisishot.mise.backend.htmlparsing.Yaml
-import pictures.reisishot.mise.backend.htmlparsing.getPageMetadata
 import java.io.Reader
 import java.io.StringReader
-import java.lang.invoke.MethodHandles
-import java.lang.reflect.Field
-import java.lang.reflect.Modifier
 import java.nio.file.Files
 
 
@@ -52,15 +44,6 @@ object MarkdownParser {
             .builder()
             .extensions(extensions)
             .build()
-    }
-
-    private fun Class<*>.setField(fieldName: String, value: Any?) {
-        val field = getDeclaredField(fieldName)
-        field.isAccessible = true
-        val lookup = MethodHandles.privateLookupIn(Field::class.java, MethodHandles.lookup())
-        val modifiers = lookup.findVarHandle(Field::class.java, "modifiers", Int::class.javaPrimitiveType)
-        modifiers.set(field, field.modifiers and Modifier.FINAL.inv())
-        field.set(this, value)
     }
 
     fun parse(

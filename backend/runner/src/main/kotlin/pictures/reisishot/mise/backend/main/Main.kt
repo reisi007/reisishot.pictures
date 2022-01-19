@@ -10,9 +10,8 @@ import kotlinx.html.h2
 import kotlinx.html.h3
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
-import pictures.reisishot.mise.backend.*
 import pictures.reisishot.mise.backend.Mise.generate
-import pictures.reisishot.mise.backend.config.private.PrivateConfig
+import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.context.createCategoryApi
 import pictures.reisishot.mise.backend.generator.gallery.context.createPictureApi
@@ -30,11 +29,13 @@ import pictures.reisishot.mise.backend.html.*
 import pictures.reisishot.mise.backend.html.config.SocialMediaAccounts
 import pictures.reisishot.mise.backend.html.config.buildHtmlConfig
 import pictures.reisishot.mise.backend.html.config.registerAllTemplateObjects
+import pictures.reisishot.mise.private.PrivateConfig
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
 import pictures.reisishot.mise.backend.config.ImageInformation as ConfigImageInformation
 
+@Suppress("MemberVisibilityCanBePrivate")
 object Main {
     const val folderName = "reisishot.pictures"
 
@@ -43,7 +44,7 @@ object Main {
         build(!args.contains("prod"))
     }
 
-    fun build(isDevMode: Boolean) {
+    internal fun build(isDevMode: Boolean) {
 
         val testimonialLoader = TestimonialLoaderImpl.fromInPath(Paths.get("input", folderName).toAbsolutePath())
 

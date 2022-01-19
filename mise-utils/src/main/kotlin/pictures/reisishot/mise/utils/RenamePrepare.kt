@@ -13,8 +13,8 @@ object RenamePrepare {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val csvPath = args.get(0)
-        val inputFolder = args.get(1)
+        val csvPath = args[0]
+        val inputFolder = args[1]
         val namePatterns: MutableMap<String, MutableSet<Int>> = TreeMap()
         val maximumNumber: MutableMap<String, Int> = TreeMap()
         val pattern = Regex("^(.+?)(\\d+)\$")
@@ -41,7 +41,7 @@ object RenamePrepare {
         }
 
         println("The following patterns have been found:")
-        namePatterns.forEach { prefix, countLengths ->
+        namePatterns.forEach { (prefix, countLengths) ->
             print(
                 "${
                     maximumNumber[prefix].toString().padStart(4, ' ')

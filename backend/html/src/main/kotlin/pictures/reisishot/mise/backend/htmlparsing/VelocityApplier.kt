@@ -1,4 +1,4 @@
-package pictures.reisishot.mise.backend.generator.pages.htmlparsing
+package pictures.reisishot.mise.backend.htmlparsing
 
 import at.reisishot.mise.backend.config.BuildingCache
 import at.reisishot.mise.backend.config.WebsiteConfig
@@ -7,7 +7,6 @@ import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.Velocity
 import org.apache.velocity.app.VelocityEngine
 import pictures.reisishot.mise.backend.html.config.htmlConfig
-import pictures.reisishot.mise.backend.htmlparsing.PageMetadata
 import java.io.Reader
 import java.io.StringWriter
 import java.io.Writer

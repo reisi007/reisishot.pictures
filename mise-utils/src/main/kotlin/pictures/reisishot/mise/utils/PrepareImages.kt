@@ -27,11 +27,9 @@ object PrepareImages {
                         session withChild XmlElement("mainView", "activeIndex" to "0") { fileContainer ->
                             Files.list(folder).asSequence().filterNotNull()
                                 .filter {
-                                    it.toString().let {
-                                        it.endsWith("jpg", ignoreCase = true) || it.endsWith(
-                                            "jpeg",
-                                            ignoreCase = true
-                                        )
+                                    it.toString().let { path ->
+                                        path.endsWith("jpg", ignoreCase = true) ||
+                                                path.endsWith("jpeg", ignoreCase = true)
                                     }
                                 }
                                 .map { it.resolveSibling("${it.filenameWithoutExtension}.json") }
@@ -54,7 +52,7 @@ object PrepareImages {
     }
 }
 
-val Path.normalized
+val Path.normalized: Path
     get() = toAbsolutePath().normalize()
 
 @DslMarker
@@ -64,7 +62,7 @@ annotation class XmlTagMarker
 class XmlElement(
     private val name: String,
     private vararg val attributes: Pair<String, String>,
-    private val addChildrenFunction: (XmlElement) -> Unit = {}
+    addChildrenFunction: (XmlElement) -> Unit = {}
 ) {
     private val children = mutableListOf<XmlElement>()
 

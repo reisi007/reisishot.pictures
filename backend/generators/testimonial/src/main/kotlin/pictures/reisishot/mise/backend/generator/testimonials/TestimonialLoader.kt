@@ -4,8 +4,8 @@ import at.reisishot.mise.backend.config.*
 import at.reisishot.mise.commons.*
 import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
-import pictures.reisishot.mise.backend.generator.pages.htmlparsing.MarkdownParser.markdown2Html
 import pictures.reisishot.mise.backend.html.config.VelocityTemplateObjectCreator
+import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser.markdown2Html
 import pictures.reisishot.mise.backend.htmlparsing.Yaml
 import pictures.reisishot.mise.backend.htmlparsing.getString
 import java.nio.charset.StandardCharsets
@@ -25,14 +25,14 @@ interface TestimonialLoader {
 class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader, WebsiteGenerator {
     override val executionPriority: Int = 1000
     override val generatorName: String = "Testimonial Loader"
-    var lastChange: ZonedDateTime = LocalDateTime.MIN.atZone(ZoneId.systemDefault())
+    private var lastChange: ZonedDateTime = LocalDateTime.MIN.atZone(ZoneId.systemDefault())
 
-    var possiblyDirty = true
+    private var possiblyDirty = true
 
     private var cachedValue: Map<String, Testimonial> = mapOf()
 
     companion object {
-        const val INPUT_FOLDER_NAME = "reviews"
+        private const val INPUT_FOLDER_NAME = "reviews"
         fun fromInPath(inPath: Path): TestimonialLoaderImpl = TestimonialLoaderImpl(inPath withChild INPUT_FOLDER_NAME)
 
     }
@@ -67,7 +67,7 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
         .flatMap { Files.list(it).asSequence() }
         .flatMap { Files.list(it).asSequence() }
         .filter { Files.isRegularFile(it) }
-        .filter { it.hasExtension({ it.isMarkdownPart("review") }) }
+        .filter { path -> path.hasExtension({ it.isMarkdownPart("review") }) }
 
     private fun Yaml.createTestimonial(p: Path, contentHtml: String): Testimonial {
         val imageFilename = getString("image")
@@ -108,6 +108,7 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
         changeFiles: ChangeFileset
     ): Boolean {
         possiblyDirty = true
+        @Suppress("KotlinConstantConditions")
         return possiblyDirty
     }
 
