@@ -8,21 +8,25 @@ import pictures.reisishot.mise.backend.config.ImageInformation
 import pictures.reisishot.mise.backend.config.category.*
 import java.util.*
 
-class CategoryConfigTest {
 
+class CategoryConfigTest {
     @Test
     fun `category computation works`() = softAssert {
         val vowels = arrayOf("A", "E", "I", "O", "U")
+        val consonants = generateAlphabet() - vowels
         val charImages = generateAlphabet()
             .map { buildImageInformation(it) }
             .toList()
 
         val categoryConfig = buildCategoryConfig {
             withSubCategory("Chars") {
-                val consonants = generateAlphabet() - vowels
-                includeTagsAndSubcategories(*consonants.toTypedArray())
-                withSubCategory("Vowels") {
+                includeSubcategories()
+                withSubCategory(CATEGORY_VOWELS) {
                     includeTagsAndSubcategories(*vowels)
+                }
+
+                withSubCategory(CATEGORY_CONSONANTS) {
+                    includeTagsAndSubcategories(*consonants.toTypedArray())
                 }
             }
         }
@@ -31,10 +35,15 @@ class CategoryConfigTest {
 
         softAssert {
             val charsCategory = computedCategories.first()
-            val vowelsCategory = charsCategory.subcategories.first()
+            val vowelsCategory = charsCategory.subcategories.first { it.categoryName.displayName == CATEGORY_VOWELS }
+            val consonantCategory =
+                charsCategory.subcategories.first { it.categoryName.displayName == CATEGORY_CONSONANTS }
 
             // Assert Vowels
             assertThat(vowelsCategory.tagsAsStringList).containsAll(listOf(*vowels))
+
+            // Assert consonants
+            assertThat(consonantCategory.tagsAsStringList).containsAll(consonants.toList())
 
             // Assert chars contains all chars
             assertThat(charsCategory.tagsAsStringList).containsAll(generateAlphabet().asIterable())
@@ -57,4 +66,9 @@ class CategoryConfigTest {
                 override val locale: Locale = Locale.ENGLISH
             }
         )
+
+    companion object {
+        private const val CATEGORY_VOWELS = "Vowels"
+        private const val CATEGORY_CONSONANTS = "Consonants"
+    }
 }
