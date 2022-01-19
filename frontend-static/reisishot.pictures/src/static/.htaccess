@@ -10,3 +10,7 @@ RedirectMatch 301 ^(/gallery/categories/)(\d{4}.*)$ $1chronologisch\/$2
 Redirect 301 /gallery/categories/regionen/zypern /gallery/categories/reisen/zypern
 Redirect 301 /gallery/categories/regionen/prag /gallery/categories/reisen/prag
 RedirectMatch 301 ^(/gallery/categories/)(regionen/)(.+)$ $1oesterreich/$3
+
+Redirect 301 /gallery/categories/natur/tiere/insekten/grashüpfer /gallery/categories/natur/tiere/insekten/grashuepfer
+Redirect 301 /gallery/categories/natur/tiere/vögel /gallery/categories/natur/tiere/voegel
+Redirect 301 /gallery/tags/eisbär /gallery/tags/eisbaer
