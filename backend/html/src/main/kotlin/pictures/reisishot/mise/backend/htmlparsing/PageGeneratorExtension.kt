@@ -28,10 +28,6 @@ interface PageGeneratorExtension {
     fun processChanges(configuration: WebsiteConfig, cache: BuildingCache) {
     }
 
-    fun cleanupArtifacts(configuration: WebsiteConfig, cache: BuildingCache) {
-        // Nothing to do
-    }
-
     fun postCreatePage(
         configuration: WebsiteConfig,
         cache: BuildingCache,

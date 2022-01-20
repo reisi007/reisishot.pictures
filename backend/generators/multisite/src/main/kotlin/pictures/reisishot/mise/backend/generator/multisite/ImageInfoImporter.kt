@@ -5,6 +5,7 @@ import at.reisishot.mise.commons.withChild
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import java.nio.file.Path
 
+@Suppress("unused")
 class ImageInfoImporter constructor(
     private val otherCacheDir: Path,
     private val rootUrl: String

@@ -19,7 +19,7 @@ import java.util.stream.Collectors
 import kotlin.io.path.exists
 import kotlin.math.max
 
-abstract class AbstractThumbnailGenerator(protected val forceRegeneration: ForceRegeneration) : WebsiteGenerator {
+abstract class AbstractThumbnailGenerator(private val forceRegeneration: ForceRegeneration) : WebsiteGenerator {
 
     companion object {
         const val NAME_IMAGE_SUBFOLDER = "images"
@@ -96,7 +96,7 @@ abstract class AbstractThumbnailGenerator(protected val forceRegeneration: Force
         } else false
     }
 
-    private fun ChangeFileset.hasRelevantChanges() = keys.asSequence().any { it.hasExtension(FileExtension::isJpeg) }
+    private fun ChangeFileset.hasRelevantChanges() = keys.any { it.hasExtension(FileExtension::isJpeg) }
     private fun ChangeFileset.hasRelevantDeletions() = hasDeletions(FileExtension::isJpeg)
 
     override suspend fun cleanup(configuration: WebsiteConfig, cache: BuildingCache) {

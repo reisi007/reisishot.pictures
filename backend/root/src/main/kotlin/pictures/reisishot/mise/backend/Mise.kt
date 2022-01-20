@@ -163,19 +163,19 @@ object Mise {
         return changedFileset
     }
 
-    fun mapToInternal(
+    private fun mapToInternal(
         polledEvents: List<WatchEvent<*>>,
         watchedDir: Path,
         configuration: WebsiteConfig
     ): MutableChangedFileset {
         val events: MutableChangedFileset = mutableMapOf()
 
-        polledEvents.forEach {
-            val path = it.getContextPath()
+        polledEvents.forEach { event ->
+            val path = event.getContextPath()
                 ?.let { watchedDir.resolve(it).normalize() }
                 ?.filterIllegalPaths(configuration)
                 ?: return@forEach
-            val kind = it.kind()?.asChangeState() ?: return@forEach
+            val kind = event.kind()?.asChangeState() ?: return@forEach
             events.computeIfAbsent(path) { HashSet() } += kind
         }
 

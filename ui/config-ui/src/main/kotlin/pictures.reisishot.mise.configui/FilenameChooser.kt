@@ -32,17 +32,17 @@ class FilenameChooser : HBox(5.0), Consumer<Path> {
         button("Neuer Name") {
             setOnAction {
                 NewFilenameDialog().showAndWait().ifPresent {
-                    input.accept(it)
+                    accept(it)
                 }
             }
         }
     }
 
     override fun accept(t: Path) {
-        FilenameData.fromPath(t).let { input.accept(it) }
+        accept(FilenameData.fromPath(t))
     }
 
-    private fun AutocompleteMultiSelectionBox<FilenameData>.accept(filenameData: FilenameData) {
+    private fun accept(filenameData: FilenameData) {
         with(input.suggestions) {
             add(filenameData)
         }

@@ -1,4 +1,4 @@
-package pictures.reisishot.mise.backend.config
+package at.reisishot.mise.backend.config
 
 import kotlinx.serialization.Serializable
 
@@ -40,6 +40,7 @@ class MenuLinkContainer(
         get() = internalChildren.asSequence()
 
 
+    @Suppress("MemberVisibilityCanBePrivate")
     fun addChild(child: MenuLinkContainerItem) {
         internalChildren = (internalChildren.asSequence() + child)
             .sorted()

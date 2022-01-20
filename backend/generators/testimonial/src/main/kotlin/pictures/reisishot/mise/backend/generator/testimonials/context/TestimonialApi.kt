@@ -1,17 +1,13 @@
 package pictures.reisishot.mise.backend.generator.testimonials.context
 
-import TestimonialMode
-import appendTestimonials
 import at.reisishot.mise.backend.config.WebsiteConfig
 import at.reisishot.mise.backend.config.WebsiteConfigBuilderDsl
 import kotlinx.html.div
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
-import pictures.reisishot.mise.backend.generator.testimonials.Testimonial
-import pictures.reisishot.mise.backend.generator.testimonials.TestimonialLoader
+import pictures.reisishot.mise.backend.generator.testimonials.*
 import pictures.reisishot.mise.backend.html.appendUnformattedHtml
 import pictures.reisishot.mise.backend.html.config.TemplateObject
 import pictures.reisishot.mise.backend.html.config.VelocityTemplateObjectCreator
-import renderTestimonialStatistics
 
 @WebsiteConfigBuilderDsl
 fun createTestimonialApi(

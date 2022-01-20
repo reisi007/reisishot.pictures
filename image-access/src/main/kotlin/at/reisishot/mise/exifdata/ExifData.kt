@@ -32,8 +32,9 @@ enum class ExifdataKey(val getValue: (ExifInformation) -> String?) {
     }),
     FOCAL_LENGTH({ it.exifSubIFDDescriptor?.focalLengthDescription }),
     CREATION_DATETIME({
-        it.exifSubIFDDescriptor?.creationTimeDescription?.let {
-            ZonedDateTime.of(LocalDateTime.from(exifDateTimeFormatter.parse(it)), ZoneId.systemDefault()).toString()
+        it.exifSubIFDDescriptor?.creationTimeDescription?.let { creationTime ->
+            ZonedDateTime.of(LocalDateTime.from(exifDateTimeFormatter.parse(creationTime)), ZoneId.systemDefault())
+                .toString()
         }
     }),
     APERTURE({ it.exifSubIFDDescriptor?.apertureValueDescription }),

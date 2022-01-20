@@ -11,7 +11,6 @@ import pictures.reisishot.mise.backend.SourcePath
 import pictures.reisishot.mise.backend.TargetPath
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.context.insertLazyPicture
-import pictures.reisishot.mise.backend.generator.pages.htmlparsing.MarkdownParser
 import pictures.reisishot.mise.backend.html.*
 import pictures.reisishot.mise.backend.htmlparsing.*
 import java.nio.file.Files
@@ -65,7 +64,7 @@ class OverviewPageGenerator(
             .filter { it.filenameWithoutExtension.endsWith("overview", true) }
             .map { configuration.paths.sourceFolder.relativize(it) }
             .map { it.toString().replace('\\', '/') }
-            .map { if (it.isBlank()) "index" else it }
+            .map { it.ifBlank { "index" } }
             .map { data.keys.firstOrNull { key -> key.equals(it, true) } }
             .filterNotNull()
             .map { data.getValue(it) }
@@ -98,7 +97,7 @@ class OverviewPageGenerator(
         processExternals(configuration)
         val changedGroups = mutableMapOf<String, Path>()
         changeSetAdd.forEach {
-            data.computeIfAbsent(it.id) { _ -> mutableSetOf() }.add(it, true)
+            data.computeIfAbsent(it.id) { mutableSetOf() }.add(it, true)
             changedGroups[it.id] = it.entryOutUrl.parent
         }
         changeSetRemove.forEach {
@@ -311,7 +310,7 @@ class OverviewPageGenerator(
         val configuredUrl: String?, val metaData: PageMetadata?
     ) {
 
-        val entryOutUrl = pageMininmalInfo.targetPath.parent
+        val entryOutUrl: Path = pageMininmalInfo.targetPath.parent
 
         val config: OverviewConfig?
             get() = overviewConfigs[id]

@@ -6,7 +6,7 @@ import at.reisishot.mise.backend.config.BuildingCache
 import at.reisishot.mise.backend.config.WebsiteConfig
 import at.reisishot.mise.backend.config.WebsiteConfigBuilderDsl
 import at.reisishot.mise.commons.FilenameWithoutExtension
-import at.reisishot.mise.exifdata.ExifdataKey
+import at.reisishot.mise.exifdata.ExifdataKey.CREATION_DATETIME
 import kotlinx.html.DIV
 import kotlinx.html.div
 import kotlinx.html.p
@@ -84,7 +84,7 @@ internal class PictureApi(
             val prep = images.asSequence()
                 .map { it as? InternalImageInformation }
                 .filterNotNull()
-                .map { it.exifInformation.get(ExifdataKey.CREATION_DATETIME) }
+                .map { it.exifInformation[CREATION_DATETIME] }
                 .filterNotNull()
                 .map { ZonedDateTime.parse(it) }
 
@@ -129,7 +129,7 @@ internal class PictureApi(
 
         appendUnformattedHtml().div("bal-container") {
             val ratio = (h / w.toFloat())
-            attributes["style"] = "width: 550px;height:${Math.round(550 * ratio)}px"
+            attributes["style"] = "width: 550px;height:${(550 * ratio).roundToInt()}px"
             attributes["data-ratio"] = ratio.toString()
             div("bal-after") {
                 insertPictureFromImagesSubDomain(filename + 'b', "Bearbeitet", ratio)

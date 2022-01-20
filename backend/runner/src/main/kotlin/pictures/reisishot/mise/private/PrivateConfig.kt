@@ -1,4 +1,4 @@
-package pictures.reisishot.mise.backend.config.private
+package pictures.reisishot.mise.private
 
 import pictures.reisishot.mise.backend.config.category.*
 import pictures.reisishot.mise.backend.config.category.computable.CameraLensCategoryComputable

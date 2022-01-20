@@ -43,7 +43,7 @@ class NewFilenameDialog : Dialog<FilenameData?>() {
             else FilenameData(
                 nameField.text
                     .trim()
-                    .let { if (it.isEmpty()) throw IllegalStateException("Name not selected") else it },
+                    .let { name -> name.ifEmpty { throw IllegalStateException("Name not selected") } },
                 numberField.selectedItem ?: throw IllegalStateException("Item count not selected")
             )
         }

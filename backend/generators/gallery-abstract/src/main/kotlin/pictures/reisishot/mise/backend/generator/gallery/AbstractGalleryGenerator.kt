@@ -10,18 +10,17 @@ import kotlinx.coroutines.withContext
 import kotlinx.html.*
 import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.IPageMinimalInfo
-import pictures.reisishot.mise.backend.ImageInformation
 import pictures.reisishot.mise.backend.SourcePath
 import pictures.reisishot.mise.backend.TargetPath
 import pictures.reisishot.mise.backend.config.category.*
 import pictures.reisishot.mise.backend.config.tags.TagConfig
 import pictures.reisishot.mise.backend.config.tags.TagInformation
 import pictures.reisishot.mise.backend.generator.gallery.context.insertLazyPicture
-import pictures.reisishot.mise.backend.generator.pages.htmlparsing.MarkdownParser
 import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator.ImageSize
 import pictures.reisishot.mise.backend.generator.thumbnail.ImageSizeInformation
 import pictures.reisishot.mise.backend.html.raw
+import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDate
@@ -320,7 +319,7 @@ abstract class AbstractGalleryGenerator(
         categoryInformation: CategoryInformation,
     )
 
-    protected suspend fun generateTagPages(
+    private suspend fun generateTagPages(
         configuration: WebsiteConfig,
         cache: BuildingCache,
     ) {
@@ -355,9 +354,7 @@ abstract class AbstractGalleryGenerator(
         true
     } else false
 
-    private fun ChangeFileset.hasRelevantChanges() =
-        keys.asSequence()
-            .any { it.hasExtension(FileExtension::isJson) }
+    private fun ChangeFileset.hasRelevantChanges() = keys.any { it.hasExtension(FileExtension::isJson) }
 
     override suspend fun cleanup(configuration: WebsiteConfig, cache: BuildingCache) {
         withContext(Dispatchers.IO) {

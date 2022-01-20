@@ -43,8 +43,8 @@ class MainView : View("Main View") {
         maxWidth(Double.POSITIVE_INFINITY)
     }
     private lateinit var lastPath: Path
-    private val titleField = TextField().enableSpellcheck {
-        errorLabel.text = it.joinToString(System.lineSeparator()) { it }
+    private val titleField = TextField().enableSpellcheck { errors ->
+        errorLabel.text = errors.joinToString(System.lineSeparator()) { it }
     }
     private val tagField = AutocompleteMultiSelectionBox { it }
     private val filenameChooser = FilenameChooser()
@@ -275,12 +275,12 @@ class MainView : View("Main View") {
             titleField.text = imageConfig.title
         }
 
-        FilenameData.fromPath(path).let {
+        FilenameData.fromPath(path).let { computedFilename ->
             filenameChooser.selectedItems = filenameChooser.selectedItems
                 .firstOrNull()
                 ?.let { if (resetValuesOnImageChange()) null else it }
-                ?.let { sel -> listOf(sel, it).distinct() }
-                ?: listOf(it)
+                ?.let { sel -> listOf(sel, computedFilename).distinct() }
+                ?: listOf(computedFilename)
         }
     }
 

@@ -1,4 +1,4 @@
-package pictures.reisishot.mise.backend
+package pictures.reisishot.mise.backend.generator.gallery
 
 import at.reisishot.mise.backend.config.WebsiteConfig
 import at.reisishot.mise.commons.FilenameWithoutExtension
