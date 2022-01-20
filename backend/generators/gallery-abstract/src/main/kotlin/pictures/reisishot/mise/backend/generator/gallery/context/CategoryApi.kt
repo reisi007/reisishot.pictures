@@ -62,7 +62,7 @@ internal class CategoryApi(
             if (albumName.size != albums.size) {
                 error("Not all categories found! $albumName")
             }
-            insertCategoryThumbnails(galleryGenerator, albums, websiteConfig)
+            insertCategoryThumbnails(albums, websiteConfig)
         }
     }
 }

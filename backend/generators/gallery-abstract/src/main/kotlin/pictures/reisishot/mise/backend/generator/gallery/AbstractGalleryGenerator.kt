@@ -86,15 +86,15 @@ abstract class AbstractGalleryGenerator(
 
     override suspend fun fetchInitialInformation(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
     ) {
-        buildCache(configuration, cache)
+        buildCache(configuration, buildingCache)
     }
 
     private suspend fun buildCache(
         configuration: WebsiteConfig,
-        cache: BuildingCache
+        buildingCache: BuildingCache
     ) = configuration.useJsonParserParallel {
         val cacheTime = cachePath.fileModifiedDateTime
             ?: kotlin.run { ZonedDateTime.of(LocalDate.of(1900, 1, 1), LocalTime.MIN, ZoneId.systemDefault()) }
@@ -119,8 +119,8 @@ abstract class AbstractGalleryGenerator(
         if (!recomputeGallery) return@useJsonParserParallel
 
         val imageInformation = buildImageInformation(configuration)
-        val tagInformation = buildTags(imageInformation, cache)
-        val categories = buildCategories(configuration, imageInformation, cache)
+        val tagInformation = buildTags(imageInformation, buildingCache)
+        val categories = buildCategories(configuration, imageInformation, buildingCache)
 
         this@AbstractGalleryGenerator.cache = Cache(imageInformation, tagInformation, categories)
     }
@@ -147,12 +147,12 @@ abstract class AbstractGalleryGenerator(
             .any { it >= cacheTime }
     }
 
-    override suspend fun buildInitialArtifacts(configuration: WebsiteConfig, cache: BuildingCache) =
-        generateWebpages(configuration, cache)
+    override suspend fun buildInitialArtifacts(configuration: WebsiteConfig, buildingCache: BuildingCache) =
+        generateWebpages(configuration, buildingCache)
 
     private fun buildTags(
         imageInformationData: ConcurrentMap<FilenameWithoutExtension, ImageInformation>,
-        cache: BuildingCache
+        buildingCache: BuildingCache
     ): ConcurrentMap<TagInformation, out Set<ImageInformation>> {
         val internalImageInformation = imageInformationData.values.asSequence()
             .map { it as? InternalImageInformation }
@@ -161,8 +161,8 @@ abstract class AbstractGalleryGenerator(
         tagConfig.computeTags(internalImageInformation)
 
         val shallAddToMenu = displayedMenuItems.contains(DisplayedMenuItems.TAGS)
-        cache.clearMenuItems { LINKTYPE_TAGS == it.id }
-        cache.resetLinkcacheFor(LINKTYPE_TAGS)
+        buildingCache.clearMenuItems { LINKTYPE_TAGS == it.id }
+        buildingCache.resetLinkcacheFor(LINKTYPE_TAGS)
 
 
         // Add to menu
@@ -177,15 +177,14 @@ abstract class AbstractGalleryGenerator(
                 computedTags.computeIfAbsent(tag) { mutableSetOf() } += imageInformation
                 // Add tag URLs to global cache
                 "gallery/tags/${tag.url}".let { link ->
-                    cache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag.url, link)
+                    buildingCache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag.url, link)
                     if (shallAddToMenu)
-                        cache.addMenuItemInContainerNoDupes(
+                        buildingCache.addMenuItemInContainerNoDupes(
                             LINKTYPE_TAGS,
                             "Tags",
                             300,
                             tag.name,
                             link,
-                            orderFunction = { idx },
                             elementIndex = idx
                         )
                 }
@@ -240,7 +239,7 @@ abstract class AbstractGalleryGenerator(
     private fun buildCategories(
         websiteConfig: WebsiteConfig,
         imageInformationData: ConcurrentMap<FilenameWithoutExtension, ImageInformation>,
-        cache: BuildingCache
+        buildingCache: BuildingCache
     ): CategoryInformationRoot {
 
         val images = imageInformationData.values.asSequence()
@@ -257,10 +256,10 @@ abstract class AbstractGalleryGenerator(
             .forEachIndexed { idx, category ->
                 val link = "gallery/categories/${category.urlFragment}"
 
-                cache.addLinkcacheEntryFor(LINKTYPE_CATEGORIES, category.categoryName.complexName, link)
+                buildingCache.addLinkcacheEntryFor(LINKTYPE_CATEGORIES, category.categoryName.complexName, link)
 
                 if (shallAddToMenu && category.visible) {
-                    cache.addMenuItemInContainer(
+                    buildingCache.addMenuItemInContainer(
                         LINKTYPE_CATEGORIES,
                         "Kategorien",
                         200,
@@ -275,16 +274,16 @@ abstract class AbstractGalleryGenerator(
 
     private suspend fun generateWebpages(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
     ) {
-        generateImagePages(configuration, cache)
-        generateCategoryPages(configuration, cache)
-        generateTagPages(configuration, cache)
+        generateImagePages(configuration, buildingCache)
+        generateCategoryPages(configuration, buildingCache)
+        generateTagPages(configuration, buildingCache)
     }
 
     private suspend fun generateImagePages(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
     ) {
         this.cache.imageInformationData.values
             .asSequence()
@@ -292,24 +291,24 @@ abstract class AbstractGalleryGenerator(
             .filterNotNull()
             .asIterable()
             .forEachParallel { curImageInformation ->
-                generateImagePage(configuration, cache, curImageInformation)
+                generateImagePage(configuration, buildingCache, curImageInformation)
             }
     }
 
     protected abstract fun generateImagePage(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         curImageInformation: InternalImageInformation
     )
 
     private suspend fun generateCategoryPages(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
     ) {
         val categories = this.cache.rootCategory.flatten()
 
         categories.asIterable().forEachParallel {
-            generateCategoryPage(configuration, cache, it)
+            generateCategoryPage(configuration, buildingCache, it)
         }
     }
 
@@ -321,10 +320,10 @@ abstract class AbstractGalleryGenerator(
 
     private suspend fun generateTagPages(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
     ) {
         this.cache.computedTags.keys.forEachParallel { tagName ->
-            generateTagPage(configuration, cache, tagName)
+            generateTagPage(configuration, buildingCache, tagName)
         }
     }
 
@@ -336,27 +335,27 @@ abstract class AbstractGalleryGenerator(
 
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean = if (changeFiles.hasRelevantChanges()) {
-        cleanup(configuration, cache)
-        fetchInitialInformation(configuration, cache, alreadyRunGenerators)
+        cleanup(configuration, buildingCache)
+        fetchInitialInformation(configuration, buildingCache, alreadyRunGenerators)
         true
     } else false
 
     override suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         changeFiles: ChangeFileset
     ) = if (changeFiles.hasRelevantChanges()) {
-        buildInitialArtifacts(configuration, cache)
+        buildInitialArtifacts(configuration, buildingCache)
         true
     } else false
 
     private fun ChangeFileset.hasRelevantChanges() = keys.any { it.hasExtension(FileExtension::isJson) }
 
-    override suspend fun cleanup(configuration: WebsiteConfig, cache: BuildingCache) {
+    override suspend fun cleanup(configuration: WebsiteConfig, buildingCache: BuildingCache) {
         withContext(Dispatchers.IO) {
             configuration.paths.targetFolder.resolve(SUBFOLDER_OUT)
                 .toFile()
@@ -368,14 +367,14 @@ abstract class AbstractGalleryGenerator(
         sortedByDescending { it.exifInformation[ExifdataKey.CREATION_DATETIME] }
             .toList()
 
-    override suspend fun loadCache(configuration: WebsiteConfig, cache: BuildingCache) {
-        super.loadCache(configuration, cache)
+    override suspend fun loadCache(configuration: WebsiteConfig, buildingCache: BuildingCache) {
+        super.loadCache(configuration, buildingCache)
         cachePath = configuration.paths.cacheFolder withChild "gallery.cache.json"
     }
 
-    override suspend fun saveCache(configuration: WebsiteConfig, cache: BuildingCache) =
+    override suspend fun saveCache(configuration: WebsiteConfig, buildingCache: BuildingCache) =
         configuration.useJsonParserParallel {
-            super.saveCache(configuration, cache)
+            super.saveCache(configuration, buildingCache)
             this@AbstractGalleryGenerator.cache.toJson(cachePath)
         }
 
@@ -390,14 +389,14 @@ abstract class AbstractGalleryGenerator(
         outFolder: Path,
         type: String,
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
     ): HEAD.() -> Unit {
         val inPath =
             configuration.paths.sourceFolder withChild configuration.paths.targetFolder.relativize(outFolder) withChild "$type.gallery.md"
         if (inPath.exists()) {
             val (_, manipulator, html) = MarkdownParser.parse(
                 configuration,
-                cache,
+                buildingCache,
                 GalleryMinimalInfo(inPath, outFolder withChild "index.html")
             )
             raw(html)
@@ -413,11 +412,10 @@ fun DIV.insertSubcategoryThumbnails(
     configuration: WebsiteConfig
 ) {
     if (subcategories.isEmpty()) return
-    insertCategoryThumbnails(galleryGenerator, subcategories, configuration)
+    insertCategoryThumbnails(subcategories, configuration)
 }
 
 fun DIV.insertCategoryThumbnails(
-    galleryGenerator: AbstractGalleryGenerator,
     categoriesToDisplay: Set<CategoryInformation>,
     configuration: WebsiteConfig
 ) {
