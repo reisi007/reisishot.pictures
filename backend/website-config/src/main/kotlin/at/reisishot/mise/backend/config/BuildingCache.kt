@@ -117,10 +117,9 @@ class BuildingCache {
     }
 
     fun loadCache(config: WebsiteConfig) {
-
         config.useJsonParser {
 
-            config.paths.targetFolder.apply {
+            config.paths.cacheFolder.apply {
                 menuLinkPath = withChild("menueItems.cache.json")
                 linkPath = withChild("links.cache.json")
             }
