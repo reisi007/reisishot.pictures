@@ -18,7 +18,7 @@ interface WebsiteGenerator {
 
     suspend fun fetchInitialInformation(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
     )
 
@@ -27,14 +27,14 @@ interface WebsiteGenerator {
      */
     suspend fun fetchUpdateInformation(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean
 
     suspend fun buildInitialArtifacts(
         configuration: WebsiteConfig,
-        cache: BuildingCache
+        buildingCache: BuildingCache
     )
 
     /**
@@ -42,27 +42,27 @@ interface WebsiteGenerator {
      */
     suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         changeFiles: ChangeFileset
     ): Boolean
 
     suspend fun loadCache(
         configuration: WebsiteConfig,
-        cache: BuildingCache
+        buildingCache: BuildingCache
     ) {
         println("Load cache")
     }
 
     suspend fun saveCache(
         configuration: WebsiteConfig,
-        cache: BuildingCache
+        buildingCache: BuildingCache
     ) {
         println("Save cache")
     }
 
     suspend fun cleanup(
         configuration: WebsiteConfig,
-        cache: BuildingCache
+        buildingCache: BuildingCache
     )
 
     fun println(a: Any?) {
