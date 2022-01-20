@@ -65,7 +65,6 @@ class BuildingCache {
         text: LinkText,
         link: Link,
         target: String? = null,
-        orderFunction: (MenuLinkContainerItem) -> Int = { it.uniqueIndex },
         elementIndex: Int = 0
     ): Unit = synchronized(internalMenuLinks) {
         internalMenuLinks.find {

@@ -1,7 +1,7 @@
 package pictures.reisishot.mise.backend.main
 
-import GalleryGenerator
 import at.reisishot.mise.backend.config.*
+import at.reisishot.mise.backend.gallery.generator.GalleryGenerator
 import at.reisishot.mise.commons.*
 import at.reisishot.mise.exifdata.defaultExifReplaceFunction
 import kotlinx.coroutines.runBlocking

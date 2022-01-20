@@ -1,3 +1,5 @@
+package at.reisishot.mise.backend.gallery.generator
+
 import at.reisishot.mise.backend.config.BuildingCache
 import at.reisishot.mise.backend.config.ChangeFileset
 import at.reisishot.mise.backend.config.WebsiteConfig
@@ -237,7 +239,7 @@ class GalleryGenerator(
 
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean {
@@ -248,10 +250,10 @@ class GalleryGenerator(
             .filter { it.getName(0).toString() == "gallery" }
             .toList()
         val curUpdate = filesToProcess.isNotEmpty()
-        updatePages(filesToProcess, configuration, cache)
+        updatePages(filesToProcess, configuration, buildingCache)
         // Keep super call. Extra variable -> should be executed in any case
         val superUpdate =
-            super.fetchUpdateInformation(configuration, cache, alreadyRunGenerators, changeFiles)
+            super.fetchUpdateInformation(configuration, buildingCache, alreadyRunGenerators, changeFiles)
         return superUpdate || curUpdate
     }
 
