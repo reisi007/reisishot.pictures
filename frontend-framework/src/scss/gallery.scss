@@ -7,11 +7,6 @@
     $thumbnailSize: 400px;
 
     .pic-holder {
-      @include media-breakpoint-up(sm) {
-        max-height: $thumbnailSize;
-        height: $thumbnailSize;
-      }
-
       margin-top: $margin;
       margin-bottom: $margin;
 
