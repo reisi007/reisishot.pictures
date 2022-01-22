@@ -124,7 +124,7 @@ fun HtmlBlockTag.insertImageGallery(
         classes = classes + "gallery center mt-3" + if (isSingleImageGallery) "single" else "row multiple"
         attributes["data-name"] = galleryName
         val additionalClasses = if (isSingleImageGallery)
-            ""
+            "w-100"
         else
             "col-12 col-sm-6 col-lg-4 col-xl-3 col-xxl-2"
         imageInformation.forEach { curImageInfo ->
