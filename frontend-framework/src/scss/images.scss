@@ -1,12 +1,6 @@
 div {
   $margin: 8px;
 
-  &:not(.gallery) {
-    .pic-holder {
-      width: 100%;
-    }
-  }
-
   .pic-holder {
     position: relative;
     max-height: $maxImageHeight;
