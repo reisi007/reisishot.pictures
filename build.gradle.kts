@@ -5,10 +5,19 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm") version Kotlin.VERSION
     id("org.jetbrains.kotlin.plugin.serialization") version Kotlin.VERSION
+    id("org.sonarqube") version "3.3"
 }
 
 repositories {
     mavenCentral()
+}
+
+sonarqube {
+    properties {
+        property("sonar.projectKey", "reisi007_reisishot.pictures")
+        property("sonar.organization", "reisi007")
+        property("sonar.host.url", "https://sonarcloud.io")
+    }
 }
 
 subprojects {
