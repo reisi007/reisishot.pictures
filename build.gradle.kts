@@ -18,7 +18,7 @@ sonarqube {
         property("sonar.organization", "reisi007")
         property("sonar.host.url", "https://sonarcloud.io")
         property(
-            "sonar.coverage.exclusions",
+            "sonar.exclusions",
             listOf(
                 "**/backend/html/src/main/java/**/*" // (Once) generated / copied code
             )
