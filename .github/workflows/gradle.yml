@@ -28,4 +28,4 @@ jobs:
       with:
         gradle-version: wrapper
     - name: Execute Gradle build
-      run: ./gradlew build -parallel
+      run: ./gradlew build --parallel
