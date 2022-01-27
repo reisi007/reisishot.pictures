@@ -14,3 +14,4 @@ RedirectMatch 301 ^(/gallery/categories/)(regionen/)(.+)$ $1oesterreich/$3
 Redirect 301 /gallery/categories/natur/tiere/insekten/grashüpfer /gallery/categories/natur/tiere/insekten/grashuepfer
 Redirect 301 /gallery/categories/natur/tiere/vögel /gallery/categories/natur/tiere/voegel
 Redirect 301 /gallery/tags/eisbär /gallery/tags/eisbaer
+Redirect 301 /gallery/categories/natur/blumen/wassertropfen /gallery/tags/wassertropfen
