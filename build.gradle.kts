@@ -26,17 +26,21 @@ sonarqube {
     }
 }
 
+
 tasks.sonarqube {
     dependsOn("test")
 }
 
 subprojects {
 
+    apply(plugin = "jacoco")
+
     group = "at.reisishot.mise"
     version = "1.0-SNAPSHOT"
 
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
+
     apply(plugin = "jacoco")
     apply(plugin = "org.sonarqube")
 
@@ -54,6 +58,7 @@ subprojects {
 
     compileJava.apply {
         options.compilerArgs = Java.COMPILE_ARGS
+
     }
 
     tasks.jacocoTestReport {
