@@ -48,7 +48,6 @@ subprojects {
     val compileTestKotlin by tasks.compileTestKotlin
     val compileJava by tasks.compileJava
 
-
     for (cur in listOf(compileKotlin, compileTestKotlin)) {
         cur.apply {
             sourceCompatibility = Java.JVM_TARGET
@@ -60,6 +59,7 @@ subprojects {
     compileJava.apply {
         options.compilerArgs = Java.COMPILE_ARGS
     }
+
 
     java.sourceCompatibility = Java.JVM_TARGET_VERSION
     java.targetCompatibility = Java.JVM_TARGET_VERSION
