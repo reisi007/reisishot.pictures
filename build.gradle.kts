@@ -3,14 +3,21 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
     kotlin("jvm") version Kotlin.VERSION
-    jacoco
     id("org.jetbrains.kotlin.plugin.serialization") version Kotlin.VERSION
     id("org.sonarqube") version "3.3"
+    jacoco
 }
 
 repositories {
     mavenCentral()
 }
+
+
+jacoco {
+    toolVersion = "0.8.7"
+}
+
+
 
 sonarqube {
     properties {
@@ -23,12 +30,8 @@ sonarqube {
                 "**/backend/html/src/main/java/**/*" // (Once) generated / copied code
             )
         )
-        property("sonar.coverage.jacoco.xmlReportPath", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+        property("sonar.coverage.jacoco.xmlReportPaths", "${project.buildDir}/reports/jacoco.xml")
     }
-}
-
-tasks.sonarqube {
-    dependsOn("test")
 }
 
 subprojects {
@@ -50,11 +53,26 @@ subprojects {
             sourceCompatibility = Java.JVM_TARGET
             targetCompatibility = Java.JVM_TARGET
             kotlinOptions.jvmTarget = Java.JVM_TARGET
+
         }
+    }
+
+    tasks.jacocoTestReport {
+        dependsOn(tasks.test) // tests are required to run before generating the report
+        reports {
+            xml.required.set(true)
+            xml.outputLocation.set(File("${buildDir}/reports/jacoco.xml"))
+        }
+    }
+
+
+    tasks.test {
+        finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
     }
 
     compileJava.apply {
         options.compilerArgs = Java.COMPILE_ARGS
+        options.isDebug = true
     }
 
     java.sourceCompatibility = Java.JVM_TARGET_VERSION
@@ -73,12 +91,6 @@ subprojects {
         testImplementation("org.assertj:assertj-core:${Dependencies.ASSERTJ_VERSION}")
         testImplementation("org.junit.jupiter:junit-jupiter-api:${Dependencies.JUNIT_VERSION}")
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${Dependencies.JUNIT_VERSION}")
-    }
-
-    tasks.jacocoTestReport {
-        reports {
-            xml.required.set(true)
-        }
     }
 
     tasks.test {
