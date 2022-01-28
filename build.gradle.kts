@@ -27,7 +27,6 @@ sonarqube {
     }
 }
 
-
 tasks.sonarqube {
     dependsOn("test")
 }
@@ -49,6 +48,7 @@ subprojects {
     val compileTestKotlin by tasks.compileTestKotlin
     val compileJava by tasks.compileJava
 
+
     for (cur in listOf(compileKotlin, compileTestKotlin)) {
         cur.apply {
             sourceCompatibility = Java.JVM_TARGET
@@ -67,7 +67,6 @@ subprojects {
     repositories {
         mavenCentral()
     }
-
 
     dependencies {
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Kotlin.VERSION}")
