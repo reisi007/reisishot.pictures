@@ -3,6 +3,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
     kotlin("jvm") version Kotlin.VERSION
+    jacoco
     id("org.jetbrains.kotlin.plugin.serialization") version Kotlin.VERSION
     id("org.sonarqube") version "3.3"
     jacoco
@@ -12,12 +13,9 @@ repositories {
     mavenCentral()
 }
 
-
 jacoco {
     toolVersion = "0.8.7"
 }
-
-
 
 sonarqube {
     properties {
@@ -33,8 +31,9 @@ sonarqube {
         property("sonar.coverage.jacoco.xmlReportPaths", "${project.buildDir}/reports/jacoco.xml")
     }
 }
-
 subprojects {
+
+    apply(plugin = "jacoco")
 
     group = "at.reisishot.mise"
     version = "1.0-SNAPSHOT"
@@ -82,6 +81,7 @@ subprojects {
         mavenCentral()
     }
 
+
     dependencies {
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Kotlin.VERSION}")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:${KotlinX.COROUTINE_VERSION}")
@@ -91,6 +91,12 @@ subprojects {
         testImplementation("org.assertj:assertj-core:${Dependencies.ASSERTJ_VERSION}")
         testImplementation("org.junit.jupiter:junit-jupiter-api:${Dependencies.JUNIT_VERSION}")
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${Dependencies.JUNIT_VERSION}")
+    }
+
+    tasks.jacocoTestReport {
+        reports {
+            xml.required.set(true)
+        }
     }
 
     tasks.test {
