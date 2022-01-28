@@ -3,9 +3,9 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
     kotlin("jvm") version Kotlin.VERSION
+    jacoco
     id("org.jetbrains.kotlin.plugin.serialization") version Kotlin.VERSION
     id("org.sonarqube") version "3.3"
-    jacoco
 }
 
 repositories {
@@ -28,13 +28,12 @@ sonarqube {
 
 subprojects {
 
-    apply(plugin = "jacoco")
-
     group = "at.reisishot.mise"
     version = "1.0-SNAPSHOT"
 
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
+    apply(plugin = "jacoco")
 
     val compileKotlin by tasks.compileKotlin
     val compileTestKotlin by tasks.compileTestKotlin
@@ -52,13 +51,6 @@ subprojects {
         options.compilerArgs = Java.COMPILE_ARGS
     }
 
-    java.sourceCompatibility = Java.JVM_TARGET_VERSION
-    java.targetCompatibility = Java.JVM_TARGET_VERSION
-
-    repositories {
-        mavenCentral()
-    }
-
     tasks.jacocoTestReport {
         reports {
             xml.required.set(true)
@@ -69,6 +61,12 @@ subprojects {
         finalizedBy("jacocoTestReport")
     }
 
+    java.sourceCompatibility = Java.JVM_TARGET_VERSION
+    java.targetCompatibility = Java.JVM_TARGET_VERSION
+
+    repositories {
+        mavenCentral()
+    }
 
     dependencies {
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Kotlin.VERSION}")
