@@ -26,6 +26,10 @@ sonarqube {
     }
 }
 
+tasks.sonarqube {
+    dependsOn("test")
+}
+
 subprojects {
 
     group = "at.reisishot.mise"
@@ -34,6 +38,7 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
     apply(plugin = "jacoco")
+    apply(plugin = "org.sonarqube")
 
     val compileKotlin by tasks.compileKotlin
     val compileTestKotlin by tasks.compileTestKotlin
@@ -57,10 +62,6 @@ subprojects {
         }
     }
 
-    tasks.test {
-        finalizedBy("jacocoTestReport")
-    }
-
     java.sourceCompatibility = Java.JVM_TARGET_VERSION
     java.targetCompatibility = Java.JVM_TARGET_VERSION
 
@@ -77,6 +78,10 @@ subprojects {
         testImplementation("org.assertj:assertj-core:${Dependencies.ASSERTJ_VERSION}")
         testImplementation("org.junit.jupiter:junit-jupiter-api:${Dependencies.JUNIT_VERSION}")
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${Dependencies.JUNIT_VERSION}")
+    }
+
+    tasks.test {
+        finalizedBy("jacocoTestReport")
     }
 
     tasks.test {
