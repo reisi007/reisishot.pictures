@@ -30,15 +30,24 @@ jacoco {
     toolVersion = "0.8.7"
 }
 
-subprojects {
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // tests are required to run before generating the report
+    reports {
+        xml.required.set(true)
+        xml.outputLocation.set(File("${buildDir}/reports/jacoco.xml"))
+    }
+}
 
+tasks.test {
+    finalizedBy("jacocoTestReport")   
+}
+
+subprojects {
     group = "at.reisishot.mise"
     version = "1.0-SNAPSHOT"
 
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
-    apply(plugin = "jacoco")
-    apply(plugin = "org.sonarqube")
 
     val compileKotlin by tasks.compileKotlin
     val compileTestKotlin by tasks.compileTestKotlin
@@ -49,7 +58,6 @@ subprojects {
             sourceCompatibility = Java.JVM_TARGET
             targetCompatibility = Java.JVM_TARGET
             kotlinOptions.jvmTarget = Java.JVM_TARGET
-
         }
     }
 
@@ -76,16 +84,7 @@ subprojects {
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${Dependencies.JUNIT_VERSION}")
     }
 
-    tasks.jacocoTestReport {
-        dependsOn(tasks.test) // tests are required to run before generating the report
-        reports {
-            xml.required.set(true)
-            xml.outputLocation.set(File("${buildDir}/reports/jacoco.xml"))
-        }
-    }
-
     tasks.test {
-        finalizedBy("jacocoTestReport")
         useJUnitPlatform {
             includeEngines("junit-jupiter")
         }
