@@ -23,6 +23,7 @@ sonarqube {
                 "**/backend/html/src/main/java/**/*" // (Once) generated / copied code
             )
         )
+        property("sonar.coverage.jacoco.xmlReportPath", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
     }
 }
 
@@ -56,12 +57,6 @@ subprojects {
         options.compilerArgs = Java.COMPILE_ARGS
     }
 
-    tasks.jacocoTestReport {
-        reports {
-            xml.required.set(true)
-        }
-    }
-
     java.sourceCompatibility = Java.JVM_TARGET_VERSION
     java.targetCompatibility = Java.JVM_TARGET_VERSION
 
@@ -80,11 +75,14 @@ subprojects {
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${Dependencies.JUNIT_VERSION}")
     }
 
-    tasks.test {
-        finalizedBy("jacocoTestReport")
+    tasks.jacocoTestReport {
+        reports {
+            xml.required.set(true)
+        }
     }
 
     tasks.test {
+        finalizedBy("jacocoTestReport")
         useJUnitPlatform {
             includeEngines("junit-jupiter")
         }
