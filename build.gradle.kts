@@ -33,17 +33,21 @@ tasks.sonarqube {
 
 subprojects {
 
+    apply(plugin = "jacoco")
+
     group = "at.reisishot.mise"
     version = "1.0-SNAPSHOT"
 
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
+
     apply(plugin = "jacoco")
     apply(plugin = "org.sonarqube")
 
     val compileKotlin by tasks.compileKotlin
     val compileTestKotlin by tasks.compileTestKotlin
     val compileJava by tasks.compileJava
+
 
     for (cur in listOf(compileKotlin, compileTestKotlin)) {
         cur.apply {
@@ -83,6 +87,7 @@ subprojects {
 
     tasks.test {
         finalizedBy("jacocoTestReport")
+
         useJUnitPlatform {
             includeEngines("junit-jupiter")
         }
