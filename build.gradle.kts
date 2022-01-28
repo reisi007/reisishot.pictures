@@ -30,18 +30,6 @@ jacoco {
     toolVersion = "0.8.7"
 }
 
-tasks.jacocoTestReport {
-    dependsOn(tasks.test) // tests are required to run before generating the report
-    reports {
-        xml.required.set(true)
-    }
-}
-
-tasks.test {
-    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
-}
-
-
 subprojects {
 
     group = "at.reisishot.mise"
@@ -89,8 +77,10 @@ subprojects {
     }
 
     tasks.jacocoTestReport {
+        dependsOn(tasks.test) // tests are required to run before generating the report
         reports {
             xml.required.set(true)
+            xml.outputLocation.set(File("${buildDir}/reports/jacoco.xml"))
         }
     }
 
