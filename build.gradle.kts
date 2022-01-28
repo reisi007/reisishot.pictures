@@ -27,7 +27,6 @@ sonarqube {
     }
 }
 
-
 subprojects {
 
     group = "at.reisishot.mise"
@@ -88,6 +87,21 @@ subprojects {
         testImplementation("org.assertj:assertj-core:${Dependencies.ASSERTJ_VERSION}")
         testImplementation("org.junit.jupiter:junit-jupiter-api:${Dependencies.JUNIT_VERSION}")
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${Dependencies.JUNIT_VERSION}")
+    }
+
+    sonarqube {
+        properties {
+            property("sonar.projectKey", "reisi007_reisishot.pictures")
+            property("sonar.organization", "reisi007")
+            property("sonar.host.url", "https://sonarcloud.io")
+            property(
+                "sonar.exclusions",
+                listOf(
+                    "**/backend/html/src/main/java/**/*" // (Once) generated / copied code
+                )
+            )
+            property("sonar.coverage.jacoco.xmlReportPaths", "${project.buildDir}/reports/jacoco.xml")
+        }
     }
 
     tasks.jacocoTestReport {
