@@ -1,5 +1,7 @@
 @file:Suppress("MemberVisibilityCanBePrivate")
 
+import org.gradle.api.JavaVersion
+
 // https://kotlinlang.org/releases.html#release-details
 
 object Kotlin {
@@ -14,6 +16,7 @@ object KotlinX {
 }
 
 object Java {
+    val JVM_TARGET_VERSION = JavaVersion.VERSION_17
     const val JVM_TARGET = "17"
     val COMPILE_ARGS = listOf(
         "--add-exports", "java.base/java.util=ALL-UNNAMED"
