@@ -17,6 +17,7 @@ sonarqube {
         property("sonar.projectKey", "reisi007_reisishot.pictures")
         property("sonar.organization", "reisi007")
         property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.java.coveragePlugin", "jacoco")
         property(
             "sonar.exclusions",
             listOf(
