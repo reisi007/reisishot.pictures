@@ -50,7 +50,10 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
     apply(plugin = "jacoco")
-    apply(plugin = "org.sonarqube")
+
+    jacoco {
+        toolVersion = "0.8.7"
+    }
 
     val compileKotlin by tasks.compileKotlin
     val compileTestKotlin by tasks.compileTestKotlin
@@ -61,8 +64,12 @@ subprojects {
             sourceCompatibility = Java.JVM_TARGET
             targetCompatibility = Java.JVM_TARGET
             kotlinOptions.jvmTarget = Java.JVM_TARGET
-
         }
+    }
+
+
+    tasks.test {
+        finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
     }
 
     compileJava.apply {
@@ -86,6 +93,21 @@ subprojects {
         testImplementation("org.assertj:assertj-core:${Dependencies.ASSERTJ_VERSION}")
         testImplementation("org.junit.jupiter:junit-jupiter-api:${Dependencies.JUNIT_VERSION}")
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${Dependencies.JUNIT_VERSION}")
+    }
+
+    sonarqube {
+        properties {
+            property("sonar.projectKey", "reisi007_reisishot.pictures")
+            property("sonar.organization", "reisi007")
+            property("sonar.host.url", "https://sonarcloud.io")
+            property(
+                "sonar.exclusions",
+                listOf(
+                    "**/backend/html/src/main/java/**/*" // (Once) generated / copied code
+                )
+            )
+            property("sonar.coverage.jacoco.xmlReportPaths", "${project.buildDir}/reports/jacoco.xml")
+        }
     }
 
     tasks.jacocoTestReport {
