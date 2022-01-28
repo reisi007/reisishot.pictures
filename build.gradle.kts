@@ -1,11 +1,11 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 
 plugins {
     kotlin("jvm") version Kotlin.VERSION
     id("org.jetbrains.kotlin.plugin.serialization") version Kotlin.VERSION
     id("org.sonarqube") version "3.3"
+    jacoco
 }
 
 repositories {
@@ -28,30 +28,45 @@ sonarqube {
 
 subprojects {
 
+    apply(plugin = "jacoco")
+
     group = "at.reisishot.mise"
     version = "1.0-SNAPSHOT"
 
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
 
-    val compileKotlin: KotlinCompile by tasks
-    val compileTestKotlin: KotlinCompile by tasks
+    val compileKotlin by tasks.compileKotlin
+    val compileTestKotlin by tasks.compileTestKotlin
+    val compileJava by tasks.compileJava
 
-    compileKotlin.kotlinOptions {
-        jvmTarget = Java.JVM_TARGET
+    for (cur in listOf(compileKotlin, compileTestKotlin)) {
+        cur.apply {
+            sourceCompatibility = Java.JVM_TARGET
+            targetCompatibility = Java.JVM_TARGET
+            kotlinOptions.jvmTarget = Java.JVM_TARGET
+        }
     }
 
-    compileTestKotlin.kotlinOptions {
-        jvmTarget = Java.JVM_TARGET
-
+    compileJava.apply {
+        options.compilerArgs = Java.COMPILE_ARGS
     }
+
+    java.sourceCompatibility = Java.JVM_TARGET_VERSION
+    java.targetCompatibility = Java.JVM_TARGET_VERSION
 
     repositories {
         mavenCentral()
     }
 
-    tasks.withType<JavaCompile> {
-        options.compilerArgs = Java.COMPILE_ARGS
+    tasks.jacocoTestReport {
+        reports {
+            xml.required.set(true)
+        }
+    }
+
+    tasks.test {
+        finalizedBy("jacocoTestReport")
     }
 
 
