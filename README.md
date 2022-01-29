@@ -2,7 +2,6 @@
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=reisi007_reisishot.pictures&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=reisi007_reisishot.pictures)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=reisi007_reisishot.pictures&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=reisi007_reisishot.pictures)
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=reisi007_reisishot.pictures&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=reisi007_reisishot.pictures)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=reisi007_reisishot.pictures&metric=coverage)](https://sonarcloud.io/summary/new_code?id=reisi007_reisishot.pictures)
 
 # reisishot.pictures
 
