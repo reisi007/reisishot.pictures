@@ -1,46 +1,33 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
-
 plugins {
     kotlin("jvm") version Kotlin.VERSION
-    jacoco
     id("org.jetbrains.kotlin.plugin.serialization") version Kotlin.VERSION
     id("org.sonarqube") version "3.3"
+    id("org.barfuin.gradle.jacocolog") version "2.0.0"
 }
 
 repositories {
     mavenCentral()
 }
 
+jacoco { toolVersion = "0.8.7" }
+
 sonarqube {
     properties {
-        property("sonar.projectKey", "reisi007_reisishot.pictures")
-        property("sonar.organization", "reisi007")
-        property("sonar.host.url", "https://sonarcloud.io")
-        property("sonar.java.coveragePlugin", "jacoco")
-        property(
-            "sonar.exclusions",
-            listOf(
-                "**/backend/html/src/main/java/**/*" // (Once) generated / copied code
+        properties(
+            mapOf<String, Any>(
+                "sonar.projectKey" to "reisi007_reisishot.pictures",
+                "sonar.organization" to "reisi007",
+                "sonar.host.url" to "https://sonarcloud.io",
+                "sonar.java.coveragePlugin" to "jacoco",
+                "sonar.exclusions" to listOf(
+                    "**/backend/html/src/main/java/**/*"
+                ),
+                "sonar.coverage.jacoco.xmlReportPaths" to "${buildDir}/reports/jacoco/jacocoAggregatedReport/jacocoAggregatedReport.xml"
             )
         )
     }
-}
-
-jacoco {
-    toolVersion = "0.8.7"
-}
-
-tasks.jacocoTestReport {
-    dependsOn(tasks.test) // tests are required to run before generating the report
-    reports {
-        xml.required.set(true)
-        xml.outputLocation.set(File("${buildDir}/reports/jacoco.xml"))
-    }
-}
-
-tasks.test {
-    finalizedBy("jacocoTestReport")   
 }
 
 subprojects {
@@ -86,16 +73,20 @@ subprojects {
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${Dependencies.JUNIT_VERSION}")
     }
 
-    tasks.test {
-        useJUnitPlatform {
-            includeEngines("junit-jupiter")
-        }
+    tasks {
+        jacocoTestReport { reports { xml.required.set(true) } }
+        test {
+            useJUnitPlatform {
+                includeEngines("junit-jupiter")
+            }
 
-        testLogging {
-            exceptionFormat = TestExceptionFormat.FULL
-            showExceptions = true
-            showCauses = true
-            showStackTraces = true
+            testLogging {
+                exceptionFormat = TestExceptionFormat.FULL
+                showExceptions = true
+                showCauses = true
+                showStackTraces = true
+            }
+            finalizedBy(jacocoTestReport)
         }
     }
 }

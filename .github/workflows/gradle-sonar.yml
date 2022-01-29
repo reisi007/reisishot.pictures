@@ -30,10 +30,12 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
-      - name: Build
-        run: ./gradlew clean build --parallel
-      - name: Analyze
+      - name: 🔦 Test
+        run: ./gradlew test --parallel
+      - name: ✉ Create aggregated report
+        run: ./gradlew jacocoAggregatedReport -x test --parallel
+      - name: 🔍 Sonarqube report
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew jacocoTestReport sonarqube --parallel
+        run: ./gradlew sonarqube -x test --parallel
