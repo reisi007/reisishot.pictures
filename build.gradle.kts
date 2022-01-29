@@ -11,23 +11,35 @@ repositories {
     mavenCentral()
 }
 
-jacoco { toolVersion = "0.8.7" }
-
 sonarqube {
     properties {
-        properties(
-            mapOf<String, Any>(
-                "sonar.projectKey" to "reisi007_reisishot.pictures",
-                "sonar.organization" to "reisi007",
-                "sonar.host.url" to "https://sonarcloud.io",
-                "sonar.java.coveragePlugin" to "jacoco",
-                "sonar.exclusions" to listOf(
-                    "**/backend/html/src/main/java/**/*"
-                ),
-                "sonar.coverage.jacoco.xmlReportPaths" to "${buildDir}/reports/jacoco/jacocoAggregatedReport/jacocoAggregatedReport.xml"
+        property("sonar.projectKey", "reisi007_reisishot.pictures")
+        property("sonar.organization", "reisi007")
+        property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.java.coveragePlugin", "jacoco")
+        property(
+            "sonar.exclusions",
+            listOf(
+                "**/backend/html/src/main/java/**/*" // (Once) generated / copied code
             )
         )
     }
+}
+
+jacoco {
+    toolVersion = "0.8.7"
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // tests are required to run before generating the report
+    reports {
+        xml.required.set(true)
+        xml.outputLocation.set(File("${buildDir}/reports/jacoco.xml"))
+    }
+}
+
+tasks.test {
+    finalizedBy("jacocoTestReport")
 }
 
 subprojects {
