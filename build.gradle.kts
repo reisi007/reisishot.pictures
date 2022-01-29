@@ -5,6 +5,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version Kotlin.VERSION
     id("org.sonarqube") version "3.3"
     id("org.barfuin.gradle.jacocolog") version "2.0.0"
+    jacoco
 }
 
 repositories {
