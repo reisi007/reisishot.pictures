@@ -38,3 +38,5 @@ object Dependencies {
     const val TORNADOFX_VERSION = "1.7.20"
     const val LANGUAGETOOL_VERSION = "5.6"
 }
+
+object Sonar

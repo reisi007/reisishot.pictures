@@ -11,8 +11,6 @@ repositories {
     mavenCentral()
 }
 
-jacoco { toolVersion = "0.8.7" }
-
 sonarqube {
     properties {
         properties(
@@ -20,11 +18,8 @@ sonarqube {
                 "sonar.projectKey" to "reisi007_reisishot.pictures",
                 "sonar.organization" to "reisi007",
                 "sonar.host.url" to "https://sonarcloud.io",
-                "sonar.java.coveragePlugin" to "jacoco",
-                "sonar.exclusions" to listOf(
-                    "**/backend/html/src/main/java/**/*"
-                ),
-                "sonar.coverage.jacoco.xmlReportPaths" to "${buildDir}/reports/jacoco/jacocoAggregatedReport/jacocoAggregatedReport.xml"
+                "sonar.exclusions" to "**/backend/html/src/main/java/**/*",
+                "sonar.coverage.jacoco.xmlReportPaths" to "${buildDir}/reports/jacoco/jacocoAggregatedReport/jacocoAggregatedReport.xml",
             )
         )
     }
@@ -37,6 +32,42 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
     apply(plugin = "jacoco")
+
+    jacoco {
+        toolVersion = "0.8.7"
+    }
+
+    tasks.jacocoTestReport {
+        dependsOn(tasks.test)
+        reports {
+            xml.required.set(true)
+            html.required.set(false)
+        }
+        classDirectories.setFrom(
+            files(
+                classDirectories.files.map {
+                    fileTree(it) {
+                        exclude("at/reisishot/velocity/**")
+                        exclude("com/vladsch/**")
+                    }
+                }
+            )
+        )
+    }
+
+    tasks.test {
+        useJUnitPlatform {
+            includeEngines("junit-jupiter")
+        }
+
+        testLogging {
+            exceptionFormat = TestExceptionFormat.FULL
+            showExceptions = true
+            showCauses = true
+            showStackTraces = true
+        }
+        finalizedBy(tasks.jacocoTestReport)
+    }
 
     val compileKotlin by tasks.compileKotlin
     val compileTestKotlin by tasks.compileTestKotlin
@@ -71,22 +102,5 @@ subprojects {
         testImplementation("org.assertj:assertj-core:${Dependencies.ASSERTJ_VERSION}")
         testImplementation("org.junit.jupiter:junit-jupiter-api:${Dependencies.JUNIT_VERSION}")
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${Dependencies.JUNIT_VERSION}")
-    }
-
-    tasks {
-        jacocoTestReport { reports { xml.required.set(true) } }
-        test {
-            useJUnitPlatform {
-                includeEngines("junit-jupiter")
-            }
-
-            testLogging {
-                exceptionFormat = TestExceptionFormat.FULL
-                showExceptions = true
-                showCauses = true
-                showStackTraces = true
-            }
-            finalizedBy(jacocoTestReport)
-        }
     }
 }
