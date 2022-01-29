@@ -18,13 +18,8 @@ sonarqube {
                 "sonar.projectKey" to "reisi007_reisishot.pictures",
                 "sonar.organization" to "reisi007",
                 "sonar.host.url" to "https://sonarcloud.io",
-                "sonar.exclusions" to listOf(
-                    "**/backend/html/src/main/java/**/*"
-                ),
-                "sonar.coverage.jacoco.xmlReportPaths" to listOf(
-                    "${buildDir}/reports/jacoco/jacocoAggregatedReport/jacocoAggregatedReport.xml",
-                    "${buildDir}/reports/jacoco/test/jacocoTestReport.xml",
-                )
+                "sonar.exclusions" to "**/backend/html/src/main/java/**/*",
+                "sonar.coverage.jacoco.xmlReportPaths" to "${buildDir}/reports/jacoco/jacocoAggregatedReport/jacocoAggregatedReport.xml",
             )
         )
     }
@@ -43,10 +38,21 @@ subprojects {
     }
 
     tasks.jacocoTestReport {
+        dependsOn(tasks.test)
         reports {
             xml.required.set(true)
             html.required.set(false)
         }
+        classDirectories.setFrom(
+            files(
+                classDirectories.files.map {
+                    fileTree(it) {
+                        exclude("at/reisishot/velocity/**")
+                        exclude("com/vladsch/**")
+                    }
+                }
+            )
+        )
     }
 
     tasks.test {
