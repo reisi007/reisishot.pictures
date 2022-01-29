@@ -12,15 +12,35 @@ repositories {
     mavenCentral()
 }
 
+sonarqube {
+    properties {
+        property("sonar.projectKey", "reisi007_reisishot.pictures")
+        property("sonar.organization", "reisi007")
+        property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.java.coveragePlugin", "jacoco")
+        property(
+            "sonar.exclusions",
+            listOf(
+                "**/backend/html/src/main/java/**/*" // (Once) generated / copied code
+            )
+        )
+    }
+}
+
 jacoco {
     toolVersion = "0.8.7"
 }
 
 tasks.jacocoTestReport {
+    dependsOn(tasks.test) // tests are required to run before generating the report
     reports {
         xml.required.set(true)
         xml.outputLocation.set(File("${buildDir}/reports/jacoco.xml"))
     }
+}
+
+tasks.test {
+    finalizedBy("jacocoTestReport")   
 }
 
 subprojects {
@@ -65,21 +85,6 @@ subprojects {
         testImplementation("org.junit.jupiter:junit-jupiter-api:${Dependencies.JUNIT_VERSION}")
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${Dependencies.JUNIT_VERSION}")
     }
-    
-sonarqube {
-    properties {
-        property("sonar.projectKey", "reisi007_reisishot.pictures")
-        property("sonar.organization", "reisi007")
-        property("sonar.host.url", "https://sonarcloud.io")
-        property("sonar.java.coveragePlugin", "jacoco")
-        property(
-            "sonar.exclusions",
-            listOf(
-                "**/backend/html/src/main/java/**/*" // (Once) generated / copied code
-            )
-        )
-    }
-}
 
     tasks.test {
         useJUnitPlatform {
