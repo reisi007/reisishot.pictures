@@ -7,21 +7,18 @@ import at.reisishot.mise.backend.config.WebsiteConfig
 import at.reisishot.mise.backend.config.WebsiteConfigBuilderDsl
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.exifdata.ExifdataKey.CREATION_DATETIME
-import kotlinx.html.DIV
 import kotlinx.html.div
 import kotlinx.html.p
 import kotlinx.html.span
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
-import pictures.reisishot.mise.backend.html.PageGenerator
+import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.html.appendUnformattedHtml
 import pictures.reisishot.mise.backend.html.config.TemplateObject
 import pictures.reisishot.mise.backend.html.config.VelocityTemplateObjectCreator
 import pictures.reisishot.mise.backend.htmlparsing.PageMetadata
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import kotlin.math.roundToInt
-import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator.ImageSize.Companion as DefaultImageSize
 
 @WebsiteConfigBuilderDsl
 fun AbstractGalleryGenerator.createPictureApi(): Pair<String, VelocityTemplateObjectCreator> =
@@ -106,40 +103,28 @@ internal class PictureApi(
 
 
     @SuppressWarnings("unused")
-    fun insertSlidingImages(filename: String, w: Int, h: Int) = buildString {
-        fun getJpgUrl(filename: String, size: Int) = "https://images.reisishot.pictures/${filename}_${size}.jpg"
-        fun getWebPUrl(filename: String, size: Int) = "https://images.reisishot.pictures/${filename}_${size}.webp"
-        fun DIV.insertPictureFromImagesSubDomain(filename: String, alt: String, ratio: Float) {
-            div(classes = PageGenerator.LAZYLOADER_CLASSNAME) {
-                attributes["data-alt"] = alt
-                sequenceOf(300, 400, 700, 1200, 2050, 3000).forEachIndexed { idx, size ->
-                    val iw = if (ratio < 1) size else (size * ratio).roundToInt()
-                    val ih = if (ratio > 1) size else (size * ratio).roundToInt()
-                    attributes["data-$idx"] = """{"jpg":"${getJpgUrl(filename, size)}","webp":"${
-                        getWebPUrl(
-                            filename,
-                            size
-                        )
-                    }","w":$iw,"h":$ih}"""
-                }
-                attributes["data-sizes"] = DefaultImageSize.values.toString()
-            }
-        }
+    fun insertSlidingImages(filename: String): String {
+        return insertSlidingImages(filename + "o", filename + "b")
+    }
 
-
+    @SuppressWarnings("unused")
+    fun insertSlidingImages(originalImage: String, editedImage: String): String = buildString {
+        val cache = galleryGenerator.cache
+        val editedImageInfo = cache.imageInformationData.getValue(editedImage)
+        val largestSize = editedImageInfo.thumbnailSizes.getValue(AbstractThumbnailGenerator.ImageSize.LARGEST)
         appendUnformattedHtml().div("bal-container") {
-            val ratio = (h / w.toFloat())
-            attributes["style"] = "width: 550px;height:${(550 * ratio).roundToInt()}px"
+            val ratio = (largestSize.height / largestSize.width.toFloat())
             attributes["data-ratio"] = ratio.toString()
+
             div("bal-after") {
-                insertPictureFromImagesSubDomain(filename + 'b', "Bearbeitet", ratio)
+                insertLazyPicture(editedImageInfo, websiteConfig)
                 div("bal-afterPosition afterLabel") {
                     text("Bearbeitet")
                 }
             }
             div("bal-before") {
                 div("bal-before-inset") {
-                    insertPictureFromImagesSubDomain(filename + 'o', "Original", ratio)
+                    insertLazyPicture(cache.imageInformationData.getValue(originalImage), websiteConfig)
                     div("bal-beforePosition beforeLabel") {
                         text("Original")
                     }

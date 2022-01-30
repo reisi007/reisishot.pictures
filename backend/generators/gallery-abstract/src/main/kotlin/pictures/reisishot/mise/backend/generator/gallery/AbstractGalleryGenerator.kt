@@ -40,12 +40,24 @@ abstract class AbstractGalleryGenerator(
         DisplayedMenuItems.CATEGORIES,
         DisplayedMenuItems.TAGS
     ),
-    private val exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }
+    private val pageGenerationSettings: Set<PageGenerationSettings> = setOf(*PageGenerationSettings.values()),
+    private val exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it },
+    private val imageConfigNotFoundAction: (notFoundConfigPath: Path) -> ImageConfig = { inPath ->
+        throw IllegalStateException(
+            "Could not load config file $inPath. Please check if the format is valid!"
+        )
+    }
 ) : WebsiteGenerator {
 
     enum class DisplayedMenuItems {
         CATEGORIES,
         TAGS;
+    }
+
+    enum class PageGenerationSettings {
+        CATEGORIES,
+        TAGS,
+        IMAGES,
     }
 
     override val executionPriority: Int = 20_000
@@ -205,8 +217,6 @@ abstract class AbstractGalleryGenerator(
                 val configPath = jpegPath.parent withChild "$filenameWithoutExtension.json"
                 val thumbnailInfoPath =
                     configuration.paths.cacheFolder withChild AbstractThumbnailGenerator.NAME_THUMBINFO_SUBFOLDER withChild "$filenameWithoutExtension.cache.json"
-                if (!configPath.exists())
-                    throw IllegalStateException("Config path does not exist for $jpegPath!")
                 if (!jpegPath.exists())
                     throw IllegalStateException("Image path does not exist for $jpegPath!")
                 if (!thumbnailInfoPath.exists())
@@ -214,7 +224,7 @@ abstract class AbstractGalleryGenerator(
 
 
                 val imageConfig = configPath.fromJson<ImageConfig>()
-                    ?: throw IllegalStateException("Could not load config file $configPath. Please check if the format is valid!")
+                    ?: imageConfigNotFoundAction(configPath)
                 val exifData = jpegPath.readExif(exifReplaceFunction)
                 val thumbnailConfig: HashMap<ImageSize, ImageSizeInformation> =
                     thumbnailInfoPath.fromJson() ?: throw IllegalStateException("Thumbnail info not found...")
@@ -276,9 +286,12 @@ abstract class AbstractGalleryGenerator(
         configuration: WebsiteConfig,
         buildingCache: BuildingCache,
     ) {
-        generateImagePages(configuration, buildingCache)
-        generateCategoryPages(configuration, buildingCache)
-        generateTagPages(configuration, buildingCache)
+        if (pageGenerationSettings.contains(PageGenerationSettings.IMAGES))
+            generateImagePages(configuration, buildingCache)
+        if (pageGenerationSettings.contains(PageGenerationSettings.CATEGORIES))
+            generateCategoryPages(configuration, buildingCache)
+        if (pageGenerationSettings.contains(PageGenerationSettings.TAGS))
+            generateTagPages(configuration, buildingCache)
     }
 
     private suspend fun generateImagePages(

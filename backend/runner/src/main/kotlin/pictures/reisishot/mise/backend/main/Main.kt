@@ -2,7 +2,9 @@ package pictures.reisishot.mise.backend.main
 
 import at.reisishot.mise.backend.config.*
 import at.reisishot.mise.backend.gallery.generator.GalleryGenerator
-import at.reisishot.mise.commons.*
+import at.reisishot.mise.commons.FileExtension
+import at.reisishot.mise.commons.isHtml
+import at.reisishot.mise.commons.isMarkdown
 import at.reisishot.mise.exifdata.defaultExifReplaceFunction
 import kotlinx.coroutines.runBlocking
 import kotlinx.html.InputType
@@ -17,6 +19,8 @@ import pictures.reisishot.mise.backend.generator.gallery.context.createCategoryA
 import pictures.reisishot.mise.backend.generator.gallery.context.createPictureApi
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.links.LinkGenerator
+import pictures.reisishot.mise.backend.generator.multisite.ExternalImageInformation
+import pictures.reisishot.mise.backend.generator.multisite.ImageInfoImporter
 import pictures.reisishot.mise.backend.generator.pages.PageGenerator
 import pictures.reisishot.mise.backend.generator.pages.htmlparsing.context.createHtmlApi
 import pictures.reisishot.mise.backend.generator.pages.minimalistic.MinimalisticPageGenerator
@@ -70,6 +74,7 @@ object Main {
             testimonialLoader,
             galleryGenerator,
             ImageMagickThumbnailGenerator(),
+            ImageInfoImporter(Images.cacheFolder, "https://" + Images.folderName + "/"),
             LinkGenerator(),
             SitemapGenerator(FileExtension::isHtml, FileExtension::isMarkdown)
         )
@@ -87,10 +92,7 @@ object Main {
                 Locale.GERMANY,
 
                 ),
-            MiseConfig(
-                isDevMode,
-                interactiveIgnoredFiles = listOf(FileExtension::isJetbrainsTemp, FileExtension::isTemp),
-            )
+            MiseConfig(isDevMode)
         ) {
             this.generators += generators
 
@@ -100,6 +102,7 @@ object Main {
                 }
                 polymorphic(ImageInformation::class) {
                     subclass(InternalImageInformation::class)
+                    subclass(ExternalImageInformation::class)
                 }
             }
 
