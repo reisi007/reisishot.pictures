@@ -1,6 +1,8 @@
 package at.reisishot.mise.backend.config
 
 import at.reisishot.mise.commons.FileExtension
+import at.reisishot.mise.commons.isJetbrainsTemp
+import at.reisishot.mise.commons.isTemp
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
@@ -33,7 +35,10 @@ data class MiseConfig(
     val isDevMode: Boolean = false,
     val cleanupGeneration: Boolean = false,
     private val baseInteractiveDelayMs: Long? = 2000L,
-    val interactiveIgnoredFiles: List<(FileExtension) -> Boolean> = listOf { false },
+    val interactiveIgnoredFiles: List<(FileExtension) -> Boolean> = listOf(
+        FileExtension::isJetbrainsTemp,
+        FileExtension::isTemp
+    ),
 ) {
     val interactiveDelayMs: Long?
         get() = if (isDevMode) baseInteractiveDelayMs else null

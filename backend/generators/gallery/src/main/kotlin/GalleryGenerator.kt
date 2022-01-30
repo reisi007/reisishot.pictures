@@ -6,13 +6,16 @@ import at.reisishot.mise.backend.config.WebsiteConfig
 import at.reisishot.mise.backend.config.WebsiteGenerator
 import at.reisishot.mise.commons.FilenameWithoutExtension
 import at.reisishot.mise.commons.withChild
+import at.reisishot.mise.config.ImageConfig
 import at.reisishot.mise.exifdata.ExifdataKey
 import kotlinx.html.*
 import pictures.reisishot.mise.backend.config.category.CategoryConfigRoot
 import pictures.reisishot.mise.backend.config.category.CategoryInformation
+import pictures.reisishot.mise.backend.config.category.buildCategoryConfig
 import pictures.reisishot.mise.backend.config.category.flatten
 import pictures.reisishot.mise.backend.config.tags.TagConfig
 import pictures.reisishot.mise.backend.config.tags.TagInformation
+import pictures.reisishot.mise.backend.config.tags.buildTagConfig
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.context.insertImageGallery
@@ -25,15 +28,23 @@ import java.time.format.DateTimeFormatter
 
 
 class GalleryGenerator(
-    tagConfig: TagConfig,
-    categoryConfig: CategoryConfigRoot,
+    tagConfig: TagConfig = buildTagConfig { },
+    categoryConfig: CategoryConfigRoot = buildCategoryConfig { },
     displayedMenuItems: Set<DisplayedMenuItems> = setOf(DisplayedMenuItems.CATEGORIES, DisplayedMenuItems.TAGS),
-    exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }
+    exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it },
+    pageGenerationSettings: Set<PageGenerationSettings> = setOf(*PageGenerationSettings.values()),
+    imageConfigNotFoundAction: (notFoundConfigPath: Path) -> ImageConfig = { inPath ->
+        throw IllegalStateException(
+            "Could not load config file $inPath. Please check if the format is valid!"
+        )
+    }
 ) : AbstractGalleryGenerator(
     tagConfig,
     categoryConfig,
     displayedMenuItems,
-    exifReplaceFunction
+    pageGenerationSettings,
+    exifReplaceFunction,
+    imageConfigNotFoundAction
 ) {
 
     override val generatorName: String = "Reisishot Gallery"
