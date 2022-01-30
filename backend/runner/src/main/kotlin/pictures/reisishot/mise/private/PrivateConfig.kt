@@ -20,7 +20,8 @@ object PrivateConfig {
                 "Eva Mair",
                 "Jessica Hettich",
                 "Julia Eder",
-                "Laura Schmiedinger"
+                "Laura Schmiedinger",
+                "Magdalena Wöhrer",
             )
 
             "Mann" to arrayOf(
