@@ -1,10 +1,7 @@
 package pictures.reisishot.mise.backend.config.category.computable
 
 import at.reisishot.mise.backend.config.LocaleProvider
-import at.reisishot.mise.commons.CategoryName
-import at.reisishot.mise.commons.ConcurrentSet
-import at.reisishot.mise.commons.FilenameWithoutExtension
-import at.reisishot.mise.commons.concurrentSetOf
+import at.reisishot.mise.commons.*
 import pictures.reisishot.mise.backend.config.ImageInformation
 import pictures.reisishot.mise.backend.config.category.CategoryComputable
 import pictures.reisishot.mise.backend.config.category.NoOpComputable
@@ -69,7 +66,7 @@ private class CameraMatcher(
     private val defaultImages: Map<Pair<String?, String?>, FilenameWithoutExtension>,
     cameraName: String
 ) : NoOpComputable() {
-    override val complexName: String = "$baseName/$cameraName"
+    override val complexName: String = "$baseName/${cameraName.replace('/', ' ').toUrlsafeString()}"
     override val categoryName: CategoryName by lazy {
         CategoryName(complexName, "${(LOTS_OF_IMAGES - images.size)}$cameraName", cameraName)
     }
@@ -87,7 +84,7 @@ private class CameraLensMatcher(
     cameraName: String,
     lensName: String
 ) : NoOpComputable() {
-    override val complexName: String = "$baseName/$lensName"
+    override val complexName: String = "$baseName/${lensName.replace('/', ' ').toUrlsafeString()}"
     override val categoryName: CategoryName by lazy {
         CategoryName(complexName, "${(LOTS_OF_IMAGES - images.size)}$cameraName", "$cameraName und dem $lensName")
     }

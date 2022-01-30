@@ -1,0 +1,15 @@
+{
+  "name": "deploy",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "scripts": {
+    "deploy": "node deploy"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@samkirkland/ftp-deploy": "^1.1.1",
+    "dotenv": "^14.3.2"
+  }
+}
