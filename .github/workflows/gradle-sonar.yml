@@ -39,3 +39,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew sonarqube -x test --parallel
+      - uses: codecov/codecov-action@v2
+        name: 🔍 Codecov report
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unittests
+          files: ./build/reports/jacoco/jacocoAggregatedReport/jacocoAggregatedReport.xml
+          fail_ci_if_error: true
