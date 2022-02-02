@@ -18,16 +18,13 @@ import pictures.reisishot.mise.backend.html.config.VelocityTemplateObjectCreator
 @WebsiteConfigBuilderDsl
 fun AbstractGalleryGenerator.createCategoryApi(): Pair<String, VelocityTemplateObjectCreator> =
     "categories" to { _, websiteConfig, _ ->
-        CategoryApi(this, websiteConfig)
+        CategoryApi(this.cache, websiteConfig)
     }
 
 internal class CategoryApi(
-    private val galleryGenerator: AbstractGalleryGenerator,
+    private val cache: AbstractGalleryGenerator.Cache,
     private val websiteConfig: WebsiteConfig,
 ) : TemplateObject {
-    private val cache: AbstractGalleryGenerator.Cache
-        get() = galleryGenerator.cache
-
     fun insertSubalbumThumbnails(albumName: String): String = buildString {
         appendUnformattedHtml().div {
             val categoryInformation = cache.rootCategory
@@ -40,7 +37,7 @@ internal class CategoryApi(
                     ?: error("No category $albumName found")
             }
 
-            insertSubcategoryThumbnails(galleryGenerator, subcategories, websiteConfig)
+            insertSubcategoryThumbnails(subcategories, websiteConfig)
         }
     }
 

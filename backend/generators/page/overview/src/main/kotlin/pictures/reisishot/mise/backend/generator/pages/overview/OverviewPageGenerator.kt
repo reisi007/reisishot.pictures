@@ -367,7 +367,7 @@ class OverviewPageGenerator(
         return map { sourcePath withChild it }
             .firstOrNull { it.exists() }
             ?.let {
-                MarkdownParser.parse(
+                MarkdownParser.processMarkdown2Html(
                     configuration,
                     cache,
                     pageMininmalInfo,
