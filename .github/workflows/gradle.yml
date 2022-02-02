@@ -22,5 +22,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
+      - name: Change wrapper permission
+        run: chmod +x ./gradlew
       - name: Execute Gradle build
         run: ./gradlew build --parallel

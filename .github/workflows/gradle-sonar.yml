@@ -23,7 +23,7 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-      - name: Change wrapper permissions
+      - name: Change wrapper permission
         run: chmod +x ./gradlew
       - name: 🔦 Test
         run: ./gradlew test --parallel
