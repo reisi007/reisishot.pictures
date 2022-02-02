@@ -1,6 +1,6 @@
 package pictures.reisishot.mise.backend.htmlparsing
 
-import pictures.reisishot.mise.backend.df_yyyMMdd
+import pictures.reisishot.mise.backend.df_yyyyMMdd
 
 typealias Yaml = Map<String, List<String>>
 
@@ -16,8 +16,8 @@ fun Yaml.getPageMetadata(): PageMetadata? {
         return null
     return PageMetadata(
         computedOrder,
-        df_yyyMMdd.parse(created),
-        edited?.let { df_yyyMMdd.parse(it) }
+        df_yyyyMMdd.parse(created),
+        edited?.let { df_yyyyMMdd.parse(it) }
     )
 }
 

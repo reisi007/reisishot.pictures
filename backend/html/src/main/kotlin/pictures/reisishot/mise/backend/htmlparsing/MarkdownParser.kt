@@ -46,26 +46,35 @@ object MarkdownParser {
             .build()
     }
 
-    fun parse(
+    fun processMarkdown2Html(
         configuration: WebsiteConfig,
         cache: BuildingCache,
         pageMinimalInfo: IPageMinimalInfo,
         vararg metaDataConsumers: PageGeneratorExtension
     ): Triple<Yaml, HEAD.() -> Unit, String> {
-        val sourceFile = pageMinimalInfo.sourcePath
+        val reader = Files.newBufferedReader(pageMinimalInfo.sourcePath, Charsets.UTF_8)
+        return processMarkdown2Html(configuration, cache, pageMinimalInfo, reader, *metaDataConsumers)
+    }
+
+    fun processMarkdown2Html(
+        configuration: WebsiteConfig,
+        cache: BuildingCache,
+        pageMinimalInfo: IPageMinimalInfo,
+        reader: Reader,
+        vararg metaDataConsumers: PageGeneratorExtension
+    ): Triple<Yaml, HEAD.() -> Unit, String> {
         val yamlExtractor = AbstractYamlFrontMatterVisitor()
         val headManipulator: HEAD.() -> Unit = {
             metaDataConsumers.asSequence()
                 .map { it.processFrontmatter(configuration, cache, pageMinimalInfo, yamlExtractor.data) }
                 .forEach { it(this) }
         }
-
-        val parsedMarkdown = Files.newBufferedReader(sourceFile, Charsets.UTF_8)
+        val parsedMarkdown = reader
             .markdown2Html(yamlExtractor)
         val yaml: Yaml = yamlExtractor.data
         val metaData = yaml.getPageMetadata()
         val finalHtml = parsedMarkdown
-            .velocity(sourceFile, metaData, configuration, cache)
+            .velocity(pageMinimalInfo.sourcePath, metaData, configuration, cache)
         return Triple(yaml, headManipulator, finalHtml)
     }
 

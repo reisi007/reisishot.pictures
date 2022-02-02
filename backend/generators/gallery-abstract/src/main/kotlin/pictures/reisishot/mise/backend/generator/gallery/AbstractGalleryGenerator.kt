@@ -407,7 +407,7 @@ abstract class AbstractGalleryGenerator(
         val inPath =
             configuration.paths.sourceFolder withChild configuration.paths.targetFolder.relativize(outFolder) withChild "$type.gallery.md"
         if (inPath.exists()) {
-            val (_, manipulator, html) = MarkdownParser.parse(
+            val (_, manipulator, html) = MarkdownParser.processMarkdown2Html(
                 configuration,
                 buildingCache,
                 GalleryMinimalInfo(inPath, outFolder withChild "index.html")
@@ -420,7 +420,6 @@ abstract class AbstractGalleryGenerator(
 }
 
 fun DIV.insertSubcategoryThumbnails(
-    galleryGenerator: AbstractGalleryGenerator,
     subcategories: Set<CategoryInformation>,
     configuration: WebsiteConfig
 ) {

@@ -124,7 +124,6 @@ class GalleryGenerator(
                     }
 
                     insertSubcategoryThumbnails(
-                        this@GalleryGenerator,
                         categoryInformation.subcategories,
                         configuration
                     )

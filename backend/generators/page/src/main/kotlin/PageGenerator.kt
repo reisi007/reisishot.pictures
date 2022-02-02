@@ -41,28 +41,28 @@ class PageGenerator(
 
     override suspend fun fetchInitialInformation(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
     ) {
         withContext(Dispatchers.IO) {
-            extensions.forEach { it.init(configuration, cache) }
+            extensions.forEach { it.init(configuration, buildingCache) }
 
-            cache.clearMenuItems { it.id.startsWith(generatorName + "_") }
-            cache.resetLinkcacheFor(LINKTYPE_PAGE)
+            buildingCache.clearMenuItems { it.id.startsWith(generatorName + "_") }
+            buildingCache.resetLinkcacheFor(LINKTYPE_PAGE)
             withContext(Dispatchers.IO) {
                 filesToProcess = Files.walk(configuration.paths.sourceFolder)
                     .asSequence()
                     .filter { p -> p.hasExtension(FileExtension::isMarkdown, FileExtension::isHtml) }
                     // Generate all links
                     .map {
-                        it.computeMinimalInfo(generatorName, configuration, cache)
+                        it.computeMinimalInfo(generatorName, configuration, buildingCache)
                     }.toList()
             }
         }
     }
 
-    override suspend fun buildInitialArtifacts(configuration: WebsiteConfig, cache: BuildingCache) {
-        buildArtifacts(configuration, cache)
+    override suspend fun buildInitialArtifacts(configuration: WebsiteConfig, buildingCache: BuildingCache) {
+        buildArtifacts(configuration, buildingCache)
     }
 
     private fun PageMinimalInfo.buildArtifact(configuration: WebsiteConfig, cache: BuildingCache) {
@@ -100,7 +100,7 @@ class PageGenerator(
         configuration: WebsiteConfig,
         buildingCache: BuildingCache
     ) {
-        val (yaml, headManipulator, htmlInput) = MarkdownParser.parse(
+        val (yaml, headManipulator, htmlInput) = MarkdownParser.processMarkdown2Html(
             configuration,
             buildingCache,
             info,
@@ -118,14 +118,14 @@ class PageGenerator(
 
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean {
         val relevantFiles = changeFiles.relevantFiles()
         withContext(Dispatchers.IO) {
-            filesToProcess = computeFilesToProcess(relevantFiles, configuration, cache)
-            cleanupOutDir(relevantFiles, configuration, cache)
+            filesToProcess = computeFilesToProcess(relevantFiles, configuration, buildingCache)
+            cleanupOutDir(relevantFiles, configuration, buildingCache)
         }
 
         return relevantFiles.any { changeState -> !changeState.isStateEdited() }
@@ -161,10 +161,10 @@ class PageGenerator(
 
     override suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         changeFiles: ChangeFileset
     ): Boolean {
-        buildArtifacts(configuration, cache)
+        buildArtifacts(configuration, buildingCache)
         return false
     }
 
@@ -192,15 +192,15 @@ class PageGenerator(
         return data.entries.mapTo(mutableSetOf()) { (k, v) -> k to v }
     }
 
-    override suspend fun cleanup(configuration: WebsiteConfig, cache: BuildingCache): Unit =
+    override suspend fun cleanup(configuration: WebsiteConfig, buildingCache: BuildingCache): Unit =
         withContext(Dispatchers.IO) {
-            cache.getLinkcacheEntriesFor(LINKTYPE_PAGE).values.asSequence()
+            buildingCache.getLinkcacheEntriesFor(LINKTYPE_PAGE).values.asSequence()
                 .map { configuration.paths.targetFolder.resolve("index.html") }
                 .forEach {
                     Files.deleteIfExists(it)
                     extensions.forEach { consumer ->
                         consumer.processDelete(
-                            configuration, cache,
+                            configuration, buildingCache,
                             it.parent
                         )
                     }
