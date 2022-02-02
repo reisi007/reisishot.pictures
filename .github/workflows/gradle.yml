@@ -23,7 +23,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-         cache: gradle
+          cache: gradle
       - name: Setup Gradle
       - name: Execute Gradle build
         run: ./gradlew build --parallel
