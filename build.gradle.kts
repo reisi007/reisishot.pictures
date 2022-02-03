@@ -50,7 +50,7 @@ subprojects {
             files(
                 classDirectories.files.map {
                     fileTree(it) {
-                        exclude("at/reisishot/velocity/**")
+                        exclude("pictures/reisishot/velocity/**")
                         exclude("com/vladsch/**")
                     }
                 }
