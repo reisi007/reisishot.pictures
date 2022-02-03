@@ -2,13 +2,13 @@
 
 package pictures.reisishot.mise.backend.generator.gallery.context
 
-import at.reisishot.mise.backend.config.WebsiteConfig
-import at.reisishot.mise.commons.FilenameWithoutExtension
 import kotlinx.html.*
+import pictures.reisishot.mise.backend.config.WebsiteConfig
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.html.PageGenerator
+import pictures.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator.ImageSize.Companion as DefaultImageSize
 
 

@@ -1,10 +1,10 @@
 package pictures.reisishot.mise.backend.generator.gallery.thumbnails
 
 
-import at.reisishot.mise.commons.replaceFileExtension
-import at.reisishot.mise.commons.runAndWaitOnConsole
-import at.reisishot.mise.commons.toNormalizedString
 import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator
+import pictures.reisishot.mise.commons.replaceFileExtension
+import pictures.reisishot.mise.commons.runAndWaitOnConsole
+import pictures.reisishot.mise.commons.toNormalizedString
 import java.nio.file.Path
 
 open class ImageMagickThumbnailGenerator(forceRegeneration: ForceRegeneration = ForceRegeneration()) :

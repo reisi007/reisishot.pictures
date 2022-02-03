@@ -1,6 +1,6 @@
 package pictures.reisishot.mise.configui
 
-import at.reisishot.mise.commons.filenameWithoutExtension
+import pictures.reisishot.mise.commons.filenameWithoutExtension
 import java.nio.file.Path
 
 data class FilenameData(val name: String, val digitCount: Int = 3) : Comparable<FilenameData> {

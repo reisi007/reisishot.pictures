@@ -1,11 +1,11 @@
 package pictures.reisishot.mise.backend.html.config
 
-import at.reisishot.mise.backend.config.BuildingCache
-import at.reisishot.mise.backend.config.WebsiteConfig
-import at.reisishot.mise.backend.config.WebsiteConfigBuilder
-import at.reisishot.mise.backend.config.WebsiteConfigBuilderDsl
 import kotlinx.html.DIV
 import kotlinx.html.HtmlBlockTag
+import pictures.reisishot.mise.backend.config.BuildingCache
+import pictures.reisishot.mise.backend.config.WebsiteConfig
+import pictures.reisishot.mise.backend.config.WebsiteConfigBuilder
+import pictures.reisishot.mise.backend.config.WebsiteConfigBuilderDsl
 import pictures.reisishot.mise.backend.htmlparsing.PageMetadata
 import java.nio.file.Path
 

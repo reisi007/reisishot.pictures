@@ -1,11 +1,11 @@
 package pictures.reisishot.mise.backend.generator.multisite
 
-import at.reisishot.mise.backend.config.WebsiteConfig
-import at.reisishot.mise.commons.FilenameWithoutExtension
 import kotlinx.serialization.Serializable
+import pictures.reisishot.mise.backend.config.WebsiteConfig
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.thumbnail.ImageSizeInformation
+import pictures.reisishot.mise.commons.FilenameWithoutExtension
 
 
 @Serializable

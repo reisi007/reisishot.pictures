@@ -1,9 +1,9 @@
 package pictures.reisishot.mise.backend.config.category
 
-import at.reisishot.mise.commons.CategoryName
-import at.reisishot.mise.commons.toUrlsafeString
 import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.config.ImageInformation
+import pictures.reisishot.mise.commons.CategoryName
+import pictures.reisishot.mise.commons.toUrlsafeString
 
 @Serializable
 data class CategoryInformation(

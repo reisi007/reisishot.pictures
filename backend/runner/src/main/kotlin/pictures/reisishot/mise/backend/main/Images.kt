@@ -1,16 +1,16 @@
 package pictures.reisishot.mise.backend.main
 
-import at.reisishot.mise.backend.config.*
 import at.reisishot.mise.backend.gallery.generator.GalleryGenerator
-import at.reisishot.mise.commons.filenameWithoutExtension
-import at.reisishot.mise.config.ImageConfig
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import pictures.reisishot.mise.backend.Mise.generate
+import pictures.reisishot.mise.backend.config.*
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.thumbnails.ImageMagickThumbnailGenerator
+import pictures.reisishot.mise.commons.filenameWithoutExtension
+import pictures.reisishot.mise.config.ImageConfig
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
@@ -43,7 +43,7 @@ object Images {
                 Paths.get("upload", folderName).toAbsolutePath()
             ),
             GeneralWebsiteInformation("Reisishot", "Reisishot Images", "https://$folderName", Locale.GERMANY),
-            MiseConfig(isDevMode)
+            MiseConfig(isDevMode, cleanupGeneration = true)
         ) {
             this.generators += generators
 

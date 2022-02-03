@@ -1,8 +1,8 @@
 package pictures.reisishot.mise.backend.generator.testimonials
 
-import at.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.backend.df_dd_MMMM_yyyy
 import pictures.reisishot.mise.backend.df_yyyy_MM_dd
+import pictures.reisishot.mise.commons.FilenameWithoutExtension
 import java.util.*
 
 data class Testimonial(

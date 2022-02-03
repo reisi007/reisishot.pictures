@@ -37,6 +37,7 @@ object Dependencies {
     const val METADATA_EXTRACTOR_VERSION = "2.16.0"
     const val TORNADOFX_VERSION = "1.7.20"
     const val LANGUAGETOOL_VERSION = "5.6"
+    const val JIM_FS_VERSION = "1.2"
 }
 
 object Sonar

@@ -1,10 +1,10 @@
 package pictures.reisishot.mise.backend.htmlparsing
 
-import at.reisishot.mise.backend.config.BuildingCache
-import at.reisishot.mise.backend.config.WebsiteConfig
-import at.reisishot.mise.commons.FileExtension
 import kotlinx.html.HEAD
 import pictures.reisishot.mise.backend.IPageMinimalInfo
+import pictures.reisishot.mise.backend.config.BuildingCache
+import pictures.reisishot.mise.backend.config.WebsiteConfig
+import pictures.reisishot.mise.commons.FileExtension
 import java.nio.file.Path
 
 interface PageGeneratorExtension {

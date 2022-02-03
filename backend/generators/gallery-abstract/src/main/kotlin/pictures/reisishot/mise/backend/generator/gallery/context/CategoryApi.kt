@@ -2,10 +2,9 @@
 
 package pictures.reisishot.mise.backend.generator.gallery.context
 
-import at.reisishot.mise.backend.config.WebsiteConfig
-import at.reisishot.mise.backend.config.WebsiteConfigBuilderDsl
-import at.reisishot.mise.commons.ComplexName
 import kotlinx.html.div
+import pictures.reisishot.mise.backend.config.WebsiteConfig
+import pictures.reisishot.mise.backend.config.WebsiteConfigBuilderDsl
 import pictures.reisishot.mise.backend.config.category.CategoryInformation
 import pictures.reisishot.mise.backend.config.category.flatten
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
@@ -14,6 +13,7 @@ import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbn
 import pictures.reisishot.mise.backend.html.appendUnformattedHtml
 import pictures.reisishot.mise.backend.html.config.TemplateObject
 import pictures.reisishot.mise.backend.html.config.VelocityTemplateObjectCreator
+import pictures.reisishot.mise.commons.ComplexName
 
 @WebsiteConfigBuilderDsl
 fun AbstractGalleryGenerator.createCategoryApi(): Pair<String, VelocityTemplateObjectCreator> =

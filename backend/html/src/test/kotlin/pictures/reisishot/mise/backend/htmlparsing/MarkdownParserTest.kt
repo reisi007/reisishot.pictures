@@ -2,24 +2,25 @@ package pictures.reisishot.mise.backend.htmlparsing
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import at.reisishot.mise.backend.config.*
-import at.reisishot.mise.commons.withChild
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import pictures.reisishot.mise.backend.IPageMinimalInfo
 import pictures.reisishot.mise.backend.SourcePath
 import pictures.reisishot.mise.backend.TargetPath
+import pictures.reisishot.mise.backend.config.BuildingCache
+import pictures.reisishot.mise.backend.config.PathInformation
+import pictures.reisishot.mise.backend.config.buildTestWebsiteConfig
 import pictures.reisishot.mise.backend.html.config.TemplateObject
 import pictures.reisishot.mise.backend.html.config.buildHtmlConfig
 import pictures.reisishot.mise.backend.html.config.registerAllTemplateObjects
+import pictures.reisishot.mise.commons.withChild
+import java.io.BufferedReader
 import java.io.StringReader
-import java.nio.file.Paths
 import java.util.stream.Stream
 import org.junit.jupiter.params.provider.Arguments.of as argsOf
 
 internal class MarkdownParserTest {
-
 
     @ParameterizedTest
     @MethodSource("html2markdown")
@@ -27,35 +28,29 @@ internal class MarkdownParserTest {
         md: String,
         expectedHtml: String
     ) {
+        val configuration = createWebsiteConfig()
         val (_, _, outputHtml) = MarkdownParser.processMarkdown2Html(
-            createWebsiteConfig(),
+            configuration,
             BuildingCache(),
-            createPageMinimalInfo(),
-            StringReader(md)
+            createPageMinimalInfo(configuration.paths),
+            { BufferedReader(StringReader(md)) }
         )
 
         assertThat(outputHtml).isEqualTo("${expectedHtml.trim()}\n")
 
     }
 
-    private fun createPageMinimalInfo(): IPageMinimalInfo {
-        val cur = Paths.get(".")
+    private fun createPageMinimalInfo(paths: PathInformation): IPageMinimalInfo {
         return object : IPageMinimalInfo {
-            override val sourcePath: SourcePath = cur withChild "source.md"
-            override val targetPath: TargetPath = cur withChild "target.html"
+            override val sourcePath: SourcePath = paths.sourceFolder withChild "source.md"
+            override val targetPath: TargetPath = paths.targetFolder withChild "target.html"
             override val title: String = "Test 123"
 
         }
     }
 
     //TODO create test fixture -> a lot of tests will not care about anything except of the lambda at the end
-    private fun createWebsiteConfig() = buildWebsiteConfig(
-        PathInformation(),
-        GeneralWebsiteInformation(
-            "Test", "Long test", "https://example.com"
-        ),
-        MiseConfig(),
-    ) {
+    private fun createWebsiteConfig() = buildTestWebsiteConfig {
         buildHtmlConfig {
             registerAllTemplateObjects(
                 "obj" to { _, _, _ -> TestTemplateObject() }

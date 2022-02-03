@@ -1,8 +1,8 @@
 package pictures.reisishot.mise.backend.generator.multisite
 
-import at.reisishot.mise.backend.config.*
-import at.reisishot.mise.commons.withChild
+import pictures.reisishot.mise.backend.config.*
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
+import pictures.reisishot.mise.commons.withChild
 import java.nio.file.Path
 
 @Suppress("unused")

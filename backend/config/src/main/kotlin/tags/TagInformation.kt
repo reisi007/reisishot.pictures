@@ -1,7 +1,7 @@
 package pictures.reisishot.mise.backend.config.tags
 
-import at.reisishot.mise.commons.toUrlsafeString
 import kotlinx.serialization.Serializable
+import pictures.reisishot.mise.commons.toUrlsafeString
 
 @Serializable
 class TagInformation(val name: String, val type: String = "MANUAL") : Comparator<TagInformation> {

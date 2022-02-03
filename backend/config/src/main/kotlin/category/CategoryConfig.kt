@@ -1,13 +1,13 @@
 package pictures.reisishot.mise.backend.config.category
 
-import at.reisishot.mise.backend.config.LocaleProvider
-import at.reisishot.mise.commons.CategoryName
-import at.reisishot.mise.commons.FilenameWithoutExtension
-import at.reisishot.mise.commons.concurrentSetOf
-import at.reisishot.mise.commons.forEachParallel
 import kotlinx.coroutines.runBlocking
 import pictures.reisishot.mise.backend.config.CategoryConfigDsl
 import pictures.reisishot.mise.backend.config.ImageInformation
+import pictures.reisishot.mise.backend.config.LocaleProvider
+import pictures.reisishot.mise.commons.CategoryName
+import pictures.reisishot.mise.commons.FilenameWithoutExtension
+import pictures.reisishot.mise.commons.concurrentSetOf
+import pictures.reisishot.mise.commons.forEachParallel
 
 fun CategoryConfigRoot.toCategoryInformation(): CategoryInformationRoot =
     asSequence()

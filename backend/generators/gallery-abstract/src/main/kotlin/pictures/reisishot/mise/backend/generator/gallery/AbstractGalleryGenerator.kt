@@ -1,10 +1,6 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
-import at.reisishot.mise.backend.config.*
-import at.reisishot.mise.commons.*
-import at.reisishot.mise.config.ImageConfig
-import at.reisishot.mise.exifdata.ExifdataKey
-import at.reisishot.mise.exifdata.readExif
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.*
@@ -12,6 +8,7 @@ import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.IPageMinimalInfo
 import pictures.reisishot.mise.backend.SourcePath
 import pictures.reisishot.mise.backend.TargetPath
+import pictures.reisishot.mise.backend.config.*
 import pictures.reisishot.mise.backend.config.category.*
 import pictures.reisishot.mise.backend.config.tags.TagConfig
 import pictures.reisishot.mise.backend.config.tags.TagInformation
@@ -21,6 +18,10 @@ import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGene
 import pictures.reisishot.mise.backend.generator.thumbnail.ImageSizeInformation
 import pictures.reisishot.mise.backend.html.raw
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
+import pictures.reisishot.mise.commons.*
+import pictures.reisishot.mise.config.ImageConfig
+import pictures.reisishot.mise.exifdata.ExifdataKey
+import pictures.reisishot.mise.exifdata.readExif
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDate
@@ -412,6 +413,7 @@ abstract class AbstractGalleryGenerator(
                 buildingCache,
                 GalleryMinimalInfo(inPath, outFolder withChild "index.html")
             )
+
             raw(html)
             return manipulator
         } else

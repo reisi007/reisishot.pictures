@@ -2,14 +2,12 @@
 
 package pictures.reisishot.mise.backend.generator.gallery.context
 
-import at.reisishot.mise.backend.config.BuildingCache
-import at.reisishot.mise.backend.config.WebsiteConfig
-import at.reisishot.mise.backend.config.WebsiteConfigBuilderDsl
-import at.reisishot.mise.commons.FilenameWithoutExtension
-import at.reisishot.mise.exifdata.ExifdataKey.CREATION_DATETIME
 import kotlinx.html.div
 import kotlinx.html.p
 import kotlinx.html.span
+import pictures.reisishot.mise.backend.config.BuildingCache
+import pictures.reisishot.mise.backend.config.WebsiteConfig
+import pictures.reisishot.mise.backend.config.WebsiteConfigBuilderDsl
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
 import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator
@@ -17,6 +15,8 @@ import pictures.reisishot.mise.backend.html.appendUnformattedHtml
 import pictures.reisishot.mise.backend.html.config.TemplateObject
 import pictures.reisishot.mise.backend.html.config.VelocityTemplateObjectCreator
 import pictures.reisishot.mise.backend.htmlparsing.PageMetadata
+import pictures.reisishot.mise.commons.FilenameWithoutExtension
+import pictures.reisishot.mise.exifdata.ExifdataKey.CREATION_DATETIME
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -104,11 +104,11 @@ internal class PictureApi(
 
     @SuppressWarnings("unused")
     fun insertSlidingImages(filename: String): String {
-        return insertSlidingImages(filename + "o", filename + "b")
+        return insertSlidingImages(filename + "o", filename)
     }
 
-    @SuppressWarnings("unused")
-    fun insertSlidingImages(originalImage: String, editedImage: String): String = buildString {
+
+    private fun insertSlidingImages(originalImage: String, editedImage: String): String = buildString {
         val cache = galleryGenerator.cache
         val editedImageInfo = cache.imageInformationData.getValue(editedImage)
         val largestSize = editedImageInfo.thumbnailSizes.getValue(AbstractThumbnailGenerator.ImageSize.LARGEST)

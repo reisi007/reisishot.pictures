@@ -6,6 +6,7 @@ plugins {
     id("org.sonarqube") version "3.3"
     id("org.barfuin.gradle.jacocolog") version "2.0.0"
     jacoco
+    `java-test-fixtures`
 }
 
 repositories {
@@ -33,6 +34,7 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
     apply(plugin = "jacoco")
+    apply(plugin = "java-test-fixtures")
 
     jacoco {
         toolVersion = "0.8.7"

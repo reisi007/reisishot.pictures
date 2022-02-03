@@ -1,10 +1,10 @@
 package pictures.reisishot.mise.backend.config.category
 
-import at.reisishot.mise.backend.config.LocaleProvider
-import at.reisishot.mise.commons.CategoryName
-import at.reisishot.mise.commons.ConcurrentSet
-import at.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.backend.config.ImageInformation
+import pictures.reisishot.mise.backend.config.LocaleProvider
+import pictures.reisishot.mise.commons.CategoryName
+import pictures.reisishot.mise.commons.ConcurrentSet
+import pictures.reisishot.mise.commons.FilenameWithoutExtension
 
 interface CategoryComputable {
     val complexName: String

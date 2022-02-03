@@ -1,9 +1,5 @@
 package pictures.reisishot.mise.backend.generator.thumbnail
 
-import at.reisishot.mise.backend.config.*
-import at.reisishot.mise.commons.*
-import at.reisishot.mise.exifdata.height
-import at.reisishot.mise.exifdata.width
 import com.drew.imaging.ImageMetadataReader
 import com.drew.metadata.Directory
 import com.drew.metadata.jpeg.JpegDirectory
@@ -12,6 +8,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import pictures.reisishot.mise.backend.config.*
+import pictures.reisishot.mise.commons.*
+import pictures.reisishot.mise.exifdata.height
+import pictures.reisishot.mise.exifdata.width
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.Executors

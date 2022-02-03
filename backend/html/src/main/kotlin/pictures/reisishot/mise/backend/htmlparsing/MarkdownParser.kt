@@ -1,8 +1,5 @@
 package pictures.reisishot.mise.backend.htmlparsing
 
-import at.reisishot.mise.backend.config.BuildingCache
-import at.reisishot.mise.backend.config.WebsiteConfig
-import at.reisishot.mise.commons.filenameWithoutExtension
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension
 import com.vladsch.flexmark.ext.emoji.EmojiExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
@@ -11,10 +8,11 @@ import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
 import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterExtension
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
-import com.vladsch.flexmark.util.ast.Document
 import kotlinx.html.HEAD
 import pictures.reisishot.mise.backend.IPageMinimalInfo
-import pictures.reisishot.mise.backend.SourcePath
+import pictures.reisishot.mise.backend.config.BuildingCache
+import pictures.reisishot.mise.backend.config.WebsiteConfig
+import java.io.BufferedReader
 import java.io.Reader
 import java.io.StringReader
 import java.nio.file.Files
@@ -52,54 +50,87 @@ object MarkdownParser {
         pageMinimalInfo: IPageMinimalInfo,
         vararg metaDataConsumers: PageGeneratorExtension
     ): Triple<Yaml, HEAD.() -> Unit, String> {
-        val reader = Files.newBufferedReader(pageMinimalInfo.sourcePath, Charsets.UTF_8)
-        return processMarkdown2Html(configuration, cache, pageMinimalInfo, reader, *metaDataConsumers)
+        val readerCreator: () -> BufferedReader =
+            { Files.newBufferedReader(pageMinimalInfo.sourcePath, Charsets.UTF_8) }
+        return processMarkdown2Html(
+            configuration,
+            cache,
+            pageMinimalInfo,
+            readerCreator,
+            *metaDataConsumers
+        )
     }
 
     fun processMarkdown2Html(
         configuration: WebsiteConfig,
         cache: BuildingCache,
         pageMinimalInfo: IPageMinimalInfo,
-        reader: Reader,
+        readerProvider: () -> BufferedReader,
         vararg metaDataConsumers: PageGeneratorExtension
     ): Triple<Yaml, HEAD.() -> Unit, String> {
         val yamlExtractor = AbstractYamlFrontMatterVisitor()
+        readerProvider().use {
+            extractFrontmatter(it, yamlExtractor)
+        }
+
+        val yaml: Yaml = yamlExtractor.data
         val headManipulator: HEAD.() -> Unit = {
             metaDataConsumers.asSequence()
-                .map { it.processFrontmatter(configuration, cache, pageMinimalInfo, yamlExtractor.data) }
+                .map { it.processFrontmatter(configuration, cache, pageMinimalInfo, yaml) }
                 .forEach { it(this) }
         }
-        val parsedMarkdown = reader
-            .markdown2Html(yamlExtractor)
-        val yaml: Yaml = yamlExtractor.data
+
         val metaData = yaml.getPageMetadata()
-        val finalHtml = parsedMarkdown
-            .velocity(pageMinimalInfo.sourcePath, metaData, configuration, cache)
+
+        val afterVelocity =
+            StringReader(readerProvider().use {
+                it.velocity(
+                    pageMinimalInfo,
+                    metaData,
+                    configuration,
+                    cache
+                )
+            })
+        val finalHtml = afterVelocity.markdown2Html()
+
+
+
         return Triple(yaml, headManipulator, finalHtml)
     }
 
-    private fun String.velocity(
-        sourceFile: SourcePath,
+    private fun Reader.velocity(
+        pageMinimalInfo: IPageMinimalInfo,
         pageMetadata: PageMetadata?,
         configuration: WebsiteConfig,
         cache: BuildingCache,
     ) = VelocityApplier.runVelocity(
-        StringReader(this),
-        sourceFile.filenameWithoutExtension,
+        this,
+        pageMinimalInfo,
         pageMetadata,
         configuration,
         cache
     )
 
-    fun Reader.markdown2Html(yamlExtractor: AbstractYamlFrontMatterVisitor) =
-        htmlRenderer.render(extractFrontmatter(this, yamlExtractor))
+    fun Reader.markdown2Html() = htmlRenderer.render(markdownParser.parseReader(this))
 
-    fun extractFrontmatter(fileContents: String, target: AbstractYamlFrontMatterVisitor): Document =
-        extractFrontmatter(StringReader(fileContents), target)
+    fun extractFrontmatter(fileContents: String, target: AbstractYamlFrontMatterVisitor) =
+        extractFrontmatter(BufferedReader(StringReader(fileContents)), target)
 
-    private fun extractFrontmatter(fileContents: Reader, target: AbstractYamlFrontMatterVisitor): Document {
-        val parseReader = markdownParser.parseReader(fileContents)
+    private fun extractFrontmatter(fileContents: BufferedReader, target: AbstractYamlFrontMatterVisitor) {
+        val content = buildString {
+            var line: String? = fileContents.readLine()
+            if (line == null || !line.startsWith("---"))
+                return@buildString
+            append(line)
+            do {
+                line = fileContents.readLine()
+                if (line == null)
+                    return@buildString
+                append("\n")
+                append(line)
+            } while (line != null && !line.startsWith("---"))
+        }
+        val parseReader = markdownParser.parse(content)
         target.visit(parseReader)
-        return parseReader
     }
 }
