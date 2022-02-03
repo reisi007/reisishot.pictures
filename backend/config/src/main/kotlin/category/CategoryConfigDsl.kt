@@ -1,8 +1,8 @@
 package pictures.reisishot.mise.backend.config.category
 
-import at.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.backend.config.CategoryConfigDsl
 import pictures.reisishot.mise.backend.config.tags.TagInformation
+import pictures.reisishot.mise.commons.FilenameWithoutExtension
 
 @CategoryConfigDsl
 fun buildCategoryConfig(action: CategoryConfigRoot.() -> Unit): CategoryConfigRoot =

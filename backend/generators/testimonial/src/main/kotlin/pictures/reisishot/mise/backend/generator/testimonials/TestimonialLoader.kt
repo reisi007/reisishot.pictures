@@ -1,13 +1,15 @@
 package pictures.reisishot.mise.backend.generator.testimonials
 
-import at.reisishot.mise.backend.config.*
-import at.reisishot.mise.commons.*
-import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
+import pictures.reisishot.mise.backend.IPageMinimalInfo
+import pictures.reisishot.mise.backend.SourcePath
+import pictures.reisishot.mise.backend.TargetPath
+import pictures.reisishot.mise.backend.config.*
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.html.config.VelocityTemplateObjectCreator
-import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser.markdown2Html
+import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
 import pictures.reisishot.mise.backend.htmlparsing.Yaml
 import pictures.reisishot.mise.backend.htmlparsing.getString
+import pictures.reisishot.mise.commons.*
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
@@ -19,7 +21,7 @@ import pictures.reisishot.mise.backend.generator.testimonials.context.createTest
 
 interface TestimonialLoader {
 
-    fun load(): Map<String, Testimonial>
+    fun load(websiteConfig: WebsiteConfig, buildingCache: BuildingCache): Map<String, Testimonial>
 }
 
 class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader, WebsiteGenerator {
@@ -37,7 +39,7 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
 
     }
 
-    override fun load(): Map<String, Testimonial> {
+    override fun load(websiteConfig: WebsiteConfig, buildingCache: BuildingCache): Map<String, Testimonial> {
         if (!possiblyDirty)
             return cachedValue
         val newestChange = loadNewestModifiedFile()
@@ -46,19 +48,36 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
             cachedValue
         } else {
             possiblyDirty = false
-            cachedValue = loadAllTestimonials()
+            cachedValue = loadAllTestimonials(websiteConfig, buildingCache)
             cachedValue
         }
     }
 
-    private fun loadAllTestimonials(): Map<String, Testimonial> {
+    private fun loadAllTestimonials(
+        websiteConfig: WebsiteConfig,
+        buildingCache: BuildingCache
+    ): Map<String, Testimonial> {
         return loadAllFIles()
             .map { path ->
-                val yamlContainer = AbstractYamlFrontMatterVisitor()
-                val html = Files.newBufferedReader(path, StandardCharsets.UTF_8).use {
-                    it.markdown2Html(yamlContainer)
+                val (yaml, _, html) = Files.newBufferedReader(path, StandardCharsets.UTF_8).use {
+                    MarkdownParser.processMarkdown2Html(
+                        websiteConfig,
+                        buildingCache,
+                        object : IPageMinimalInfo {
+                            override val sourcePath: SourcePath = path
+                            override val targetPath: TargetPath =
+                                websiteConfig.paths.targetFolder withChild websiteConfig.paths.sourceFolder.relativize(
+                                    path
+                                )
+                            override val title: String = path.fileName.toString()
+
+                            override fun toString(): String {
+                                return "Testimonial $sourcePath"
+                            }
+                        }
+                    )
                 }
-                path.fileName.toString().substringBefore('.') to yamlContainer.data.createTestimonial(path, html)
+                path.fileName.toString().substringBefore('.') to yaml.createTestimonial(path, html)
             }
             .toMap()
     }

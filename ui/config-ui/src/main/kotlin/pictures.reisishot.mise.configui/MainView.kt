@@ -1,9 +1,5 @@
 package pictures.reisishot.mise.configui
 
-import at.reisishot.mise.commons.*
-import at.reisishot.mise.config.ImageConfig
-import at.reisishot.mise.ui.json.fromJson
-import at.reisishot.mise.ui.json.toJson
 import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.Node
@@ -22,6 +18,10 @@ import javafx.stage.FileChooser
 import pictures.reisishot.mise.base.AutocompleteMultiSelectionBox
 import pictures.reisishot.mise.base.enableSpellcheck
 import pictures.reisishot.mise.base.insectsOf
+import pictures.reisishot.mise.commons.*
+import pictures.reisishot.mise.config.ImageConfig
+import pictures.reisishot.mise.ui.json.fromJson
+import pictures.reisishot.mise.ui.json.toJson
 import tornadofx.*
 import java.io.File
 import java.nio.file.Files

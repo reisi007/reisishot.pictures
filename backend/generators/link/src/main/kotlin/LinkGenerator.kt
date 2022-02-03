@@ -1,7 +1,7 @@
 package pictures.reisishot.mise.backend.generator.links
 
-import at.reisishot.mise.backend.config.*
 import kotlinx.serialization.Serializable
+import pictures.reisishot.mise.backend.config.*
 import kotlin.io.path.exists
 
 class LinkGenerator : WebsiteGenerator {

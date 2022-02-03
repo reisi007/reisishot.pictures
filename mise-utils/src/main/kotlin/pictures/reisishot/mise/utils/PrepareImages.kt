@@ -1,6 +1,6 @@
 package pictures.reisishot.mise.utils
 
-import at.reisishot.mise.commons.filenameWithoutExtension
+import pictures.reisishot.mise.commons.filenameWithoutExtension
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths

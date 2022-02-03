@@ -1,13 +1,14 @@
 const
     gulp = require('gulp'),
     $ = require('gulp-load-plugins')({lazy: true}),
+    sass = require('gulp-sass')(require('sass')),
     sites = ['reisishot.pictures'];
 
 
 gulp.task('styles', function () {
     return gulp
         .src('./src/scss/main.scss')
-        .pipe($.sass().on('error', $.sass.logError))
+        .pipe(sass().on('error', sass.logError))
         .pipe($.cleanCss())
         .pipe($.purgecss({
             content: ['./generated/js/*.js'].concat(sites.map(s => '../upload/' + s + '/**/*.html'))

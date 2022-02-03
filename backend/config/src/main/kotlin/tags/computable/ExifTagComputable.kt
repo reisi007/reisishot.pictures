@@ -1,11 +1,11 @@
 package pictures.reisishot.mise.backend.config.tags.computable
 
-import at.reisishot.mise.exifdata.ExifdataKey
 import pictures.reisishot.mise.backend.config.ImageInformation
 import pictures.reisishot.mise.backend.config.TagConfigDsl
 import pictures.reisishot.mise.backend.config.tags.TagComputable
 import pictures.reisishot.mise.backend.config.tags.TagConfig
 import pictures.reisishot.mise.backend.config.tags.TagInformation
+import pictures.reisishot.mise.exifdata.ExifdataKey
 
 class ExifTagComputable : TagComputable {
 

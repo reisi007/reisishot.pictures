@@ -1,11 +1,6 @@
 package pictures.reisishot.mise.backend.main
 
-import at.reisishot.mise.backend.config.*
 import at.reisishot.mise.backend.gallery.generator.GalleryGenerator
-import at.reisishot.mise.commons.FileExtension
-import at.reisishot.mise.commons.isHtml
-import at.reisishot.mise.commons.isMarkdown
-import at.reisishot.mise.exifdata.defaultExifReplaceFunction
 import kotlinx.coroutines.runBlocking
 import kotlinx.html.InputType
 import kotlinx.html.h2
@@ -13,6 +8,7 @@ import kotlinx.html.h3
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import pictures.reisishot.mise.backend.Mise.generate
+import pictures.reisishot.mise.backend.config.*
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.context.createCategoryApi
@@ -33,6 +29,10 @@ import pictures.reisishot.mise.backend.html.*
 import pictures.reisishot.mise.backend.html.config.SocialMediaAccounts
 import pictures.reisishot.mise.backend.html.config.buildHtmlConfig
 import pictures.reisishot.mise.backend.html.config.registerAllTemplateObjects
+import pictures.reisishot.mise.commons.FileExtension
+import pictures.reisishot.mise.commons.isHtml
+import pictures.reisishot.mise.commons.isMarkdown
+import pictures.reisishot.mise.exifdata.defaultExifReplaceFunction
 import pictures.reisishot.mise.private.PrivateConfig
 import java.nio.file.Path
 import java.nio.file.Paths

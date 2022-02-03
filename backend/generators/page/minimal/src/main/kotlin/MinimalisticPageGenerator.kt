@@ -1,8 +1,8 @@
 package pictures.reisishot.mise.backend.generator.pages.minimalistic
 
-import at.reisishot.mise.backend.config.BuildingCache
-import at.reisishot.mise.backend.config.WebsiteConfig
 import pictures.reisishot.mise.backend.IPageMinimalInfo
+import pictures.reisishot.mise.backend.config.BuildingCache
+import pictures.reisishot.mise.backend.config.WebsiteConfig
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.raw
 import pictures.reisishot.mise.backend.htmlparsing.PageGeneratorExtension

@@ -1,13 +1,13 @@
 package pictures.reisishot.mise.exifui
 
-import at.reisishot.mise.commons.FileExtension
-import at.reisishot.mise.commons.hasExtension
-import at.reisishot.mise.commons.isJpeg
-import at.reisishot.mise.exifdata.ExifdataKey.*
-import at.reisishot.mise.exifdata.defaultExifReplaceFunction
-import at.reisishot.mise.exifdata.readExif
 import javafx.event.EventHandler
 import javafx.scene.input.TransferMode
+import pictures.reisishot.mise.commons.FileExtension
+import pictures.reisishot.mise.commons.hasExtension
+import pictures.reisishot.mise.commons.isJpeg
+import pictures.reisishot.mise.exifdata.ExifdataKey.*
+import pictures.reisishot.mise.exifdata.defaultExifReplaceFunction
+import pictures.reisishot.mise.exifdata.readExif
 import tornadofx.*
 
 class MainView : View("Exif Extractor") {
