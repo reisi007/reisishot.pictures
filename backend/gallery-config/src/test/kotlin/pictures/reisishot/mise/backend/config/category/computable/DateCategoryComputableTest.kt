@@ -22,7 +22,7 @@ class DateCategoryComputableTest {
     fun `Parse date from image`() {
         val image = createDateExifInformation()
 
-        val prefix = "Test"
+        val prefix = "test"
         val computable = DateCategoryComputable(prefix)
 
         computable.matchImage(image, TestGermanLocaleProvider)
@@ -41,12 +41,12 @@ class DateCategoryComputableTest {
 
     @Test
     fun `Name must be trimmed`() {
-        assertThat(DateCategoryComputable(" Test ").complexName).isEqualTo("Test")
+        assertThat(DateCategoryComputable(" Test ").complexName).isEqualTo("test")
     }
 
     @Test
     fun `Base name must be trimmed`() {
-        assertThat(DateCategoryComputable("Name", " Base ").complexName).isEqualTo("Base/Name")
+        assertThat(DateCategoryComputable("Name", " base ").complexName).isEqualTo("base/name")
     }
 
     @Test
