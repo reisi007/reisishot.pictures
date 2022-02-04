@@ -29,11 +29,6 @@ jobs:
         run: ./gradlew test --parallel
       - name: ✉ Create aggregated report
         run: ./gradlew jacocoAggregatedReport -x test --parallel
-      - name: 🔍 Sonarqube report
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew sonarqube -x test --parallel
       - uses: codecov/codecov-action@v2
         name: 🔍 Codecov report
         with:
@@ -41,3 +36,8 @@ jobs:
           flags: unittests
           files: ./build/reports/jacoco/jacocoAggregatedReport/jacocoAggregatedReport.xml
           fail_ci_if_error: true
+      - name: 🔍 Sonarqube report
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./gradlew sonarqube -x test --parallel

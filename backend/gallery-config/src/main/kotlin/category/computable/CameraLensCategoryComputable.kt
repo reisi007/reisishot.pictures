@@ -14,9 +14,14 @@ class CameraLensCategoryComputable(
     private val baseName: String? = null,
     _defaultImages: () -> Map<Pair<String?, String?>, FilenameWithoutExtension> = { emptyMap() }
 ) : CategoryComputable {
+
+    init {
+        requireNotNull(name.ifBlank { null }) { "Name must not be blank" }
+    }
+
     private val defaultImages = _defaultImages()
     override val complexName: String
-        get() = (if (baseName == null) "" else "$baseName/") + name
+        get() = (if (baseName == null) "" else "${baseName.trim()}/") + name.trim().lowercase()
     override val categoryName by lazy { CategoryName(complexName) }
     override val defaultImage: FilenameWithoutExtension? by lazy { defaultImages[null to null] }
     override val images: ConcurrentSet<ImageInformation> = concurrentSetOf()
