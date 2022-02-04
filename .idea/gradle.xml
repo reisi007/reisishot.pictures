@@ -13,7 +13,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/backend" />
-            <option value="$PROJECT_DIR$/backend/config" />
+            <option value="$PROJECT_DIR$/backend/gallery-config" />
             <option value="$PROJECT_DIR$/backend/generators" />
             <option value="$PROJECT_DIR$/backend/generators/gallery" />
             <option value="$PROJECT_DIR$/backend/generators/gallery-abstract" />

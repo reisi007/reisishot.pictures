@@ -1,7 +1,7 @@
 val projectTestOutput = project(":commons").testSources
 
 dependencies {
-    implementation(project(":image-access"))
-    implementation(project(":backend:root"))
+    api(project(":image-access"))
+    api(project(":backend:root"))
     testApi(projectTestOutput)
 }

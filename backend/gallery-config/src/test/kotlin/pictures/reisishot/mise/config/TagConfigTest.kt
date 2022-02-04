@@ -7,6 +7,7 @@ import pictures.reisishot.mise.backend.config.ImageInformation
 import pictures.reisishot.mise.backend.config.tags.TagConfig
 import pictures.reisishot.mise.backend.config.tags.additionalTags
 import pictures.reisishot.mise.backend.config.tags.buildTagConfig
+import pictures.reisishot.mise.commons.concurrentSetOf
 
 class TagConfigTest {
 
@@ -19,7 +20,7 @@ class TagConfigTest {
             }
         }
 
-        val internalImageInformation = buildImageInformation("A")
+        val internalImageInformation = buildImageInformation(concurrentSetOf("A"))
 
         config.computeTags(internalImageInformation)
 

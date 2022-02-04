@@ -19,8 +19,12 @@ class DateCategoryComputable(
     baseName: String? = null,
     _defaultImages: () -> Map<Triple<Int?/*year*/, Month?, Int?/*Day*/>, FilenameWithoutExtension> = { emptyMap() }
 ) : CategoryComputable {
+    init {
+        requireNotNull(name.ifBlank { null }) { "Name must not be blank" }
+    }
+
     private val defaultImages = _defaultImages()
-    override val complexName: String = (if (baseName == null) "" else "$baseName/") + name
+    override val complexName: String = (if (baseName == null) "" else "${baseName.trim()}/") + name.trim()
     private val yearSubcategoryMap = ConcurrentHashMap<Int, YearMatcher>()
     override val subcategories: MutableSet<CategoryComputable>
         get() = yearSubcategoryMap.values.toMutableSet()
