@@ -11,5 +11,5 @@ dependencies {
     implementation(project(":backend:generators:page:overview"))
     implementation(project(":backend:generators:thumbnail-imagick"))
     implementation(project(":backend:generators:multisite"))
-    implementation(project(":backend:config"))
+    implementation(project(":backend:gallery-config"))
 }

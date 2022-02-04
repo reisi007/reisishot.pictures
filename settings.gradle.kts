@@ -3,7 +3,7 @@ rootProject.name = "My website (reisishot.pictures)"
 include("commons")
 include("image-access")
 //Split up backend dependencies
-include("backend:config")
+include("backend:gallery-config")
 include("backend:website-config")
 include("backend:html")
 include("backend:root")

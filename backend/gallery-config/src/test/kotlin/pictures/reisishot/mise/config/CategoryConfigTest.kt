@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test
 import pictures.reisishot.mise.backend.config.ImageInformation
 import pictures.reisishot.mise.backend.config.LocaleProvider
 import pictures.reisishot.mise.backend.config.category.*
+import pictures.reisishot.mise.commons.concurrentSetOf
 import pictures.reisishot.mise.commons.toTypedArray
 import java.util.*
 
@@ -15,7 +16,7 @@ class CategoryConfigTest {
         val vowels = arrayOf("A", "E", "I", "O", "U")
         val consonants = generateAlphabet() - vowels
         val charImages = generateAlphabet()
-            .map { buildImageInformation(it) }
+            .map { buildImageInformation(concurrentSetOf(it)) }
             .toList()
 
         val categoryConfig = buildCategoryConfig {
