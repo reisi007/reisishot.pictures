@@ -106,7 +106,7 @@ fun DIV.insertWartelisteInfo() {
 
 @HtmlTagMarker
 fun FlowOrPhrasingContent.metadata(metadata: PageMetadata) {
-    span("badge bg-light text-secondary text-pre-wrap") {
+    span("badge bg-light text-secondary text-pre-wrap mb-3") {
         metadata.edited?.let {
             time {
                 attributes.itemprop = "dateModified"
