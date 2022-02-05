@@ -3,6 +3,7 @@ package pictures.reisishot.mise.backend.config.category.computable
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.messageContains
+import at.reisishot.mise.commons.testfixtures.softAssert
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import pictures.reisishot.mise.backend.config.ImageInformation
@@ -43,6 +44,26 @@ class CameraLensCategoryComputableTest {
         assertThat(computedSubcategory.complexName).isEqualTo("test/canon-m50m2/ef-85mm-f-1.8-usm")
     }
 
+    @Test
+    fun `Do not compute anything for images with only lens info`() {
+        val image = createImageInformation(cameraName = null)
+        val (camera, lens) = computeSubcategories(image)
+        softAssert {
+            assertThat(camera).isNull()
+            assertThat(lens).isNull()
+        }
+    }
+
+    @Test
+    fun `Do not compute anything for images with neither camera or lens info`() {
+        val image = createImageInformation(null, null)
+        val (camera, lens) = computeSubcategories(image)
+        softAssert {
+            assertThat(camera).isNull()
+            assertThat(lens).isNull()
+        }
+    }
+
     private fun computeSubcategories(image: ImageInformation) =
         CameraLensCategoryComputable("Test").let {
             it.matchImage(image, TestGermanLocaleProvider)
@@ -67,7 +88,6 @@ class CameraLensCategoryComputableTest {
             override val categories: ConcurrentSet<String> = concurrentSetOf()
             override val tags: ConcurrentSet<TagInformation> = tags
             override val exifInformation: Map<ExifdataKey, String> = emptyMap()
-
         }
     }
 }
