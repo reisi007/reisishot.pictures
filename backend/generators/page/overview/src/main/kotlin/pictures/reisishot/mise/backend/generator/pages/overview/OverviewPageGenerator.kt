@@ -48,7 +48,7 @@ class OverviewPageGenerator(
     }
 
     private fun Yaml.processFrontmatter(pageMinimalInfo: IPageMinimalInfo) {
-        extract(pageMinimalInfo)?.let {
+        extract(pageMinimalInfo, overviewConfigs)?.let {
             dirty = dirty or changeSetAdd.add(it)
         }
     }
@@ -352,40 +352,53 @@ class OverviewPageGenerator(
             ?.third
     }
 
-    //TODO test this
-    internal fun Yaml.extract(pageMinimalInfo: IPageMinimalInfo): OverviewEntry? {
-        val group = getString("group")
-        val picture = getString("picture")
-        val title = getString("title")
-        val metaData = getPageMetadata()
-        val order = metaData?.order
-        val description = getString("description")
-        val groupConfig = overviewConfigs[group]
-        val displayName = groupConfig?.name ?: group
+}
 
-        val url = getString("url")
+internal fun Yaml.extract(
+    pageMinimalInfo: IPageMinimalInfo,
+    overviewConfigs: Map<String, OverviewConfig>
+): OverviewEntry? {
+    val group = getString("group")
+    val picture = getString("picture")
+    val title = getString("title")
+    val metaData = getPageMetadata()
+    val order = metaData?.order
+    val description = getString("description")
+    val groupConfig = overviewConfigs[group]
+    val displayName = groupConfig?.name ?: group
+
+    val url = getString("url")
         if (group == null || picture == null || title == null || order == null || displayName == null)
             return null
 
-        return OverviewEntry(group, title, description, picture, pageMinimalInfo, order, displayName, url, metaData)
+    return OverviewEntry(
+        group,
+        groupConfig,
+        title,
+        description,
+        picture,
+        pageMinimalInfo,
+        order,
+        displayName,
+        url,
+        metaData
+    )
     }
 
-    inner class OverviewEntry(
-        val id: String,
-        val title: String,
-        val description: String?,
-        val picture: String,
-        val pageMininmalInfo: IPageMinimalInfo,
-        val order: String?,
-        val displayName: String,
-        val configuredUrl: String?,
-        val metaData: PageMetadata?
-    ) {
+class OverviewEntry(
+    val id: String,
+    val config: OverviewConfig?,
+    val title: String,
+    val description: String?,
+    val picture: String,
+    val pageMininmalInfo: IPageMinimalInfo,
+    val order: String?,
+    val displayName: String,
+    val configuredUrl: String?,
+    val metaData: PageMetadata?
+) {
 
         val entryOutUrl: Path = pageMininmalInfo.targetPath.parent
-
-        val config: OverviewConfig?
-            get() = overviewConfigs[id]
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -405,4 +418,4 @@ class OverviewPageGenerator(
             return result
         }
     }
-}
+
