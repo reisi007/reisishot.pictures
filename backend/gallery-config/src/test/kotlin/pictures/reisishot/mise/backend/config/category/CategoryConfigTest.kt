@@ -1,12 +1,12 @@
-package pictures.reisishot.mise.config
+package pictures.reisishot.mise.backend.config.category
 
 import at.reisishot.mise.commons.testfixtures.softAssert
 import org.junit.jupiter.api.Test
 import pictures.reisishot.mise.backend.config.ImageInformation
 import pictures.reisishot.mise.backend.config.LocaleProvider
-import pictures.reisishot.mise.backend.config.category.*
 import pictures.reisishot.mise.commons.concurrentSetOf
 import pictures.reisishot.mise.commons.toTypedArray
+import pictures.reisishot.mise.config.buildImageInformation
 import java.util.*
 
 
