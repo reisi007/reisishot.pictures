@@ -6,14 +6,11 @@ typealias Yaml = Map<String, List<String>>
 
 
 fun Yaml.getPageMetadata(): PageMetadata? {
-    val order = getOrder()
-    val created = getString("created")
     val edited = getString("updated")
+    val created = getString("created") ?: edited ?: return null
 
-    val computedOrder = order ?: edited ?: created
-    // Ensure we have all required fields
-    if (computedOrder == null || created == null)
-        return null
+    val computedOrder = getOrder() ?: if (edited != null) "$edited-$created" else "$created-$created"
+
     return PageMetadata(
         computedOrder,
         df_yyyyMMdd.parse(created),
