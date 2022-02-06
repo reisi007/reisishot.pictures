@@ -1,13 +1,11 @@
-package pictures.reisishot.mise.config
+package pictures.reisishot.mise.backend.config.tags
 
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import org.junit.jupiter.api.Test
 import pictures.reisishot.mise.backend.config.ImageInformation
-import pictures.reisishot.mise.backend.config.tags.TagConfig
-import pictures.reisishot.mise.backend.config.tags.additionalTags
-import pictures.reisishot.mise.backend.config.tags.buildTagConfig
 import pictures.reisishot.mise.commons.concurrentSetOf
+import pictures.reisishot.mise.config.buildImageInformation
 
 class TagConfigTest {
 
