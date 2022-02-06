@@ -55,7 +55,7 @@ class OverviewPageGenerator(
 
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean {
@@ -75,9 +75,9 @@ class OverviewPageGenerator(
 
     override suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         changeFiles: ChangeFileset
-    ): Boolean = processChangesInternal(configuration, cache)
+    ): Boolean = processChangesInternal(configuration, buildingCache)
 
     override fun processChanges(configuration: WebsiteConfig, cache: BuildingCache) {
         processChangesInternal(configuration, cache)
@@ -146,65 +146,7 @@ class OverviewPageGenerator(
                     )
                 val displayName = data.displayName
 
-                PageGenerator.generatePage(
-                    target,
-                    displayName,
-                    websiteConfig = configuration,
-                    additionalHeadContent = additionalTopContent?.second ?: {},
-                    buildingCache = cache
-                ) {
-                    p {
-                        h1(classes = "center") { text(displayName) }
-                    }
-                    additionalTopContent?.third?.let { raw(it) }
-                    div(classes = "row center overview-" + data.config?.computeStyle()) {
-                        this@OverviewPageGenerator.data[name]?.asSequence()
-                            ?.sortedByDescending { it.order }
-                            ?.forEach { entry ->
-                                val image = galleryGenerator.cache.imageInformationData.getValue(entry.picture)
-                                val url = entry.configuredUrl
-                                    ?: kotlin.run {
-                                        BuildingCache.getLinkFromFragment(
-                                            configuration,
-                                            configuration.paths.targetFolder.relativize(entry.entryOutUrl withChild "index.html").parent?.toString()
-                                                ?: ""
-                                        )
-                                    }
-                                div(classes = "col-lg-4 mt-3") {
-                                    a(url, classes = "card black h-100") {
-                                        if (entry.configuredUrl != null)
-                                            this.target = "_blank"
-                                        div(classes = "card-img-top") {
-                                            insertLazyPicture(image, configuration)
-                                        }
-                                        div(classes = "card-body") {
-                                            h5("card-title") { text(entry.title) }
-                                            p("card-text") {
-                                                entry.metaData?.let {
-                                                    metadata(it)
-                                                    br
-                                                }
-                                                entry.description?.let {
-                                                    text(it)
-                                                }
-                                            }
-
-                                        }
-
-                                        footer("card-footer") {
-                                            div(classes = "btn btn-primary") {
-                                                text("Mehr erfahren")
-                                                entry.configuredUrl?.let {
-                                                    insertIcon(ReisishotIcons.LINK, "xs", "sup")
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                    }
-                    endContent?.let { raw(it) }
-                }
+                createPage(target, displayName, configuration, additionalTopContent, cache, data, name, endContent)
             }
         if (dirty) {
             return processChangesInternal(configuration, cache)
@@ -214,6 +156,78 @@ class OverviewPageGenerator(
         changeSetRemove.clear()
         dirty = false
         return changes
+    }
+
+    private fun createPage(
+        target: Path,
+        displayName: String,
+        configuration: WebsiteConfig,
+        additionalTopContent: Triple<Yaml, HEAD.() -> Unit, String>?,
+        cache: BuildingCache,
+        data: OverviewEntry,
+        name: String,
+        endContent: String?
+    ) {
+        PageGenerator.generatePage(
+            target,
+            displayName,
+            configuration.websiteInformation.locale,
+            configuration,
+            cache,
+            additionalTopContent?.second ?: {},
+        ) {
+            p {
+                h1(classes = "center") { text(displayName) }
+            }
+            additionalTopContent?.third?.let { raw(it) }
+            div(classes = "row center overview-" + data.config?.computeStyle()) {
+                this@OverviewPageGenerator.data[name]?.asSequence()
+                    ?.sortedByDescending { it.order }
+                    ?.forEach { entry ->
+                        val image = galleryGenerator.cache.imageInformationData.getValue(entry.picture)
+                        val url = entry.configuredUrl
+                            ?: kotlin.run {
+                                BuildingCache.getLinkFromFragment(
+                                    configuration,
+                                    configuration.paths.targetFolder.relativize(entry.entryOutUrl withChild "index.html").parent?.toString()
+                                        ?: ""
+                                )
+                            }
+                        div(classes = "col-lg-4 mt-3") {
+                            a(url, classes = "card black h-100") {
+                                if (entry.configuredUrl != null)
+                                    this.target = "_blank"
+                                div(classes = "card-img-top") {
+                                    insertLazyPicture(image, configuration)
+                                }
+                                div(classes = "card-body") {
+                                    h5("card-title") { text(entry.title) }
+                                    p("card-text") {
+                                        entry.metaData?.let {
+                                            metadata(it)
+                                            br
+                                        }
+                                        entry.description?.let {
+                                            text(it)
+                                        }
+                                    }
+
+                                }
+
+                                footer("card-footer") {
+                                    div(classes = "btn btn-primary") {
+                                        text("Mehr erfahren")
+                                        entry.configuredUrl?.let {
+                                            insertIcon(ReisishotIcons.LINK, "xs", "sup")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+            }
+            endContent?.let { raw(it) }
+        }
     }
 
     private fun MutableMap<String, Path>.computeChangedGroups() = (
@@ -245,7 +259,7 @@ class OverviewPageGenerator(
 
     override suspend fun fetchInitialInformation(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
     ) = withContext(Dispatchers.IO) {
         configuration.paths.sourceFolder.processFrontmatter(configuration) { it: Path ->
@@ -257,11 +271,11 @@ class OverviewPageGenerator(
         }
     }
 
-    override suspend fun buildInitialArtifacts(configuration: WebsiteConfig, cache: BuildingCache) {
+    override suspend fun buildInitialArtifacts(configuration: WebsiteConfig, buildingCache: BuildingCache) {
         // No action needed
     }
 
-    override suspend fun cleanup(configuration: WebsiteConfig, cache: BuildingCache) {
+    override suspend fun cleanup(configuration: WebsiteConfig, buildingCache: BuildingCache) {
         // Nothing to do
     }
 
@@ -280,58 +294,6 @@ class OverviewPageGenerator(
             get() = throw IllegalStateException("Not implemented")
         override val title: String
             get() = throw IllegalStateException("Not implemented")
-    }
-
-    private fun Yaml.extract(pageMinimalInfo: IPageMinimalInfo): OverviewEntry? {
-        val group = getString("group")
-        val picture = getString("picture")
-        val title = getString("title")
-        val metaData = getPageMetadata()
-        val order = (metaData?.order ?: getOrder())?.toInt()
-        val description = getString("description")
-        val groupConfig = overviewConfigs[group]
-        val displayName = groupConfig?.name ?: group
-
-        val url = getString("url")
-        if (group == null || picture == null || title == null || order == null || displayName == null)
-            return null
-
-        return OverviewEntry(group, title, description, picture, pageMinimalInfo, order, displayName, url, metaData)
-    }
-
-    inner class OverviewEntry(
-        val id: String,
-        val title: String,
-        val description: String?,
-        val picture: String,
-        val pageMininmalInfo: IPageMinimalInfo,
-        val order: Int,
-        val displayName: String,
-        val configuredUrl: String?, val metaData: PageMetadata?
-    ) {
-
-        val entryOutUrl: Path = pageMininmalInfo.targetPath.parent
-
-        val config: OverviewConfig?
-            get() = overviewConfigs[id]
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as OverviewEntry
-
-            if (id != other.id) return false
-            if (pageMininmalInfo != other.pageMininmalInfo) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = id.hashCode()
-            result = 31 * result + pageMininmalInfo.hashCode()
-            return result
-        }
     }
 
 
@@ -388,5 +350,59 @@ class OverviewPageGenerator(
         )
         return sequence.parseFile(pageMininmalInfo, configuration, cache, metaDataConsumers)
             ?.third
+    }
+
+    //TODO test this
+    internal fun Yaml.extract(pageMinimalInfo: IPageMinimalInfo): OverviewEntry? {
+        val group = getString("group")
+        val picture = getString("picture")
+        val title = getString("title")
+        val metaData = getPageMetadata()
+        val order = metaData?.order
+        val description = getString("description")
+        val groupConfig = overviewConfigs[group]
+        val displayName = groupConfig?.name ?: group
+
+        val url = getString("url")
+        if (group == null || picture == null || title == null || order == null || displayName == null)
+            return null
+
+        return OverviewEntry(group, title, description, picture, pageMinimalInfo, order, displayName, url, metaData)
+    }
+
+    inner class OverviewEntry(
+        val id: String,
+        val title: String,
+        val description: String?,
+        val picture: String,
+        val pageMininmalInfo: IPageMinimalInfo,
+        val order: String?,
+        val displayName: String,
+        val configuredUrl: String?,
+        val metaData: PageMetadata?
+    ) {
+
+        val entryOutUrl: Path = pageMininmalInfo.targetPath.parent
+
+        val config: OverviewConfig?
+            get() = overviewConfigs[id]
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as OverviewEntry
+
+            if (id != other.id) return false
+            if (pageMininmalInfo != other.pageMininmalInfo) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = id.hashCode()
+            result = 31 * result + pageMininmalInfo.hashCode()
+            return result
+        }
     }
 }

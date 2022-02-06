@@ -10,10 +10,16 @@ fun Yaml.getPageMetadata(): PageMetadata? {
     val created = getString("created")
     val edited = getString("updated")
 
-    val computedOrder = order ?: edited ?: created
+    val computedOrder = when {
+        order != null -> order
+        created != null -> if (edited != null) "$edited-$created" else "$created-$created"
+        else -> null
+    }
+
     // Ensure we have all required fields
     if (computedOrder == null || created == null)
         return null
+
     return PageMetadata(
         computedOrder,
         df_yyyyMMdd.parse(created),
