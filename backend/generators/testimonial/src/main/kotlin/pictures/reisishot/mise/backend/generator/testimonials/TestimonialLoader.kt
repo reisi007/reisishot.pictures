@@ -111,13 +111,13 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
             personName,
             date,
             type,
-            contentHtml.ifBlank { null }
+            contentHtml
         )
     }
 
     override suspend fun fetchInitialInformation(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
     ) {
         possiblyDirty = true
@@ -125,7 +125,7 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
 
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean {
@@ -134,20 +134,20 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
         return possiblyDirty
     }
 
-    override suspend fun buildInitialArtifacts(configuration: WebsiteConfig, cache: BuildingCache) {
+    override suspend fun buildInitialArtifacts(configuration: WebsiteConfig, buildingCache: BuildingCache) {
         // Nothing to do
     }
 
     override suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         changeFiles: ChangeFileset
     ): Boolean {
         // Nothing to do
         return false
     }
 
-    override suspend fun cleanup(configuration: WebsiteConfig, cache: BuildingCache) {
+    override suspend fun cleanup(configuration: WebsiteConfig, buildingCache: BuildingCache) {
         // nothing to do
     }
 

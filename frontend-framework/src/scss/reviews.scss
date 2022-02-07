@@ -8,9 +8,14 @@
   .card {
     margin-top: 1rem;
     padding: 0;
+    $maxH: 50vh;
+
+    .ratio {
+      height: $maxH;
+    }
 
     .pic-holder {
-      $maxH: 50vh;
+
       height: $maxH;
 
       div.lazy {
