@@ -56,3 +56,22 @@ private fun Appendable.appendIfValueNotNull(key: String, value: List<String>?) {
         appendLine(" - $it")
     }
 }
+
+fun createTestimonial(
+    id: Int,
+    isoDateString: String,
+    image: FilenameWithoutExtension? = null,
+    rating: Int? = null,
+    html: String = ""
+) = Testimonial(
+    id.toString(),
+    image,
+    null,
+    null,
+    rating,
+    "Test User",
+    isoDateString,
+    "test",
+    html
+)
+

@@ -44,11 +44,11 @@ class LoadTestimonialTest {
 
         assertThat(loadedTestimonials.keys).containsAll("1")
 
-        val (_, image, images, video, _, _, _, _, _) = loadedTestimonials.getValue("1")
+        val testimonials = loadedTestimonials.getValue("1")
 
         softAssert {
-            assertThat(image).isEqualTo("1")
-            sequenceOf(images, video).forEach {
+            assertThat(testimonials.image).isEqualTo("1")
+            sequenceOf(testimonials.images, testimonials.video).forEach {
                 assertThat(it).isNull()
             }
         }
@@ -66,11 +66,11 @@ class LoadTestimonialTest {
 
         assertThat(loadedTestimonials.keys).containsAll("1")
 
-        val (_, image, images, video, _, _, _, _, _) = loadedTestimonials.getValue("1")
+        val testimonials = loadedTestimonials.getValue("1")
 
         softAssert {
-            assertThat(video).isEqualTo(VALUE_VIDEO)
-            sequenceOf(image, images).forEach {
+            assertThat(testimonials.video).isEqualTo(VALUE_VIDEO)
+            sequenceOf(testimonials.image, testimonials.images).forEach {
                 assertThat(it).isNull()
             }
         }
@@ -88,11 +88,11 @@ class LoadTestimonialTest {
 
         assertThat(loadedTestimonials.keys).containsAll("1")
 
-        val (_, image, images, video, _, _, _, _, _) = loadedTestimonials.getValue("1")
+        val testimonials = loadedTestimonials.getValue("1")
 
         softAssert {
-            assertThat(images).containsAll(VALUE_IMAGES)
-            sequenceOf(image, video).forEach {
+            assertThat(testimonials.images).containsAll(VALUE_IMAGES)
+            sequenceOf(testimonials.image, testimonials.video).forEach {
                 assertThat(it).isNull()
             }
         }

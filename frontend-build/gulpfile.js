@@ -73,7 +73,8 @@ gulp.task('watch', function () {
     // Watch static files
     gulp.watch(staticSource, gulp.series('copyFrameworkStatic'));
     // Watch .js / .css  files
-    gulp.watch(frameworkJsCss, gulp.series('copyFrameworkJsCss'));
+    gulp.watch(frameworkJsCss, gulp.series('copyFrameworkJsCss'))
+        .on('change', browserSync.reload);
     // Watch static files
     gulp.watch(inBase + 'src/static/**/*.*', gulp.series('copyStatic'));
 });

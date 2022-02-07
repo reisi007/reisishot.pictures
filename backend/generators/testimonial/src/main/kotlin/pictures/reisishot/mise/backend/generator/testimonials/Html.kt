@@ -111,18 +111,10 @@ fun HtmlBlockTag.appendTestimonials(
             }
         }
 
-        val sortTestimonials =
-            compareBy<Testimonial>(
-                { it.image == null && it.video == null && it.images == null },
-                { it.html == null }
-            )
-                .thenByDescending { it.isoDateString }
-                .thenByDescending { it.rating ?: -1 }
-                .thenByDescending { it.html?.length ?: -1 }
 
 
         testimonialsToDisplay.asSequence()
-            .sortedWith(sortTestimonials)
+            .sorted()
             .forEach { testimonial ->
                 renderTestimonial(
                     galleryGenerator,
