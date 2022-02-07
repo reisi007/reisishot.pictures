@@ -42,7 +42,7 @@ object VelocityApplier {
                 reader
             )
         } catch (e: Exception) {
-            throw IllegalStateException("Could not parse file \"${pageMinimalInfo.sourcePath})!\"", e)
+            throw IllegalStateException("Could not parse file \"${pageMinimalInfo.sourcePath}!\"", e)
         }
     }
 }

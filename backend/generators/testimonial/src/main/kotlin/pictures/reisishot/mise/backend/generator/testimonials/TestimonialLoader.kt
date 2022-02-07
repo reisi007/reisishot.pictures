@@ -16,7 +16,7 @@ import java.nio.file.Path
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import kotlin.streams.asSequence
+import kotlin.io.path.isDirectory
 import pictures.reisishot.mise.backend.generator.testimonials.context.createTestimonialApi as createBaseTestimonialApi
 
 interface TestimonialLoader {
@@ -34,8 +34,9 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
     private var cachedValue: Map<String, Testimonial> = mapOf()
 
     companion object {
-        private const val INPUT_FOLDER_NAME = "reviews"
-        fun fromInPath(inPath: Path): TestimonialLoaderImpl = TestimonialLoaderImpl(inPath withChild INPUT_FOLDER_NAME)
+        const val INPUT_FOLDER_NAME = "reviews"
+        fun fromSourceFolder(inPath: Path): TestimonialLoaderImpl = fromPath(inPath withChild INPUT_FOLDER_NAME)
+        fun fromPath(inPath: Path): TestimonialLoaderImpl = TestimonialLoaderImpl(inPath)
 
     }
 
@@ -83,10 +84,12 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
     }
 
     private fun loadAllFIles() = paths.asSequence()
-        .flatMap { Files.list(it).asSequence() }
-        .flatMap { Files.list(it).asSequence() }
+        .flatMap { listFiles(it) }
+        .flatMap { listFiles(it) }
         .filter { Files.isRegularFile(it) }
         .filter { path -> path.hasExtension({ it.isMarkdownPart("review") }) }
+
+    private fun listFiles(it: Path) = if (it.isDirectory()) it.list() else sequenceOf(it)
 
     private fun Yaml.createTestimonial(p: Path, contentHtml: String): Testimonial {
         val imageFilename = getString("image")
