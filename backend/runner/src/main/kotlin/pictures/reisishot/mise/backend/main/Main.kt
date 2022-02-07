@@ -50,7 +50,9 @@ object Main {
 
     internal fun build(isDevMode: Boolean) {
 
-        val testimonialLoader = TestimonialLoaderImpl.fromInPath(Paths.get("input", folderName).toAbsolutePath())
+        val sourceFolder = Paths.get("input", folderName).toAbsolutePath()
+
+        val testimonialLoader = TestimonialLoaderImpl.fromSourceFolder(sourceFolder)
 
         val galleryGenerator = GalleryGenerator(
             PrivateConfig.TAG_CONFIG,
@@ -81,7 +83,7 @@ object Main {
 
         val websiteConfig = buildWebsiteConfig(
             PathInformation(
-                Paths.get("input", folderName).toAbsolutePath(),
+                sourceFolder,
                 Paths.get("tmp", folderName).toAbsolutePath(),
                 Paths.get("upload", folderName).toAbsolutePath()
             ),
