@@ -1,6 +1,4 @@
 dependencies {
-    implementation(project(":image-access"))
-    implementation(project(":backend:root"))
     implementation(project(":backend:generators:link"))
     implementation(project(":backend:generators:sitemap"))
     implementation(project(":backend:generators:gallery"))

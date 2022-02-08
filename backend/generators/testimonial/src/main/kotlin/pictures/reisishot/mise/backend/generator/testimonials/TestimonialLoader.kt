@@ -35,7 +35,9 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
 
     companion object {
         const val INPUT_FOLDER_NAME = "reviews"
-        fun fromSourceFolder(inPath: Path): TestimonialLoaderImpl = fromPath(inPath withChild INPUT_FOLDER_NAME)
+        fun fromSourceFolder(inPath: Path): TestimonialLoaderImpl =
+            fromPath(inPath withChild INPUT_FOLDER_NAME)
+
         fun fromPath(inPath: Path): TestimonialLoaderImpl = TestimonialLoaderImpl(inPath)
 
     }
