@@ -40,6 +40,10 @@ subprojects {
         toolVersion = "0.8.7"
     }
 
+    kotlin.target.compilations.getByName("testFixtures") {
+        associateWith(target.compilations.getByName("main"))
+    }
+
     tasks.jacocoTestReport {
         dependsOn(tasks.test)
         reports {
@@ -105,5 +109,22 @@ subprojects {
         testImplementation("org.junit.jupiter:junit-jupiter-api:${Dependencies.JUNIT_VERSION}")
         testImplementation("org.junit.jupiter:junit-jupiter-params:${Dependencies.JUNIT_VERSION}")
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${Dependencies.JUNIT_VERSION}")
+
+        /*
+        * Add commons' testFixtures to the test implementation of all projects -
+        *  and add test dependencies to testFixture of this project as test dependency of all other projects
+        *
+        * NOTE: `:commons` should be the ONLY testFixture, which has test dependencies!
+        * Therefore, this overcomplicated solution
+         */
+        val testFixturesImpl = ":commons"
+        if (getName(this@subprojects) != testFixturesImpl) {
+            testImplementation(testFixtures(project(testFixturesImpl)))
+        } else {
+            testFixturesImplementation("com.willowtreeapps.assertk:assertk-jvm:${Dependencies.ASSERTK_VERSION}")
+            testFixturesImplementation("org.assertj:assertj-core:${Dependencies.ASSERTJ_VERSION}")
+        }
     }
 }
+
+fun getName(project: Project): String = project.path
