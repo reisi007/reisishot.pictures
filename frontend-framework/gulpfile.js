@@ -17,6 +17,15 @@ gulp.task('styles', function () {
         .pipe(gulp.dest('generated/css'));
 });
 
+gulp.task('stylesDev', function () {
+    return gulp
+        .src('./src/scss/main.scss')
+        .pipe(sass().on('error', sass.logError))
+        .pipe($.cleanCss())
+        .pipe($.concat('styles.css'))
+        .pipe(gulp.dest('generated/css'));
+});
+
 function babelify() {
     return $.babel();
 }
@@ -103,7 +112,7 @@ gulp.task('watch', function () {
 gulp.task('default', gulp.parallel(
     'copyStatic',
     'scriptsDev',
-    'styles',
+    'stylesDev',
     'watch'
 ));
 

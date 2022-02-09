@@ -21,7 +21,7 @@ class CameraLensCategoryComputable(
 
     private val defaultImages = _defaultImages()
     override val complexName: String
-        get() = (if (baseName == null) "" else "${baseName.trim()}/") + name.trim().lowercase()
+        get() = (if (baseName == null) "" else "${baseName.trim()}/") + name.trim()
     override val categoryName by lazy { CategoryName(complexName) }
     override val defaultImage: FilenameWithoutExtension? by lazy { defaultImages[null to null] }
     override val images: ConcurrentSet<ImageInformation> = concurrentSetOf()

@@ -1,0 +1,12 @@
+.orientation-landscape {
+  display: none;
+}
+
+@media (orientation: landscape) {
+  .orientation-portrait {
+    display: none;
+  }
+  .orientation-landscape {
+    display: unset;
+  }
+}

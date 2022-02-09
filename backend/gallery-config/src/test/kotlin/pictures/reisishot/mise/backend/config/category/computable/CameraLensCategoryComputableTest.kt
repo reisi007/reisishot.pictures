@@ -19,12 +19,12 @@ class CameraLensCategoryComputableTest {
 
     @Test
     fun `Name must be trimmed`() {
-        assertThat(CameraLensCategoryComputable(" Test ").complexName).isEqualTo("test")
+        assertThat(CameraLensCategoryComputable(" Test ").complexName).isEqualTo("Test")
     }
 
     @Test
     fun `Base name must be trimmed`() {
-        assertThat(CameraLensCategoryComputable("Name", " base ").complexName).isEqualTo("base/name")
+        assertThat(CameraLensCategoryComputable("Name", " base ").complexName).isEqualTo("base/Name")
     }
 
     @Test
@@ -41,7 +41,7 @@ class CameraLensCategoryComputableTest {
         val image = createImageInformation()
         val (_, computedSubcategory) = computeSubcategories(image)
         requireNotNull(computedSubcategory)
-        assertThat(computedSubcategory.complexName).isEqualTo("test/canon-m50m2/ef-85mm-f-1.8-usm")
+        assertThat(computedSubcategory.complexName).isEqualTo("Test/Canon-M50m2/EF-85mm-f-1.8-USM")
     }
 
     @Test

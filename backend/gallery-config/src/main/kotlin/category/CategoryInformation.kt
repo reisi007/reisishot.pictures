@@ -17,7 +17,7 @@ data class CategoryInformation(
     fun flatten(): Sequence<CategoryInformation> =
         sequenceOf(this) + subcategories.asSequence().flatMap { it.flatten() }
 
-    val urlFragment by lazy { categoryName.complexName.toUrlsafeString() }
+    val urlFragment by lazy { categoryName.complexName.toUrlsafeString().lowercase() }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -25,7 +25,7 @@ class DateCategoryComputable(
     }
 
     private val defaultImages = _defaultImages()
-    override val complexName: String = (if (baseName == null) "" else "${baseName.trim()}/") + name.trim().lowercase()
+    override val complexName: String = (if (baseName == null) "" else "${baseName.trim()}/") + name.trim()
     private val yearSubcategoryMap = ConcurrentHashMap<Int, YearMatcher>()
     override val subcategories: MutableSet<CategoryComputable>
         get() = yearSubcategoryMap.values.toMutableSet()

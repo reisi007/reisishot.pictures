@@ -189,8 +189,8 @@ abstract class AbstractGalleryGenerator(
             imageInformation.tags.forEach { tag ->
                 computedTags.computeIfAbsent(tag) { mutableSetOf() } += imageInformation
                 // Add tag URLs to global cache
-                "gallery/tags/${tag.url}".let { link ->
-                    buildingCache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag.url, link)
+                "gallery/tags/${tag.url.lowercase()}".let { link ->
+                    buildingCache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag.url.lowercase(), link)
                     if (shallAddToMenu)
                         buildingCache.addMenuItemInContainerNoDupes(
                             LINKTYPE_TAGS,
@@ -267,7 +267,11 @@ abstract class AbstractGalleryGenerator(
             .forEachIndexed { idx, category ->
                 val link = "gallery/categories/${category.urlFragment}"
 
-                buildingCache.addLinkcacheEntryFor(LINKTYPE_CATEGORIES, category.categoryName.complexName, link)
+                buildingCache.addLinkcacheEntryFor(
+                    LINKTYPE_CATEGORIES,
+                    category.categoryName.complexName.lowercase(),
+                    link
+                )
 
                 if (shallAddToMenu && category.visible) {
                     buildingCache.addMenuItemInContainer(
