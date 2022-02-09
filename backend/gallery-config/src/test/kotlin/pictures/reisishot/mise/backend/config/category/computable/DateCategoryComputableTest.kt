@@ -41,12 +41,12 @@ class DateCategoryComputableTest {
 
     @Test
     fun `Name must be trimmed`() {
-        assertThat(DateCategoryComputable(" Test ").complexName).isEqualTo("test")
+        assertThat(DateCategoryComputable(" Test ").complexName).isEqualTo("Test")
     }
 
     @Test
     fun `Base name must be trimmed`() {
-        assertThat(DateCategoryComputable("Name", " base ").complexName).isEqualTo("base/name")
+        assertThat(DateCategoryComputable("Name", " base ").complexName).isEqualTo("base/Name")
     }
 
     @Test
