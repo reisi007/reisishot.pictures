@@ -7,7 +7,6 @@ import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGene
 import pictures.reisishot.mise.backend.generator.thumbnail.ImageSizeInformation
 import pictures.reisishot.mise.commons.FilenameWithoutExtension
 
-
 @Serializable
 class ExternalImageInformation(
     private val host: String,
@@ -38,8 +37,6 @@ class ExternalImageInformation(
         result = 31 * result + filename.hashCode()
         return result
     }
-
-
 }
 
 internal fun ImageInformation.toExternal(host: String) =

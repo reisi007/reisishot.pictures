@@ -117,7 +117,7 @@ class OverviewPageGenerator(
         changedGroups.computeChangedGroups()
             .map { (name, b) -> data.getValue(name).first() to b }
             .forEach { (data, b) ->
-                val name = data.id //TODO group config files using name only
+                val name = data.id // TODO group config files using name only
 
                 val overviewPagePath = b.fileName.let {
                     if (name == "index")
@@ -211,7 +211,6 @@ class OverviewPageGenerator(
                                             text(it)
                                         }
                                     }
-
                                 }
 
                                 footer("card-footer") {
@@ -296,7 +295,6 @@ class OverviewPageGenerator(
             get() = throw IllegalStateException("Not implemented")
     }
 
-
     private fun <E> MutableSet<E>.add(element: E, force: Boolean) {
         val wasAdded = add(element)
         if (!wasAdded && force) {
@@ -351,7 +349,6 @@ class OverviewPageGenerator(
         return sequence.parseFile(pageMininmalInfo, configuration, cache, metaDataConsumers)
             ?.third
     }
-
 }
 
 internal fun Yaml.extract(
@@ -368,8 +365,8 @@ internal fun Yaml.extract(
     val displayName = groupConfig?.name ?: group
 
     val url = getString("url")
-        if (group == null || picture == null || title == null || order == null || displayName == null)
-            return null
+    if (group == null || picture == null || title == null || order == null || displayName == null)
+        return null
 
     return OverviewEntry(
         group,
@@ -383,7 +380,7 @@ internal fun Yaml.extract(
         url,
         metaData
     )
-    }
+}
 
 class OverviewEntry(
     val id: String,
@@ -398,24 +395,23 @@ class OverviewEntry(
     val metaData: PageMetadata?
 ) {
 
-        val entryOutUrl: Path = pageMininmalInfo.targetPath.parent
+    val entryOutUrl: Path = pageMininmalInfo.targetPath.parent
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-            other as OverviewEntry
+        other as OverviewEntry
 
-            if (id != other.id) return false
-            if (pageMininmalInfo != other.pageMininmalInfo) return false
+        if (id != other.id) return false
+        if (pageMininmalInfo != other.pageMininmalInfo) return false
 
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = id.hashCode()
-            result = 31 * result + pageMininmalInfo.hashCode()
-            return result
-        }
+        return true
     }
 
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + pageMininmalInfo.hashCode()
+        return result
+    }
+}

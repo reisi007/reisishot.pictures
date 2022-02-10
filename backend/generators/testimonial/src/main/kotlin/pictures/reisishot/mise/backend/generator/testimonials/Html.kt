@@ -111,8 +111,6 @@ fun HtmlBlockTag.appendTestimonials(
             }
         }
 
-
-
         testimonialsToDisplay.asSequence()
             .sorted()
             .forEach { testimonial ->
@@ -123,7 +121,6 @@ fun HtmlBlockTag.appendTestimonials(
                     testimonial
                 )
             }
-
     }
 }
 
@@ -158,7 +155,6 @@ internal fun HtmlBlockTag.renderTestimonialStatistics(
                     attributes.itemscope = ""
                     attributes.value = shortTitle
                 }
-
             }
             span("align-text-bottom") {
                 attributes.itemprop = "ratingCount"

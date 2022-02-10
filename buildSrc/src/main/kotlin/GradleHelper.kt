@@ -2,22 +2,18 @@
 
 import org.gradle.api.JavaVersion
 
-// https://kotlinlang.org/releases.html#release-details
-
 object Kotlin {
+    // https://kotlinlang.org/releases.html#release-details
     const val VERSION = "1.6.10"
-
-}
-
-object KotlinX {
-    const val HTML_VERSION = "0.7.3"
-    const val COROUTINE_VERSION = "1.6.0"
     const val SERIALISATION_VERSION = "1.3.1"
+    const val COROUTINE_VERSION = "1.6.0"
+    const val HTML_VERSION = "0.7.3"
+
 }
 
 object Java {
     val JVM_TARGET_VERSION = JavaVersion.VERSION_17
-    const val JVM_TARGET = "17"
+    val JVM_TARGET = JVM_TARGET_VERSION.toString()
     val COMPILE_ARGS = listOf(
         "-g",
         "--add-exports", "java.base/java.util=ALL-UNNAMED"

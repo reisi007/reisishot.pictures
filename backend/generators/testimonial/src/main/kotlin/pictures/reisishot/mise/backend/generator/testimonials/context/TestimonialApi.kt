@@ -39,7 +39,7 @@ class TestimonialApi(
                 websiteConfig,
                 mode,
                 false,
-                "",// Unused
+                "", // Unused
                 testimonialsToDisplay,
             )
         }
@@ -60,7 +60,6 @@ class TestimonialApi(
                 *testimonialsToDisplay
             )
         }
-
     }
 
     @SuppressWarnings("unused")
@@ -87,5 +86,4 @@ class TestimonialApi(
             .toList()
             .toTypedArray()
     }
-
 }

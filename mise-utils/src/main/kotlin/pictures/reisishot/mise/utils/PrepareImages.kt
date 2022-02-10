@@ -17,7 +17,7 @@ object PrepareImages {
                         tags = [
                         
                         ]
-                    """.trimIndent()
+        """.trimIndent()
 
         val notepadSessionPath = Paths.get(".", "notepad++.session").normalized
         Files.newBufferedWriter(notepadSessionPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
@@ -72,7 +72,6 @@ class XmlElement(
 
     @XmlTagMarker
     infix fun withChild(element: XmlElement) = children.add(element)
-
 
     fun appendTo(appendable: Appendable) {
         appendable.append("<$name")

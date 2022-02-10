@@ -7,6 +7,7 @@ plugins {
     id("org.barfuin.gradle.jacocolog") version "2.0.0"
     jacoco
     `java-test-fixtures`
+    id("org.jmailen.kotlinter") version "3.8.0"
 }
 
 repositories {
@@ -21,11 +22,12 @@ sonarqube {
                 "sonar.organization" to "reisi007",
                 "sonar.host.url" to "https://sonarcloud.io",
                 "sonar.exclusions" to "**/backend/html/src/main/java/**/*",
-                "sonar.coverage.jacoco.xmlReportPaths" to "${buildDir}/reports/jacoco/jacocoAggregatedReport/jacocoAggregatedReport.xml",
+                "sonar.coverage.jacoco.xmlReportPaths" to "$buildDir/reports/jacoco/jacocoAggregatedReport/jacocoAggregatedReport.xml",
             )
         )
     }
 }
+
 
 subprojects {
     group = "at.reisishot.mise"
@@ -35,6 +37,7 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
     apply(plugin = "jacoco")
     apply(plugin = "java-test-fixtures")
+    apply(plugin = "org.jmailen.kotlinter")
 
     jacoco {
         toolVersion = "0.8.7"
@@ -75,6 +78,10 @@ subprojects {
         finalizedBy(tasks.jacocoTestReport)
     }
 
+    tasks.check {
+        dependsOn("installKotlinterPrePushHook")
+    }
+
     val compileKotlin by tasks.compileKotlin
     val compileTestKotlin by tasks.compileTestKotlin
     val compileJava by tasks.compileJava
@@ -101,8 +108,8 @@ subprojects {
 
     dependencies {
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Kotlin.VERSION}")
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:${KotlinX.COROUTINE_VERSION}")
-        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${KotlinX.SERIALISATION_VERSION}")
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:${Kotlin.COROUTINE_VERSION}")
+        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Kotlin.SERIALISATION_VERSION}")
 
         testImplementation("com.willowtreeapps.assertk:assertk-jvm:${Dependencies.ASSERTK_VERSION}")
         testImplementation("org.assertj:assertj-core:${Dependencies.ASSERTJ_VERSION}")

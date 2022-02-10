@@ -58,7 +58,6 @@ class MainView : View("Main View") {
 
     private val reset = CheckBox("Reset nach Bild").apply {
         isSelected = false
-
     }
 
     private val errorLabel = Label().apply {
@@ -103,25 +102,24 @@ class MainView : View("Main View") {
         add(menuBar)
         addInHBox(filenameChooser, resetButton, reset) {
             HBox.setMargin(reset, insectsOf(right = 30))
-
         }
         addInHBox(form)
         addInHBox(errorLabel)
         addInHBox(imageView)
-
     }
 
-
     private fun VBox.addInHBox(vararg child: Node, spacing: Double = 5.0, configurator: HBox.() -> Unit = {}) {
-        add(HBox(spacing).apply {
-            vgrow = Priority.NEVER
-            hgrow = Priority.ALWAYS
-            alignment = Pos.CENTER
-            with(children) {
-                addAll(child)
+        add(
+            HBox(spacing).apply {
+                vgrow = Priority.NEVER
+                hgrow = Priority.ALWAYS
+                alignment = Pos.CENTER
+                with(children) {
+                    addAll(child)
+                }
+                configurator(this)
             }
-            configurator(this)
-        })
+        )
     }
 
     private fun getEditFields() = Form().apply {
@@ -138,7 +136,6 @@ class MainView : View("Main View") {
 
         add(saveButton)
     }
-
 
     private fun EventTarget.getMenubar() = menubar {
         menu("Datei") {
@@ -172,7 +169,6 @@ class MainView : View("Main View") {
 
                     loadImageConfig(configs)
                 }
-
             }
             item("Fehlende Configs öffnen") {
                 setOnAction {
@@ -208,7 +204,6 @@ class MainView : View("Main View") {
             }
         }
     }
-
 
     private fun loadImageConfig(fileSequence: Sequence<Pair<Path, ImageConfig>>) {
         val files = fileSequence.toList()

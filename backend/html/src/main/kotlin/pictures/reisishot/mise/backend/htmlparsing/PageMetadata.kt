@@ -7,5 +7,3 @@ data class PageMetadata(
     val created: Date,
     val edited: Date?
 )
-
-

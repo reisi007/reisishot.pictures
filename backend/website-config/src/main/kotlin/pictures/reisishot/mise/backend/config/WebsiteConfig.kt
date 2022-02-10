@@ -43,4 +43,3 @@ data class MiseConfig(
     val interactiveDelayMs: Long?
         get() = if (isDevMode) baseInteractiveDelayMs else null
 }
-

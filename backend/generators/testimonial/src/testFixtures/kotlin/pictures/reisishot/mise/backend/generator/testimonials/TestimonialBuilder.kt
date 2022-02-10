@@ -74,4 +74,3 @@ fun createTestimonial(
     "test",
     html
 )
-

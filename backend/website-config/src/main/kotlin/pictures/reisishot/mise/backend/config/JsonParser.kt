@@ -29,20 +29,15 @@ fun WebsiteConfigBuilder.configureJsonParser(action: SerializersModuleBuilder.()
     additionalConfig[CONFIG_KEY] = JsonParser(action)
 }
 
-
 class JsonParser(action: SerializersModuleBuilder.() -> Unit) {
     val json by lazy {
         Json {
             allowStructuredMapKeys = true
             serializersModule = SerializersModule {
                 action(this)
-
-
             }
-
         }
     }
-
 
     @OptIn(ExperimentalSerializationApi::class)
     inline fun <reified T> T.toJson(path: Path) {

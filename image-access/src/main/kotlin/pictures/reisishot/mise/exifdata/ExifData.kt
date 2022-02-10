@@ -95,7 +95,6 @@ class ExifInformation(metadata: Metadata) {
     override fun toString(): String {
         return "ExifInformation(jpegDescriptor=$jpegDescriptor, exifD0Descriptor=$exifD0Descriptor, exifSubIFDDescriptor=$exifSubIFDDescriptor, fileSystemDescriptor=$fileSystemDescriptor)"
     }
-
 }
 
 val defaultExifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { cur ->
@@ -134,7 +133,6 @@ fun Path.readExif(exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<Exif
                 }
             }
     }
-
 
 val WebpDirectory.width
     get() = getInt(WebpDirectory.TAG_IMAGE_WIDTH)

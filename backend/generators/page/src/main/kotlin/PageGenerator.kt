@@ -1,6 +1,5 @@
 package pictures.reisishot.mise.backend.generator.pages
 
-
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.HEAD
@@ -31,7 +30,6 @@ class PageGenerator(
     }
 
     private lateinit var filesToProcess: List<PageMinimalInfo>
-
 
     private val extensionFileExtensions =
         extensions.asSequence()
@@ -73,7 +71,6 @@ class PageGenerator(
         )
     }
 
-
     private fun buildPage(
         body: String,
         headManipulator: HEAD.() -> Unit,
@@ -93,7 +90,6 @@ class PageGenerator(
 
         extensions.forEach { it.postCreatePage(websiteConfig, buildingCache, pageMinimalInfo, metadata, body) }
     }
-
 
     private fun convertMarkdown(
         info: PageMinimalInfo,

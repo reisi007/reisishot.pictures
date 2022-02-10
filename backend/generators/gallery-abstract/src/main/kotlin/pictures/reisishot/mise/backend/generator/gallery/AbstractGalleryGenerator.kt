@@ -1,6 +1,5 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
-
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.*
@@ -32,7 +31,6 @@ import java.util.*
 import java.util.concurrent.ConcurrentMap
 import kotlin.io.path.exists
 import kotlin.streams.asSequence
-
 
 abstract class AbstractGalleryGenerator(
     private val tagConfig: TagConfig,
@@ -125,9 +123,9 @@ abstract class AbstractGalleryGenerator(
         }
 
         val recomputeGallery =
-            !cacheStillValid
-                    || hasTextChanges(configuration, cacheTime)
-                    || hasConfigChanges(configuration, cacheTime)
+            !cacheStillValid ||
+                    hasTextChanges(configuration, cacheTime) ||
+                    hasConfigChanges(configuration, cacheTime)
 
         if (!recomputeGallery) return@useJsonParserParallel
 
@@ -177,7 +175,6 @@ abstract class AbstractGalleryGenerator(
         buildingCache.clearMenuItems { LINKTYPE_TAGS == it.id }
         buildingCache.resetLinkcacheFor(LINKTYPE_TAGS)
 
-
         // Add to menu
         val computedTags = concurrentSkipListMap<TagInformation, MutableSet<ImageInformation>>(
             compareBy(
@@ -222,7 +219,6 @@ abstract class AbstractGalleryGenerator(
                     throw IllegalStateException("Image path does not exist for $jpegPath!")
                 if (!thumbnailInfoPath.exists())
                     throw IllegalStateException("Thumbnail Info path does not exist for $jpegPath!")
-
 
                 val imageConfig = configPath.fromJson<ImageConfig>()
                     ?: imageConfigNotFoundAction(configPath)
@@ -400,7 +396,6 @@ abstract class AbstractGalleryGenerator(
         IPageMinimalInfo {
         override val title: String
             get() = throw IllegalStateException("Not Implemented")
-
     }
 
     protected fun DIV.insertCustomMarkdown(

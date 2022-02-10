@@ -35,7 +35,6 @@ object Images {
             )
         )
 
-
         val websiteConfig = buildWebsiteConfig(
             PathInformation(
                 Paths.get("input", folderName).toAbsolutePath(),

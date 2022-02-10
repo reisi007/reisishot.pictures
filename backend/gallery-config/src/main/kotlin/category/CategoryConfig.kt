@@ -54,12 +54,10 @@ class CategoryConfig(
     override fun toString(): String {
         return "CategoryConfig(name='$complexName', subcategories=$subcategories, images=$images)"
     }
-
 }
 
 typealias CategoryConfigRoot = MutableSet<CategoryComputable>
-typealias  CategoryMatcher = (ImageInformation) -> Boolean
-
+typealias CategoryMatcher = (ImageInformation) -> Boolean
 
 fun CategoryConfigRoot.computeCategoryInformation(
     imagesToProcess: List<ImageInformation>,
@@ -73,7 +71,7 @@ fun CategoryConfigRoot.computeCategoryInformation(
         }
     }
     val computedCategories = toCategoryInformation()
-    //Throw an error if there are categories without images
+    // Throw an error if there are categories without images
     val emptyCategories = computedCategories.flatten()
         .filter { it.images.isEmpty() }
         .toList()

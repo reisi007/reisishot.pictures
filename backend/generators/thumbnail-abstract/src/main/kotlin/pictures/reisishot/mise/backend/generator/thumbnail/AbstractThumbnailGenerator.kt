@@ -28,7 +28,6 @@ abstract class AbstractThumbnailGenerator(private val forceRegeneration: ForceRe
 
     override val executionPriority: Int = 1_000
 
-
     data class ForceRegeneration(val thumbnails: Boolean = false)
 
     override suspend fun buildInitialArtifacts(configuration: WebsiteConfig, cache: BuildingCache) {
@@ -134,7 +133,6 @@ abstract class AbstractThumbnailGenerator(private val forceRegeneration: ForceRe
                     .forEachParallel(preparation) { originalImage -> processImage(configuration, originalImage) }
             }
     }
-
 
     private suspend fun JsonParser.processImage(
         configuration: WebsiteConfig,

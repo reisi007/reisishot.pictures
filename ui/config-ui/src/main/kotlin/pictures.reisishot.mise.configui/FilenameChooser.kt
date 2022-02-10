@@ -23,7 +23,6 @@ class FilenameChooser : HBox(5.0), Consumer<Path> {
             }
         }
 
-
     init {
         vgrow = Priority.NEVER
         hgrow = Priority.ALWAYS

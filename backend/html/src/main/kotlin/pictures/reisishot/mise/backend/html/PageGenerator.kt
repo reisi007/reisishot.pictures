@@ -132,7 +132,6 @@ object PageGenerator {
             }
     }
 
-
     private fun HEADER.buildMenu(
         websiteConfig: WebsiteConfig,
         items: Collection<MenuLink>
@@ -181,7 +180,6 @@ object PageGenerator {
                                             }
                                         }
                                     }
-
                                 } else if (curItem is MenuLinkContainerItem) {
                                     a(
                                         classes = "nav-link"
@@ -319,7 +317,6 @@ object PageGenerator {
                     "data-accept-on-scroll" to "true"
                 )
             )
-
         }
     }
 
@@ -336,13 +333,13 @@ object PageGenerator {
           (function() {
             var u="//analytics.reisishot.pictures/";
             _paq.push(['setTrackerUrl', u+'matomo.php']);
-            _paq.push(['setSiteId', '${it}']);
+            _paq.push(['setSiteId', '$it']);
             var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
             g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
           })();
         </script>
         <!-- End Matomo Code -->
-    """.trimIndent()
+                """.trimIndent()
                     .replace("[\n\r]", "")
             )
         }
@@ -364,8 +361,6 @@ object PageGenerator {
             attributes["logged_in_greeting"] = data.message
             attributes["logged_out_greeting"] = data.message
             attributes["greeting_dialog_display"] = "hide"
-
         }
     }
-
 }

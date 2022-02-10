@@ -33,7 +33,6 @@ private val spellchecker by lazy {
         .filterNotNull()
         .forEach {
             it.addIgnoreTokens(ignoredWords)
-
         }
 
     spellchecker
@@ -47,7 +46,6 @@ fun <T : TextInputControl> T.enableSpellcheck(consumer: T.(List<String>) -> Unit
             .apply {
                 onFinished = EventHandler {
                     consumer(t.performSpellcheck())
-
                 }
             }
         if (!isSpellCheckerInitialized.get()) {

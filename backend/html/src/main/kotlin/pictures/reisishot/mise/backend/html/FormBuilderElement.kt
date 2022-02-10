@@ -45,7 +45,6 @@ private fun FlowContent.buildForm(cur: FormElement): Unit = when (cur) {
         name = cur.name
         required = cur.required
         value = cur.value
-
     }
     is FormSelect -> formElement(cur) {
         select("form-control") {
@@ -101,7 +100,7 @@ private fun FlowContent.buildForm(cur: FormElement): Unit = when (cur) {
     is FormHtml -> div {
         cur.html(this)
     }
-    else -> throw  IllegalStateException("There should not be any instances of FormElement")
+    else -> throw IllegalStateException("There should not be any instances of FormElement")
 }
 
 private fun FlowContent.formElement(cur: FormBuilderElement, block: DIV.() -> Unit) = div("form-group") {

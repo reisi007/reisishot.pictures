@@ -33,7 +33,6 @@ object VelocityApplier {
                     .forEach { (key, creator) ->
                         put(key, creator(pageMetadata, websiteConfig, cache))
                     }
-
             }
             velocity.evaluate(
                 velocityContext,

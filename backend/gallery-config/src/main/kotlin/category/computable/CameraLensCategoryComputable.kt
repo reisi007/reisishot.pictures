@@ -96,5 +96,4 @@ private class CameraLensMatcher(
     override val images: ConcurrentSet<ImageInformation> = concurrentSetOf()
     override val defaultImage: FilenameWithoutExtension? by lazy { defaultImages[cameraName to lensName] }
     override val subcategories: MutableSet<CategoryComputable> = mutableSetOf()
-
 }

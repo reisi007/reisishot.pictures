@@ -1,6 +1,5 @@
 package pictures.reisishot.mise.backend.generator.gallery.thumbnails
 
-
 import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator
 import pictures.reisishot.mise.commons.replaceFileExtension
 import pictures.reisishot.mise.commons.runAndWaitOnConsole

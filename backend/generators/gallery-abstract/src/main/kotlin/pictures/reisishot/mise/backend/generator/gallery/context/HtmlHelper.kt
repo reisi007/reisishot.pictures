@@ -11,7 +11,6 @@ import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator.ImageSize.Companion as DefaultImageSize
 
-
 fun HtmlBlockTag.insertLazyPicture(
     curImageInfo: ImageInformation,
     configuration: WebsiteConfig,

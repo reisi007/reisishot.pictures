@@ -2,7 +2,6 @@ package pictures.reisishot.mise.backend
 
 import com.sun.nio.file.ExtendedWatchEventModifier
 import kotlinx.coroutines.*
-import pictures.reisishot.mise.backend.config.*
 import pictures.reisishot.mise.backend.config.ChangeState.*
 import pictures.reisishot.mise.commons.forEachLimitedParallel
 import pictures.reisishot.mise.commons.forEachParallel
@@ -35,7 +34,6 @@ object Mise {
             Files.createDirectories(paths.targetFolder)
             Files.createDirectories(paths.cacheFolder)
         }
-
     }
 
     private suspend fun WebsiteConfig.generateWebsite(
@@ -68,7 +66,6 @@ object Mise {
             }
 
             generatorMap.values.flatten().forEachParallel { it.loadCache(this@setupGenerators, cache) }
-
 
             val runGenerators = mutableListOf<WebsiteGenerator>()
             generatorMap.forEachLimitedParallel {

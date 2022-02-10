@@ -31,8 +31,7 @@ fun TagConfig.additionalTags(action: AdditionalTagConfigBuilder.() -> Unit) {
                     if (newElementsAdded == true)
                         nextIteration += newTag
                 }
-                additionalTagConfig.computeIfAbsent(target)
-                { mutableSetOf() } += newTag
+                additionalTagConfig.computeIfAbsent(target) { mutableSetOf() } += newTag
             }
         }
 

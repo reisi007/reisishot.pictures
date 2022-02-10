@@ -26,7 +26,6 @@ class ImageInfoImporter constructor(
                 }
         }
 
-
     override suspend fun fetchInitialInformation(
         configuration: WebsiteConfig,
         cache: BuildingCache,

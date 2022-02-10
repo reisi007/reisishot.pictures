@@ -112,7 +112,6 @@ class BuildingCache {
             text,
             target
         )
-
     }
 
     fun loadCache(config: WebsiteConfig) {

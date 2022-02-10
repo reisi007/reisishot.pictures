@@ -57,7 +57,6 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
             }
         }
 
-
     private fun Path.findIndexHtmlFiles(): Sequence<Path> = Files.walk(this).asSequence()
         .filter { Files.isRegularFile(it) }
         .filter { it.fileName.toString().equals("index.html", true) }

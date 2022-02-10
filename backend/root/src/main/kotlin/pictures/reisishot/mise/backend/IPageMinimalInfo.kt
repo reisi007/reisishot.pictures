@@ -5,4 +5,3 @@ interface IPageMinimalInfo {
     val targetPath: TargetPath
     val title: String
 }
-

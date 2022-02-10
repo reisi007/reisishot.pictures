@@ -23,4 +23,3 @@ fun buildWebsiteConfig(
     WebsiteConfigBuilder(paths, websiteInformation, miseConfig, mutableMapOf(), mutableListOf())
         .apply(builderAction)
         .generate()
-

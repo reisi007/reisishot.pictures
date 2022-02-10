@@ -37,7 +37,6 @@ internal class MarkdownParserTest {
         )
 
         assertThat(outputHtml).isEqualTo("${expectedHtml.trim()}\n")
-
     }
 
     private fun createPageMinimalInfo(paths: PathInformation): IPageMinimalInfo {
@@ -45,11 +44,10 @@ internal class MarkdownParserTest {
             override val sourcePath: SourcePath = paths.sourceFolder withChild "source.md"
             override val targetPath: TargetPath = paths.targetFolder withChild "target.html"
             override val title: String = "Test 123"
-
         }
     }
 
-    //TODO create test fixture -> a lot of tests will not care about anything except of the lambda at the end
+    // TODO create test fixture -> a lot of tests will not care about anything except of the lambda at the end
     private fun createWebsiteConfig() = buildTestWebsiteConfig {
         buildHtmlConfig {
             registerAllTemplateObjects(
@@ -72,7 +70,7 @@ internal class MarkdownParserTest {
             argsOf(
                 """
                # Test 
-            """.trimIndent(),
+                """.trimIndent(),
                 """<h1 id="test">Test</h1>"""
             ),
             argsOf(
@@ -84,7 +82,7 @@ internal class MarkdownParserTest {
             argsOf(
                 """
                 <a href='${'$'}obj.link2Page("test")' target="_blank">Example test</a>
-            """.trimIndent(),
+                """.trimIndent(),
                 """<p><a href='https://example.com/test' target="_blank">Example test</a></p>"""
             )
         )

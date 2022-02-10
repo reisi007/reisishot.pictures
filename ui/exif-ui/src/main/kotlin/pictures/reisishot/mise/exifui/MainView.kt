@@ -12,7 +12,6 @@ import tornadofx.*
 
 class MainView : View("Exif Extractor") {
 
-
     override val root = textarea {
         isEditable = false
 

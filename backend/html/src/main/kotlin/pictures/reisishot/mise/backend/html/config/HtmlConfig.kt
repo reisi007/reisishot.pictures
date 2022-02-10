@@ -70,7 +70,9 @@ typealias VelocityTemplateObjectCreator = (PageMetadata?, WebsiteConfig, Buildin
 typealias VelocityObjectCreatorMutableMap = MutableMap<String, VelocityTemplateObjectCreator>
 
 @WebsiteConfigBuilderDsl
-fun VelocityObjectCreatorMutableMap.registerAllTemplateObjects(vararg elements: Pair<String, VelocityTemplateObjectCreator>) {
+fun VelocityObjectCreatorMutableMap.registerAllTemplateObjects(
+    vararg elements: Pair<String, VelocityTemplateObjectCreator>
+) {
     elements.forEach {
         val returnValue = put(it.first, it.second)
         if (returnValue != null)

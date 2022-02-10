@@ -39,7 +39,6 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
             fromPath(inPath withChild INPUT_FOLDER_NAME)
 
         fun fromPath(inPath: Path): TestimonialLoaderImpl = TestimonialLoaderImpl(inPath)
-
     }
 
     override fun load(websiteConfig: WebsiteConfig, buildingCache: BuildingCache): Map<String, Testimonial> {
@@ -152,7 +151,6 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
     override suspend fun cleanup(configuration: WebsiteConfig, buildingCache: BuildingCache) {
         // nothing to do
     }
-
 
     private fun loadNewestModifiedFile() = loadAllFIles()
         .map { it.fileModifiedDateTime }

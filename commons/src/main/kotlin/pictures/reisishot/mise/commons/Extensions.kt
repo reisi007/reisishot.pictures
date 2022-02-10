@@ -11,9 +11,9 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import kotlin.streams.asSequence
 
-
 suspend fun <E> Iterable<E>.forEachParallel(
-    dispatcher: CoroutineDispatcher = Dispatchers.Default, callable: suspend (E) -> Unit
+    dispatcher: CoroutineDispatcher = Dispatchers.Default,
+    callable: suspend (E) -> Unit
 ) = coroutineScope {
     map { launch(dispatcher) { callable(it) } }
 }
@@ -50,7 +50,6 @@ val Path.filenameWithoutExtension: FilenameWithoutExtension
 
 val String.filenameWithoutExtension: FilenameWithoutExtension
     get() = substring(0, lastIndexOf('.'))
-
 
 val Path.fileExtension: FileExtension
     get() = with(fileName.toString()) {

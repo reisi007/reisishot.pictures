@@ -65,7 +65,6 @@ object Main {
             galleryGenerator,
         )
 
-
         val generators = listOf(
             PageGenerator(
                 overviewPageGenerator,
@@ -170,8 +169,10 @@ object Main {
                                 ),
                                 zustimmung
                             )
-                        })
-                }) {
+                        }
+                    )
+                }
+            ) {
                 registerAllTemplateObjects(
                     createHtmlApi(),
                     galleryGenerator.createPictureApi(),
@@ -181,8 +182,6 @@ object Main {
             }
         }
 
-
         runBlocking { websiteConfig.generate() }
     }
 }
-

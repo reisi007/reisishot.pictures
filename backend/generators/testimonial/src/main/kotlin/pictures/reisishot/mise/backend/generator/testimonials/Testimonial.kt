@@ -25,7 +25,6 @@ class Testimonial(
 
     val html = html.ifBlank { null }
 
-
     override fun compareTo(other: Testimonial): Int {
         return COMPARATOR.compare(this, other)
     }
@@ -42,6 +41,4 @@ class Testimonial(
             .thenDescending(compareBy { it.rating ?: -1 })
             .thenDescending(compareBy { it.html?.length ?: -1 })
     }
-
-
 }

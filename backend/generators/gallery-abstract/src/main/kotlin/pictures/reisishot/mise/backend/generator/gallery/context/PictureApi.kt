@@ -42,10 +42,8 @@ internal class PictureApi(
                 websiteConfig,
                 "solo $classNames"
             )
-
         }
     }
-
 
     fun insertGallery(
         galleryName: String,
@@ -62,7 +60,6 @@ internal class PictureApi(
                 }
             }
     }
-
 
     fun insertCarousel(id: String, changeMs: Int, vararg imageFilenames: FilenameWithoutExtension) = buildString {
         appendUnformattedHtml().div {
@@ -101,12 +98,10 @@ internal class PictureApi(
         }
     }
 
-
     @SuppressWarnings("unused")
     fun insertSlidingImages(filename: String): String {
         return insertSlidingImages(filename + "o", filename)
     }
-
 
     private fun insertSlidingImages(originalImage: String, editedImage: String): String = buildString {
         val cache = galleryGenerator.cache

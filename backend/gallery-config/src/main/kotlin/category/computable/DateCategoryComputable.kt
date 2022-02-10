@@ -97,7 +97,6 @@ private class YearMatcher(
         get() = monthSubcategoryMap.values.toMutableSet()
 
     val monthSubcategoryMap = ConcurrentHashMap<Month, MonthMatcher>()
-
 }
 
 private class MonthMatcher(
