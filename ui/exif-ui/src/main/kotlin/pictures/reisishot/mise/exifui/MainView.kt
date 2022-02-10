@@ -5,10 +5,17 @@ import javafx.scene.input.TransferMode
 import pictures.reisishot.mise.commons.FileExtension
 import pictures.reisishot.mise.commons.hasExtension
 import pictures.reisishot.mise.commons.isJpeg
-import pictures.reisishot.mise.exifdata.ExifdataKey.*
+import pictures.reisishot.mise.exifdata.ExifdataKey.APERTURE
+import pictures.reisishot.mise.exifdata.ExifdataKey.CAMERA_MAKE
+import pictures.reisishot.mise.exifdata.ExifdataKey.CAMERA_MODEL
+import pictures.reisishot.mise.exifdata.ExifdataKey.FOCAL_LENGTH
+import pictures.reisishot.mise.exifdata.ExifdataKey.ISO
+import pictures.reisishot.mise.exifdata.ExifdataKey.LENS_MODEL
+import pictures.reisishot.mise.exifdata.ExifdataKey.SHUTTER_SPEED
 import pictures.reisishot.mise.exifdata.defaultExifReplaceFunction
 import pictures.reisishot.mise.exifdata.readExif
-import tornadofx.*
+import tornadofx.View
+import tornadofx.textarea
 
 class MainView : View("Exif Extractor") {
 

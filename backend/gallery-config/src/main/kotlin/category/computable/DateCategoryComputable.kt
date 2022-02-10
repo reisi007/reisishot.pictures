@@ -11,7 +11,7 @@ import pictures.reisishot.mise.exifdata.ExifdataKey
 import java.time.Month
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 
 class DateCategoryComputable(

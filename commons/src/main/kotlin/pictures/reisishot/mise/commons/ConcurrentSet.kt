@@ -2,7 +2,7 @@
 
 package pictures.reisishot.mise.commons
 
-import java.util.*
+import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
 
 fun <T> concurrentSetOf(): ConcurrentSet<T> = Collections.newSetFromMap(ConcurrentHashMap())

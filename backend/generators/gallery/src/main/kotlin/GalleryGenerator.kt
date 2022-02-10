@@ -1,6 +1,10 @@
-package at.reisishot.mise.backend.gallery.generator
+package pictures.reisishot.mise.backend.gallery.generator
 
-import kotlinx.html.*
+import kotlinx.html.DIV
+import kotlinx.html.div
+import kotlinx.html.h1
+import kotlinx.html.h4
+import kotlinx.html.i
 import pictures.reisishot.mise.backend.config.BuildingCache
 import pictures.reisishot.mise.backend.config.ChangeFileset
 import pictures.reisishot.mise.backend.config.WebsiteConfig

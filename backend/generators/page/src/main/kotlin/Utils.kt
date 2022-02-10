@@ -7,7 +7,7 @@ import pictures.reisishot.mise.backend.config.BuildingCache
 import pictures.reisishot.mise.backend.config.WebsiteConfig
 import pictures.reisishot.mise.commons.filenameWithoutExtension
 import java.nio.file.Path
-import java.util.*
+import java.util.Locale
 
 data class PageInformation(
     val menuContainerName: String,

@@ -5,7 +5,7 @@ import pictures.reisishot.mise.commons.isJetbrainsTemp
 import pictures.reisishot.mise.commons.isTemp
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.*
+import java.util.Locale
 
 data class WebsiteConfig(
     val paths: PathInformation,

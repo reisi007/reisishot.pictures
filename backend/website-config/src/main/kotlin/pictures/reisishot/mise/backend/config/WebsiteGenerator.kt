@@ -1,5 +1,8 @@
 package pictures.reisishot.mise.backend.config
 
+import pictures.reisishot.mise.backend.config.ChangeState.CREATE
+import pictures.reisishot.mise.backend.config.ChangeState.DELETE
+import pictures.reisishot.mise.backend.config.ChangeState.EDIT
 import pictures.reisishot.mise.commons.FileExtension
 import pictures.reisishot.mise.commons.hasExtension
 import java.nio.file.Path

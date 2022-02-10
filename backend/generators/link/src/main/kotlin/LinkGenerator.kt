@@ -1,7 +1,11 @@
 package pictures.reisishot.mise.backend.generator.links
 
 import kotlinx.serialization.Serializable
-import pictures.reisishot.mise.backend.config.*
+import pictures.reisishot.mise.backend.config.BuildingCache
+import pictures.reisishot.mise.backend.config.ChangeFileset
+import pictures.reisishot.mise.backend.config.WebsiteConfig
+import pictures.reisishot.mise.backend.config.WebsiteGenerator
+import pictures.reisishot.mise.backend.config.useJsonParserParallel
 import kotlin.io.path.exists
 
 class LinkGenerator : WebsiteGenerator {

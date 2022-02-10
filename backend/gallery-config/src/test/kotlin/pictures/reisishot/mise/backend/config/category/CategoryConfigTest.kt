@@ -7,7 +7,7 @@ import pictures.reisishot.mise.backend.config.LocaleProvider
 import pictures.reisishot.mise.commons.concurrentSetOf
 import pictures.reisishot.mise.commons.toTypedArray
 import pictures.reisishot.mise.config.buildImageInformation
-import java.util.*
+import java.util.Locale
 
 class CategoryConfigTest {
     @Test

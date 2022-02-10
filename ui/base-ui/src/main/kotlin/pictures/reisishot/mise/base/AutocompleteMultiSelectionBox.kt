@@ -21,7 +21,9 @@ import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.scene.text.TextFlow
-import java.util.*
+import java.util.LinkedList
+import java.util.Locale
+import java.util.TreeSet
 
 /**
  * Code based on https://stackoverflow.com/a/56644865/1870799 with minor modifications

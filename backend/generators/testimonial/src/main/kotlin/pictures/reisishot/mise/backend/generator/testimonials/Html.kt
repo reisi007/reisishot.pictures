@@ -1,11 +1,29 @@
 package pictures.reisishot.mise.backend.generator.testimonials
 
-import kotlinx.html.*
+import kotlinx.html.DIV
+import kotlinx.html.FlowOrPhrasingContent
+import kotlinx.html.HtmlBlockTag
+import kotlinx.html.HtmlTagMarker
+import kotlinx.html.br
+import kotlinx.html.classes
+import kotlinx.html.div
+import kotlinx.html.h5
+import kotlinx.html.meta
+import kotlinx.html.small
+import kotlinx.html.span
 import pictures.reisishot.mise.backend.config.WebsiteConfig
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.context.insertLazyPicture
 import pictures.reisishot.mise.backend.generator.gallery.context.renderCarousel
-import pictures.reisishot.mise.backend.html.*
+import pictures.reisishot.mise.backend.html.ReisishotIcons
+import pictures.reisishot.mise.backend.html.content
+import pictures.reisishot.mise.backend.html.insertIcon
+import pictures.reisishot.mise.backend.html.insertYoutube
+import pictures.reisishot.mise.backend.html.itemprop
+import pictures.reisishot.mise.backend.html.itemscope
+import pictures.reisishot.mise.backend.html.itemtype
+import pictures.reisishot.mise.backend.html.raw
+import pictures.reisishot.mise.backend.html.value
 import kotlin.math.roundToInt
 
 @HtmlTagMarker

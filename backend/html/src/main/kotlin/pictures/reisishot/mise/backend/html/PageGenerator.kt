@@ -1,7 +1,39 @@
 package pictures.reisishot.mise.backend.html
 
-import kotlinx.html.*
-import pictures.reisishot.mise.backend.config.*
+import kotlinx.html.A
+import kotlinx.html.BODY
+import kotlinx.html.DIV
+import kotlinx.html.HEAD
+import kotlinx.html.HEADER
+import kotlinx.html.HtmlTagMarker
+import kotlinx.html.a
+import kotlinx.html.body
+import kotlinx.html.button
+import kotlinx.html.classes
+import kotlinx.html.div
+import kotlinx.html.footer
+import kotlinx.html.head
+import kotlinx.html.header
+import kotlinx.html.html
+import kotlinx.html.id
+import kotlinx.html.img
+import kotlinx.html.lang
+import kotlinx.html.li
+import kotlinx.html.link
+import kotlinx.html.main
+import kotlinx.html.meta
+import kotlinx.html.nav
+import kotlinx.html.p
+import kotlinx.html.script
+import kotlinx.html.span
+import kotlinx.html.styleLink
+import kotlinx.html.title
+import kotlinx.html.ul
+import pictures.reisishot.mise.backend.config.BuildingCache
+import pictures.reisishot.mise.backend.config.MenuLink
+import pictures.reisishot.mise.backend.config.MenuLinkContainer
+import pictures.reisishot.mise.backend.config.MenuLinkContainerItem
+import pictures.reisishot.mise.backend.config.WebsiteConfig
 import pictures.reisishot.mise.backend.html.config.FacebookMessengerChatPlugin
 import pictures.reisishot.mise.backend.html.config.htmlConfig
 import java.io.BufferedWriter
@@ -9,7 +41,7 @@ import java.net.URLEncoder
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
-import java.util.*
+import java.util.Locale
 
 object PageGenerator {
 
@@ -306,17 +338,16 @@ object PageGenerator {
     @HtmlTagMarker
     private fun BODY.cookieInfo(devMode: Boolean) {
         val prefix = getRessourceUrlPrefix(devMode)
+        val attributes = sequenceOf(
+            "id" to "cookieinfo",
+            "data-message" to "Hier werden Cookies verwendet. Wenn Sie fortfahren akzeptieren Sie die Verwendung von Cookies",
+            "data-linkmsg" to "Weitere Informationen zum Datenschutz",
+            "data-moreinfo" to "https://reisishot.pictures/datenschutz",
+            "data-close-text" to "Akzeptieren",
+            "data-accept-on-scroll" to "true"
+        )
         script("text/javascript", "$prefix/js/combined.min.js") {
-            attributes.putAll(
-                sequenceOf(
-                    "id" to "cookieinfo",
-                    "data-message" to "Hier werden Cookies verwendet. Wenn Sie fortfahren akzeptieren Sie die Verwendung von Cookies",
-                    "data-linkmsg" to "Weitere Informationen zum Datenschutz",
-                    "data-moreinfo" to "https://reisishot.pictures/datenschutz",
-                    "data-close-text" to "Akzeptieren",
-                    "data-accept-on-scroll" to "true"
-                )
-            )
+            this.attributes.putAll(attributes)
         }
     }
 

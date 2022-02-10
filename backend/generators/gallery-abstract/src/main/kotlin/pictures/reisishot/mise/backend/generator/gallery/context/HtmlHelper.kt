@@ -2,7 +2,17 @@
 
 package pictures.reisishot.mise.backend.generator.gallery.context
 
-import kotlinx.html.*
+import kotlinx.html.HtmlBlockTag
+import kotlinx.html.HtmlTagMarker
+import kotlinx.html.a
+import kotlinx.html.classes
+import kotlinx.html.div
+import kotlinx.html.id
+import kotlinx.html.img
+import kotlinx.html.noScript
+import kotlinx.html.role
+import kotlinx.html.span
+import kotlinx.html.style
 import pictures.reisishot.mise.backend.config.WebsiteConfig
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.ImageInformation

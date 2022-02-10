@@ -1,6 +1,6 @@
 package pictures.reisishot.mise.backend.htmlparsing
 
-import java.util.*
+import java.util.Date
 
 data class PageMetadata(
     val order: String,

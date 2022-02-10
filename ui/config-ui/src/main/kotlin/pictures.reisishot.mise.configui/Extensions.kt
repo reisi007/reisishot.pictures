@@ -1,7 +1,7 @@
 package pictures.reisishot.mise.configui
 
 import javafx.beans.property.ReadOnlyDoubleProperty
-import tornadofx.*
+import tornadofx.times
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.exists
