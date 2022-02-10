@@ -79,7 +79,7 @@ subprojects {
     }
 
     tasks.check {
-        dependsOn("installKotlinterPrePushHook")
+        dependsOn("formatKotlin")
     }
 
     val compileKotlin by tasks.compileKotlin
