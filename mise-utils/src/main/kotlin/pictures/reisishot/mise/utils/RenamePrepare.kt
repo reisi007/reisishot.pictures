@@ -45,11 +45,11 @@ object RenamePrepare {
         namePatterns.forEach { (prefix, countLengths) ->
             print(
                 "${
-                    maximumNumber[prefix].toString().padStart(4, ' ')
+                maximumNumber[prefix].toString().padStart(4, ' ')
                 } images with $prefix with count length(s): ${
-                    countLengths.joinToString {
-                        it.toString().padStart(2, ' ')
-                    }
+                countLengths.joinToString {
+                    it.toString().padStart(2, ' ')
+                }
                 }"
             )
             if (countLengths.size == 1)

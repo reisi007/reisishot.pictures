@@ -7,7 +7,6 @@ plugins {
     id("org.barfuin.gradle.jacocolog") version "2.0.0"
     jacoco
     `java-test-fixtures`
-    id("org.jmailen.kotlinter") version "3.8.0"
 }
 
 repositories {
@@ -37,7 +36,6 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
     apply(plugin = "jacoco")
     apply(plugin = "java-test-fixtures")
-    apply(plugin = "org.jmailen.kotlinter")
 
     jacoco {
         toolVersion = "0.8.7"
@@ -76,10 +74,6 @@ subprojects {
             showStackTraces = true
         }
         finalizedBy(tasks.jacocoTestReport)
-    }
-
-    tasks.check {
-        dependsOn("formatKotlin")
     }
 
     val compileKotlin by tasks.compileKotlin

@@ -27,7 +27,7 @@ class GeneralWebsiteInformation(
     websiteLocation: String,
     override val locale: Locale = Locale.getDefault(),
 
-    ) : LocaleProvider {
+) : LocaleProvider {
     val normalizedWebsiteLocation: String by lazy { websiteLocation.let { if (websiteLocation.endsWith("/")) it else "$it/" } }
 }
 

@@ -71,10 +71,10 @@ class DateCategoryComputableTest {
     ): ImageInformation {
         val exif = mapOf(
             ExifdataKey.CREATION_DATETIME to
-                    ZonedDateTime.of(
-                        LocalDateTime.of(year, month, dayOfMonth, hour, minute, second),
-                        ZoneId.systemDefault()
-                    ).toString()
+                ZonedDateTime.of(
+                    LocalDateTime.of(year, month, dayOfMonth, hour, minute, second),
+                    ZoneId.systemDefault()
+                ).toString()
         )
 
         return buildImageInformation(exifInformation = exif)

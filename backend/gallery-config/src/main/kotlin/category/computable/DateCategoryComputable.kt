@@ -140,8 +140,8 @@ private class DayMatcher(
         CategoryName(
             complexName,
             displayName = dayString + ". " +
-                    month.getDisplayName(TextStyle.FULL, locale) + " " +
-                    year
+                month.getDisplayName(TextStyle.FULL, locale) + " " +
+                year
         )
     }
 

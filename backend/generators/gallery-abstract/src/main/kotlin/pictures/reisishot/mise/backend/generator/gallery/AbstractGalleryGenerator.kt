@@ -105,7 +105,7 @@ abstract class AbstractGalleryGenerator(
         val computedTags: MutableMap<TagInformation, out Set<ImageInformation>>,
         val rootCategory: CategoryInformationRoot,
 
-        ) {
+    ) {
         val subcategoryMap: Map<String, CategoryInformation> by lazy {
             rootCategory.flatten()
                 .map { it.categoryName.complexName to it }
@@ -135,11 +135,11 @@ abstract class AbstractGalleryGenerator(
             ?: kotlin.run { ZonedDateTime.of(LocalDate.of(1900, 1, 1), LocalTime.MIN, ZoneId.systemDefault()) }
 
         val cacheStillValid = cachePath.exists() &&
-                configuration.paths.sourceFolder.withChild(AbstractThumbnailGenerator.NAME_IMAGE_SUBFOLDER)
-                    .list()
-                    .map { it.fileModifiedDateTime }
-                    .filterNotNull()
-                    .all { it < cacheTime }
+            configuration.paths.sourceFolder.withChild(AbstractThumbnailGenerator.NAME_IMAGE_SUBFOLDER)
+                .list()
+                .map { it.fileModifiedDateTime }
+                .filterNotNull()
+                .all { it < cacheTime }
 
         if (cacheStillValid) {
             this@AbstractGalleryGenerator.cache = cachePath.fromJson()
@@ -148,8 +148,8 @@ abstract class AbstractGalleryGenerator(
 
         val recomputeGallery =
             !cacheStillValid ||
-                    hasTextChanges(configuration, cacheTime) ||
-                    hasConfigChanges(configuration, cacheTime)
+                hasTextChanges(configuration, cacheTime) ||
+                hasConfigChanges(configuration, cacheTime)
 
         if (!recomputeGallery) return@useJsonParserParallel
 

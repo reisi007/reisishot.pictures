@@ -97,12 +97,12 @@ class MainView : View("Main View") {
         imageView.fitWidthProperty().bind(widthProperty())
         imageView.fitHeightProperty().bind(
             heightProperty() -
-                    filenameChooser.heightProperty() -
-                    menuBar.heightProperty() -
-                    form.heightProperty() -
-                    saveButton.heightProperty() -
-                    errorLabel.heightProperty() -
-                    ((children.size) * spacing)
+                filenameChooser.heightProperty() -
+                menuBar.heightProperty() -
+                form.heightProperty() -
+                saveButton.heightProperty() -
+                errorLabel.heightProperty() -
+                ((children.size) * spacing)
         )
 
         val resetButton = button("Reset") {

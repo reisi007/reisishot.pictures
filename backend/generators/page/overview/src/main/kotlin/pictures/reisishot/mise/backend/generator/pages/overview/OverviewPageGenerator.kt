@@ -154,8 +154,8 @@ class OverviewPageGenerator(
 
                 val target =
                     configuration.paths.targetFolder withChild
-                            configuration.paths.sourceFolder.relativize(overviewPagePath) withChild
-                            "index.html"
+                        configuration.paths.sourceFolder.relativize(overviewPagePath) withChild
+                        "index.html"
 
                 val additionalTopContent =
                     loadBefore(
@@ -257,13 +257,13 @@ class OverviewPageGenerator(
     }
 
     private fun MutableMap<String, Path>.computeChangedGroups() = (
-            if (isEmpty())
-                data.asSequence()
-                    .filter { (_, set) -> set.isNotEmpty() }
-                    .map { (k, v) -> k to v.first().entryOutUrl.parent }
-            else asSequence()
-                .map { it.toPair() }
-            )
+        if (isEmpty())
+            data.asSequence()
+                .filter { (_, set) -> set.isNotEmpty() }
+                .map { (k, v) -> k to v.first().entryOutUrl.parent }
+        else asSequence()
+            .map { it.toPair() }
+        )
 
     private fun processExternals(configuration: WebsiteConfig) =
         configuration.paths.sourceFolder.processFrontmatter(configuration) { it: Path ->

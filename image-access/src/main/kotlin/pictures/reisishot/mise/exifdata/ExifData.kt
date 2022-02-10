@@ -95,7 +95,7 @@ class ExifInformation(metadata: Metadata) {
 
     override fun toString(): String {
         return "ExifInformation(jpegDescriptor=$jpegDescriptor, exifD0Descriptor=$exifD0Descriptor," +
-                " exifSubIFDDescriptor=$exifSubIFDDescriptor, fileSystemDescriptor=$fileSystemDescriptor)"
+            " exifSubIFDDescriptor=$exifSubIFDDescriptor, fileSystemDescriptor=$fileSystemDescriptor)"
     }
 }
 
@@ -117,7 +117,8 @@ val defaultExifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey
 private fun mapLensModel(cur: Pair<ExifdataKey, String?>) =
     when (val value = cur.second) {
         "105.0 mm", "105mm", "105 mm", "105 mm mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM"
-        "147.0 mm", "147mm", "147 mm", "147 mm mm" -> ExifdataKey.LENS_MODEL to
+        "147.0 mm", "147mm", "147 mm", "147 mm mm" ->
+            ExifdataKey.LENS_MODEL to
                 "Sigma 105mm EX DG OS HSM + 1.4 Sigma EX APO DG Telekonverter"
         "56mm F1.4 DC DN" -> ExifdataKey.LENS_MODEL to "Sigma $value"
         else -> if (value != null && value.contains(" |"))

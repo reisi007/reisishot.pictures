@@ -155,9 +155,9 @@ abstract class AbstractThumbnailGenerator(private val forceRegeneration: ForceRe
     ) {
         val thumbnailInfoPath =
             configuration.paths.cacheFolder withChild NAME_THUMBINFO_SUBFOLDER withChild "${
-                configuration.paths.sourceFolder.resolve(
-                    originalImage
-                ).filenameWithoutExtension
+            configuration.paths.sourceFolder.resolve(
+                originalImage
+            ).filenameWithoutExtension
             }.cache.json"
         if (!(thumbnailInfoPath.exists() && thumbnailInfoPath.isNewerThan(originalImage))) {
             val baseOutPath =

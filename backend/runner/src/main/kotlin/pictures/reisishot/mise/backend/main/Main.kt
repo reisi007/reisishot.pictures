@@ -105,7 +105,7 @@ object Main {
                 "https://$folderName",
                 Locale.GERMANY,
 
-                ),
+            ),
             MiseConfig(isDevMode)
         ) {
             this.generators += generators

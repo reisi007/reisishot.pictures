@@ -29,7 +29,7 @@ object PrepareImages {
                                 .filter {
                                     it.toString().let { path ->
                                         path.endsWith("jpg", ignoreCase = true) ||
-                                                path.endsWith("jpeg", ignoreCase = true)
+                                            path.endsWith("jpeg", ignoreCase = true)
                                     }
                                 }
                                 .map { it.resolveSibling("${it.filenameWithoutExtension}.json") }
