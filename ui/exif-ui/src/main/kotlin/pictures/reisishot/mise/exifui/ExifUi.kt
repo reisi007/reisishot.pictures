@@ -1,7 +1,8 @@
 package pictures.reisishot.mise.exifui
 
 import javafx.stage.Stage
-import tornadofx.*
+import tornadofx.App
+import tornadofx.launch
 
 class ExifUi : App(MainView::class) {
     override fun start(stage: Stage) = with(stage) {

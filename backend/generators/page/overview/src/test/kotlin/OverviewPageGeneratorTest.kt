@@ -25,7 +25,6 @@ class OverviewPageGeneratorTest {
             override val sourcePath: SourcePath = Paths.get(".", "in")
             override val targetPath: TargetPath = Paths.get(".", "out")
             override val title: String = "Unused..."
-
         }
 
         val sorted = elements.map { it.extract(pageMinimalInfo, emptyMap()) ?: error("must not be null") }
@@ -44,8 +43,5 @@ class OverviewPageGeneratorTest {
             "created" to created.toString()
         if (edited != null)
             "updated" to edited.toString()
-
     }
-
-
 }

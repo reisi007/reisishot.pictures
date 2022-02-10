@@ -16,7 +16,6 @@ class YamlBuilderTest {
         )
     }
 
-
     @Test
     fun `create YAML with multiple value`() {
         val list = buildYaml {
@@ -31,5 +30,4 @@ class YamlBuilderTest {
     fun Yaml.asList() = asSequence()
         .map { (k, v) -> k to v.joinToString("-") }
         .toList()
-
 }

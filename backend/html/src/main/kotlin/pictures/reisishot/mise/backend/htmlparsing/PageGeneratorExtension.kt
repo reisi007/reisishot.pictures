@@ -35,7 +35,6 @@ interface PageGeneratorExtension {
         yaml: Yaml,
         content: String
     ) {
-
     }
 
     fun interestingFileExtensions(): Sequence<(FileExtension) -> Boolean> = emptySequence()

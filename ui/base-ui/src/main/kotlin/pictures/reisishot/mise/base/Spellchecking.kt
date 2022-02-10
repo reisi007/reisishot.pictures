@@ -10,7 +10,9 @@ import javafx.util.Duration
 import org.languagetool.JLanguageTool
 import org.languagetool.language.AustrianGerman
 import org.languagetool.rules.spelling.SpellingCheckRule
-import tornadofx.*
+import tornadofx.runAsync
+import tornadofx.show
+import tornadofx.tooltip
 import java.util.concurrent.atomic.AtomicBoolean
 
 private val spellchecker by lazy {
@@ -33,7 +35,6 @@ private val spellchecker by lazy {
         .filterNotNull()
         .forEach {
             it.addIgnoreTokens(ignoredWords)
-
         }
 
     spellchecker
@@ -47,7 +48,6 @@ fun <T : TextInputControl> T.enableSpellcheck(consumer: T.(List<String>) -> Unit
             .apply {
                 onFinished = EventHandler {
                     consumer(t.performSpellcheck())
-
                 }
             }
         if (!isSpellCheckerInitialized.get()) {

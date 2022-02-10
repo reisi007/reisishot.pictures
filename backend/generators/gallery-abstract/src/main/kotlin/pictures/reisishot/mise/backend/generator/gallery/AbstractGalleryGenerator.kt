@@ -1,24 +1,47 @@
 package pictures.reisishot.mise.backend.generator.gallery
 
-
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.html.*
+import kotlinx.html.DIV
+import kotlinx.html.HEAD
+import kotlinx.html.a
+import kotlinx.html.div
+import kotlinx.html.h4
 import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.IPageMinimalInfo
 import pictures.reisishot.mise.backend.SourcePath
 import pictures.reisishot.mise.backend.TargetPath
-import pictures.reisishot.mise.backend.config.*
-import pictures.reisishot.mise.backend.config.category.*
+import pictures.reisishot.mise.backend.config.BuildingCache
+import pictures.reisishot.mise.backend.config.ChangeFileset
+import pictures.reisishot.mise.backend.config.WebsiteConfig
+import pictures.reisishot.mise.backend.config.WebsiteGenerator
+import pictures.reisishot.mise.backend.config.category.CategoryConfigRoot
+import pictures.reisishot.mise.backend.config.category.CategoryInformation
+import pictures.reisishot.mise.backend.config.category.CategoryInformationRoot
+import pictures.reisishot.mise.backend.config.category.computeCategoryInformation
+import pictures.reisishot.mise.backend.config.category.flatten
 import pictures.reisishot.mise.backend.config.tags.TagConfig
 import pictures.reisishot.mise.backend.config.tags.TagInformation
+import pictures.reisishot.mise.backend.config.useJsonParserParallel
 import pictures.reisishot.mise.backend.generator.gallery.context.insertLazyPicture
 import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator.ImageSize
 import pictures.reisishot.mise.backend.generator.thumbnail.ImageSizeInformation
 import pictures.reisishot.mise.backend.html.raw
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
-import pictures.reisishot.mise.commons.*
+import pictures.reisishot.mise.commons.FileExtension
+import pictures.reisishot.mise.commons.FilenameWithoutExtension
+import pictures.reisishot.mise.commons.concurrentSetOf
+import pictures.reisishot.mise.commons.concurrentSkipListMap
+import pictures.reisishot.mise.commons.fileExtension
+import pictures.reisishot.mise.commons.fileModifiedDateTime
+import pictures.reisishot.mise.commons.filenameWithoutExtension
+import pictures.reisishot.mise.commons.forEachParallel
+import pictures.reisishot.mise.commons.hasExtension
+import pictures.reisishot.mise.commons.isJpeg
+import pictures.reisishot.mise.commons.isJson
+import pictures.reisishot.mise.commons.list
+import pictures.reisishot.mise.commons.withChild
 import pictures.reisishot.mise.config.ImageConfig
 import pictures.reisishot.mise.exifdata.ExifdataKey
 import pictures.reisishot.mise.exifdata.readExif
@@ -28,11 +51,10 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.ConcurrentMap
 import kotlin.io.path.exists
 import kotlin.streams.asSequence
-
 
 abstract class AbstractGalleryGenerator(
     private val tagConfig: TagConfig,
@@ -83,7 +105,7 @@ abstract class AbstractGalleryGenerator(
         val computedTags: MutableMap<TagInformation, out Set<ImageInformation>>,
         val rootCategory: CategoryInformationRoot,
 
-        ) {
+    ) {
         val subcategoryMap: Map<String, CategoryInformation> by lazy {
             rootCategory.flatten()
                 .map { it.categoryName.complexName to it }
@@ -113,11 +135,11 @@ abstract class AbstractGalleryGenerator(
             ?: kotlin.run { ZonedDateTime.of(LocalDate.of(1900, 1, 1), LocalTime.MIN, ZoneId.systemDefault()) }
 
         val cacheStillValid = cachePath.exists() &&
-                configuration.paths.sourceFolder.withChild(AbstractThumbnailGenerator.NAME_IMAGE_SUBFOLDER)
-                    .list()
-                    .map { it.fileModifiedDateTime }
-                    .filterNotNull()
-                    .all { it < cacheTime }
+            configuration.paths.sourceFolder.withChild(AbstractThumbnailGenerator.NAME_IMAGE_SUBFOLDER)
+                .list()
+                .map { it.fileModifiedDateTime }
+                .filterNotNull()
+                .all { it < cacheTime }
 
         if (cacheStillValid) {
             this@AbstractGalleryGenerator.cache = cachePath.fromJson()
@@ -125,9 +147,9 @@ abstract class AbstractGalleryGenerator(
         }
 
         val recomputeGallery =
-            !cacheStillValid
-                    || hasTextChanges(configuration, cacheTime)
-                    || hasConfigChanges(configuration, cacheTime)
+            !cacheStillValid ||
+                hasTextChanges(configuration, cacheTime) ||
+                hasConfigChanges(configuration, cacheTime)
 
         if (!recomputeGallery) return@useJsonParserParallel
 
@@ -177,7 +199,6 @@ abstract class AbstractGalleryGenerator(
         buildingCache.clearMenuItems { LINKTYPE_TAGS == it.id }
         buildingCache.resetLinkcacheFor(LINKTYPE_TAGS)
 
-
         // Add to menu
         val computedTags = concurrentSkipListMap<TagInformation, MutableSet<ImageInformation>>(
             compareBy(
@@ -222,7 +243,6 @@ abstract class AbstractGalleryGenerator(
                     throw IllegalStateException("Image path does not exist for $jpegPath!")
                 if (!thumbnailInfoPath.exists())
                     throw IllegalStateException("Thumbnail Info path does not exist for $jpegPath!")
-
 
                 val imageConfig = configPath.fromJson<ImageConfig>()
                     ?: imageConfigNotFoundAction(configPath)
@@ -400,7 +420,6 @@ abstract class AbstractGalleryGenerator(
         IPageMinimalInfo {
         override val title: String
             get() = throw IllegalStateException("Not Implemented")
-
     }
 
     protected fun DIV.insertCustomMarkdown(

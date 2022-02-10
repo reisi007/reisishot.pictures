@@ -1,16 +1,33 @@
 package pictures.reisishot.mise.backend
 
 import com.sun.nio.file.ExtendedWatchEventModifier
-import kotlinx.coroutines.*
-import pictures.reisishot.mise.backend.config.*
-import pictures.reisishot.mise.backend.config.ChangeState.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
+import pictures.reisishot.mise.backend.config.BuildingCache
+import pictures.reisishot.mise.backend.config.ChangeFileset
+import pictures.reisishot.mise.backend.config.ChangeState
+import pictures.reisishot.mise.backend.config.ChangeState.CREATE
+import pictures.reisishot.mise.backend.config.ChangeState.DELETE
+import pictures.reisishot.mise.backend.config.ChangeState.EDIT
+import pictures.reisishot.mise.backend.config.MutableChangedFileset
+import pictures.reisishot.mise.backend.config.WebsiteConfig
+import pictures.reisishot.mise.backend.config.WebsiteGenerator
 import pictures.reisishot.mise.commons.forEachLimitedParallel
 import pictures.reisishot.mise.commons.forEachParallel
 import pictures.reisishot.mise.commons.hasExtension
 import pictures.reisishot.mise.commons.prettyPrint
-import java.nio.file.*
-import java.nio.file.StandardWatchEventKinds.*
-import java.util.*
+import java.nio.file.FileSystems
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardWatchEventKinds.ENTRY_CREATE
+import java.nio.file.StandardWatchEventKinds.ENTRY_DELETE
+import java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY
+import java.nio.file.WatchEvent
+import java.nio.file.WatchKey
+import java.util.TreeMap
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -35,7 +52,6 @@ object Mise {
             Files.createDirectories(paths.targetFolder)
             Files.createDirectories(paths.cacheFolder)
         }
-
     }
 
     private suspend fun WebsiteConfig.generateWebsite(
@@ -68,7 +84,6 @@ object Mise {
             }
 
             generatorMap.values.flatten().forEachParallel { it.loadCache(this@setupGenerators, cache) }
-
 
             val runGenerators = mutableListOf<WebsiteGenerator>()
             generatorMap.forEachLimitedParallel {

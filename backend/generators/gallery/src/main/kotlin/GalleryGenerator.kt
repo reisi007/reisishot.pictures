@@ -1,6 +1,10 @@
-package at.reisishot.mise.backend.gallery.generator
+package pictures.reisishot.mise.backend.gallery.generator
 
-import kotlinx.html.*
+import kotlinx.html.DIV
+import kotlinx.html.div
+import kotlinx.html.h1
+import kotlinx.html.h4
+import kotlinx.html.i
 import pictures.reisishot.mise.backend.config.BuildingCache
 import pictures.reisishot.mise.backend.config.ChangeFileset
 import pictures.reisishot.mise.backend.config.WebsiteConfig
@@ -25,7 +29,6 @@ import pictures.reisishot.mise.exifdata.ExifdataKey
 import java.nio.file.Path
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-
 
 class GalleryGenerator(
     tagConfig: TagConfig = buildTagConfig { },
@@ -166,7 +169,8 @@ class GalleryGenerator(
                 insertImageGallery("1", configuration, imageInformations)
 
                 insertCustomMarkdown(targetFolder, "end", configuration, buildingCache)
-            })
+            }
+        )
     }
 
     private fun DIV.insertTagLinks(
@@ -304,7 +308,6 @@ class GalleryGenerator(
                 (imageInformation as? InternalImageInformation)?.let { internalImageInformation ->
                     generateImagePage(configuration, buildingCache, internalImageInformation)
                 }
-
             }
             else -> throw IllegalStateException("Type $type is not known")
         }

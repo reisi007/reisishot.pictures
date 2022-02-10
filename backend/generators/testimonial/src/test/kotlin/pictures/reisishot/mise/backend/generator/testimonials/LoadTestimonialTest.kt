@@ -20,8 +20,8 @@ class LoadTestimonialTest {
         val ids = (1..2).asSequence().map { it.toString() }.toTypedArray()
         writePath(websiteConfig.paths, *ids)
 
-        val testimonials = createAndLoadTestimonials(websiteConfig)
-        { TestimonialLoaderImpl.fromSourceFolder(websiteConfig.paths.sourceFolder) }
+        val testimonials =
+            createAndLoadTestimonials(websiteConfig) { TestimonialLoaderImpl.fromSourceFolder(websiteConfig.paths.sourceFolder) }
 
         assertThat(testimonials.keys).containsAll(*ids)
     }

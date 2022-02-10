@@ -13,5 +13,3 @@ class MutableYaml(private val yaml: MutableMap<String, List<String>>) {
 }
 
 fun buildYaml(action: MutableYaml.() -> Unit): Yaml = MutableYaml(mutableMapOf()).apply(action).asYaml()
-
-

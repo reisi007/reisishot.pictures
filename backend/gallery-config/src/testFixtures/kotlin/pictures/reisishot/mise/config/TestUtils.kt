@@ -8,7 +8,7 @@ import pictures.reisishot.mise.commons.ConcurrentSet
 import pictures.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.commons.concurrentSetOf
 import pictures.reisishot.mise.exifdata.ExifdataKey
-import java.util.*
+import java.util.Locale
 
 fun buildImageInformation(
     tags: Set<String> = setOf(),

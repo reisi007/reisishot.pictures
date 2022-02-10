@@ -3,7 +3,7 @@ package pictures.reisishot.mise.backend.generator.testimonials
 import pictures.reisishot.mise.backend.df_dd_MMMM_yyyy
 import pictures.reisishot.mise.backend.df_yyyy_MM_dd
 import pictures.reisishot.mise.commons.FilenameWithoutExtension
-import java.util.*
+import java.util.Date
 
 class Testimonial(
     val id: String,
@@ -25,7 +25,6 @@ class Testimonial(
 
     val html = html.ifBlank { null }
 
-
     override fun compareTo(other: Testimonial): Int {
         return COMPARATOR.compare(this, other)
     }
@@ -42,6 +41,4 @@ class Testimonial(
             .thenDescending(compareBy { it.rating ?: -1 })
             .thenDescending(compareBy { it.html?.length ?: -1 })
     }
-
-
 }

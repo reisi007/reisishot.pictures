@@ -3,16 +3,43 @@ package pictures.reisishot.mise.backend.generator.pages.overview
 import com.vladsch.flexmark.ext.yaml.front.matter.AbstractYamlFrontMatterVisitor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.html.*
+import kotlinx.html.HEAD
+import kotlinx.html.a
+import kotlinx.html.br
+import kotlinx.html.div
+import kotlinx.html.footer
+import kotlinx.html.h1
+import kotlinx.html.h5
+import kotlinx.html.p
 import pictures.reisishot.mise.backend.IPageMinimalInfo
 import pictures.reisishot.mise.backend.SourcePath
 import pictures.reisishot.mise.backend.TargetPath
-import pictures.reisishot.mise.backend.config.*
+import pictures.reisishot.mise.backend.config.BuildingCache
+import pictures.reisishot.mise.backend.config.ChangeFileset
+import pictures.reisishot.mise.backend.config.WebsiteConfig
+import pictures.reisishot.mise.backend.config.WebsiteGenerator
+import pictures.reisishot.mise.backend.config.useJsonParser
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.context.insertLazyPicture
-import pictures.reisishot.mise.backend.html.*
-import pictures.reisishot.mise.backend.htmlparsing.*
-import pictures.reisishot.mise.commons.*
+import pictures.reisishot.mise.backend.html.PageGenerator
+import pictures.reisishot.mise.backend.html.ReisishotIcons
+import pictures.reisishot.mise.backend.html.insertIcon
+import pictures.reisishot.mise.backend.html.metadata
+import pictures.reisishot.mise.backend.html.raw
+import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
+import pictures.reisishot.mise.backend.htmlparsing.PageGeneratorExtension
+import pictures.reisishot.mise.backend.htmlparsing.PageMetadata
+import pictures.reisishot.mise.backend.htmlparsing.Yaml
+import pictures.reisishot.mise.backend.htmlparsing.getPageMetadata
+import pictures.reisishot.mise.backend.htmlparsing.getString
+import pictures.reisishot.mise.commons.FileExtension
+import pictures.reisishot.mise.commons.filenameWithoutExtension
+import pictures.reisishot.mise.commons.hasExtension
+import pictures.reisishot.mise.commons.isHtmlPart
+import pictures.reisishot.mise.commons.isMarkdownPart
+import pictures.reisishot.mise.commons.isRegularFile
+import pictures.reisishot.mise.commons.useBufferedReader
+import pictures.reisishot.mise.commons.withChild
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.exists
@@ -117,7 +144,7 @@ class OverviewPageGenerator(
         changedGroups.computeChangedGroups()
             .map { (name, b) -> data.getValue(name).first() to b }
             .forEach { (data, b) ->
-                val name = data.id //TODO group config files using name only
+                val name = data.id // TODO group config files using name only
 
                 val overviewPagePath = b.fileName.let {
                     if (name == "index")
@@ -127,8 +154,8 @@ class OverviewPageGenerator(
 
                 val target =
                     configuration.paths.targetFolder withChild
-                            configuration.paths.sourceFolder.relativize(overviewPagePath) withChild
-                            "index.html"
+                        configuration.paths.sourceFolder.relativize(overviewPagePath) withChild
+                        "index.html"
 
                 val additionalTopContent =
                     loadBefore(
@@ -211,7 +238,6 @@ class OverviewPageGenerator(
                                             text(it)
                                         }
                                     }
-
                                 }
 
                                 footer("card-footer") {
@@ -231,13 +257,13 @@ class OverviewPageGenerator(
     }
 
     private fun MutableMap<String, Path>.computeChangedGroups() = (
-            if (isEmpty())
-                data.asSequence()
-                    .filter { (_, set) -> set.isNotEmpty() }
-                    .map { (k, v) -> k to v.first().entryOutUrl.parent }
-            else asSequence()
-                .map { it.toPair() }
-            )
+        if (isEmpty())
+            data.asSequence()
+                .filter { (_, set) -> set.isNotEmpty() }
+                .map { (k, v) -> k to v.first().entryOutUrl.parent }
+        else asSequence()
+            .map { it.toPair() }
+        )
 
     private fun processExternals(configuration: WebsiteConfig) =
         configuration.paths.sourceFolder.processFrontmatter(configuration) { it: Path ->
@@ -296,7 +322,6 @@ class OverviewPageGenerator(
             get() = throw IllegalStateException("Not implemented")
     }
 
-
     private fun <E> MutableSet<E>.add(element: E, force: Boolean) {
         val wasAdded = add(element)
         if (!wasAdded && force) {
@@ -351,7 +376,6 @@ class OverviewPageGenerator(
         return sequence.parseFile(pageMininmalInfo, configuration, cache, metaDataConsumers)
             ?.third
     }
-
 }
 
 internal fun Yaml.extract(
@@ -368,8 +392,8 @@ internal fun Yaml.extract(
     val displayName = groupConfig?.name ?: group
 
     val url = getString("url")
-        if (group == null || picture == null || title == null || order == null || displayName == null)
-            return null
+    if (group == null || picture == null || title == null || order == null || displayName == null)
+        return null
 
     return OverviewEntry(
         group,
@@ -383,7 +407,7 @@ internal fun Yaml.extract(
         url,
         metaData
     )
-    }
+}
 
 class OverviewEntry(
     val id: String,
@@ -398,24 +422,23 @@ class OverviewEntry(
     val metaData: PageMetadata?
 ) {
 
-        val entryOutUrl: Path = pageMininmalInfo.targetPath.parent
+    val entryOutUrl: Path = pageMininmalInfo.targetPath.parent
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-            other as OverviewEntry
+        other as OverviewEntry
 
-            if (id != other.id) return false
-            if (pageMininmalInfo != other.pageMininmalInfo) return false
+        if (id != other.id) return false
+        if (pageMininmalInfo != other.pageMininmalInfo) return false
 
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = id.hashCode()
-            result = 31 * result + pageMininmalInfo.hashCode()
-            return result
-        }
+        return true
     }
 
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + pageMininmalInfo.hashCode()
+        return result
+    }
+}

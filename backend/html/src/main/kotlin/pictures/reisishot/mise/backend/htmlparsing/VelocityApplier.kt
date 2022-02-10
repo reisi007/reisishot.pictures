@@ -10,7 +10,7 @@ import pictures.reisishot.mise.backend.html.config.htmlConfig
 import java.io.Reader
 import java.io.StringWriter
 import java.io.Writer
-import java.util.*
+import java.util.Properties
 
 object VelocityApplier {
     private val velocity by lazy {
@@ -33,7 +33,6 @@ object VelocityApplier {
                     .forEach { (key, creator) ->
                         put(key, creator(pageMetadata, websiteConfig, cache))
                     }
-
             }
             velocity.evaluate(
                 velocityContext,

@@ -33,4 +33,3 @@ inline fun <reified T> Path.fromJson(): T? =
         Files.newInputStream(this).use { reader ->
             JSON.decodeFromStream(reader)
         }
-

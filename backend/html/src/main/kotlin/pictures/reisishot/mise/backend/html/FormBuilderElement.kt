@@ -1,6 +1,22 @@
 package pictures.reisishot.mise.backend.html
 
-import kotlinx.html.*
+import kotlinx.html.DIV
+import kotlinx.html.FlowContent
+import kotlinx.html.HtmlTagMarker
+import kotlinx.html.InputType
+import kotlinx.html.button
+import kotlinx.html.div
+import kotlinx.html.form
+import kotlinx.html.id
+import kotlinx.html.input
+import kotlinx.html.label
+import kotlinx.html.option
+import kotlinx.html.p
+import kotlinx.html.select
+import kotlinx.html.small
+import kotlinx.html.span
+import kotlinx.html.style
+import kotlinx.html.textArea
 import kotlin.math.max
 
 @HtmlTagMarker
@@ -45,7 +61,6 @@ private fun FlowContent.buildForm(cur: FormElement): Unit = when (cur) {
         name = cur.name
         required = cur.required
         value = cur.value
-
     }
     is FormSelect -> formElement(cur) {
         select("form-control") {
@@ -101,7 +116,7 @@ private fun FlowContent.buildForm(cur: FormElement): Unit = when (cur) {
     is FormHtml -> div {
         cur.html(this)
     }
-    else -> throw  IllegalStateException("There should not be any instances of FormElement")
+    else -> throw IllegalStateException("There should not be any instances of FormElement")
 }
 
 private fun FlowContent.formElement(cur: FormBuilderElement, block: DIV.() -> Unit) = div("form-group") {

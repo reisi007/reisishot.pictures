@@ -1,11 +1,16 @@
 package pictures.reisishot.mise.backend.generator.pages
 
-
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.HEAD
 import pictures.reisishot.mise.backend.IPageMinimalInfo
-import pictures.reisishot.mise.backend.config.*
+import pictures.reisishot.mise.backend.config.BuildingCache
+import pictures.reisishot.mise.backend.config.ChangeFileset
+import pictures.reisishot.mise.backend.config.ChangeState
+import pictures.reisishot.mise.backend.config.WebsiteConfig
+import pictures.reisishot.mise.backend.config.WebsiteGenerator
+import pictures.reisishot.mise.backend.config.isStateDeleted
+import pictures.reisishot.mise.backend.config.isStateEdited
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.raw
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
@@ -31,7 +36,6 @@ class PageGenerator(
     }
 
     private lateinit var filesToProcess: List<PageMinimalInfo>
-
 
     private val extensionFileExtensions =
         extensions.asSequence()
@@ -73,7 +77,6 @@ class PageGenerator(
         )
     }
 
-
     private fun buildPage(
         body: String,
         headManipulator: HEAD.() -> Unit,
@@ -93,7 +96,6 @@ class PageGenerator(
 
         extensions.forEach { it.postCreatePage(websiteConfig, buildingCache, pageMinimalInfo, metadata, body) }
     }
-
 
     private fun convertMarkdown(
         info: PageMinimalInfo,

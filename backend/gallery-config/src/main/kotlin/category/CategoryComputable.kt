@@ -19,7 +19,6 @@ interface CategoryComputable {
         imageToProcess: ImageInformation,
         localeProvider: LocaleProvider
     )
-
 }
 
 fun CategoryComputable.toCategoryInformation(): CategoryInformation {

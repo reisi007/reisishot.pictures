@@ -11,7 +11,7 @@ import pictures.reisishot.mise.exifdata.ExifdataKey
 import java.time.Month
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 
 class DateCategoryComputable(
@@ -97,7 +97,6 @@ private class YearMatcher(
         get() = monthSubcategoryMap.values.toMutableSet()
 
     val monthSubcategoryMap = ConcurrentHashMap<Month, MonthMatcher>()
-
 }
 
 private class MonthMatcher(
@@ -141,8 +140,8 @@ private class DayMatcher(
         CategoryName(
             complexName,
             displayName = dayString + ". " +
-                    month.getDisplayName(TextStyle.FULL, locale) + " " +
-                    year
+                month.getDisplayName(TextStyle.FULL, locale) + " " +
+                year
         )
     }
 

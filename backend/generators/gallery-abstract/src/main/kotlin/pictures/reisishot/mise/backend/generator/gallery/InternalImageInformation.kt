@@ -12,7 +12,6 @@ import pictures.reisishot.mise.commons.concurrentSetOf
 import pictures.reisishot.mise.exifdata.ExifdataKey
 import pictures.reisishot.mise.backend.config.ImageInformation as ConfigImageInformation
 
-
 @Serializable
 class InternalImageInformation(
     override val filename: FilenameWithoutExtension,
@@ -44,9 +43,4 @@ class InternalImageInformation(
     override fun hashCode(): Int {
         return filename.hashCode()
     }
-
-
 }
-
-
-

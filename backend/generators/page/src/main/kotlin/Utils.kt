@@ -7,8 +7,7 @@ import pictures.reisishot.mise.backend.config.BuildingCache
 import pictures.reisishot.mise.backend.config.WebsiteConfig
 import pictures.reisishot.mise.commons.filenameWithoutExtension
 import java.nio.file.Path
-import java.util.*
-
+import java.util.Locale
 
 data class PageInformation(
     val menuContainerName: String,
@@ -81,7 +80,6 @@ private fun String.displayReplace() =
     replace(displayReplacePattern, " ")
         .replace('❔', '?')
 
-
 fun Path.computePageInformation(configuration: WebsiteConfig): PageInformation {
     val inFilename = filenameWithoutExtension
 
@@ -102,7 +100,6 @@ fun Path.computePageInformation(configuration: WebsiteConfig): PageInformation {
 
     val menuItemName = rawMenuItemName.displayReplace()
 
-
     val rawFolderName = match.groups["folderName"]?.value ?: rawMenuItemName
 
     val folderName = rawFolderName.displayReplace()
@@ -110,7 +107,6 @@ fun Path.computePageInformation(configuration: WebsiteConfig): PageInformation {
     val outFile = configuration.paths.sourceFolder.relativize(this)
         .resolveSibling("${rawFolderName.lowercase(Locale.getDefault())}/index.html")
         .let { configuration.paths.targetFolder.resolve(it) }
-
 
     return PageInformation(
         menuContainerName,
@@ -123,7 +119,6 @@ fun Path.computePageInformation(configuration: WebsiteConfig): PageInformation {
         folderName
     )
 }
-
 
 data class PageMinimalInfo(
     override val sourcePath: SourcePath,

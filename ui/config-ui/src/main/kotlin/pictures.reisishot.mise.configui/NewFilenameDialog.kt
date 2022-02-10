@@ -6,7 +6,13 @@ import javafx.scene.control.ButtonType
 import javafx.scene.control.Dialog
 import javafx.util.Callback
 import pictures.reisishot.mise.base.enableSpellcheck
-import tornadofx.*
+import tornadofx.add
+import tornadofx.combobox
+import tornadofx.field
+import tornadofx.fieldset
+import tornadofx.form
+import tornadofx.selectedItem
+import tornadofx.textfield
 
 class NewFilenameDialog : Dialog<FilenameData?>() {
 

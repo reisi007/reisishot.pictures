@@ -3,13 +3,22 @@ package pictures.reisishot.mise.backend.generator.testimonials
 import pictures.reisishot.mise.backend.IPageMinimalInfo
 import pictures.reisishot.mise.backend.SourcePath
 import pictures.reisishot.mise.backend.TargetPath
-import pictures.reisishot.mise.backend.config.*
+import pictures.reisishot.mise.backend.config.BuildingCache
+import pictures.reisishot.mise.backend.config.ChangeFileset
+import pictures.reisishot.mise.backend.config.WebsiteConfig
+import pictures.reisishot.mise.backend.config.WebsiteConfigBuilderDsl
+import pictures.reisishot.mise.backend.config.WebsiteGenerator
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.html.config.VelocityTemplateObjectCreator
 import pictures.reisishot.mise.backend.htmlparsing.MarkdownParser
 import pictures.reisishot.mise.backend.htmlparsing.Yaml
 import pictures.reisishot.mise.backend.htmlparsing.getString
-import pictures.reisishot.mise.commons.*
+import pictures.reisishot.mise.commons.fileModifiedDateTime
+import pictures.reisishot.mise.commons.filenameWithoutExtension
+import pictures.reisishot.mise.commons.hasExtension
+import pictures.reisishot.mise.commons.isMarkdownPart
+import pictures.reisishot.mise.commons.list
+import pictures.reisishot.mise.commons.withChild
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
@@ -39,7 +48,6 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
             fromPath(inPath withChild INPUT_FOLDER_NAME)
 
         fun fromPath(inPath: Path): TestimonialLoaderImpl = TestimonialLoaderImpl(inPath)
-
     }
 
     override fun load(websiteConfig: WebsiteConfig, buildingCache: BuildingCache): Map<String, Testimonial> {
@@ -152,7 +160,6 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
     override suspend fun cleanup(configuration: WebsiteConfig, buildingCache: BuildingCache) {
         // nothing to do
     }
-
 
     private fun loadNewestModifiedFile() = loadAllFIles()
         .map { it.fileModifiedDateTime }

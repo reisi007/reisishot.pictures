@@ -23,4 +23,3 @@ fun buildTestWebsiteConfig(
     miseConfig,
     configurer
 )
-

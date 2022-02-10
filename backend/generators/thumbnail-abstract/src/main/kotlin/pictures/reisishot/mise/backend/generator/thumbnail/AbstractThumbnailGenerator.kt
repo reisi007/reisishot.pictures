@@ -8,8 +8,23 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import pictures.reisishot.mise.backend.config.*
-import pictures.reisishot.mise.commons.*
+import pictures.reisishot.mise.backend.config.BuildingCache
+import pictures.reisishot.mise.backend.config.ChangeFileset
+import pictures.reisishot.mise.backend.config.JsonParser
+import pictures.reisishot.mise.backend.config.WebsiteConfig
+import pictures.reisishot.mise.backend.config.WebsiteGenerator
+import pictures.reisishot.mise.backend.config.hasDeletions
+import pictures.reisishot.mise.backend.config.useJsonParserParallel
+import pictures.reisishot.mise.commons.FileExtension
+import pictures.reisishot.mise.commons.FilenameWithoutExtension
+import pictures.reisishot.mise.commons.fileExtension
+import pictures.reisishot.mise.commons.filenameWithoutExtension
+import pictures.reisishot.mise.commons.forEachParallel
+import pictures.reisishot.mise.commons.hasExtension
+import pictures.reisishot.mise.commons.isJpeg
+import pictures.reisishot.mise.commons.isNewerThan
+import pictures.reisishot.mise.commons.list
+import pictures.reisishot.mise.commons.withChild
 import pictures.reisishot.mise.exifdata.height
 import pictures.reisishot.mise.exifdata.width
 import java.nio.file.Files
@@ -27,7 +42,6 @@ abstract class AbstractThumbnailGenerator(private val forceRegeneration: ForceRe
     }
 
     override val executionPriority: Int = 1_000
-
 
     data class ForceRegeneration(val thumbnails: Boolean = false)
 
@@ -135,16 +149,15 @@ abstract class AbstractThumbnailGenerator(private val forceRegeneration: ForceRe
             }
     }
 
-
     private suspend fun JsonParser.processImage(
         configuration: WebsiteConfig,
         originalImage: Path
     ) {
         val thumbnailInfoPath =
             configuration.paths.cacheFolder withChild NAME_THUMBINFO_SUBFOLDER withChild "${
-                configuration.paths.sourceFolder.resolve(
-                    originalImage
-                ).filenameWithoutExtension
+            configuration.paths.sourceFolder.resolve(
+                originalImage
+            ).filenameWithoutExtension
             }.cache.json"
         if (!(thumbnailInfoPath.exists() && thumbnailInfoPath.isNewerThan(originalImage))) {
             val baseOutPath =

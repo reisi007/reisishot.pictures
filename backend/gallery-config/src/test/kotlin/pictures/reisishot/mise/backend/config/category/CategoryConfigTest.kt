@@ -7,8 +7,7 @@ import pictures.reisishot.mise.backend.config.LocaleProvider
 import pictures.reisishot.mise.commons.concurrentSetOf
 import pictures.reisishot.mise.commons.toTypedArray
 import pictures.reisishot.mise.config.buildImageInformation
-import java.util.*
-
+import java.util.Locale
 
 class CategoryConfigTest {
     @Test
@@ -49,12 +48,10 @@ class CategoryConfigTest {
             // Assert chars contains all chars
             assertThat(charsCategory.tagsAsStringList).containsAll(generateAlphabet().asIterable())
         }
-
     }
 
     private val CategoryInformation.tagsAsStringList
         get() = images.map { it.tags.first().name }
-
 
     private fun generateAlphabet() = (1..26).asSequence()
         .map { Char('A'.code + (it - 1)).toString() }
@@ -63,7 +60,8 @@ class CategoryConfigTest {
         charImages: List<ImageInformation>
     ) =
         computeCategoryInformation(
-            charImages, object : LocaleProvider {
+            charImages,
+            object : LocaleProvider {
                 override val locale: Locale = Locale.ENGLISH
             }
         )

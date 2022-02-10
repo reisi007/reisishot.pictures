@@ -5,7 +5,11 @@ import pictures.reisishot.mise.backend.config.BuildingCache
 import pictures.reisishot.mise.backend.config.WebsiteConfig
 import pictures.reisishot.mise.backend.config.WebsiteConfigBuilderDsl
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
-import pictures.reisishot.mise.backend.generator.testimonials.*
+import pictures.reisishot.mise.backend.generator.testimonials.Testimonial
+import pictures.reisishot.mise.backend.generator.testimonials.TestimonialLoader
+import pictures.reisishot.mise.backend.generator.testimonials.TestimonialMode
+import pictures.reisishot.mise.backend.generator.testimonials.appendTestimonials
+import pictures.reisishot.mise.backend.generator.testimonials.renderTestimonialStatistics
 import pictures.reisishot.mise.backend.html.appendUnformattedHtml
 import pictures.reisishot.mise.backend.html.config.TemplateObject
 import pictures.reisishot.mise.backend.html.config.VelocityTemplateObjectCreator
@@ -39,7 +43,7 @@ class TestimonialApi(
                 websiteConfig,
                 mode,
                 false,
-                "",// Unused
+                "", // Unused
                 testimonialsToDisplay,
             )
         }
@@ -60,7 +64,6 @@ class TestimonialApi(
                 *testimonialsToDisplay
             )
         }
-
     }
 
     @SuppressWarnings("unused")
@@ -87,5 +90,4 @@ class TestimonialApi(
             .toList()
             .toTypedArray()
     }
-
 }

@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test
 import pictures.reisishot.mise.config.buildImageInformation
 import pictures.reisishot.mise.exifdata.ExifdataKey
 
-
 class ExifTagComputableTest {
 
     companion object {

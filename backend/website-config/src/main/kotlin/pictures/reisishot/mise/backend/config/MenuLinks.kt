@@ -2,8 +2,8 @@ package pictures.reisishot.mise.backend.config
 
 import kotlinx.serialization.Serializable
 
-typealias  Link = String
-typealias  LinkText = String
+typealias Link = String
+typealias LinkText = String
 
 @Serializable
 sealed class MenuLink : Comparable<MenuLink> {
@@ -16,7 +16,6 @@ sealed class MenuLink : Comparable<MenuLink> {
         { uniqueIndex },
         { id }
     )
-
 }
 
 @Serializable
@@ -38,7 +37,6 @@ class MenuLinkContainer(
 
     val children: Sequence<MenuLinkContainerItem>
         get() = internalChildren.asSequence()
-
 
     @Suppress("MemberVisibilityCanBePrivate")
     fun addChild(child: MenuLinkContainerItem) {

@@ -18,17 +18,34 @@ import javafx.stage.FileChooser
 import pictures.reisishot.mise.base.AutocompleteMultiSelectionBox
 import pictures.reisishot.mise.base.enableSpellcheck
 import pictures.reisishot.mise.base.insectsOf
-import pictures.reisishot.mise.commons.*
+import pictures.reisishot.mise.commons.FileExtension
+import pictures.reisishot.mise.commons.fileExtension
+import pictures.reisishot.mise.commons.filenameWithoutExtension
+import pictures.reisishot.mise.commons.hasExtension
+import pictures.reisishot.mise.commons.isJpeg
+import pictures.reisishot.mise.commons.isJson
+import pictures.reisishot.mise.commons.isRegularFile
 import pictures.reisishot.mise.config.ImageConfig
 import pictures.reisishot.mise.ui.json.fromJson
 import pictures.reisishot.mise.ui.json.toJson
-import tornadofx.*
+import tornadofx.Form
+import tornadofx.View
+import tornadofx.button
+import tornadofx.field
+import tornadofx.fieldset
+import tornadofx.hgrow
+import tornadofx.item
+import tornadofx.menu
+import tornadofx.menubar
+import tornadofx.minus
+import tornadofx.vbox
+import tornadofx.vgrow
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
-import java.util.*
+import java.util.LinkedList
 import kotlin.io.path.exists
 import kotlin.streams.asSequence
 
@@ -58,7 +75,6 @@ class MainView : View("Main View") {
 
     private val reset = CheckBox("Reset nach Bild").apply {
         isSelected = false
-
     }
 
     private val errorLabel = Label().apply {
@@ -81,12 +97,12 @@ class MainView : View("Main View") {
         imageView.fitWidthProperty().bind(widthProperty())
         imageView.fitHeightProperty().bind(
             heightProperty() -
-                    filenameChooser.heightProperty() -
-                    menuBar.heightProperty() -
-                    form.heightProperty() -
-                    saveButton.heightProperty() -
-                    errorLabel.heightProperty() -
-                    ((children.size) * spacing)
+                filenameChooser.heightProperty() -
+                menuBar.heightProperty() -
+                form.heightProperty() -
+                saveButton.heightProperty() -
+                errorLabel.heightProperty() -
+                ((children.size) * spacing)
         )
 
         val resetButton = button("Reset") {
@@ -103,25 +119,24 @@ class MainView : View("Main View") {
         add(menuBar)
         addInHBox(filenameChooser, resetButton, reset) {
             HBox.setMargin(reset, insectsOf(right = 30))
-
         }
         addInHBox(form)
         addInHBox(errorLabel)
         addInHBox(imageView)
-
     }
 
-
     private fun VBox.addInHBox(vararg child: Node, spacing: Double = 5.0, configurator: HBox.() -> Unit = {}) {
-        add(HBox(spacing).apply {
-            vgrow = Priority.NEVER
-            hgrow = Priority.ALWAYS
-            alignment = Pos.CENTER
-            with(children) {
-                addAll(child)
+        add(
+            HBox(spacing).apply {
+                vgrow = Priority.NEVER
+                hgrow = Priority.ALWAYS
+                alignment = Pos.CENTER
+                with(children) {
+                    addAll(child)
+                }
+                configurator(this)
             }
-            configurator(this)
-        })
+        )
     }
 
     private fun getEditFields() = Form().apply {
@@ -138,7 +153,6 @@ class MainView : View("Main View") {
 
         add(saveButton)
     }
-
 
     private fun EventTarget.getMenubar() = menubar {
         menu("Datei") {
@@ -172,7 +186,6 @@ class MainView : View("Main View") {
 
                     loadImageConfig(configs)
                 }
-
             }
             item("Fehlende Configs öffnen") {
                 setOnAction {
@@ -208,7 +221,6 @@ class MainView : View("Main View") {
             }
         }
     }
-
 
     private fun loadImageConfig(fileSequence: Sequence<Pair<Path, ImageConfig>>) {
         val files = fileSequence.toList()

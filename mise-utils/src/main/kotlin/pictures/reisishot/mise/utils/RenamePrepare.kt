@@ -5,7 +5,8 @@ import pictures.reisishot.mise.commons.peek
 import java.io.PrintStream
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.*
+import java.util.TreeMap
+import java.util.TreeSet
 import kotlin.math.max
 import kotlin.streams.asSequence
 
@@ -44,11 +45,11 @@ object RenamePrepare {
         namePatterns.forEach { (prefix, countLengths) ->
             print(
                 "${
-                    maximumNumber[prefix].toString().padStart(4, ' ')
+                maximumNumber[prefix].toString().padStart(4, ' ')
                 } images with $prefix with count length(s): ${
-                    countLengths.joinToString {
-                        it.toString().padStart(2, ' ')
-                    }
+                countLengths.joinToString {
+                    it.toString().padStart(2, ' ')
+                }
                 }"
             )
             if (countLengths.size == 1)

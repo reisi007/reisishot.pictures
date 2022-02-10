@@ -5,7 +5,7 @@ import pictures.reisishot.mise.commons.isJetbrainsTemp
 import pictures.reisishot.mise.commons.isTemp
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.*
+import java.util.Locale
 
 data class WebsiteConfig(
     val paths: PathInformation,
@@ -27,7 +27,7 @@ class GeneralWebsiteInformation(
     websiteLocation: String,
     override val locale: Locale = Locale.getDefault(),
 
-    ) : LocaleProvider {
+) : LocaleProvider {
     val normalizedWebsiteLocation: String by lazy { websiteLocation.let { if (websiteLocation.endsWith("/")) it else "$it/" } }
 }
 
@@ -43,4 +43,3 @@ data class MiseConfig(
     val interactiveDelayMs: Long?
         get() = if (isDevMode) baseInteractiveDelayMs else null
 }
-

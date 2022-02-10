@@ -4,7 +4,6 @@ import pictures.reisishot.mise.backend.df_yyyyMMdd
 
 typealias Yaml = Map<String, List<String>>
 
-
 fun Yaml.getPageMetadata(): PageMetadata? {
     val edited = getString("updated")
     val created = getString("created") ?: edited ?: return null

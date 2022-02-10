@@ -4,7 +4,10 @@ import javafx.geometry.Pos
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import pictures.reisishot.mise.base.AutocompleteMultiSelectionBox
-import tornadofx.*
+import tornadofx.add
+import tornadofx.button
+import tornadofx.hgrow
+import tornadofx.vgrow
 import java.nio.file.Path
 import java.util.function.Consumer
 
@@ -22,7 +25,6 @@ class FilenameChooser : HBox(5.0), Consumer<Path> {
                 addAll(value)
             }
         }
-
 
     init {
         vgrow = Priority.NEVER

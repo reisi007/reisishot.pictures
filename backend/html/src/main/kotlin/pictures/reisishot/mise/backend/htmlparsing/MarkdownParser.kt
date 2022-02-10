@@ -17,7 +17,6 @@ import java.io.Reader
 import java.io.StringReader
 import java.nio.file.Files
 
-
 object MarkdownParser {
     private val extensions =
         listOf(
@@ -83,17 +82,17 @@ object MarkdownParser {
         val metaData = yaml.getPageMetadata()
 
         val afterVelocity =
-            StringReader(readerProvider().use {
-                it.velocity(
-                    pageMinimalInfo,
-                    metaData,
-                    configuration,
-                    cache
-                )
-            })
+            StringReader(
+                readerProvider().use {
+                    it.velocity(
+                        pageMinimalInfo,
+                        metaData,
+                        configuration,
+                        cache
+                    )
+                }
+            )
         val finalHtml = afterVelocity.markdown2Html()
-
-
 
         return Triple(yaml, headManipulator, finalHtml)
     }

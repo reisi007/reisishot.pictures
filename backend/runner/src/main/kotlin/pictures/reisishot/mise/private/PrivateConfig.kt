@@ -1,8 +1,17 @@
 package pictures.reisishot.mise.private
 
-import pictures.reisishot.mise.backend.config.category.*
+import pictures.reisishot.mise.backend.config.category.buildCategoryConfig
+import pictures.reisishot.mise.backend.config.category.buildExcludeMatcher
+import pictures.reisishot.mise.backend.config.category.buildIncludeSubdirectoriesMatcher
+import pictures.reisishot.mise.backend.config.category.buildIncludeTagsMatcher
+import pictures.reisishot.mise.backend.config.category.complexMatchAnd
 import pictures.reisishot.mise.backend.config.category.computable.CameraLensCategoryComputable
 import pictures.reisishot.mise.backend.config.category.computable.DateCategoryComputable
+import pictures.reisishot.mise.backend.config.category.includeSubcategories
+import pictures.reisishot.mise.backend.config.category.includeTagsAndSubcategories
+import pictures.reisishot.mise.backend.config.category.matchOr
+import pictures.reisishot.mise.backend.config.category.withComputedSubCategories
+import pictures.reisishot.mise.backend.config.category.withSubCategory
 import pictures.reisishot.mise.backend.config.tags.additionalTags
 import pictures.reisishot.mise.backend.config.tags.buildTagConfig
 import pictures.reisishot.mise.backend.config.tags.computable.computeTagsFromExif

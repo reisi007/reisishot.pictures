@@ -2,7 +2,7 @@ rootProject.name = "My website (reisishot.pictures)"
 // Utils
 include("commons")
 include("image-access")
-//Split up backend dependencies
+// Split up backend dependencies
 include("backend:gallery-config")
 include("backend:website-config")
 include("backend:html")
@@ -28,5 +28,3 @@ include("ui")
 include("ui:base-ui")
 include("ui:config-ui")
 include("ui:exif-ui")
-
-

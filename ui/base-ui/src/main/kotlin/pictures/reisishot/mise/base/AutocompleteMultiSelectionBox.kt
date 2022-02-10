@@ -21,7 +21,9 @@ import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.scene.text.TextFlow
-import java.util.*
+import java.util.LinkedList
+import java.util.Locale
+import java.util.TreeSet
 
 /**
  * Code based on https://stackoverflow.com/a/56644865/1870799 with minor modifications
@@ -39,36 +41,34 @@ class AutocompleteMultiSelectionBox<T : Comparable<T>>(
      * "Suggestion" specific listners
      */
     private fun setListner() {
-        //Add "suggestions" by changing text
+        // Add "suggestions" by changing text
         inputTextField.textProperty().addListener { _, _, newValue ->
-            //always hide suggestion if nothing has been entered (only "spacebars" are disalowed in TextFieldWithLengthLimit)
+            // always hide suggestion if nothing has been entered (only "spacebars" are disalowed in TextFieldWithLengthLimit)
             if (newValue.isEmpty()) {
                 entriesPopup.hide()
             } else {
-                //filter all possible suggestions depends on "Text", case insensitive
+                // filter all possible suggestions depends on "Text", case insensitive
                 val filteredEntries = suggestions.asSequence()
                     .filter { it.toString().contains(newValue, true) }
                     .toList()
-                //some suggestions are found
+                // some suggestions are found
                 if (filteredEntries.isNotEmpty()) {
-                    //build popup - list of "CustomMenuItem"
+                    // build popup - list of "CustomMenuItem"
                     populatePopup(filteredEntries, newValue)
-                    if (!entriesPopup.isShowing) { //optional
-                        entriesPopup.show(this, Side.BOTTOM, 0.0, 0.0) //position of popup
+                    if (!entriesPopup.isShowing) { // optional
+                        entriesPopup.show(this, Side.BOTTOM, 0.0, 0.0) // position of popup
                     }
-                    //no suggestions -> hide
-
+                    // no suggestions -> hide
                 } else {
                     entriesPopup.hide()
                 }
             }
         }
 
-        //Hide always by focus-in (optional) and out
+        // Hide always by focus-in (optional) and out
         focusedProperty().addListener { _, _, _ ->
             entriesPopup.hide()
         }
-
     }
 
     /**
@@ -77,18 +77,18 @@ class AutocompleteMultiSelectionBox<T : Comparable<T>>(
      * @param searchResult The set of matching strings.
      */
     private fun populatePopup(searchResult: List<T>, searchRequest: String) {
-        //List of "suggestions"
-        //Build list as set of labels
+        // List of "suggestions"
+        // Build list as set of labels
         val menuItems = searchResult.asSequence()
-            .take(MAX_ENTRIES)// Limit to MAX_ENTRIES in the suggestions
+            .take(MAX_ENTRIES) // Limit to MAX_ENTRIES in the suggestions
             .minus(tags.toSet())
             .map { result ->
-                //label with graphic (text flow) to highlight founded subtext in suggestions
+                // label with graphic (text flow) to highlight founded subtext in suggestions
                 val textFlow = buildTextFlow(result.toString(), searchRequest)
                 textFlow.prefWidthProperty().bind(widthProperty())
                 val item = CustomMenuItem(textFlow, true)
 
-                //if any suggestion is select set it into text and close popup
+                // if any suggestion is select set it into text and close popup
                 item.onAction = EventHandler {
                     tags.add(result)
                     suggestions.remove(result)
@@ -98,7 +98,7 @@ class AutocompleteMultiSelectionBox<T : Comparable<T>>(
                 item
             }.toList()
 
-        //"Refresh" context menu
+        // "Refresh" context menu
         entriesPopup.items.clear()
         entriesPopup.items.addAll(menuItems)
     }
@@ -148,7 +148,7 @@ class AutocompleteMultiSelectionBox<T : Comparable<T>>(
                     filterIndex,
                     filterIndex + filter.length
                 )
-            ) //instead of "filter" to keep all "case sensitive"
+            ) // instead of "filter" to keep all "case sensitive"
 
             textFilter.fill = Color.ORANGE
             textFilter.font = Font.font("Helvetica", FontWeight.BOLD, 12.0)
@@ -165,13 +165,15 @@ class AutocompleteMultiSelectionBox<T : Comparable<T>>(
         val observableTags = FXCollections.observableList<T>(LinkedList())
         if (maxItems > 0)
             observableTags.apply {
-                addListener(ListChangeListener { change ->
-                    with(change.list) {
-                        val spaceLeft = maxItems - size
-                        if (spaceLeft < 0)
-                            remove(0, -spaceLeft)
+                addListener(
+                    ListChangeListener { change ->
+                        with(change.list) {
+                            val spaceLeft = maxItems - size
+                            if (spaceLeft < 0)
+                                remove(0, -spaceLeft)
+                        }
                     }
-                })
+                )
             }
         tags = observableTags
         suggestions = FXCollections.observableSet(TreeSet())
@@ -185,7 +187,6 @@ class AutocompleteMultiSelectionBox<T : Comparable<T>>(
                 suggestions.add(last)
                 tags.remove(last)
             }
-
         }
         inputTextField.onKeyTyped = EventHandler { event ->
             if (event.character == "\r" && inputTextField.text.isNotEmpty()) {

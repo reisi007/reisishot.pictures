@@ -24,7 +24,6 @@ class ExifTagComputable : TagComputable {
             TagInformation(camera, TAG_CAMERA),
             TagInformation(lens, TAG_LENS)
         )
-
     }
 }
 

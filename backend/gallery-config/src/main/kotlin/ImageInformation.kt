@@ -5,7 +5,6 @@ import pictures.reisishot.mise.commons.ConcurrentSet
 import pictures.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.exifdata.ExifdataKey
 
-
 interface ImageInformation {
     val filename: FilenameWithoutExtension
     val categories: ConcurrentSet<String>
