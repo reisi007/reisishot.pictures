@@ -1,4 +1,4 @@
-[![Gradle build](https://github.com/reisi007/reisishot.pictures/actions/workflows/gradle.yml/badge.svg)](https://github.com/reisi007/reisishot.pictures/actions/workflows/gradle.yml)
+[![Build on master with Sonar](https://github.com/reisi007/reisishot.pictures/actions/workflows/gradle-sonar.yml/badge.svg)](https://github.com/reisi007/reisishot.pictures/actions/workflows/gradle-sonar.yml)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=reisi007_reisishot.pictures&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=reisi007_reisishot.pictures)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=reisi007_reisishot.pictures&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=reisi007_reisishot.pictures)
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=reisi007_reisishot.pictures&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=reisi007_reisishot.pictures)
