@@ -140,6 +140,9 @@ object PrivateConfig {
             withSubCategory("Urfahranermarkt") {
                 includeTagsAndSubcategories("Urfahranermarkt")
             }
+            withSubCategory("Sonnenuntergang") {
+                includeTagsAndSubcategories("Sonnenuntergang")
+            }
         }
 
         withSubCategory("Österreich", "OperWien02") {
@@ -162,7 +165,7 @@ object PrivateConfig {
                 includeTagsAndSubcategories("Traunkirchen")
             }
             withSubCategory("St. Pölten") {
-                includeTagsAndSubcategories("St. Poelten")
+                includeTagsAndSubcategories("St. Pölten")
             }
             withSubCategory("Graz") {
                 includeTagsAndSubcategories("Graz")
@@ -181,6 +184,9 @@ object PrivateConfig {
             }
             withSubCategory("Wien") {
                 includeTagsAndSubcategories("Wien")
+            }
+            withSubCategory("Linz") {
+                includeTagsAndSubcategories("Linz")
             }
         }
 

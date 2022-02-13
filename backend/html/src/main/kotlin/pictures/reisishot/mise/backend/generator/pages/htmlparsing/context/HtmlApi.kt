@@ -49,7 +49,7 @@ internal class HtmlApi(
         }
     }
 
-    fun addMeta(): String {
+    fun insertMeta(): String {
         val metadata = pageMetadata ?: throw IllegalStateException("No page metadata specified!")
         return buildString {
             appendUnformattedHtml().div {

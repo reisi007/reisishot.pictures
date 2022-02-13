@@ -41,6 +41,7 @@ import pictures.reisishot.mise.commons.hasExtension
 import pictures.reisishot.mise.commons.isJpeg
 import pictures.reisishot.mise.commons.isJson
 import pictures.reisishot.mise.commons.list
+import pictures.reisishot.mise.commons.toUrlsafeString
 import pictures.reisishot.mise.commons.withChild
 import pictures.reisishot.mise.config.ImageConfig
 import pictures.reisishot.mise.exifdata.ExifdataKey
@@ -51,7 +52,6 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.Locale
 import java.util.concurrent.ConcurrentMap
 import kotlin.io.path.exists
 import kotlin.streams.asSequence
@@ -105,7 +105,7 @@ abstract class AbstractGalleryGenerator(
         val computedTags: MutableMap<TagInformation, out Set<ImageInformation>>,
         val rootCategory: CategoryInformationRoot,
 
-    ) {
+        ) {
         val subcategoryMap: Map<String, CategoryInformation> by lazy {
             rootCategory.flatten()
                 .map { it.categoryName.complexName to it }
@@ -135,11 +135,11 @@ abstract class AbstractGalleryGenerator(
             ?: kotlin.run { ZonedDateTime.of(LocalDate.of(1900, 1, 1), LocalTime.MIN, ZoneId.systemDefault()) }
 
         val cacheStillValid = cachePath.exists() &&
-            configuration.paths.sourceFolder.withChild(AbstractThumbnailGenerator.NAME_IMAGE_SUBFOLDER)
-                .list()
-                .map { it.fileModifiedDateTime }
-                .filterNotNull()
-                .all { it < cacheTime }
+                configuration.paths.sourceFolder.withChild(AbstractThumbnailGenerator.NAME_IMAGE_SUBFOLDER)
+                    .list()
+                    .map { it.fileModifiedDateTime }
+                    .filterNotNull()
+                    .all { it < cacheTime }
 
         if (cacheStillValid) {
             this@AbstractGalleryGenerator.cache = cachePath.fromJson()
@@ -148,8 +148,8 @@ abstract class AbstractGalleryGenerator(
 
         val recomputeGallery =
             !cacheStillValid ||
-                hasTextChanges(configuration, cacheTime) ||
-                hasConfigChanges(configuration, cacheTime)
+                    hasTextChanges(configuration, cacheTime) ||
+                    hasConfigChanges(configuration, cacheTime)
 
         if (!recomputeGallery) return@useJsonParserParallel
 
@@ -210,8 +210,8 @@ abstract class AbstractGalleryGenerator(
             imageInformation.tags.forEach { tag ->
                 computedTags.computeIfAbsent(tag) { mutableSetOf() } += imageInformation
                 // Add tag URLs to global cache
-                "gallery/tags/${tag.url.lowercase()}".let { link ->
-                    buildingCache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag.url.lowercase(), link)
+                "gallery/tags/${tag.urlFragment}".let { link ->
+                    buildingCache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag.urlFragment, link)
                     if (shallAddToMenu)
                         buildingCache.addMenuItemInContainerNoDupes(
                             LINKTYPE_TAGS,
@@ -256,7 +256,7 @@ abstract class AbstractGalleryGenerator(
                 val imageInformation = InternalImageInformation(
                     filenameWithoutExtension,
                     thumbnailConfig.toMap(),
-                    SUBFOLDER_OUT + '/' + filenameWithoutExtension.lowercase(Locale.getDefault()),
+                    "$SUBFOLDER_OUT/${filenameWithoutExtension.toUrlsafeString().lowercase()}",
                     imageConfig.title,
                     tags, // Needed because single element sets are not correctly loaded as MutableSet
                     exifData
@@ -325,8 +325,6 @@ abstract class AbstractGalleryGenerator(
     ) {
         this.cache.imageInformationData.values
             .asSequence()
-            .map { it as? InternalImageInformation }
-            .filterNotNull()
             .asIterable()
             .forEachParallel { curImageInformation ->
                 generateImagePage(configuration, buildingCache, curImageInformation)
@@ -336,7 +334,7 @@ abstract class AbstractGalleryGenerator(
     protected abstract fun generateImagePage(
         configuration: WebsiteConfig,
         buildingCache: BuildingCache,
-        curImageInformation: InternalImageInformation
+        curImageInformation: ImageInformation
     )
 
     private suspend fun generateCategoryPages(
@@ -368,7 +366,7 @@ abstract class AbstractGalleryGenerator(
     protected abstract fun generateTagPage(
         configuration: WebsiteConfig,
         buildingCache: BuildingCache,
-        tagName: TagInformation
+        tagInformation: TagInformation
     )
 
     override suspend fun fetchUpdateInformation(
@@ -400,10 +398,6 @@ abstract class AbstractGalleryGenerator(
                 .deleteRecursively()
         }
     }
-
-    fun Sequence<InternalImageInformation>.toOrderedByTime() =
-        sortedByDescending { it.exifInformation[ExifdataKey.CREATION_DATETIME] }
-            .toList()
 
     override suspend fun loadCache(configuration: WebsiteConfig, buildingCache: BuildingCache) {
         super.loadCache(configuration, buildingCache)

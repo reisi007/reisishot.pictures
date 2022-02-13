@@ -5,7 +5,7 @@ import pictures.reisishot.mise.commons.toUrlsafeString
 
 @Serializable
 class TagInformation(val name: String, val type: String = "MANUAL") : Comparator<TagInformation> {
-    val url by lazy { name.toUrlsafeString().lowercase() }
+    val urlFragment by lazy { name.toUrlsafeString().lowercase() }
 
     override fun compare(o1: TagInformation?, o2: TagInformation?): Int = o1!!.name.compareTo(o2!!.name)
 

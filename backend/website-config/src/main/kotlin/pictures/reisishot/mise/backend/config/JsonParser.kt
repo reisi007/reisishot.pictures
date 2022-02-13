@@ -33,6 +33,7 @@ class JsonParser(action: SerializersModuleBuilder.() -> Unit) {
     val json by lazy {
         Json {
             allowStructuredMapKeys = true
+            encodeDefaults = false
             serializersModule = SerializersModule {
                 action(this)
             }

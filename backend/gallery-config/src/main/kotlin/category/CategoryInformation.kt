@@ -9,7 +9,7 @@ import pictures.reisishot.mise.commons.toUrlsafeString
 data class CategoryInformation(
     val categoryName: CategoryName,
     val images: Set<ImageInformation>,
-    val thumbnailImage: ImageInformation?,
+    val thumbnailImage: ImageInformation,
     val subcategories: Set<CategoryInformation>,
     val visible: Boolean
 

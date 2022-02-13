@@ -17,6 +17,7 @@
             <option value="$PROJECT_DIR$/backend/generators" />
             <option value="$PROJECT_DIR$/backend/generators/gallery" />
             <option value="$PROJECT_DIR$/backend/generators/gallery-abstract" />
+            <option value="$PROJECT_DIR$/backend/generators/gallery-json" />
             <option value="$PROJECT_DIR$/backend/generators/link" />
             <option value="$PROJECT_DIR$/backend/generators/multisite" />
             <option value="$PROJECT_DIR$/backend/generators/page" />

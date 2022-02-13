@@ -17,6 +17,7 @@ import pictures.reisishot.mise.backend.config.tags.TagConfig
 import pictures.reisishot.mise.backend.config.tags.TagInformation
 import pictures.reisishot.mise.backend.config.tags.buildTagConfig
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
+import pictures.reisishot.mise.backend.generator.gallery.ImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.context.insertImageGallery
 import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbnails
@@ -57,8 +58,10 @@ class GalleryGenerator(
     override fun generateImagePage(
         configuration: WebsiteConfig,
         buildingCache: BuildingCache,
-        curImageInformation: InternalImageInformation
+        curImageInformation: ImageInformation
     ) {
+        if (!(curImageInformation is InternalImageInformation)) return
+
         val baseHtmlPath = configuration.paths.targetFolder withChild "gallery/images"
         val targetFolder = baseHtmlPath withChild curImageInformation.filename.lowercase()
         PageGenerator.generatePage(
@@ -142,21 +145,21 @@ class GalleryGenerator(
     override fun generateTagPage(
         configuration: WebsiteConfig,
         buildingCache: BuildingCache,
-        tagName: TagInformation
+        tagInformation: TagInformation
     ): Unit = with(cache) {
-        val tagImages = computedTags.getValue(tagName)
+        val tagImages = computedTags.getValue(tagInformation)
         val baseHtmlPath = configuration.paths.targetFolder withChild "gallery/tags"
-        val targetFolder = baseHtmlPath withChild tagName.url
+        val targetFolder = baseHtmlPath withChild tagInformation.urlFragment
         PageGenerator.generatePage(
             websiteConfig = configuration,
             buildingCache = buildingCache,
             target = targetFolder withChild "index.html",
-            title = tagName.name,
+            title = tagInformation.name,
             pageContent = {
                 h1("text-center") {
                     text("Tag - ")
                     i {
-                        text(("\"${tagName.name}\""))
+                        text(("\"${tagInformation.name}\""))
                     }
                 }
 
@@ -186,7 +189,7 @@ class GalleryGenerator(
                 curImageInformation.tags.forEach { tagInformation ->
                     smallButtonLink(
                         tagInformation.name,
-                        cache.getLinkcacheEntryFor(configuration, LINKTYPE_TAGS, tagInformation.url)
+                        cache.getLinkcacheEntryFor(configuration, LINKTYPE_TAGS, tagInformation.urlFragment)
                     )
                 }
             }
@@ -312,4 +315,8 @@ class GalleryGenerator(
             else -> throw IllegalStateException("Type $type is not known")
         }
     }
+
+    fun Sequence<InternalImageInformation>.toOrderedByTime() =
+        sortedByDescending { it.exifInformation[ExifdataKey.CREATION_DATETIME] }
+            .toList()
 }

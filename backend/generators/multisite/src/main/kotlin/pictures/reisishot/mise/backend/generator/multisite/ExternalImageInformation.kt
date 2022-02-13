@@ -9,7 +9,7 @@ import pictures.reisishot.mise.commons.FilenameWithoutExtension
 
 @Serializable
 class ExternalImageInformation(
-    private val host: String,
+    val host: String,
     override val filename: FilenameWithoutExtension,
     override val thumbnailSizes: Map<AbstractThumbnailGenerator.ImageSize, ImageSizeInformation>,
     override val relativeLocation: String,

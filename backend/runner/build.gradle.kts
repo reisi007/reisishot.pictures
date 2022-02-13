@@ -2,6 +2,7 @@ dependencies {
     implementation(project(":backend:generators:link"))
     implementation(project(":backend:generators:sitemap"))
     implementation(project(":backend:generators:gallery"))
+    implementation(project(":backend:generators:gallery-json"))
     implementation(project(":backend:generators:testimonial"))
     implementation(project(":backend:generators:page"))
     implementation(project(":backend:generators:page:keyword"))
