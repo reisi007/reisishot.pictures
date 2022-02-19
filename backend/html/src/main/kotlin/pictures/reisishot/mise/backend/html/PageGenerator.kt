@@ -312,9 +312,12 @@ object PageGenerator {
             attributes["type"] = "image/png"
         }
 
-        meta("msapplication-TileColor", "#ffffff")
-        meta("msapplication-TileColor", "#ffffff")
-        meta("msapplication-TileColor", "#ffffff")
+        link("/manifest.json") {
+            rel = "manifest"
+        }
+
+        script("module", "/pwabuilder-sw-register.js") {}
+        script("module", "/pwabuilder-sw.js") {}
     }
 
     @HtmlTagMarker
