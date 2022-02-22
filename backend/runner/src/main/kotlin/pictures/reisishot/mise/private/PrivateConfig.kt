@@ -162,7 +162,7 @@ object PrivateConfig {
                 includeTagsAndSubcategories("Traunkirchen")
             }
             withSubCategory("St. Pölten") {
-                includeTagsAndSubcategories("St. Poelten")
+                includeTagsAndSubcategories("St. Pölten")
             }
             withSubCategory("Graz") {
                 includeTagsAndSubcategories("Graz")

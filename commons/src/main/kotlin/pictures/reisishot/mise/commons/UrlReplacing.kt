@@ -7,4 +7,7 @@ fun ComplexName.toUrlsafeString() =
         .replace("ä", "ae")
         .replace("ö", "oe")
         .replace("ü", "ue")
+        .replace("Ä", "Ae")
+        .replace("Ö", "Oe")
+        .replace("Ü", "Ue")
         .replace("ß", "ss")
