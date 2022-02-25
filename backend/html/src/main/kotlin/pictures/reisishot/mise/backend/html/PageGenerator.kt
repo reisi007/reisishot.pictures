@@ -85,6 +85,7 @@ object PageGenerator {
                             favicon()
                             title(title)
                             appCss(websiteConfig)
+                            pwaBuilder()
                             additionalHeadContent(this)
                         }
                         body("d-flex flex-column h-100") {
@@ -312,12 +313,10 @@ object PageGenerator {
             attributes["type"] = "image/png"
         }
 
+
         link("/manifest.json") {
             rel = "manifest"
         }
-
-        script("module", "/pwabuilder-sw-register.js") {}
-        script("module", "/pwabuilder-sw.js") {}
     }
 
     @HtmlTagMarker
@@ -396,5 +395,16 @@ object PageGenerator {
             attributes["logged_out_greeting"] = data.message
             attributes["greeting_dialog_display"] = "hide"
         }
+    }
+}
+
+private fun HEAD.pwaBuilder() {
+    script("module") {
+        //language=JavaScript
+        +"""
+   import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+   const el = document.createElement('pwa-update');
+   document.body.appendChild(el);
+        """.trimIndent()
     }
 }
