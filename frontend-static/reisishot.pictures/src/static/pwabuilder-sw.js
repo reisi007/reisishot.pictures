@@ -1,22 +1,20 @@
-if ('function' === typeof importScripts) {
-    const CACHE = "pwabuilder-offline";
+const CACHE = "pwabuilder-offline";
 
-    importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
 
-    self.addEventListener('install', (e) => {
-        console.log('[Service Worker] Install');
-    });
+self.addEventListener('install', (e) => {
+    console.log('[Service Worker] Install');
+});
 
-    self.addEventListener("message", (event) => {
-        if (event.data && event.data.type === "SKIP_WAITING") {
-            self.skipWaiting();
-        }
-    });
+self.addEventListener("message", (event) => {
+    if (event.data && event.data.type === "SKIP_WAITING") {
+        self.skipWaiting();
+    }
+});
 
-    workbox.routing.registerRoute(
-        new RegExp('/*'),
-        new workbox.strategies.StaleWhileRevalidate({
-            cacheName: CACHE
-        })
-    );
-}
+workbox.routing.registerRoute(
+    new RegExp('/*'),
+    new workbox.strategies.StaleWhileRevalidate({
+        cacheName: CACHE
+    })
+);
