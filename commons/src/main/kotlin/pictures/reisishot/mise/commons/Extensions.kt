@@ -2,6 +2,7 @@ package pictures.reisishot.mise.commons
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
@@ -15,24 +16,30 @@ suspend fun <E> Iterable<E>.forEachParallel(
     dispatcher: CoroutineDispatcher = Dispatchers.Default,
     callable: suspend (E) -> Unit
 ) = coroutineScope {
-    map { launch(dispatcher) { callable(it) } }
+    forEach { launch(dispatcher) { callable(it) } }
 }
 
+suspend fun <E> Sequence<E>.forEachParallel(
+    dispatcher: CoroutineDispatcher = Dispatchers.Default,
+    callable: suspend (E) -> Unit
+) = coroutineScope {
+    forEach { launch(dispatcher) { callable(it) } }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
 suspend fun <K : Comparable<K>, V> Map<K, Collection<V>>.forEachLimitedParallel(
-    dispatcher: CoroutineDispatcher? = null,
+    maximum: Int = Runtime.getRuntime().availableProcessors(),
+    dispatcher: CoroutineDispatcher = Dispatchers.Default,
     callable: suspend (V) -> Unit
 ) = coroutineScope {
     keys.forEach { priority ->
-        get(priority)?.let { generators ->
-            coroutineScope {
-                if (dispatcher == null)
-                    generators.forEachParallel(callable = callable)
-                else
-                    generators.forEachParallel(dispatcher, callable)
-            }
-        } ?: throw IllegalStateException("No at.reisishot.mise.commons.list found for priority $priority")
+        get(priority)?.forEachParallel(
+            dispatcher.limitedParallelism(maximum),
+            callable
+        ) ?: throw IllegalStateException("No at.reisishot.mise.commons.list found for priority $priority")
     }
 }
+
 
 infix fun Path.withChild(fileOrFolder: String): Path = resolve(fileOrFolder)
 infix fun Path.withChild(fileOrFolder: Path): Path = resolve(fileOrFolder)

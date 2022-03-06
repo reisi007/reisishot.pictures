@@ -1,9 +1,7 @@
 package pictures.reisishot.mise.backend
 
 import com.sun.nio.file.ExtendedWatchEventModifier
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import pictures.reisishot.mise.backend.config.BuildingCache
@@ -28,8 +26,9 @@ import java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY
 import java.nio.file.WatchEvent
 import java.nio.file.WatchKey
 import java.util.TreeMap
-import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
+
+private val COROUTINES_PARALLELITY = 2 * Runtime.getRuntime().availableProcessors()
 
 object Mise {
 
@@ -66,7 +65,7 @@ object Mise {
         }
         val runGenerators = mutableListOf<WebsiteGenerator>()
 
-        generatorMap.forEachLimitedParallel { generator ->
+        generatorMap.forEachLimitedParallel(COROUTINES_PARALLELITY) { generator ->
             generator.buildInitialArtifacts(this@generateWebsite, buildingCache)
             runGenerators += generator
         }
@@ -119,15 +118,12 @@ object Mise {
                 )
             }
         }
-        val coroutineDispatcher = Executors.newFixedThreadPool(
-            Runtime.getRuntime().availableProcessors()
-        ).asCoroutineDispatcher()
 
         val loopMs = miseConfig.interactiveDelayMs
         while (loopMs != null) {
             delay(loopMs)
             try {
-                processEvents(watchKey, this, cache, paths.sourceFolder, generators, coroutineDispatcher)
+                processEvents(watchKey, this, cache, paths.sourceFolder, generators)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -139,8 +135,7 @@ object Mise {
         configuration: WebsiteConfig,
         cache: BuildingCache,
         watchedDir: Path,
-        generatorMap: Map<Int, List<WebsiteGenerator>>,
-        coroutineDispatcher: CoroutineDispatcher
+        generatorMap: Map<Int, List<WebsiteGenerator>>
     ) {
         val changedFileset = watchKey.pollEvents(configuration, watchedDir)
         if (changedFileset.isNotEmpty())
@@ -153,7 +148,7 @@ object Mise {
                     if (cacheChanged)
                         changed.addAndGet(1)
                 }
-                generatorMap.forEachLimitedParallel(coroutineDispatcher) {
+                generatorMap.forEachLimitedParallel(COROUTINES_PARALLELITY) {
                     val cacheChanged = it.buildUpdateArtifacts(configuration, cache, changedFileset)
                     if (cacheChanged)
                         changed.addAndGet(1)

@@ -5,7 +5,7 @@ import com.drew.metadata.Directory
 import com.drew.metadata.jpeg.JpegDirectory
 import com.drew.metadata.webp.WebpDirectory
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.config.BuildingCache
@@ -29,7 +29,6 @@ import pictures.reisishot.mise.exifdata.height
 import pictures.reisishot.mise.exifdata.width
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.concurrent.Executors
 import java.util.stream.Collectors
 import kotlin.io.path.exists
 import kotlin.math.max
@@ -87,25 +86,25 @@ abstract class AbstractThumbnailGenerator(private val forceRegeneration: ForceRe
 
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean {
         if (changeFiles.hasRelevantDeletions())
-            cleanup(configuration, cache)
+            cleanup(configuration, buildingCache)
         return if (changeFiles.hasRelevantChanges()) {
-            fetchInitialInformation(configuration, cache, alreadyRunGenerators)
+            fetchInitialInformation(configuration, buildingCache, alreadyRunGenerators)
             true
         } else false
     }
 
     override suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         changeFiles: ChangeFileset
     ): Boolean {
         return if (changeFiles.hasRelevantChanges()) {
-            buildInitialArtifacts(configuration, cache)
+            buildInitialArtifacts(configuration, buildingCache)
             true
         } else false
     }
@@ -113,7 +112,7 @@ abstract class AbstractThumbnailGenerator(private val forceRegeneration: ForceRe
     private fun ChangeFileset.hasRelevantChanges() = keys.any { it.hasExtension(FileExtension::isJpeg) }
     private fun ChangeFileset.hasRelevantDeletions() = hasDeletions(FileExtension::isJpeg)
 
-    override suspend fun cleanup(configuration: WebsiteConfig, cache: BuildingCache) {
+    override suspend fun cleanup(configuration: WebsiteConfig, buildingCache: BuildingCache) {
         withContext(Dispatchers.IO) {
             val existingFiles: Set<FilenameWithoutExtension> =
                 Files.list(configuration.paths.sourceFolder.resolve(NAME_IMAGE_SUBFOLDER))
@@ -134,19 +133,21 @@ abstract class AbstractThumbnailGenerator(private val forceRegeneration: ForceRe
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun fetchInitialInformation(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
     ): Unit = configuration.useJsonParserParallel {
-        Executors.newFixedThreadPool(4)
-            .asCoroutineDispatcher()
-            .use { preparation ->
-                configuration.paths.sourceFolder.withChild(NAME_IMAGE_SUBFOLDER).list()
-                    .filter { it.fileExtension.isJpeg() }
-                    .asIterable()
-                    .forEachParallel(preparation) { originalImage -> processImage(configuration, originalImage) }
+        configuration.paths.sourceFolder.withChild(NAME_IMAGE_SUBFOLDER).list()
+            .filter { it.fileExtension.isJpeg() }
+            .forEachParallel(Dispatchers.Default.limitedParallelism(8)) { originalImage ->
+                processImage(
+                    configuration,
+                    originalImage
+                )
             }
+
     }
 
     private suspend fun JsonParser.processImage(
@@ -155,9 +156,9 @@ abstract class AbstractThumbnailGenerator(private val forceRegeneration: ForceRe
     ) {
         val thumbnailInfoPath =
             configuration.paths.cacheFolder withChild NAME_THUMBINFO_SUBFOLDER withChild "${
-            configuration.paths.sourceFolder.resolve(
-                originalImage
-            ).filenameWithoutExtension
+                configuration.paths.sourceFolder.resolve(
+                    originalImage
+                ).filenameWithoutExtension
             }.cache.json"
         if (!(thumbnailInfoPath.exists() && thumbnailInfoPath.isNewerThan(originalImage))) {
             val baseOutPath =
