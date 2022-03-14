@@ -108,6 +108,43 @@ internal class HtmlApi(
         }
     }
 
+    fun insertVideoCarousel(id: String, changeMs: Int, vararg ytCodes: String) = buildString {
+        appendUnformattedHtml().div("carousel slide") {
+            this.id = id
+            attributes["data-bs-interval"] = changeMs.toString()
+            attributes["data-bs-ride"] = "carousel"
+            div("carousel-inner") {
+                ytCodes.forEachIndexed { idx, ytCode ->
+                    div {
+                        classes = classes + "carousel-item"
+                        if (idx == 0)
+                            classes = classes + "active"
+
+                        insertYoutube(ytCode, 1, 1)
+                    }
+                }
+            }
+
+            a("#$id", classes = "carousel-control-prev") {
+                role = "button"
+                attributes["data-bs-slide"] = "prev"
+                span("carousel-control-prev-icon") {
+                    attributes["aria-hidden"] = "true"
+                }
+                span("visually-hidden") { text("Vorheriges Video") }
+            }
+
+            a("#$id", classes = "carousel-control-next") {
+                role = "button"
+                attributes["data-bs-slide"] = "next"
+                span("carousel-control-next-icon") {
+                    attributes["aria-hidden"] = "true"
+                }
+                span("visually-hidden") { text("Nächstes Video") }
+            }
+        }
+    }
+
     fun insertWartelisteInfo(): String = buildString {
         appendUnformattedHtml().div {
             insertWartelisteInfo()

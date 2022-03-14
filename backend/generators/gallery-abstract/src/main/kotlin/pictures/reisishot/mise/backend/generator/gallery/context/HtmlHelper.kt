@@ -31,10 +31,14 @@ fun HtmlBlockTag.insertLazyPicture(
             attributes["data-alt"] = curImageInfo.title
             attributes["data-id"] = curImageInfo.filename
             attributes["data-url"] = curImageInfo.getUrl(configuration)
-            curImageInfo.thumbnailSizes.values.first().let {
+
+            val availableSizes = curImageInfo.thumbnailSizes.keys.sortedBy { it.longestSidePx }
+
+            curImageInfo.thumbnailSizes.getValue(availableSizes.last()).let {
                 style = "padding-top: ${(it.height * 100f) / it.width}%"
             }
-            DefaultImageSize.values.forEachIndexed { idx, curSize ->
+
+            availableSizes.forEachIndexed { idx, curSize ->
                 val thumbnailSize = curImageInfo.thumbnailSizes[curSize] ?: error("Size $curSize not found!")
                 attributes["data-$idx"] = """{
                     |"jpg":"${curImageInfo.getJpgUrl(configuration, curSize)}",
@@ -43,7 +47,8 @@ fun HtmlBlockTag.insertLazyPicture(
                     |"h":${thumbnailSize.height}
                     |}""".trimMargin()
             }
-            attributes["data-sizes"] = DefaultImageSize.values.size.toString()
+
+            attributes["data-sizes"] = availableSizes.size.toString()
             noScript {
                 img(curImageInfo.title, curImageInfo.getJpgUrl(configuration, DefaultImageSize.LARGEST))
             }
@@ -65,7 +70,7 @@ private fun ImageInformation.getWebPUrl(
     return getUrl(configuration).substringBefore("gallery/images") + "images/" + filename + '_' + imageSize.identifier + ".webp"
 }
 
-fun HtmlBlockTag.renderCarousel(
+fun HtmlBlockTag.renderImageCarousel(
     galleryGenerator: AbstractGalleryGenerator,
     id: String,
     changeMs: Int,

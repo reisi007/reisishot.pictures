@@ -14,7 +14,7 @@ import kotlinx.html.span
 import pictures.reisishot.mise.backend.config.WebsiteConfig
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.context.insertLazyPicture
-import pictures.reisishot.mise.backend.generator.gallery.context.renderCarousel
+import pictures.reisishot.mise.backend.generator.gallery.context.renderImageCarousel
 import pictures.reisishot.mise.backend.html.ReisishotIcons
 import pictures.reisishot.mise.backend.html.content
 import pictures.reisishot.mise.backend.html.insertIcon
@@ -94,7 +94,7 @@ private fun HtmlBlockTag.renderTestimonialVisual(
         val curImageInfo = galleryGenerator.cache.imageInformationData.getValue(testimonial.image)
         insertLazyPicture(curImageInfo, websiteConfig, "card-img-top")
     } else if (testimonial.images != null) {
-        renderCarousel(
+        renderImageCarousel(
             galleryGenerator,
             "test-" + testimonial.id,
             5000,
