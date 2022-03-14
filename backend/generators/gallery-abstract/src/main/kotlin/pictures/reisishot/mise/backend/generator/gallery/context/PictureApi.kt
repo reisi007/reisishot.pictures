@@ -61,15 +61,15 @@ internal class PictureApi(
             }
     }
 
-    fun insertCarousel(id: String, changeMs: Int, vararg imageFilenames: FilenameWithoutExtension) = buildString {
+    fun insertImageCarousel(id: String, changeMs: Int, vararg imageFilenames: FilenameWithoutExtension) = buildString {
         appendUnformattedHtml().div {
-            renderCarousel(galleryGenerator, id, changeMs, imageFilenames, websiteConfig)
+            renderImageCarousel(galleryGenerator, id, changeMs, imageFilenames, websiteConfig)
         }
     }
 
     @SuppressWarnings("unused")
-    fun insertCarousel(changeMs: Int, vararg filename: FilenameWithoutExtension) =
-        insertCarousel("carousel", changeMs, *filename)
+    fun insertImageCarousel(changeMs: Int, vararg filename: FilenameWithoutExtension) =
+        insertImageCarousel("carousel", changeMs, *filename)
 
     fun insertGalleryInfo(): String = buildString {
         appendUnformattedHtml().p {

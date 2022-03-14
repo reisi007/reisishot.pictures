@@ -23,7 +23,7 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
 
     override suspend fun fetchInitialInformation(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
     ) {
         // Nothing to do
@@ -31,7 +31,7 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
 
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean {
@@ -39,10 +39,10 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
         return false
     }
 
-    override suspend fun buildInitialArtifacts(configuration: WebsiteConfig, cache: BuildingCache) =
+    override suspend fun buildInitialArtifacts(configuration: WebsiteConfig, buildingCache: BuildingCache) =
         withContext(Dispatchers.IO) {
             PrintWriter(
-                configuration.paths.targetFolder.resolve("sitemap.json").toFile(),
+                configuration.paths.targetFolder.resolve("sitemap.xml").toFile(),
                 Charsets.UTF_8.toString()
             ).use { writer ->
                 writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
@@ -70,18 +70,18 @@ class SitemapGenerator(private vararg val noChangedFileExtensions: (FileExtensio
 
     override suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         changeFiles: ChangeFileset
     ): Boolean {
         val fixNoChange = changeFiles.entries.asSequence().map { (k, v) -> k to v }.all { changeState ->
             changeState.first.hasExtension(*noChangedFileExtensions) && changeState.isStateEdited()
         }
         if (!fixNoChange)
-            buildInitialArtifacts(configuration, cache)
+            buildInitialArtifacts(configuration, buildingCache)
         return false
     }
 
-    override suspend fun cleanup(configuration: WebsiteConfig, cache: BuildingCache) {
+    override suspend fun cleanup(configuration: WebsiteConfig, buildingCache: BuildingCache) {
         // Nothing to do
     }
 }

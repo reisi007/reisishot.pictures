@@ -141,7 +141,11 @@ abstract class AbstractThumbnailGenerator(private val forceRegeneration: ForceRe
     ): Unit = configuration.useJsonParserParallel {
         configuration.paths.sourceFolder.withChild(NAME_IMAGE_SUBFOLDER).list()
             .filter { it.fileExtension.isJpeg() }
-            .forEachParallel(Dispatchers.Default.limitedParallelism(8)) { originalImage ->
+            .forEachParallel(
+                Dispatchers.Default.limitedParallelism(
+                    2 * Runtime.getRuntime().availableProcessors()
+                )
+            ) { originalImage ->
                 processImage(
                     configuration,
                     originalImage
@@ -170,6 +174,7 @@ abstract class AbstractThumbnailGenerator(private val forceRegeneration: ForceRe
             ImageSize.values
                 .asSequence()
                 .map { size -> generateThumbnails(baseOutPath, originalImage, sourceInfo, size) }
+                .filterNotNull()
                 .toMap()
                 .toJson(thumbnailInfoPath)
         }
@@ -180,14 +185,14 @@ abstract class AbstractThumbnailGenerator(private val forceRegeneration: ForceRe
         originalImage: Path,
         sourceInfo: ImageSizeInformation,
         size: ImageSize
-    ): Pair<ImageSize, ImageSizeInformation> {
+    ): Pair<ImageSize, ImageSizeInformation>? {
         val outFile = baseOutPath.parent withChild ("${baseOutPath.filenameWithoutExtension}_${size.identifier}.webp")
 
         (forceRegeneration.thumbnails || !outFile.exists() || originalImage.isNewerThan(outFile)).let { actionNeeded ->
             if (actionNeeded)
                 convertImageInternally(originalImage, sourceInfo, outFile, size)
         }
-        return size to getWebPThumbnailInfo(outFile)
+        return if (!outFile.exists()) null else size to getWebPThumbnailInfo(outFile)
     }
 
     private fun convertImageInternally(
