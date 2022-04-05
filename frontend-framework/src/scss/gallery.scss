@@ -3,12 +3,14 @@
   $margin: 8px;
   margin-bottom: 16px;
 
+
   &.multiple {
     $thumbnailSize: 400px;
 
     .pic-holder {
       margin-top: $margin;
       margin-bottom: $margin;
+      contain: strict;
 
       div.lazy {
         position: initial;
@@ -25,6 +27,7 @@
   }
 
   img {
+    contain: strict;
     cursor: pointer;
   }
 
