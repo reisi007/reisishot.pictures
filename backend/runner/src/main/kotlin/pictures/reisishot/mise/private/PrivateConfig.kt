@@ -59,6 +59,8 @@ object PrivateConfig {
             "Style in Motion" withTags "Tanz"
 
             "Steel Wings Linz" withTags "Eishockey"
+
+            "Teichralle" withTags "Vogel"
         }
     }
 
