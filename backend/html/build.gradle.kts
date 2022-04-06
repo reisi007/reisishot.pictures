@@ -1,7 +1,8 @@
+val libs = rootProject.libs
 dependencies {
-    api("org.jetbrains.kotlinx:kotlinx-html-jvm:${Kotlin.HTML_VERSION}")
+    api(libs.kotlinx.html)
     api(project(":backend:root"))
-    implementation("org.apache.velocity:velocity-engine-core:${Dependencies.VELOCITY_VERSION}")
-    implementation("com.vladsch.flexmark:flexmark-all:${Dependencies.FLEXMARK_VERSION}")
+    implementation(libs.apache.velocity.engine)
+    implementation(libs.flexmark)
     testImplementation(testFixtures(project(":backend:website-config")))
 }
