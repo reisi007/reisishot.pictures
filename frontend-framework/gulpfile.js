@@ -21,7 +21,6 @@ gulp.task('stylesDev', function () {
     return gulp
         .src('./src/scss/main.scss')
         .pipe(sass().on('error', sass.logError))
-        .pipe($.cleanCss())
         .pipe($.concat('styles.css'))
         .pipe(gulp.dest('generated/css'));
 });
@@ -89,11 +88,11 @@ gulp.task('copyReleaseInternal', function () {
 
 gulp.task('watch', function () {
     // Watch .sass files
-    gulp.watch(['src/scss/**/*.scss', 'src/scss/**/*.css'], gulp.parallel('styles'));
+    gulp.watch(['src/scss/**/*.scss', 'src/scss/**/*.css'], gulp.series('styles'));
     //Watch HTML files for changed classes / ids / tags
     gulp.watch(
         sites.map(s => '../upload/' + s + '/**/*.html'),
-        gulp.parallel('styles')
+        gulp.series('styles')
     )
     // Watch .js files
     gulp.watch([
@@ -102,17 +101,19 @@ gulp.task('watch', function () {
             './src/js/modules/*.js',
             './src/js/modules/**/*.js'
         ],
-        gulp.parallel('scriptsDev')
+        gulp.series('scriptsDev')
     );
     // Watch static files
-    gulp.watch('src/static/**/*.*', gulp.parallel('copyStatic'));
-    gulp.watch('src/static_css/**/*.*', gulp.parallel('copyStatic'));
+    gulp.watch('src/static/**/*.*', gulp.series('copyStatic'));
+    gulp.watch('src/static_css/**/*.*', gulp.series('copyStatic'));
 });
 
-gulp.task('default', gulp.parallel(
-    'copyStatic',
-    'scriptsDev',
-    'stylesDev',
+gulp.task('default', gulp.series(
+    gulp.parallel(
+        'copyStatic',
+        'scriptsDev',
+        'stylesDev'
+    ),
     'watch'
 ));
 

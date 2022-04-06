@@ -10,7 +10,7 @@
     .pic-holder {
       margin-top: $margin;
       margin-bottom: $margin;
-      contain: strict;
+      contain: paint;
 
       div.lazy {
         position: initial;
@@ -18,7 +18,6 @@
 
         img {
           max-width: calc(100% - 2 * 15px); // Fill parent minus padding
-
           height: 100%;
           vertical-align: middle;
         }
