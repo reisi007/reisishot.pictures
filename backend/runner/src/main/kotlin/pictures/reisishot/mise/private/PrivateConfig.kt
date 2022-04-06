@@ -196,6 +196,9 @@ object PrivateConfig {
             withSubCategory("Prag") {
                 includeTagsAndSubcategories("Prag")
             }
+            withSubCategory("Bratislava") {
+                includeTagsAndSubcategories("Bratislava")
+            }
         }
 
         withSubCategory("Fotoshootings", "Frau33") {
