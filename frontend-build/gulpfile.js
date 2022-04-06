@@ -26,7 +26,7 @@ const
     inBase = './../frontend-static/' + target + '/',
     outBase = './../upload/' + target + '',
     staticSource = './../frontend-framework/out/**/*',
-    frameworkJsCss = './../frontend-framework/generated/**/*';
+    frameworkJsCss = './../frontend-framework/generated/**/*.*';
 
 gulp.task('copyStatic', function (done) {
     gulp
@@ -52,10 +52,9 @@ gulp.task('copyFrameworkJsCss', function (done) {
 gulp.task('serve', function () {
     browserSync.init({
         files: outBase + '**/*.*',
-        reloadOnRestart: true,
-        reloadThrottle: 2000,
         watchOptions: {
-            usePolling: false,
+            reloadOnRestart: true,
+            reloadThrottle: 2000,
             ignoreInitial: true
 
         },
@@ -81,9 +80,11 @@ gulp.task('watch', function () {
 
 gulp.task('default',
     gulp.series(
-        'copyStatic',
-        'copyFrameworkStatic',
-        'copyFrameworkJsCss',
+        gulp.parallel(
+            'copyStatic',
+            'copyFrameworkStatic',
+            'copyFrameworkJsCss',
+        ),
         gulp.parallel(
             'serve',
             'watch'
