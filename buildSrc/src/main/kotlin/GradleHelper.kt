@@ -4,8 +4,8 @@ import org.gradle.api.JavaVersion
 
 object Kotlin {
     // https://kotlinlang.org/releases.html#release-details
-    const val VERSION = "1.6.10"
-    const val SERIALISATION_VERSION = "1.3.1"
+    const val VERSION = "1.6.20"
+    const val SERIALISATION_VERSION = "1.3.2"
     const val COROUTINE_VERSION = "1.6.0"
     const val HTML_VERSION = "0.7.3"
 
@@ -35,5 +35,3 @@ object Dependencies {
     const val LANGUAGETOOL_VERSION = "5.6"
     const val JIM_FS_VERSION = "1.2"
 }
-
-object Sonar

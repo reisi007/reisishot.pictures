@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@samkirkland/ftp-deploy": "^1.1.1",
+    "@samkirkland/ftp-deploy": "^1.2.1",
     "dotenv": "^14.3.2"
   }
 }
