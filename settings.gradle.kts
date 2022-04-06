@@ -28,3 +28,63 @@ include("ui")
 include("ui:base-ui")
 include("ui:config-ui")
 include("ui:exif-ui")
+
+pluginManagement {
+    // https://kotlinlang.org/releases.html#release-details
+    val kotlinVersion by extra("1.6.20")
+    plugins {
+        kotlin("jvm") version kotlinVersion
+        id("org.jetbrains.kotlin.plugin.serialization") version kotlinVersion
+        id("org.sonarqube") version "3.3"
+        id("org.barfuin.gradle.jacocolog") version "2.0.0"
+    }
+}
+
+enableFeaturePreview("VERSION_CATALOGS")
+dependencyResolutionManagement {
+    // Kotlin & KotlinX versions
+    val kotlinVersion: String by extra
+    val kotlinxCoroutinesVersion = "1.6.0"
+    val kotlinxSerializationVersion = "1.3.2"
+    val kotlinxHtmlVersion = "0.7.3"
+
+    // Testing library versions
+    val assertKVersion = "0.25"
+    val assertJVersion = "3.22.0"
+    val junitVersion = "5.8.2"
+
+    // Other libraries
+    val metadataExtractor = "2.16.0"
+    val velocityVersion = "2.3"
+    val flexmarkVersion = "0.62.2"
+    val jimFsVersion = "1.2"
+    val tornadoFxVersion = "1.7.20"
+    val languagetoolVersion = "5.7"
+
+    versionCatalogs {
+        create("libs") {
+            version("kotlin", kotlinVersion)
+            version("sonarqube", "3.3")
+            version("jacocolog", "2.0.0")
+            library("kotlin.stdlib", "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
+            library("kotlinx.coroutines", "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:${kotlinxCoroutinesVersion}")
+            library("kotlinx.html", "org.jetbrains.kotlinx:kotlinx-html-jvm:${kotlinxHtmlVersion}")
+            library(
+                "kotlinx.serialization.json",
+                "org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlinxSerializationVersion}"
+            )
+            library("assertk", "com.willowtreeapps.assertk:assertk-jvm:${assertKVersion}")
+            library("assertj", "org.assertj:assertj-core:${assertJVersion}")
+
+            library("junit.api", "org.junit.jupiter:junit-jupiter-api:$junitVersion")
+            library("junit.params", "org.junit.jupiter:junit-jupiter-params:$junitVersion")
+            library("junit.engine", "org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+            library("images.metadataextractor", "com.drewnoakes:metadata-extractor:${metadataExtractor}")
+            library("apache.velocity.engine", "org.apache.velocity:velocity-engine-core:${velocityVersion}")
+            library("flexmark", "com.vladsch.flexmark:flexmark-all:${flexmarkVersion}")
+            library("google.jimfs", "com.google.jimfs:jimfs:${jimFsVersion}")
+            library("javafx.tornadofx", "no.tornado:tornadofx:${tornadoFxVersion}")
+            library("languagetool.de", "org.languagetool:language-de:${languagetoolVersion}")
+        }
+    }
+}

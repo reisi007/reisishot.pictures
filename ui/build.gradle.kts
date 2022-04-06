@@ -1,5 +1,6 @@
 plugins {
-    id("org.openjfx.javafxplugin") version JavaFx.PLUGIN_VERSION
+
+    id("org.openjfx.javafxplugin") version "0.0.10"
 }
 
 dependencies {
@@ -9,7 +10,8 @@ subprojects {
     apply(plugin = "org.openjfx.javafxplugin")
 
     javafx {
-        version = Java.JVM_TARGET
+        val jvmTarget: String by extra
+        version = jvmTarget
         modules = listOf("javafx.controls")
     }
 

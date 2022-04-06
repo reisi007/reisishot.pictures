@@ -1,7 +1,7 @@
 dependencies {
     api(project(":backend:generators:gallery-abstract"))
 
-    implementation("com.vladsch.flexmark:flexmark-all:${Dependencies.FLEXMARK_VERSION}")
+    implementation(rootProject.libs.flexmark)
 
     testImplementation(testFixtures(project(":backend:website-config")))
 }

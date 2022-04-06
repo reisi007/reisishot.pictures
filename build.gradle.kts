@@ -1,10 +1,11 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
+
 plugins {
-    kotlin("jvm") version Kotlin.VERSION
-    id("org.jetbrains.kotlin.plugin.serialization") version Kotlin.VERSION
-    id("org.sonarqube") version "3.3"
-    id("org.barfuin.gradle.jacocolog") version "2.0.0"
+    kotlin("jvm") version libs.versions.kotlin
+    id("org.jetbrains.kotlin.plugin.serialization") version libs.versions.kotlin
+    id("org.sonarqube") version libs.versions.sonarqube
+    id("org.barfuin.gradle.jacocolog") version libs.versions.jacocolog
     jacoco
     `java-test-fixtures`
 }
@@ -79,37 +80,44 @@ subprojects {
     val compileKotlin by tasks.compileKotlin
     val compileTestKotlin by tasks.compileTestKotlin
     val compileJava by tasks.compileJava
+    val javaVersion: JavaVersion by extra(JavaVersion.valueOf(extra.get("java.version") as String))
+    val jvmTarget: String by extra(javaVersion.toString())
 
     for (cur in listOf(compileKotlin, compileTestKotlin)) {
         cur.apply {
-            sourceCompatibility = Java.JVM_TARGET
-            targetCompatibility = Java.JVM_TARGET
-            kotlinOptions.jvmTarget = Java.JVM_TARGET
+            sourceCompatibility = jvmTarget
+            targetCompatibility = jvmTarget
+            kotlinOptions.jvmTarget = jvmTarget
         }
     }
 
     compileJava.apply {
-        options.compilerArgs = Java.COMPILE_ARGS
+        options.compilerArgs = listOf(
+            "-g",
+            "--add-exports", "java.base/java.util=ALL-UNNAMED"
+        )
         options.isDebug = true
     }
 
-    java.sourceCompatibility = Java.JVM_TARGET_VERSION
-    java.targetCompatibility = Java.JVM_TARGET_VERSION
+    java.sourceCompatibility = javaVersion
+    java.targetCompatibility = javaVersion
 
     repositories {
         mavenCentral()
     }
 
+    val libs = rootProject.libs
     dependencies {
-        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Kotlin.VERSION}")
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:${Kotlin.COROUTINE_VERSION}")
-        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Kotlin.SERIALISATION_VERSION}")
+        implementation(libs.kotlin.stdlib)
+        implementation(libs.kotlinx.coroutines)
+        implementation(libs.kotlinx.serialization.json)
 
-        testImplementation("com.willowtreeapps.assertk:assertk-jvm:${Dependencies.ASSERTK_VERSION}")
-        testImplementation("org.assertj:assertj-core:${Dependencies.ASSERTJ_VERSION}")
-        testImplementation("org.junit.jupiter:junit-jupiter-api:${Dependencies.JUNIT_VERSION}")
-        testImplementation("org.junit.jupiter:junit-jupiter-params:${Dependencies.JUNIT_VERSION}")
-        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${Dependencies.JUNIT_VERSION}")
+        testImplementation(libs.assertk)
+        testImplementation(libs.assertj)
+        testImplementation(libs.junit.api)
+        testImplementation(libs.junit.params)
+        testRuntimeOnly(libs.junit.engine)
+
 
         /*
         * Add commons' testFixtures to the test implementation of all projects -
@@ -122,8 +130,8 @@ subprojects {
         if (getName(this@subprojects) != testFixturesImpl) {
             testImplementation(testFixtures(project(testFixturesImpl)))
         } else {
-            testFixturesImplementation("com.willowtreeapps.assertk:assertk-jvm:${Dependencies.ASSERTK_VERSION}")
-            testFixturesImplementation("org.assertj:assertj-core:${Dependencies.ASSERTJ_VERSION}")
+            testFixturesImplementation(libs.assertk)
+            testFixturesImplementation(libs.assertj)
         }
     }
 }
