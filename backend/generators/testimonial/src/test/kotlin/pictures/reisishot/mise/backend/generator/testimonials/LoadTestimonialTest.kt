@@ -48,9 +48,8 @@ class LoadTestimonialTest {
 
         softAssert {
             assertThat(testimonials.image).isEqualTo("1")
-            sequenceOf(testimonials.images, testimonials.video).forEach {
-                assertThat(it).isNull()
-            }
+            assertThat(testimonials.video).isNull()
+
         }
     }
 
@@ -70,31 +69,8 @@ class LoadTestimonialTest {
 
         softAssert {
             assertThat(testimonials.video).isEqualTo(VALUE_VIDEO)
-            sequenceOf(testimonials.image, testimonials.images).forEach {
-                assertThat(it).isNull()
-            }
-        }
-    }
+            assertThat(testimonials.image).isNull()
 
-    @Test
-    fun `Make sure that images can be loaded`() {
-        val websiteConfig = createWebsiteConfig()
-        val VALUE_IMAGES = listOf("1", "2")
-        with(websiteConfig.paths.sourceFolder) {
-            createDirectories()
-            createTestimonial("1", image = null, images = VALUE_IMAGES)
-        }
-        val loadedTestimonials = createAndLoadTestimonials(websiteConfig)
-
-        assertThat(loadedTestimonials.keys).containsAll("1")
-
-        val testimonials = loadedTestimonials.getValue("1")
-
-        softAssert {
-            assertThat(testimonials.images).containsAll(VALUE_IMAGES)
-            sequenceOf(testimonials.image, testimonials.video).forEach {
-                assertThat(it).isNull()
-            }
         }
     }
 

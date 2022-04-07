@@ -8,7 +8,6 @@ import java.util.Date
 class Testimonial(
     val id: String,
     val image: FilenameWithoutExtension?,
-    val images: List<FilenameWithoutExtension>?,
     val video: String?,
     val rating: Int?, // between 0 and 100
     val name: String,
@@ -30,12 +29,12 @@ class Testimonial(
     }
 
     override fun toString(): String {
-        return "Testimonial(id='$id', image=$image, images=$images, video=$video, rating=$rating, name='$name', isoDateString='$isoDateString', type='$type', html=$html)"
+        return "Testimonial(id='$id', image=$image, video=$video, rating=$rating, name='$name', isoDateString='$isoDateString', type='$type', html=$html)"
     }
 
     companion object {
         val COMPARATOR = compareBy<Testimonial>(
-            { it.image == null && it.video == null && it.images == null },
+            { it.image == null && it.video == null },
             { it.html == null },
         ).thenDescending(compareBy { it.isoDateString })
             .thenDescending(compareBy { it.rating ?: -1 })

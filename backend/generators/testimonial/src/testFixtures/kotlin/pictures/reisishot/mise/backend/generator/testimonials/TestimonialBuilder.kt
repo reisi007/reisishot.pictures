@@ -67,7 +67,6 @@ fun createTestimonial(
     id.toString(),
     image,
     null,
-    null,
     rating,
     "Test User",
     isoDateString,
