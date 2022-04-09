@@ -50,7 +50,7 @@ gulp.task('styles', function () {
         .pipe(sass().on('error', sass.logError))
         .pipe($.cleanCss())
         .pipe($.purgecss({
-            content: ['../upload/' + s + '/**/*.html', '../upload/' + s + '/js/*.js']
+            content: [`${outBase}/**/*.html`, `${outBase}/js/*.js`]
         }))
         .pipe($.concat('styles.css'))
         .pipe(gulp.dest(`${outBase}/css`));
@@ -65,10 +65,6 @@ gulp.task('stylesDev', function () {
         .pipe(gulp.dest(`${outBase}/css`));
 });
 
-function babelify() {
-    return $.babel();
-}
-
 gulp.task('scripts', function () {
     return gulp
         .src([
@@ -77,10 +73,11 @@ gulp.task('scripts', function () {
             './src/js/modules/*.js',
             './src/js/modules/**/*.js'
         ])
-        .pipe(babelify())
-        .pipe($.plumber())
+        .pipe($.babel({
+            presets: ['@babel/env']
+        }))
         .pipe($.concat('combined.min.js'))
-        .pipe($.uglify())
+        .pipe($.terser())
         .pipe(gulp.dest(`${outBase}/js`))
 
 });
@@ -93,8 +90,6 @@ gulp.task('scriptsDev', function () {
             './src/js/modules/*.js',
             './src/js/modules/**/*.js'
         ])
-        .pipe(babelify())
-        .pipe($.plumber())
         .pipe($.concat('combined.min.js'))
         .pipe(gulp.dest(`${outBase}/js`))
 
@@ -151,4 +146,8 @@ gulp.task('default', gulp.series(
     )
 ));
 
-gulp.task('release', gulp.parallel('copyStatic', 'scripts', 'styles'));
+gulp.task('release',
+    gulp.series(
+        gulp.parallel('copyStatic', 'scripts'),
+        'styles'
+    ));

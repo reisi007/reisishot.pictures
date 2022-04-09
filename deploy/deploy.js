@@ -22,5 +22,4 @@ async function deployMyCode(domain) {
 }
 
 await deployMyCode("images.reisishot.pictures");
-await deployMyCode("static.reisishot.pictures");
 await deployMyCode("reisishot.pictures");
