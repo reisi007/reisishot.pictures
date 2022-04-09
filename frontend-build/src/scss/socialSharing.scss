@@ -2,10 +2,6 @@
   display: flex;
   justify-content: flex-end;
   padding-bottom: 1rem;
-
-  .content {
-    @extend .text-secondary
-  }
 }
 
 footer {

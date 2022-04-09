@@ -22,32 +22,10 @@ const
     gulp = require('gulp'),
     browserSync = require('browser-sync').create(),
     $ = require('gulp-load-plugins')({lazy: true}),
+    sass = require('gulp-sass')(require('sass')),
     target = arg.target,
     inBase = './../frontend-static/' + target + '/',
-    outBase = './../upload/' + target + '',
-    staticSource = './../frontend-framework/out/**/*',
-    frameworkJsCss = './../frontend-framework/generated/**/*.*';
-
-gulp.task('copyStatic', function (done) {
-    gulp
-        .src(inBase + 'src/static/**/*', {dot: true})
-        .pipe(gulp.dest(outBase))
-        .on('end', done)
-});
-
-gulp.task('copyFrameworkStatic', function (done) {
-    gulp
-        .src(staticSource, {dot: true})
-        .pipe(gulp.dest(outBase))
-        .on('end', done)
-});
-
-gulp.task('copyFrameworkJsCss', function (done) {
-    gulp
-        .src(frameworkJsCss, {dot: true})
-        .pipe(gulp.dest(outBase))
-        .on('end', done)
-});
+    outBase = './../upload/' + target + '';
 
 gulp.task('serve', function () {
     browserSync.init({
@@ -65,34 +43,112 @@ gulp.task('serve', function () {
     });
 });
 
-gulp.task('watch', function () {
-    // Watch framework
-    gulp.watch(outBase + '/**/*.html')
-        .on('change', browserSync.reload);
-    // Watch static files
-    gulp.watch(staticSource, gulp.series('copyFrameworkStatic'));
-    // Watch .js / .css  files
-    gulp.watch(frameworkJsCss, gulp.series('copyFrameworkJsCss'))
-        .on('change', browserSync.reload);
-    // Watch static files
-    gulp.watch(inBase + 'src/static/**/*.*', gulp.series('copyStatic'));
+
+gulp.task('styles', function () {
+    return gulp
+        .src('./src/scss/main.scss')
+        .pipe(sass().on('error', sass.logError))
+        .pipe($.cleanCss())
+        .pipe($.purgecss({
+            content: ['../upload/' + s + '/**/*.html', '../upload/' + s + '/js/*.js']
+        }))
+        .pipe($.concat('styles.css'))
+        .pipe(gulp.dest(`${outBase}/css`));
 });
 
-gulp.task('default',
-    gulp.series(
-        gulp.parallel(
-            'copyStatic',
-            'copyFrameworkStatic',
-            'copyFrameworkJsCss',
-        ),
-        gulp.parallel(
-            'serve',
-            'watch'
-        )
-    ));
+gulp.task('stylesDev', function () {
+    return gulp
+        .src('./src/scss/main.scss')
+        .pipe(sass().on('error', sass.logError))
+        .pipe($.concat('styles.css'))
+        .pipe(browserSync.stream())
+        .pipe(gulp.dest(`${outBase}/css`));
+});
 
-gulp.task('release',
+function babelify() {
+    return $.babel();
+}
+
+gulp.task('scripts', function () {
+    return gulp
+        .src([
+            './src/js/bootstrap/*.js',
+            './src/js/bootstrap/**/*.js',
+            './src/js/modules/*.js',
+            './src/js/modules/**/*.js'
+        ])
+        .pipe(babelify())
+        .pipe($.plumber())
+        .pipe($.concat('combined.min.js'))
+        .pipe($.uglify())
+        .pipe(gulp.dest(`${outBase}/js`))
+
+});
+
+gulp.task('scriptsDev', function () {
+    return gulp
+        .src([
+            './src/js/bootstrap/*.js',
+            './src/js/bootstrap/**/*.js',
+            './src/js/modules/*.js',
+            './src/js/modules/**/*.js'
+        ])
+        .pipe(babelify())
+        .pipe($.plumber())
+        .pipe($.concat('combined.min.js'))
+        .pipe(gulp.dest(`${outBase}/js`))
+
+});
+
+gulp.task('copyStatic', function (done) {
+    let doneCount = 0
+    const taskCount = 2;
+
+    function doneLogic() {
+        doneCount++;
+        if (doneCount === taskCount)
+            done();
+    }
+
+    gulp.src('./src/static/**/*', {dot: true})
+        .on('end', doneLogic)
+        .pipe(gulp.dest(`${outBase}`));
+
+    gulp.src('./src/static_css/**/*', {dot: true})
+        .on('end', doneLogic)
+        .pipe(gulp.dest(`${outBase}/css`));
+});
+
+gulp.task('watch', function () {
+    // Watch .sass files
+    gulp.watch(['src/scss/**/*.scss'], gulp.series('stylesDev'))
+
+    //Watch HTML files for changed classes / ids / tags
+    gulp.watch(`${outBase}/**/*.html`, gulp.series('stylesDev'))
+        .on('change', browserSync.reload);
+
+    // Watch .js files
+    gulp.watch(
+        [
+            './src/js/bootstrap/*.js',
+            './src/js/bootstrap/**/*.js',
+            './src/js/modules/*.js',
+            './src/js/modules/**/*.js'
+        ],
+        gulp.series('scriptsDev')
+    ).on('change', browserSync.reload);
+});
+
+gulp.task('default', gulp.series(
     gulp.parallel(
         'copyStatic',
-        'copyFrameworkStatic'
-    ));
+        'scriptsDev',
+        'stylesDev'
+    ),
+    gulp.parallel(
+        'serve',
+        'watch'
+    )
+));
+
+gulp.task('release', gulp.parallel('copyStatic', 'scripts', 'styles'));
