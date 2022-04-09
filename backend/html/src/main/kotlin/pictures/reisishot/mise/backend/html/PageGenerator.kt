@@ -244,8 +244,7 @@ object PageGenerator {
 
     @HtmlTagMarker
     private fun HEAD.appCss(configuration: WebsiteConfig) {
-        val prefix = getRessourceUrlPrefix(configuration.miseConfig.isDevMode)
-        styleLink("$prefix/css/styles.css")
+        styleLink("/css/styles.css")
     }
 
     @HtmlTagMarker
@@ -268,8 +267,7 @@ object PageGenerator {
 
     @HtmlTagMarker
     private fun HEAD.preload(configuration: WebsiteConfig, isMinimal: Boolean) {
-        val prefix = getRessourceUrlPrefix(configuration.miseConfig.isDevMode)
-        link("$prefix/css/rs/fonts/reisishotpictures.woff2", "preload") {
+        link("/css/rs/fonts/reisishotpictures.woff2", "preload") {
             attributes["as"] = "font"
             attributes["crossorigin"] = ""
         }
@@ -280,10 +278,10 @@ object PageGenerator {
             link("https://connect.facebook.net/de_DE/sdk/xfbml.customerchat.js", "preload") {
                 attributes["as"] = "script"
             }
-        link("$prefix/js/combined.min.js", "preload") {
+        link("/js/combined.min.js", "preload") {
             attributes["as"] = "script"
         }
-        link("$prefix/css/styles.css", "preload") {
+        link("/css/styles.css", "preload") {
             attributes["as"] = "style"
         }
     }
@@ -339,7 +337,6 @@ object PageGenerator {
 
     @HtmlTagMarker
     private fun BODY.cookieInfo(devMode: Boolean) {
-        val prefix = getRessourceUrlPrefix(devMode)
         val attributes = sequenceOf(
             "id" to "cookieinfo",
             "data-message" to "Hier werden Cookies verwendet. Wenn Sie fortfahren akzeptieren Sie die Verwendung von Cookies",
@@ -348,7 +345,7 @@ object PageGenerator {
             "data-close-text" to "Akzeptieren",
             "data-accept-on-scroll" to "true"
         )
-        script("text/javascript", "$prefix/js/combined.min.js") {
+        script("text/javascript", "/js/combined.min.js") {
             this.attributes.putAll(attributes)
         }
     }
