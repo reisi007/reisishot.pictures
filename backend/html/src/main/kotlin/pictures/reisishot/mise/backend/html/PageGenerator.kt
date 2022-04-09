@@ -85,7 +85,12 @@ object PageGenerator {
                             favicon()
                             title(title)
                             appCss(websiteConfig)
-                            pwaBuilder()
+                            if (!websiteConfig.miseConfig.isDevMode) {
+                                link("/manifest.json") {
+                                    rel = "manifest"
+                                }
+                                pwaBuilder()
+                            }
                             additionalHeadContent(this)
                         }
                         body("d-flex flex-column h-100") {
@@ -311,11 +316,6 @@ object PageGenerator {
         link("/favicon-16x16.png", "icon") {
             attributes["sizes"] = "16x16"
             attributes["type"] = "image/png"
-        }
-
-
-        link("/manifest.json") {
-            rel = "manifest"
         }
     }
 
