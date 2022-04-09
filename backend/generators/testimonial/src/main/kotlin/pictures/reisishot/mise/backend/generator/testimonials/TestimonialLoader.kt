@@ -103,7 +103,6 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
 
     private fun Yaml.createTestimonial(p: Path, contentHtml: String): Testimonial {
         val imageFilename = getString("image")
-        val imageFilenames = get("images")
         val ytCode = getString("video")
         val personName = getString("name")
         val date = getString("date")
@@ -115,7 +114,6 @@ class TestimonialLoaderImpl(private vararg val paths: Path) : TestimonialLoader,
         return Testimonial(
             p.filenameWithoutExtension,
             imageFilename,
-            imageFilenames,
             ytCode,
             rating,
             personName,
