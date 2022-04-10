@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="One Click Release" type="js.build_tools.gulp">
+    <node-interpreter>project</node-interpreter>
+    <node-options />
+    <gulpfile>$PROJECT_DIR$/frontend-build/gulpfile.js</gulpfile>
+    <tasks>
+      <task>release</task>
+    </tasks>
+    <arguments>--target &quot;reisishot.pictures&quot;</arguments>
+    <envs />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="[PROD] Generate reisishot.pictures" run_configuration_type="JetRunConfigurationType" />
+    </method>
+  </configuration>
+</component>

@@ -97,7 +97,7 @@ gulp.task('scriptsDev', function () {
 
 gulp.task('copyStatic', function (done) {
     let doneCount = 0
-    const taskCount = 2;
+    const taskCount = 3;
 
     function doneLogic() {
         doneCount++;
@@ -112,6 +112,10 @@ gulp.task('copyStatic', function (done) {
     gulp.src('./src/static_css/**/*', {dot: true})
         .on('end', doneLogic)
         .pipe(gulp.dest(`${outBase}/css`));
+
+    gulp.src(`${inBase}/src/static/**/*`)
+        .on('end', doneLogic)
+        .pipe(gulp.dest(`${outBase}`));
 });
 
 gulp.task('watch', function () {
