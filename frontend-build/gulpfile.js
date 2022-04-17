@@ -25,19 +25,12 @@ const
     sass = require('gulp-sass')(require('sass')),
     target = arg.target,
     inBase = './../frontend-static/' + target + '/',
-    outBase = './../upload/' + target + '';
+    outBase = './../upload/' + target;
 
 gulp.task('serve', function () {
     browserSync.init({
-        files: outBase + '**/*.*',
-        watchOptions: {
-            reloadOnRestart: true,
-            reloadThrottle: 2000,
-            ignoreInitial: true
-
-        },
+        files: outBase + '/**/*.*',
         server: {
-            watch: true,
             baseDir: outBase
         }
     });
@@ -122,9 +115,8 @@ gulp.task('watch', function () {
     // Watch .sass files
     gulp.watch(['src/scss/**/*.scss'], gulp.series('stylesDev'))
 
-    //Watch HTML files for changed classes / ids / tags
-    gulp.watch(`${outBase}/**/*.html`, gulp.series('stylesDev'))
-        .on('change', browserSync.reload);
+    gulp.watch(['src/scss/**/*.html'], gulp.series('stylesDev'))
+        .on("change", () => browserSync.reload({stream: false, once: true}))
 
     // Watch .js files
     gulp.watch(
@@ -135,7 +127,7 @@ gulp.task('watch', function () {
             './src/js/modules/**/*.js'
         ],
         gulp.series('scriptsDev')
-    ).on('change', browserSync.reload);
+    );
 });
 
 gulp.task('default', gulp.series(
