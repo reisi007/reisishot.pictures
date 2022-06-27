@@ -30,6 +30,9 @@ const
 gulp.task('serve', function () {
     browserSync.init({
         files: outBase + '/**/*.*',
+        watchOptions: {
+            ignoreInitial: true,
+        },
         server: {
             baseDir: outBase
         }
