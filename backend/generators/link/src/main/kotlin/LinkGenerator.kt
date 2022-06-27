@@ -19,21 +19,21 @@ class LinkGenerator : WebsiteGenerator {
 
     override suspend fun fetchInitialInformation(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
     ) = configuration.useJsonParserParallel {
         val configFile = configuration.getConfigFile()
         if (configFile.exists()) {
             val data = configFile.fromJson<List<ManualLink>>() ?: emptyList()
             if (data.isNotEmpty()) {
-                cache.clearMenuItems { it.id.startsWith(LINK_TYPE) }
+                buildingCache.clearMenuItems { it.id.startsWith(LINK_TYPE) }
                 data.forEach { (name, index, value, target) ->
                     val url = value.let {
                         if (value.startsWith("/"))
                             it.substringAfter("/")
                         else it
                     }
-                    cache.addMenuItem(LINK_TYPE + "_" + name, index, url, name, target)
+                    buildingCache.addMenuItem(LINK_TYPE + "_" + name, index, url, name, target)
                 }
             }
         }
@@ -41,13 +41,13 @@ class LinkGenerator : WebsiteGenerator {
 
     override suspend fun fetchUpdateInformation(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>,
         changeFiles: ChangeFileset
     ): Boolean {
         val configFile = configuration.getConfigFile()
         return if (changeFiles.keys.any(configFile::equals)) {
-            fetchInitialInformation(configuration, cache, alreadyRunGenerators)
+            fetchInitialInformation(configuration, buildingCache, alreadyRunGenerators)
             true
         } else false
     }
@@ -55,20 +55,20 @@ class LinkGenerator : WebsiteGenerator {
     private fun WebsiteConfig.getConfigFile() =
         paths.sourceFolder.resolve(FILENAME)
 
-    override suspend fun buildInitialArtifacts(configuration: WebsiteConfig, cache: BuildingCache) {
+    override suspend fun buildInitialArtifacts(configuration: WebsiteConfig, buildingCache: BuildingCache) {
         // No action needed
     }
 
     override suspend fun buildUpdateArtifacts(
         configuration: WebsiteConfig,
-        cache: BuildingCache,
+        buildingCache: BuildingCache,
         changeFiles: ChangeFileset
     ): Boolean {
         // No action needed
         return false
     }
 
-    override suspend fun cleanup(configuration: WebsiteConfig, cache: BuildingCache) {
+    override suspend fun cleanup(configuration: WebsiteConfig, buildingCache: BuildingCache) {
         // No action needed
     }
 }

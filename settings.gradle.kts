@@ -31,7 +31,7 @@ include("ui:exif-ui")
 
 pluginManagement {
     // https://kotlinlang.org/releases.html#release-details
-    val kotlinVersion by extra("1.6.20")
+    val kotlinVersion by extra("1.7.0")
     plugins {
         kotlin("jvm") version kotlinVersion
         id("org.jetbrains.kotlin.plugin.serialization") version kotlinVersion
@@ -44,19 +44,19 @@ enableFeaturePreview("VERSION_CATALOGS")
 dependencyResolutionManagement {
     // Kotlin & KotlinX versions
     val kotlinVersion: String by extra
-    val kotlinxCoroutinesVersion = "1.6.0"
+    val kotlinxCoroutinesVersion = "1.6.2"
     val kotlinxSerializationVersion = "1.3.2"
-    val kotlinxHtmlVersion = "0.7.3"
+    val kotlinxHtmlVersion = "0.7.5"
 
     // Testing library versions
     val assertKVersion = "0.25"
-    val assertJVersion = "3.22.0"
+    val assertJVersion = "3.23.1"
     val junitVersion = "5.8.2"
 
     // Other libraries
-    val metadataExtractor = "2.16.0"
+    val metadataExtractor = "2.18.0"
     val velocityVersion = "2.3"
-    val flexmarkVersion = "0.62.2"
+    val flexmarkVersion = "0.64.0"
     val jimFsVersion = "1.2"
     val tornadoFxVersion = "1.7.20"
     val languagetoolVersion = "5.7"

@@ -85,8 +85,6 @@ subprojects {
 
     for (cur in listOf(compileKotlin, compileTestKotlin)) {
         cur.apply {
-            sourceCompatibility = jvmTarget
-            targetCompatibility = jvmTarget
             kotlinOptions.jvmTarget = jvmTarget
         }
     }
