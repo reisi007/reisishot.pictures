@@ -31,7 +31,15 @@ object PrivateConfig {
                 "Julia Eder",
                 "Laura Schmiedinger",
                 "Magdalena Wöhrer",
-                "Johanna Kartusch"
+                "Johanna Kartusch",
+                "Magdalena Adam",
+                "Mintha",
+                "Anja Stiftinger",
+                "Victoria Lasinger",
+                "Laura Szabo",
+                "Lisa Matschl",
+                "Iris Hammer",
+                "Sarah Fritsch"
             )
 
             "Mann" to arrayOf(
@@ -61,6 +69,10 @@ object PrivateConfig {
             "Steel Wings Linz" withTags "Eishockey"
 
             "Teichralle" withTags "Vogel"
+
+            "Motorsport" withTags "Sport"
+
+            "Eidechse" withTags "Tier"
         }
     }
 
@@ -241,6 +253,14 @@ object PrivateConfig {
 
                 withSubCategory("Tanz") {
                     includeTagsAndSubcategories("Tanz")
+                }
+
+                withSubCategory("Poledance") {
+                    includeTagsAndSubcategories("Poledance")
+                }
+
+                withSubCategory("Flunkyball") {
+                    includeTagsAndSubcategories("Flunkyball")
                 }
             }
         }
