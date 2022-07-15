@@ -25,4 +25,4 @@ jobs:
       - name: Change wrapper permission
         run: chmod +x ./gradlew
       - name: Execute Gradle build
-        run: ./gradlew build --parallel
+        run: ./gradlew build --parallel --build-cache
