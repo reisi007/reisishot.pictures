@@ -2,6 +2,7 @@ package pictures.reisishot.mise.backend.config.tags
 
 import pictures.reisishot.mise.backend.config.ImageInformation
 import pictures.reisishot.mise.backend.config.TagConfigDsl
+import java.util.concurrent.ConcurrentSkipListSet
 
 @TagConfigDsl
 fun TagConfig.additionalTags(action: AdditionalTagConfigBuilder.() -> Unit) {
@@ -17,8 +18,8 @@ fun TagConfig.additionalTags(action: AdditionalTagConfigBuilder.() -> Unit) {
         val nextIteration = mutableSetOf<NewTag>()
 
         curIteration.forEach { newTag ->
-            val targetTags = data[newTag]
-            targetTags?.forEach { target ->
+            val targetTags = ConcurrentSkipListSet(data.getValue(newTag))
+            targetTags.forEach { target ->
                 // Check if a target tag also is a source tag
                 if (data.containsKey(target)) {
                     val newElementsAdded = data[newTag]?.let { newTagTargetTags ->

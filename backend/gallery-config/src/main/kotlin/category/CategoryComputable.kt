@@ -36,7 +36,7 @@ fun CategoryComputable.toCategoryInformation(): CategoryInformation {
         defaultImage?.let { di ->
             images.find { it.filename == di }
                 ?: error("Image $di cannot be found in category $categoryName")
-        } ?: images.last(),
+        } ?: images.lastOrNull() ?: throw IllegalStateException("$categoryName is empty"),
         mappedSubcategories,
         visible
     )

@@ -39,7 +39,8 @@ object PrivateConfig {
                 "Laura Szabo",
                 "Lisa Matschl",
                 "Iris Hammer",
-                "Sarah Fritsch"
+                "Sarah Fritsch",
+                "Michelle Kohlbauer"
             )
 
             "Mann" to arrayOf(
@@ -62,9 +63,12 @@ object PrivateConfig {
                 "Welser Tiergarten"
             )
 
-            "Simon Luger" withTags arrayOf("Back to Saturday")
+            "Tanz" to arrayOf(
+                "Style in Motion",
+                "Breakdance"
+            )
 
-            "Style in Motion" withTags "Tanz"
+            "Simon Luger" withTags arrayOf("Back to Saturday")
 
             "Steel Wings Linz" withTags "Eishockey"
 
@@ -253,14 +257,30 @@ object PrivateConfig {
 
                 withSubCategory("Tanz") {
                     includeTagsAndSubcategories("Tanz")
-                }
 
-                withSubCategory("Poledance") {
-                    includeTagsAndSubcategories("Poledance")
+                    withSubCategory("Breaking") {
+                        includeTagsAndSubcategories("Breakdance")
+                    }
                 }
 
                 withSubCategory("Flunkyball") {
                     includeTagsAndSubcategories("Flunkyball")
+                }
+
+                withSubCategory("Pole - Aerial Silk - Hoop"){
+                    includeSubcategories()
+
+                    withSubCategory("Pole"){
+                        includeTagsAndSubcategories("Poledance")
+                    }
+
+                    withSubCategory("Aerial Silk"){
+                        includeTagsAndSubcategories("Aerial Silk")
+                    }
+
+                    withSubCategory("Hoop"){
+                        includeTagsAndSubcategories("Hoop")
+                    }
                 }
             }
         }

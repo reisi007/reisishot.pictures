@@ -137,9 +137,9 @@ gulp.task('default', gulp.series(
     gulp.parallel(
         'copyStatic',
         'scriptsDev',
-        'stylesDev'
     ),
     gulp.parallel(
+        'stylesDev',
         'serve',
         'watch'
     )
