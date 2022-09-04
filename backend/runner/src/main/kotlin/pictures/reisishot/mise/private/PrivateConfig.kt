@@ -25,7 +25,7 @@ object PrivateConfig {
         additionalTags {
 
             "Frau" to arrayOf(
-                "Anja H",
+                "Sophie Huber",
                 "Eva Mair",
                 "Jessica Hettich",
                 "Julia Eder",
@@ -40,7 +40,8 @@ object PrivateConfig {
                 "Lisa Matschl",
                 "Iris Hammer",
                 "Sarah Fritsch",
-                "Michelle Kohlbauer"
+                "Michelle Kohlbauer",
+                "Chrisi Music",
             )
 
             "Mann" to arrayOf(
@@ -220,7 +221,7 @@ object PrivateConfig {
         withSubCategory("Fotoshootings", "Frau33") {
             includeSubcategories()
 
-            withSubCategory("Frauen", "AnjaH016") {
+            withSubCategory("Frauen", "SophieHuber016") {
                 includeTagsAndSubcategories("Frau")
             }
             withSubCategory("Männer") {

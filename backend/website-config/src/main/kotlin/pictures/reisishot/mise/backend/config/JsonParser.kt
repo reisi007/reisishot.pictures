@@ -7,6 +7,7 @@ import kotlinx.serialization.json.encodeToStream
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.SerializersModuleBuilder
 import pictures.reisishot.mise.commons.isRegularFile
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -54,6 +55,10 @@ class JsonParser(action: SerializersModuleBuilder.() -> Unit) {
     inline fun <reified T> Path.fromJson(): T? =
         if (!(exists() && isRegularFile())) null else
             Files.newInputStream(this).use { reader ->
-                json.decodeFromStream(reader)
+                try {
+                    json.decodeFromStream(reader)
+                } catch (e: Exception) {
+                    throw IOException(fileName.toString(), e)
+                }
             }
 }
