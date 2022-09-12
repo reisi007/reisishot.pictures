@@ -286,8 +286,6 @@ object PageGenerator {
         }
     }
 
-    private fun getRessourceUrlPrefix(devMode: Boolean) = if (devMode) "" else "https://static.reisishot.pictures"
-
     @HtmlTagMarker
     private fun HEAD.favicon() {
         link("/apple-icon-57x57.png", "apple-touch-icon") { attributes["sizes"] = "57x57" }
@@ -341,7 +339,7 @@ object PageGenerator {
             "id" to "cookieinfo",
             "data-message" to "Hier werden Cookies verwendet. Wenn Sie fortfahren akzeptieren Sie die Verwendung von Cookies",
             "data-linkmsg" to "Weitere Informationen zum Datenschutz",
-            "data-moreinfo" to "https://reisishot.pictures/datenschutz",
+            "data-moreinfo" to "https://reisinger.pictures/datenschutz",
             "data-close-text" to "Akzeptieren",
             "data-accept-on-scroll" to "true"
         )
@@ -361,7 +359,7 @@ object PageGenerator {
           _paq.push(['trackPageView']);
           _paq.push(['enableLinkTracking']);
           (function() {
-            var u="//analytics.reisishot.pictures/";
+            var u="//analytics.reisinger.pictures/";
             _paq.push(['setTrackerUrl', u+'matomo.php']);
             _paq.push(['setSiteId', '$it']);
             var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
@@ -377,7 +375,7 @@ object PageGenerator {
     @HtmlTagMarker
     private fun BODY.analyticsImage(websiteConfig: WebsiteConfig) =
         websiteConfig.htmlConfig.matomoId?.let {
-            img(src = """https://analytics.reisishot.pictures/matomo.php?idsite=$it&amp;rec=1""") {
+            img(src = """https://analytics.reisinger.pictures/matomo.php?idsite=$it&amp;rec=1""") {
                 height = "0"
             }
         }

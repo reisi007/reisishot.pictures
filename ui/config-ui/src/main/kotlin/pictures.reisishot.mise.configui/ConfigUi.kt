@@ -6,7 +6,7 @@ import tornadofx.launch
 
 class ConfigUi : App(MainView::class) {
     override fun start(stage: Stage) = with(stage) {
-        title = "reisishot.pictures config UI"
+        title = "reisinger.pictures config UI"
         minWidth = 900.0
         minHeight = 950.0
         centerOnScreen()

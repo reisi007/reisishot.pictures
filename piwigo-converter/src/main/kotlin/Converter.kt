@@ -21,7 +21,7 @@ object Converter {
     @JvmStatic
     fun main(args: Array<String>) {
         convertPiwigo2Mise(
-            "https://reisishot.pictures",
+            "https://reisinger.pictures",
             "jdbc:mariadb://localhost:3306/import?user=root",
             Paths.get("D:\\Reisishot\\MiSe\\backend\\src\\main\\resources\\images").apply {
                 Files.createDirectories(this)

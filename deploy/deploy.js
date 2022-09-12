@@ -21,5 +21,5 @@ async function deployMyCode(domain) {
     console.log("🚀 Deploy done!");
 }
 
-await deployMyCode("images.reisishot.pictures");
-await deployMyCode("reisishot.pictures");
+await deployMyCode("images.reisinger.pictures");
+await deployMyCode("reisinger.pictures");

@@ -84,7 +84,7 @@ class MainView : View("Main View") {
     private val knownTags = mutableSetOf<String>()
     private val imageConfigs = LinkedList<Pair<Path, ImageConfig>>()
     private var initialDirectory: File =
-        Paths.get(".", "input\\reisishot.pictures\\images")
+        Paths.get(".", "input\\reisinger.pictures\\images")
             .toAbsolutePath()
             .normalize()
             .toFile()

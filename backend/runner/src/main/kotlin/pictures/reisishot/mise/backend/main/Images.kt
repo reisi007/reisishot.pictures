@@ -21,7 +21,7 @@ import java.util.Locale
 
 @Suppress("MemberVisibilityCanBePrivate")
 object Images {
-    const val folderName = "images.reisishot.pictures"
+    const val folderName = "images.reisinger.pictures"
     val cacheFolder: Path = Paths.get("tmp", folderName).toAbsolutePath()
 
     @JvmStatic
@@ -45,7 +45,12 @@ object Images {
                 cacheFolder,
                 Paths.get("upload", folderName).toAbsolutePath()
             ),
-            GeneralWebsiteInformation("Reisishot", "Reisishot Images", "https://$folderName", Locale.GERMANY),
+            GeneralWebsiteInformation(
+                "Fotograf Reisinger",
+                "Fotograf Florian Reisinger",
+                "https://$folderName",
+                Locale.GERMANY
+            ),
             MiseConfig(isDevMode, cleanupGeneration = true)
         ) {
             this.generators += generators

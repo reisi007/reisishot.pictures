@@ -54,7 +54,7 @@ import pictures.reisishot.mise.backend.config.ImageInformation as ConfigImageInf
 
 @Suppress("MemberVisibilityCanBePrivate")
 object Main {
-    const val folderName = "reisishot.pictures"
+    const val folderName = "reisinger.pictures"
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -100,12 +100,12 @@ object Main {
                 Paths.get("upload", folderName).toAbsolutePath()
             ),
             GeneralWebsiteInformation(
-                "ReisiShot",
-                "ReisiShot - Fotograf Florian Reisinger",
+                "Reisinger - Linz",
+                "Fotograf Florian Reisinger - Linz, Österreich",
                 "https://$folderName",
                 Locale.GERMANY,
 
-            ),
+                ),
             MiseConfig(isDevMode)
         ) {
             this.generators += generators
@@ -125,7 +125,7 @@ object Main {
                 SocialMediaAccounts(
                     "reisishot",
                     "florian.reisinger.photography",
-                    "florian@reisishot.pictures",
+                    "florian@reisinger.pictures",
                     "436702017710"
                 ),
                 formBuilder = { target: Path, websiteConfig: WebsiteConfig ->

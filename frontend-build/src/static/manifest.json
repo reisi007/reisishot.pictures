@@ -1,21 +1,21 @@
 {
-  "background_color": "#ffffff",
-  "dir": "ltr",
-  "display": "standalone",
-  "name": "Reisishot - Fotograf Florian Reisinger",
-  "orientation": "any",
-  "scope": "/",
-  "short_name": "ReisiShot",
-  "start_url": "/gallery/categories/chronologisch",
-  "theme_color": "#27ae60",
-  "icons": [
+  "background_color" : "#ffffff",
+  "dir" : "ltr",
+  "display" : "standalone",
+  "name" : "Fotograf Florian Reisinger - Linz",
+  "orientation" : "any",
+  "scope" : "/",
+  "short_name" : "Reisinger",
+  "start_url" : "/gallery/categories/chronologisch",
+  "theme_color" : "#27ae60",
+  "icons" : [
     {
-      "src": "/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src" : "/icon-192x192.png",
+      "sizes" : "192x192",
+      "type" : "image/png"
     },
     {
-      "src": "/icon-256x256.png",
+      "src" : "/icon-256x256.png",
       "sizes": "256x256",
       "type": "image/png"
     },
