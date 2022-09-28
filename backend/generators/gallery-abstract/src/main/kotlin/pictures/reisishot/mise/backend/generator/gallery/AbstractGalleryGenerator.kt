@@ -496,14 +496,15 @@ fun HtmlBlockTag.insertImageGallery(
     galleryGenerator: AbstractGalleryGenerator,
     configuration: WebsiteConfig,
     allImages: Collection<ConfigImageInformation>,
-    galleryName: String = "1"
+    galleryName: String = "1",
+    limit: Int = -1
 ) {
     val categoryImages: List<FilenameWithoutExtension> = allImages.asSequence()
         .map { it as? InternalImageInformation }
         .filterNotNull()
         .map { it.filename }
         .toList()
-    return insertImageGalleryFromFilenames(galleryGenerator, configuration, categoryImages, galleryName)
+    return insertImageGalleryFromFilenames(galleryGenerator, configuration, categoryImages, galleryName, limit)
 }
 
 @HtmlTagMarker
@@ -524,14 +525,24 @@ fun HtmlBlockTag.insertImageGalleryFromFilenames(
     galleryGenerator: AbstractGalleryGenerator,
     configuration: WebsiteConfig,
     categoryImages: Collection<FilenameWithoutExtension>,
-    galleryName: String = "1"
+    galleryName: String = "1",
+    limit: Int = -1
 ) {
     val imageInformations = categoryImages.asSequence()
         .map { galleryGenerator.cache.imageInformationData.getValue(it) }
         .map { it as? InternalImageInformation }
         .filterNotNull()
         .toOrderedByTime()
+        .limit(limit)
 
 
     insertImageGallery(galleryName, configuration, imageInformations)
 }
+
+fun <T> List<T>.limit(cnt: Int): List<T> = if (cnt < 0 || cnt >= size)
+    this
+else if (cnt == 0)
+    emptyList()
+else
+    subList(0, cnt)
+

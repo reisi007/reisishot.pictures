@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Start frontend" type="CompoundRunConfigurationType">
+    <toRun name="Main Dev" type="js.build_tools.gulp" />
+    <toRun name="Serve reisinger.pictures" type="js.build_tools.npm" />
+    <method v="2" />
+  </configuration>
+</component>
