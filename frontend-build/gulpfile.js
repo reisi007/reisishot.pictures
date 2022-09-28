@@ -20,25 +20,11 @@ const arg = (argList => {
 
 const
     gulp = require('gulp'),
-    browserSync = require('browser-sync').create(),
     $ = require('gulp-load-plugins')({lazy: true}),
     sass = require('gulp-sass')(require('sass')),
     target = arg.target,
     inBase = './../frontend-static/' + target + '/',
     outBase = './../upload/' + target;
-
-gulp.task('serve', function () {
-    browserSync.init({
-        files: outBase + '/**/*.*',
-        watchOptions: {
-            ignoreInitial: true,
-        },
-        server: {
-            baseDir: outBase
-        }
-    });
-});
-
 
 gulp.task('styles', function () {
     return gulp
@@ -57,7 +43,6 @@ gulp.task('stylesDev', function () {
         .src('./src/scss/main.scss')
         .pipe(sass().on('error', sass.logError))
         .pipe($.concat('styles.css'))
-        .pipe(browserSync.stream())
         .pipe(gulp.dest(`${outBase}/css`));
 });
 
@@ -119,7 +104,6 @@ gulp.task('watch', function () {
     gulp.watch(['src/scss/**/*.scss'], gulp.series('stylesDev'))
 
     gulp.watch(['src/scss/**/*.html'], gulp.series('stylesDev'))
-        .on("change", () => browserSync.reload({stream: false, once: true}))
 
     // Watch .js files
     gulp.watch(
@@ -140,7 +124,6 @@ gulp.task('default', gulp.series(
     ),
     gulp.parallel(
         'stylesDev',
-        'serve',
         'watch'
     )
 ));

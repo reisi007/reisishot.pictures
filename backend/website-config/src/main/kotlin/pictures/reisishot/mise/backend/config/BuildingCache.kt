@@ -26,24 +26,30 @@ class BuildingCache {
                 websiteLocationSupplier() + it
     }
 
-    private val linkCache: MutableMap<String, MutableMap<String, Link>> = ConcurrentHashMap()
+    private val internalLinkCache: MutableMap<String, MutableMap<String, Link>> = ConcurrentHashMap()
+
+    val linkCache
+        get() = internalLinkCache.asSequence()
+            .map { (key, value) -> key to value.toMap() }
+            .toMap()
 
     private val internalMenuLinks: SortedSet<MenuLink> = TreeSet(compareBy(MenuLink::uniqueIndex, MenuLink::id))
 
     val menuLinks: Collection<MenuLink> get() = Collections.synchronizedCollection(internalMenuLinks)
 
-    fun resetLinkcacheFor(linkType: String) = linkCache.computeIfAbsent(linkType) { ConcurrentHashMap() }.clear()
+    fun resetLinkcacheFor(linkType: String) =
+        internalLinkCache.computeIfAbsent(linkType) { ConcurrentHashMap() }.clear()
 
-    fun addLinkcacheEntryFor(linkType: String, linkKey: String, link: Link) = synchronized(linkCache) {
-        linkCache.computeIfAbsent(linkType) { ConcurrentHashMap() }.put(linkKey.lowercase(), link)
+    fun addLinkcacheEntryFor(linkType: String, linkKey: String, link: Link) = synchronized(internalLinkCache) {
+        internalLinkCache.computeIfAbsent(linkType) { ConcurrentHashMap() }.put(linkKey.lowercase(), link)
     }
 
     fun getLinkcacheEntryFor(config: WebsiteConfig, linkType: String, linkKey: String): Link =
-        linkCache[linkType]?.get(linkKey)?.let {
+        internalLinkCache[linkType]?.get(linkKey)?.let {
             getLinkFromFragment(config, it)
         } ?: throw IllegalStateException("Menu link with type $linkType and key $linkKey not found!")
 
-    fun getLinkcacheEntriesFor(linkType: String): Map<String, Link> = linkCache[linkType] ?: emptyMap()
+    fun getLinkcacheEntriesFor(linkType: String): Map<String, Link> = internalLinkCache[linkType] ?: emptyMap()
 
     fun clearMenuItems(removePredicate: (MenuLink) -> Boolean) = synchronized(internalMenuLinks) {
         internalMenuLinks.removeIf(removePredicate)
@@ -61,31 +67,23 @@ class BuildingCache {
             internalMenuLinks.add(item)
         }
 
-    fun addMenuItemInContainerNoDupes(
+    fun addMenuItemInExistingContainer(
         containerId: String,
-        containerText: String,
-        containerIndex: Int,
         text: LinkText,
         link: Link,
-        target: String? = null,
+        target: String?,
         elementIndex: Int = 0
-    ): Unit = synchronized(internalMenuLinks) {
-        internalMenuLinks.find {
-            it is MenuLinkContainer && it.id == containerId && it.uniqueIndex == containerIndex && it.children.any { child ->
-                child.text == text && child.href == link
-            }
-        }.let {
-            if (it == null)
-                addMenuItemInContainer(
-                    containerId,
-                    containerText,
-                    containerIndex,
-                    text,
-                    link,
-                    target,
-                    elementIndex
-                )
-        }
+    ) {
+        val container = findMenuContainer(containerId)
+            ?: throw IllegalStateException("Container with id $containerId does not exist")
+
+        container += MenuLinkContainerItem(
+            UUID.randomUUID().toString(),
+            elementIndex,
+            link,
+            text,
+            target
+        )
     }
 
     fun addMenuItemInContainer(
@@ -95,11 +93,9 @@ class BuildingCache {
         text: LinkText,
         link: Link,
         target: String? = null,
-        elementIndex: Int = 0
+        elementIndex: Int
     ) = synchronized(internalMenuLinks) {
-        val menuLinkContainer = internalMenuLinks.find {
-            it is MenuLinkContainer && containerId == it.id
-        } as? MenuLinkContainer ?: run {
+        val menuLinkContainer = findMenuContainer(containerId) ?: run {
             val newContainer = MenuLinkContainer(
                 containerId,
                 containerIndex,
@@ -117,6 +113,10 @@ class BuildingCache {
         )
     }
 
+    private fun findMenuContainer(containerId: String) = internalMenuLinks.find {
+        it is MenuLinkContainer && containerId == it.id
+    } as? MenuLinkContainer
+
     fun loadCache(config: WebsiteConfig) {
         config.useJsonParser {
 
@@ -130,13 +130,13 @@ class BuildingCache {
             }
 
             linkPath.fromJson<Map<String, MutableMap<String, String>>>()?.let {
-                linkCache += it
+                internalLinkCache += it
             }
         }
     }
 
     fun saveCache(websiteConfig: WebsiteConfig) = websiteConfig.useJsonParser {
         internalMenuLinks.toList().toJson(menuLinkPath)
-        linkCache.toJson(linkPath)
+        internalLinkCache.toJson(linkPath)
     }
 }

@@ -11,6 +11,8 @@ import kotlin.io.path.exists
 class LinkGenerator : WebsiteGenerator {
 
     override val generatorName: String = "Link Generator"
+    override val executionPriority: Int
+        get() = 40_000 // After all items are generated
 
     companion object {
         const val LINK_TYPE = "MANUAL"
@@ -27,13 +29,25 @@ class LinkGenerator : WebsiteGenerator {
             val data = configFile.fromJson<List<ManualLink>>() ?: emptyList()
             if (data.isNotEmpty()) {
                 buildingCache.clearMenuItems { it.id.startsWith(LINK_TYPE) }
+
+                //get all urls as a set
+                val validUrls = buildingCache.linkCache.asSequence()
+                    .flatMap { it.value.values.asSequence() }
+                    .toSet()
+
                 data.forEach { (name, index, value, target) ->
                     val url = value.let {
                         if (value.startsWith("/"))
                             it.substringAfter("/")
                         else it
                     }
-                    buildingCache.addMenuItem(LINK_TYPE + "_" + name, index, url, name, target)
+                    if (!validUrls.contains(url))
+                        throw IllegalStateException("Url $url is not a known URL....")
+                    if (name.contains("--")) {
+                        val (container, linkName) = name.split("--", limit = 2)
+                        buildingCache.addMenuItemInExistingContainer(container, linkName, url, target, index)
+                    } else
+                        buildingCache.addMenuItem((LINK_TYPE + "_" + name), index, url, name, target)
                 }
             }
         }
@@ -74,4 +88,9 @@ class LinkGenerator : WebsiteGenerator {
 }
 
 @Serializable
-data class ManualLink(val name: String, val index: Int, val value: String, val target: String? = null)
+data class ManualLink(
+    val name: String,
+    val index: Int,
+    val value: String,
+    val target: String? = null
+)

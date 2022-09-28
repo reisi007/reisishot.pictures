@@ -42,6 +42,7 @@ object PrivateConfig {
                 "Sarah Fritsch",
                 "Michelle Kohlbauer",
                 "Chrisi Music",
+                "Susanne Zopf",
             )
 
             "Mann" to arrayOf(
@@ -258,6 +259,10 @@ object PrivateConfig {
 
                 withSubCategory("Tanz") {
                     includeTagsAndSubcategories("Tanz")
+
+                    withSubCategory("Ballett") {
+                        includeTagsAndSubcategories("Ballett")
+                    }
 
                     withSubCategory("Breaking") {
                         includeTagsAndSubcategories("Breakdance")
