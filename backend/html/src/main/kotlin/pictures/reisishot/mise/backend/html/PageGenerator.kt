@@ -34,7 +34,6 @@ import pictures.reisishot.mise.backend.config.MenuLink
 import pictures.reisishot.mise.backend.config.MenuLinkContainer
 import pictures.reisishot.mise.backend.config.MenuLinkContainerItem
 import pictures.reisishot.mise.backend.config.WebsiteConfig
-import pictures.reisishot.mise.backend.html.config.FacebookMessengerChatPlugin
 import pictures.reisishot.mise.backend.html.config.htmlConfig
 import java.io.BufferedWriter
 import java.net.URLEncoder
@@ -163,8 +162,6 @@ object PageGenerator {
                             analyticsJs(websiteConfig)
                             cookieInfo(websiteConfig.miseConfig.isDevMode)
                             analyticsImage(websiteConfig)
-                            if (!isMinimalPage)
-                                htmlConfig.fbMessengerChatPlugin?.let { fbChat(it) }
                         }
                     }
             }
@@ -274,10 +271,6 @@ object PageGenerator {
         link(polyfillUrl, "preload") {
             attributes["as"] = "script"
         }
-        if (!(isMinimal || configuration.htmlConfig.fbMessengerChatPlugin == null))
-            link("https://connect.facebook.net/de_DE/sdk/xfbml.customerchat.js", "preload") {
-                attributes["as"] = "script"
-            }
         link("/js/combined.min.js", "preload") {
             attributes["as"] = "script"
         }
@@ -285,8 +278,6 @@ object PageGenerator {
             attributes["as"] = "style"
         }
     }
-
-    private fun getRessourceUrlPrefix(devMode: Boolean) = if (devMode) "" else "https://static.reisishot.pictures"
 
     @HtmlTagMarker
     private fun HEAD.favicon() {
@@ -341,7 +332,7 @@ object PageGenerator {
             "id" to "cookieinfo",
             "data-message" to "Hier werden Cookies verwendet. Wenn Sie fortfahren akzeptieren Sie die Verwendung von Cookies",
             "data-linkmsg" to "Weitere Informationen zum Datenschutz",
-            "data-moreinfo" to "https://reisishot.pictures/datenschutz",
+            "data-moreinfo" to "https://reisinger.pictures/datenschutz",
             "data-close-text" to "Akzeptieren",
             "data-accept-on-scroll" to "true"
         )
@@ -361,7 +352,7 @@ object PageGenerator {
           _paq.push(['trackPageView']);
           _paq.push(['enableLinkTracking']);
           (function() {
-            var u="//analytics.reisishot.pictures/";
+            var u="//analytics.reisinger.pictures/";
             _paq.push(['setTrackerUrl', u+'matomo.php']);
             _paq.push(['setSiteId', '$it']);
             var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
@@ -377,22 +368,10 @@ object PageGenerator {
     @HtmlTagMarker
     private fun BODY.analyticsImage(websiteConfig: WebsiteConfig) =
         websiteConfig.htmlConfig.matomoId?.let {
-            img(src = """https://analytics.reisishot.pictures/matomo.php?idsite=$it&amp;rec=1""") {
+            img(src = """https://analytics.reisinger.pictures/matomo.php?idsite=$it&amp;rec=1""") {
                 height = "0"
             }
         }
-
-    @HtmlTagMarker
-    private fun BODY.fbChat(data: FacebookMessengerChatPlugin) {
-        divId("fb-root")
-        div("fb-customerchat") {
-            attributes["page_id"] = data.pageId.toString()
-            attributes["theme_color"] = data.themeColor
-            attributes["logged_in_greeting"] = data.message
-            attributes["logged_out_greeting"] = data.message
-            attributes["greeting_dialog_display"] = "hide"
-        }
-    }
 }
 
 private fun HEAD.pwaBuilder() {

@@ -25,13 +25,24 @@ object PrivateConfig {
         additionalTags {
 
             "Frau" to arrayOf(
-                "Anja H",
+                "Sophie Huber",
                 "Eva Mair",
                 "Jessica Hettich",
                 "Julia Eder",
                 "Laura Schmiedinger",
                 "Magdalena Wöhrer",
-                "Johanna Kartusch"
+                "Johanna Kartusch",
+                "Magdalena Adam",
+                "Mintha",
+                "Anja Stiftinger",
+                "Victoria Lasinger",
+                "Laura Szabo",
+                "Lisa Matschl",
+                "Iris Hammer",
+                "Sarah Fritsch",
+                "Michelle Kohlbauer",
+                "Chrisi Music",
+                "Susanne Zopf",
             )
 
             "Mann" to arrayOf(
@@ -54,13 +65,20 @@ object PrivateConfig {
                 "Welser Tiergarten"
             )
 
-            "Simon Luger" withTags arrayOf("Back to Saturday")
+            "Tanz" to arrayOf(
+                "Style in Motion",
+                "Breakdance"
+            )
 
-            "Style in Motion" withTags "Tanz"
+            "Simon Luger" withTags arrayOf("Back to Saturday")
 
             "Steel Wings Linz" withTags "Eishockey"
 
             "Teichralle" withTags "Vogel"
+
+            "Motorsport" withTags "Sport"
+
+            "Eidechse" withTags "Tier"
         }
     }
 
@@ -204,7 +222,7 @@ object PrivateConfig {
         withSubCategory("Fotoshootings", "Frau33") {
             includeSubcategories()
 
-            withSubCategory("Frauen", "AnjaH016") {
+            withSubCategory("Frauen", "SophieHuber016") {
                 includeTagsAndSubcategories("Frau")
             }
             withSubCategory("Männer") {
@@ -241,6 +259,34 @@ object PrivateConfig {
 
                 withSubCategory("Tanz") {
                     includeTagsAndSubcategories("Tanz")
+
+                    withSubCategory("Ballett") {
+                        includeTagsAndSubcategories("Ballett")
+                    }
+
+                    withSubCategory("Breaking") {
+                        includeTagsAndSubcategories("Breakdance")
+                    }
+                }
+
+                withSubCategory("Flunkyball") {
+                    includeTagsAndSubcategories("Flunkyball")
+                }
+
+                withSubCategory("Pole - Aerial Silk - Hoop"){
+                    includeSubcategories()
+
+                    withSubCategory("Pole"){
+                        includeTagsAndSubcategories("Poledance")
+                    }
+
+                    withSubCategory("Aerial Silk"){
+                        includeTagsAndSubcategories("Aerial Silk")
+                    }
+
+                    withSubCategory("Hoop"){
+                        includeTagsAndSubcategories("Hoop")
+                    }
                 }
             }
         }

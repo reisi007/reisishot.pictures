@@ -6,7 +6,7 @@
     <tasks>
       <task>default</task>
     </tasks>
-    <arguments>--target &quot;reisishot.pictures&quot;</arguments>
+    <arguments>--target &quot;reisinger.pictures&quot;</arguments>
     <envs />
     <method v="2" />
   </configuration>

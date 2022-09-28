@@ -19,10 +19,10 @@ import pictures.reisishot.mise.backend.config.tags.buildTagConfig
 import pictures.reisishot.mise.backend.generator.gallery.AbstractGalleryGenerator
 import pictures.reisishot.mise.backend.generator.gallery.InternalImageInformation
 import pictures.reisishot.mise.backend.generator.gallery.context.insertImageGallery
+import pictures.reisishot.mise.backend.generator.gallery.insertImageGallery
 import pictures.reisishot.mise.backend.generator.gallery.insertSubcategoryThumbnails
 import pictures.reisishot.mise.backend.html.PageGenerator
 import pictures.reisishot.mise.backend.html.smallButtonLink
-import pictures.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.commons.withChild
 import pictures.reisishot.mise.config.ImageConfig
 import pictures.reisishot.mise.exifdata.ExifdataKey
@@ -94,12 +94,6 @@ class GalleryGenerator(
         buildingCache: BuildingCache,
         categoryInformation: CategoryInformation,
     ) {
-        val categoryImages: List<FilenameWithoutExtension> = categoryInformation.images.asSequence()
-            .map { it as? InternalImageInformation }
-            .filterNotNull()
-            .map { it.filename }
-            .toList()
-
         (configuration.paths.targetFolder withChild "gallery/categories").let { baseHtmlPath ->
 
             val targetFolder = baseHtmlPath withChild categoryInformation.urlFragment
@@ -118,20 +112,12 @@ class GalleryGenerator(
 
                     insertCustomMarkdown(targetFolder, "start", configuration, buildingCache)
 
-                    val imageInformations = with(categoryImages) {
-                        asSequence()
-                            .map { cache.imageInformationData.getValue(it) }
-                            .map { it as? InternalImageInformation }
-                            .filterNotNull()
-                            .toOrderedByTime()
-                    }
-
                     insertSubcategoryThumbnails(
                         categoryInformation.subcategories,
                         configuration
                     )
 
-                    insertImageGallery("1", configuration, imageInformations)
+                    insertImageGallery(this@GalleryGenerator, configuration, categoryInformation.images)
 
                     insertCustomMarkdown(targetFolder, "end", configuration, buildingCache)
                 }
@@ -162,11 +148,7 @@ class GalleryGenerator(
 
                 insertCustomMarkdown(targetFolder, "start", configuration, buildingCache)
 
-                val imageInformations = tagImages.asSequence()
-                    .map { it as? InternalImageInformation }
-                    .filterNotNull()
-                    .toOrderedByTime()
-                insertImageGallery("1", configuration, imageInformations)
+                insertImageGallery(this@GalleryGenerator, configuration, tagImages)
 
                 insertCustomMarkdown(targetFolder, "end", configuration, buildingCache)
             }
@@ -241,6 +223,7 @@ class GalleryGenerator(
                                         ZonedDateTime.parse(value)
                                             .format(dateTimeFormatter)
                                     )
+
                                     else -> text(value)
                                 }
                             }
@@ -294,12 +277,14 @@ class GalleryGenerator(
                     .first { it.urlFragment.equals(value, true) }
                 generateCategoryPage(configuration, buildingCache, categoryInformation)
             }
+
             "tags" -> {
                 val tagName = computedTags
                     .keys
                     .first { it.name.equals(value, true) }
                 generateTagPage(configuration, buildingCache, tagName)
             }
+
             "images" -> {
                 val imageInformation = imageInformationData
                     .keys
@@ -309,6 +294,7 @@ class GalleryGenerator(
                     generateImagePage(configuration, buildingCache, internalImageInformation)
                 }
             }
+
             else -> throw IllegalStateException("Type $type is not known")
         }
     }

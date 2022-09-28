@@ -44,6 +44,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.exists
 
+
 class OverviewPageGenerator(
     private val galleryGenerator: AbstractGalleryGenerator,
     private val metaDataConsumers: Array<out PageGeneratorExtension> = emptyArray(),
@@ -56,6 +57,11 @@ class OverviewPageGenerator(
     private val changeSetAdd = mutableSetOf<OverviewEntry>()
     private val changeSetRemove = mutableListOf<Path>()
     private lateinit var overviewConfigs: Map<String, OverviewConfig>
+
+    companion object {
+        const val LINK_TYPE = "OVERVIEW"
+        const val CONFIG_FILENAME = "overview.json"
+    }
 
     override fun interestingFileExtensions(): Sequence<(FileExtension) -> Boolean> {
         return sequenceOf(
@@ -97,6 +103,7 @@ class OverviewPageGenerator(
             .map { data.getValue(it) }
             .map { it.first() }
             .forEach { dirty = dirty or changeSetAdd.add(it) }
+
         return dirty
     }
 
@@ -111,17 +118,18 @@ class OverviewPageGenerator(
     }
 
     override fun init(configuration: WebsiteConfig, cache: BuildingCache) = configuration.useJsonParser {
-        overviewConfigs = (configuration.paths.sourceFolder withChild "overview.json")
+        overviewConfigs = (configuration.paths.sourceFolder withChild CONFIG_FILENAME)
             .fromJson<Map<String, OverviewConfig>>()
             ?: emptyMap()
+        overviewConfigs.forEach { (key) -> cache.addLinkcacheEntryFor(LINK_TYPE, key, key) }
+
     }
 
     private fun processChangesInternal(
         configuration: WebsiteConfig,
         cache: BuildingCache
     ): Boolean {
-
-        processExternals(configuration)
+        processExternals(configuration, cache)
         val changedGroups = mutableMapOf<String, Path>()
         changeSetAdd.forEach {
             data.computeIfAbsent(it.id) { mutableSetOf() }.add(it, true)
@@ -154,8 +162,8 @@ class OverviewPageGenerator(
 
                 val target =
                     configuration.paths.targetFolder withChild
-                        configuration.paths.sourceFolder.relativize(overviewPagePath) withChild
-                        "index.html"
+                            configuration.paths.sourceFolder.relativize(overviewPagePath) withChild
+                            "index.html"
 
                 val additionalTopContent =
                     loadBefore(
@@ -257,16 +265,16 @@ class OverviewPageGenerator(
     }
 
     private fun MutableMap<String, Path>.computeChangedGroups() = (
-        if (isEmpty())
-            data.asSequence()
-                .filter { (_, set) -> set.isNotEmpty() }
-                .map { (k, v) -> k to v.first().entryOutUrl.parent }
-        else asSequence()
-            .map { it.toPair() }
-        )
+            if (isEmpty())
+                data.asSequence()
+                    .filter { (_, set) -> set.isNotEmpty() }
+                    .map { (k, v) -> k to v.first().entryOutUrl.parent }
+            else asSequence()
+                .map { it.toPair() }
+            )
 
-    private fun processExternals(configuration: WebsiteConfig) =
-        configuration.paths.sourceFolder.processFrontmatter(configuration) { it: Path ->
+    private fun processExternals(configuration: WebsiteConfig, cache: BuildingCache) =
+        configuration.paths.sourceFolder.processFrontmatter(configuration, cache) { it: Path ->
             it.hasExtension({
                 it.isMarkdownPart(
                     "external"
@@ -288,11 +296,9 @@ class OverviewPageGenerator(
         buildingCache: BuildingCache,
         alreadyRunGenerators: List<WebsiteGenerator>
     ) = withContext(Dispatchers.IO) {
-        configuration.paths.sourceFolder.processFrontmatter(configuration) { it: Path ->
+        configuration.paths.sourceFolder.processFrontmatter(configuration, buildingCache) { it: Path ->
             it.hasExtension({
-                it.isMarkdownPart(
-                    "overview"
-                )
+                it.isMarkdownPart("overview")
             })
         }
     }
@@ -305,7 +311,7 @@ class OverviewPageGenerator(
         // Nothing to do
     }
 
-    private fun Path.processFrontmatter(configuration: WebsiteConfig, filter: (Path) -> Boolean) =
+    private fun Path.processFrontmatter(configuration: WebsiteConfig, cache: BuildingCache, filter: (Path) -> Boolean) =
         Files.walk(this)
             .filter { it.isRegularFile() }
             .filter(filter)
@@ -394,6 +400,8 @@ internal fun Yaml.extract(
     val url = getString("url")
     if (group == null || picture == null || title == null || order == null || displayName == null)
         return null
+    if (groupConfig == null)
+        throw IllegalStateException("Please define the group \"$group\" in ${OverviewPageGenerator.CONFIG_FILENAME}")
 
     return OverviewEntry(
         group,

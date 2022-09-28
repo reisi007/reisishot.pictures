@@ -5,6 +5,8 @@ RewriteEngine On
 
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^(.*[^/])$ /$1/
+# Redirect from  jpg to webp
+# RewriteRule ^((.+?)\.jpg)$ /$2.webp
 
 RedirectMatch 301 ^(/gallery/categories/)(\d{4}.*)$ $1chronologisch\/$2
 Redirect 301 /gallery/categories/regionen/zypern /gallery/categories/reisen/zypern

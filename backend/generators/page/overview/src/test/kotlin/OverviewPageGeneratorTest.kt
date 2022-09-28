@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test
 import pictures.reisishot.mise.backend.IPageMinimalInfo
 import pictures.reisishot.mise.backend.SourcePath
 import pictures.reisishot.mise.backend.TargetPath
+import pictures.reisishot.mise.backend.generator.pages.overview.OverviewConfig
 import pictures.reisishot.mise.backend.generator.pages.overview.extract
 import pictures.reisishot.mise.backend.htmlparsing.buildYaml
 import java.nio.file.Paths
@@ -27,7 +28,8 @@ class OverviewPageGeneratorTest {
             override val title: String = "Unused..."
         }
 
-        val sorted = elements.map { it.extract(pageMinimalInfo, emptyMap()) ?: error("must not be null") }
+
+        val sorted = elements.map { it.extract(pageMinimalInfo, TEST_OVERVIEW_CONFIG) ?: error("must not be null") }
             .sortedByDescending { it.order }
             .map { it.title }
             .toList()
@@ -43,5 +45,9 @@ class OverviewPageGeneratorTest {
             "created" to created.toString()
         if (edited != null)
             "updated" to edited.toString()
+    }
+
+    companion object {
+        val TEST_OVERVIEW_CONFIG = mapOf("test" to OverviewConfig("Test"))
     }
 }

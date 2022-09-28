@@ -14,7 +14,6 @@ private const val CONFIG_KEY = "HTML_CONFIG"
 data class HtmlConfig(
     val matomoId: Int?,
     val socialMediaLinks: SocialMediaAccounts?,
-    val fbMessengerChatPlugin: FacebookMessengerChatPlugin?,
     val navbarBrandCreator: (HtmlBlockTag.(WebsiteConfig) -> Unit)?,
     val bootsrapMenuBreakpoint: String,
     val templateObjects: Map<String, VelocityTemplateObjectCreator>,
@@ -29,17 +28,10 @@ data class SocialMediaAccounts(
     val podcast: String? = null
 )
 
-data class FacebookMessengerChatPlugin(
-    val pageId: Long,
-    val themeColor: String,
-    val message: String
-)
-
 @WebsiteConfigBuilderDsl
 fun WebsiteConfigBuilder.buildHtmlConfig(
     matomoId: Int? = null,
     socialMediaLinks: SocialMediaAccounts? = null,
-    fbMessengerChatPlugin: FacebookMessengerChatPlugin? = null,
     formBuilder: FormBuilder? = null,
     navbarBrandCreator: (HtmlBlockTag.(WebsiteConfig) -> Unit)? = null,
     bootsrapMenuBreakpoint: String = "md",
@@ -53,7 +45,6 @@ fun WebsiteConfigBuilder.buildHtmlConfig(
         HtmlConfig(
             matomoId,
             socialMediaLinks,
-            fbMessengerChatPlugin,
             navbarBrandCreator,
             bootsrapMenuBreakpoint,
             templateObjects,

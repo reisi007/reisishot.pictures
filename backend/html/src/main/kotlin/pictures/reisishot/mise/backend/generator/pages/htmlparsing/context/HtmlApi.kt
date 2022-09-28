@@ -146,7 +146,7 @@ internal class HtmlApi(
     }
 
     fun insertWartelisteInfo(): String = buildString {
-        appendUnformattedHtml().div {
+        appendUnformattedHtml().div("my-4 center") {
             insertWartelisteInfo()
         }
     }

@@ -4,6 +4,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.DIV
 import kotlinx.html.HEAD
+import kotlinx.html.HtmlBlockTag
+import kotlinx.html.HtmlTagMarker
 import kotlinx.html.a
 import kotlinx.html.div
 import kotlinx.html.h4
@@ -23,6 +25,7 @@ import pictures.reisishot.mise.backend.config.category.flatten
 import pictures.reisishot.mise.backend.config.tags.TagConfig
 import pictures.reisishot.mise.backend.config.tags.TagInformation
 import pictures.reisishot.mise.backend.config.useJsonParserParallel
+import pictures.reisishot.mise.backend.generator.gallery.context.insertImageGallery
 import pictures.reisishot.mise.backend.generator.gallery.context.insertLazyPicture
 import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator
 import pictures.reisishot.mise.backend.generator.thumbnail.AbstractThumbnailGenerator.ImageSize
@@ -55,6 +58,7 @@ import java.util.Locale
 import java.util.concurrent.ConcurrentMap
 import kotlin.io.path.exists
 import kotlin.streams.asSequence
+import pictures.reisishot.mise.backend.config.ImageInformation as ConfigImageInformation
 
 abstract class AbstractGalleryGenerator(
     private val tagConfig: TagConfig,
@@ -105,7 +109,7 @@ abstract class AbstractGalleryGenerator(
         val computedTags: MutableMap<TagInformation, out Set<ImageInformation>>,
         val rootCategory: CategoryInformationRoot,
 
-    ) {
+        ) {
         val subcategoryMap: Map<String, CategoryInformation> by lazy {
             rootCategory.flatten()
                 .map { it.categoryName.complexName to it }
@@ -135,11 +139,11 @@ abstract class AbstractGalleryGenerator(
             ?: kotlin.run { ZonedDateTime.of(LocalDate.of(1900, 1, 1), LocalTime.MIN, ZoneId.systemDefault()) }
 
         val cacheStillValid = cachePath.exists() &&
-            configuration.paths.sourceFolder.withChild(AbstractThumbnailGenerator.NAME_IMAGE_SUBFOLDER)
-                .list()
-                .map { it.fileModifiedDateTime }
-                .filterNotNull()
-                .all { it < cacheTime }
+                configuration.paths.sourceFolder.withChild(AbstractThumbnailGenerator.NAME_IMAGE_SUBFOLDER)
+                    .list()
+                    .map { it.fileModifiedDateTime }
+                    .filterNotNull()
+                    .all { it < cacheTime }
 
         if (cacheStillValid) {
             this@AbstractGalleryGenerator.cache = cachePath.fromJson()
@@ -148,8 +152,8 @@ abstract class AbstractGalleryGenerator(
 
         val recomputeGallery =
             !cacheStillValid ||
-                hasTextChanges(configuration, cacheTime) ||
-                hasConfigChanges(configuration, cacheTime)
+                    hasTextChanges(configuration, cacheTime) ||
+                    hasConfigChanges(configuration, cacheTime)
 
         if (!recomputeGallery) return@useJsonParserParallel
 
@@ -213,7 +217,7 @@ abstract class AbstractGalleryGenerator(
                 "gallery/tags/${tag.url.lowercase()}".let { link ->
                     buildingCache.addLinkcacheEntryFor(LINKTYPE_TAGS, tag.url.lowercase(), link)
                     if (shallAddToMenu)
-                        buildingCache.addMenuItemInContainerNoDupes(
+                        buildingCache.addMenuItemInContainer(
                             LINKTYPE_TAGS,
                             "Tags",
                             300,
@@ -300,7 +304,7 @@ abstract class AbstractGalleryGenerator(
                         200,
                         category.categoryName.displayName,
                         link,
-                        elementIndex = idx
+                        elementIndex = 2 * idx
                     )
                 }
             }
@@ -401,10 +405,6 @@ abstract class AbstractGalleryGenerator(
         }
     }
 
-    fun Sequence<InternalImageInformation>.toOrderedByTime() =
-        sortedByDescending { it.exifInformation[ExifdataKey.CREATION_DATETIME] }
-            .toList()
-
     override suspend fun loadCache(configuration: WebsiteConfig, buildingCache: BuildingCache) {
         super.loadCache(configuration, buildingCache)
         cachePath = configuration.paths.cacheFolder withChild "gallery.cache.json"
@@ -486,3 +486,63 @@ fun DIV.insertCategoryThumbnails(
                 }
         }
 }
+
+fun Sequence<InternalImageInformation>.toOrderedByTime() =
+    sortedByDescending { it.exifInformation[ExifdataKey.CREATION_DATETIME] }
+        .toList()
+
+@HtmlTagMarker
+fun HtmlBlockTag.insertImageGallery(
+    galleryGenerator: AbstractGalleryGenerator,
+    configuration: WebsiteConfig,
+    allImages: Collection<ConfigImageInformation>,
+    galleryName: String = "1",
+    limit: Int = -1
+) {
+    val categoryImages: List<FilenameWithoutExtension> = allImages.asSequence()
+        .map { it as? InternalImageInformation }
+        .filterNotNull()
+        .map { it.filename }
+        .toList()
+    return insertImageGalleryFromFilenames(galleryGenerator, configuration, categoryImages, galleryName, limit)
+}
+
+@HtmlTagMarker
+fun HtmlBlockTag.insertImageGallery(
+    galleryGenerator: AbstractGalleryGenerator,
+    configuration: WebsiteConfig,
+    allImages: Collection<ImageInformation>
+) {
+    val categoryImages: List<FilenameWithoutExtension> = allImages.asSequence()
+        .map { it as? InternalImageInformation }
+        .filterNotNull()
+        .map { it.filename }
+        .toList()
+    return insertImageGalleryFromFilenames(galleryGenerator, configuration, categoryImages)
+}
+
+fun HtmlBlockTag.insertImageGalleryFromFilenames(
+    galleryGenerator: AbstractGalleryGenerator,
+    configuration: WebsiteConfig,
+    categoryImages: Collection<FilenameWithoutExtension>,
+    galleryName: String = "1",
+    limit: Int = -1
+) {
+    val imageInformations = categoryImages.asSequence()
+        .map { galleryGenerator.cache.imageInformationData.getValue(it) }
+        .map { it as? InternalImageInformation }
+        .filterNotNull()
+        .toOrderedByTime()
+        .limit(limit)
+
+
+    insertImageGallery(galleryName, configuration, imageInformations)
+}
+
+fun <T> List<T>.limit(cnt: Int): List<T> = if (cnt < 0 || cnt >= size)
+    this
+else if (cnt == 0)
+    emptyList()
+else
+    subList(0, cnt)
+

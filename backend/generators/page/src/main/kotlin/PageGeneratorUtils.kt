@@ -58,7 +58,7 @@ fun Path.computeMinimalInfo(
                 link
             )
             if (filenameParts.globalPriority > 0)
-                cache.addMenuItemInContainerNoDupes(
+                cache.addMenuItemInContainer(
                     generatorName + "_" + filenameParts.menuContainerName,
                     filenameParts.menuContainerName,
                     filenameParts.globalPriority,
