@@ -60,7 +60,7 @@ class OverviewPageGenerator(
 
     companion object {
         const val LINK_TYPE = "OVERVIEW"
-        private const val CONFIG_FILENAME = "overview.json"
+        const val CONFIG_FILENAME = "overview.json"
     }
 
     override fun interestingFileExtensions(): Sequence<(FileExtension) -> Boolean> {
@@ -76,11 +76,11 @@ class OverviewPageGenerator(
         pageMinimalInfo: IPageMinimalInfo,
         frontMatter: Yaml
     ): HEAD.() -> Unit {
-        frontMatter.processFrontmatter(cache, pageMinimalInfo)
+        frontMatter.processFrontmatter(pageMinimalInfo)
         return {}
     }
 
-    private fun Yaml.processFrontmatter(cache: BuildingCache, pageMinimalInfo: IPageMinimalInfo) {
+    private fun Yaml.processFrontmatter(pageMinimalInfo: IPageMinimalInfo) {
         extract(pageMinimalInfo, overviewConfigs)?.let {
             dirty = dirty or changeSetAdd.add(it)
         }
@@ -318,7 +318,7 @@ class OverviewPageGenerator(
             .map { inPath ->
                 parseFrontmatter(configuration, inPath)
             }.forEach { (path, yaml) ->
-                yaml.processFrontmatter(cache, OverviewPageMinimalInformation(path))
+                yaml.processFrontmatter(OverviewPageMinimalInformation(path))
             }
 
     class OverviewPageMinimalInformation(override val targetPath: TargetPath) : IPageMinimalInfo {
@@ -382,40 +382,39 @@ class OverviewPageGenerator(
         return sequence.parseFile(pageMininmalInfo, configuration, cache, metaDataConsumers)
             ?.third
     }
+}
 
-    private fun Yaml.extract(
-        pageMinimalInfo: IPageMinimalInfo,
-        overviewConfigs: Map<String, OverviewConfig>
-    ): OverviewEntry? {
-        val group = getString("group")
-        val picture = getString("picture")
-        val title = getString("title")
-        val metaData = getPageMetadata()
-        val order = metaData?.order
-        val description = getString("description")
-        val groupConfig = overviewConfigs[group]
-        val displayName = groupConfig?.name ?: group
+internal fun Yaml.extract(
+    pageMinimalInfo: IPageMinimalInfo,
+    overviewConfigs: Map<String, OverviewConfig>
+): OverviewEntry? {
+    val group = getString("group")
+    val picture = getString("picture")
+    val title = getString("title")
+    val metaData = getPageMetadata()
+    val order = metaData?.order
+    val description = getString("description")
+    val groupConfig = overviewConfigs[group]
+    val displayName = groupConfig?.name ?: group
 
-        val url = getString("url")
-        if (group == null || picture == null || title == null || order == null || displayName == null)
-            return null
-        if (groupConfig == null)
-            throw IllegalStateException("Please define the group \"$group\" in ${CONFIG_FILENAME}")
+    val url = getString("url")
+    if (group == null || picture == null || title == null || order == null || displayName == null)
+        return null
+    if (groupConfig == null)
+        throw IllegalStateException("Please define the group \"$group\" in ${OverviewPageGenerator.CONFIG_FILENAME}")
 
-        return OverviewEntry(
-            group,
-            groupConfig,
-            title,
-            description,
-            picture,
-            pageMinimalInfo,
-            order,
-            displayName,
-            url,
-            metaData
-        )
-    }
-
+    return OverviewEntry(
+        group,
+        groupConfig,
+        title,
+        description,
+        picture,
+        pageMinimalInfo,
+        order,
+        displayName,
+        url,
+        metaData
+    )
 }
 
 class OverviewEntry(
