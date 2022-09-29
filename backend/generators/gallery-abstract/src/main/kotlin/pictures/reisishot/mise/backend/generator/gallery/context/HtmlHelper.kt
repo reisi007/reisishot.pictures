@@ -77,7 +77,7 @@ fun HtmlBlockTag.renderImageCarousel(
     filename: Array<out FilenameWithoutExtension>,
     websiteConfig: WebsiteConfig
 ) {
-    div("carousel slide") {
+    div("carousel slide my-4") {
         this.id = id
         attributes["data-bs-interval"] = changeMs.toString()
         attributes["data-bs-ride"] = "carousel"
