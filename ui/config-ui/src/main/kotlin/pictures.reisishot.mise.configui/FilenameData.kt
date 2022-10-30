@@ -1,9 +1,10 @@
 package pictures.reisishot.mise.configui
 
+import pictures.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.commons.filenameWithoutExtension
 import java.nio.file.Path
 
-data class FilenameData(val name: String, val digitCount: Int = 3) : Comparable<FilenameData> {
+data class FilenameData(val name: FilenameWithoutExtension, val digitCount: Int = 3) : Comparable<FilenameData> {
     override fun toString(): String {
         return name
     }

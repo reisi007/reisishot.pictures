@@ -24,6 +24,7 @@ include("backend")
 include("backend:runner")
 include("mise-utils")
 // Meta Subproject for all uis
+include("config-ui")
 include("ui")
 include("ui:base-ui")
 include("ui:config-ui")
@@ -31,12 +32,17 @@ include("ui:exif-ui")
 
 pluginManagement {
     // https://kotlinlang.org/releases.html#release-details
-    val kotlinVersion by extra("1.7.0")
+    val kotlinVersion by extra("1.7.20")
     plugins {
         kotlin("jvm") version kotlinVersion
         id("org.jetbrains.kotlin.plugin.serialization") version kotlinVersion
         id("org.sonarqube") version "3.3"
         id("org.barfuin.gradle.jacocolog") version "2.0.0"
+    }
+
+    repositories {
+        gradlePluginPortal()
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 }
 

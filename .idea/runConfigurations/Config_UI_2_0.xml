@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Config UI 2.0" type="JetRunConfigurationType">
+    <option name="MAIN_CLASS_NAME" value="pictures.reisinger.config.ui.MainKt" />
+    <module name="My_website_(reisishot.pictures).config-ui.main" />
+    <shortenClasspath name="NONE" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

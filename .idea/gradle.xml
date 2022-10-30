@@ -32,6 +32,7 @@
             <option value="$PROJECT_DIR$/backend/runner" />
             <option value="$PROJECT_DIR$/backend/website-config" />
             <option value="$PROJECT_DIR$/commons" />
+            <option value="$PROJECT_DIR$/config-ui" />
             <option value="$PROJECT_DIR$/image-access" />
             <option value="$PROJECT_DIR$/mise-utils" />
             <option value="$PROJECT_DIR$/ui" />
