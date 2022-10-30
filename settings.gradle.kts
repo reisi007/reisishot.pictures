@@ -25,10 +25,6 @@ include("backend:runner")
 include("mise-utils")
 // Meta Subproject for all uis
 include("config-ui")
-include("ui")
-include("ui:base-ui")
-include("ui:config-ui")
-include("ui:exif-ui")
 
 pluginManagement {
     // https://kotlinlang.org/releases.html#release-details
@@ -66,12 +62,15 @@ dependencyResolutionManagement {
     val jimFsVersion = "1.2"
     val tornadoFxVersion = "1.7.20"
     val languagetoolVersion = "5.7"
+    val composeVersion = "1.2.0"
 
     versionCatalogs {
         create("libs") {
             version("kotlin", kotlinVersion)
             version("sonarqube", "3.3")
             version("jacocolog", "2.0.0")
+            version("compose", "1.2.0")
+
             library("kotlin.stdlib", "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
             library("kotlinx.coroutines", "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:${kotlinxCoroutinesVersion}")
             library("kotlinx.html", "org.jetbrains.kotlinx:kotlinx-html-jvm:${kotlinxHtmlVersion}")
@@ -91,6 +90,10 @@ dependencyResolutionManagement {
             library("google.jimfs", "com.google.jimfs:jimfs:${jimFsVersion}")
             library("javafx.tornadofx", "no.tornado:tornadofx:${tornadoFxVersion}")
             library("languagetool.de", "org.languagetool:language-de:${languagetoolVersion}")
+            library(
+                "compose.material.icons.extended",
+                "org.jetbrains.compose.material:material-icons-extended-desktop:$composeVersion"
+            )
         }
     }
 }

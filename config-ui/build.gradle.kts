@@ -13,6 +13,9 @@ dependencies {
 
     implementation(project(":image-access"))
     implementation(libs.languagetool.de)
+    // https://mvnrepository.com/artifact/androidx.compose.material/material-icons-extended
+    implementation(libs.compose.material.icons.extended)
+
 }
 
 compose.desktop {
