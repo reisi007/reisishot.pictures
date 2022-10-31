@@ -22,15 +22,13 @@ fun Path.findUsedFilenames() = list()
     .groupingBy { it.displayName }
     .fold({ _, v -> v.digitCount }, { _, current, v -> max(current, v.digitCount) })
     .asSequence()
-    .map { (k, v) ->
-        FilenameInfo(k, v)
-    }
+    .map { (k, v) -> FilenameInfo(k, v) }
     .sortedBy { it.displayName }
     .toList()
 
 fun Path.findMissingFiles() = list()
     .filter { it.fileExtension.isJpeg() }
-    .filter { !!it.resolveSibling(it.filenameWithoutExtension + ".json").exists() }
+    .filter { !it.resolveSibling(it.filenameWithoutExtension + ".json").exists() }
     .map { it to ImmutableImageConfig() }
     .toList()
 
@@ -42,6 +40,13 @@ fun Path.findAllTags() = list()
     .distinct()
     .toList()
 
+fun Iterable<Path>.readExistingConfigFiles(): List<Pair<Path, ImmutableImageConfig>> = mapNotNull { configPath ->
+    configPath.withNewExtension("json")
+        .fromJson<ImmutableImageConfig>()
+        ?.let { configPath to it }
+}
+
+fun Path.withNewExtension(newExtension: String): Path = resolveSibling("$filenameWithoutExtension.$newExtension")
 
 val JSON by lazy {
     Json {

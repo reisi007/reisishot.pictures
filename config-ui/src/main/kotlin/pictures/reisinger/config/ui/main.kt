@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
+import androidx.compose.material.Button
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -15,6 +16,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,10 +33,15 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import kotlinx.coroutines.launch
+import pictures.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.commons.filenameWithoutExtension
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import javax.swing.JFileChooser
+import javax.swing.filechooser.FileNameExtensionFilter
+
+val ROOT_PATH = Paths.get(".", "input", "reisinger.pictures", "images")
 
 fun main() = application {
     Window(
@@ -55,17 +62,25 @@ fun main() = application {
         MaterialTheme {
             MenuBar {
                 Menu("Datei") {
-                    /* Item("Config öffnen...") {
-
-             }*/
+                    Item("Config öffnen...") {
+                        ChooseFiles(
+                            ROOT_PATH,
+                            FileNameExtensionFilter("Image files", "jpg", "jpeg")
+                        ) { pathsToAnalyze ->
+                            val commonParent: Path = pathsToAnalyze.first().parent
+                            with(scope) {
+                                launch { filesToAnalyze = pathsToAnalyze.readExistingConfigFiles() }
+                                launch { allFilenames = commonParent.findUsedFilenames() }
+                                launch { allTags = commonParent.findAllTags() }
+                            }
+                        }
+                    }
 
                     Item("Fehlende Configs öffnen....") {
-                        val pathToAnalyze = Paths.get(".", "input", "reisinger.pictures", "images")
-
                         with(scope) {
-                            launch { filesToAnalyze = pathToAnalyze.findMissingFiles() }
-                            launch { allFilenames = pathToAnalyze.findUsedFilenames() }
-                            launch { allTags = pathToAnalyze.findAllTags() }
+                            launch { filesToAnalyze = ROOT_PATH.findMissingFiles() }
+                            launch { allFilenames = ROOT_PATH.findUsedFilenames() }
+                            launch { allTags = ROOT_PATH.findAllTags() }
                         }
                     }
                 }
@@ -76,7 +91,8 @@ fun main() = application {
                     it,
                     allFilenames,
                     allTags,
-                    addToAllTags = { allTags.toMutableSet().apply { add(it) }.sorted() }
+                    addToAllTags = { allTags.toMutableSet().apply { add(it) }.sorted() },
+                    nextFilesToAnalyze = { allFilenames = allFilenames.subList(1, allFilenames.size) }
                 )
             } ?: kotlin.run {
                 Column(
@@ -97,11 +113,15 @@ private fun DisplayContent(
     curImageData: Pair<Path, ImmutableImageConfig>,
     allFilenames: List<FilenameInfo>,
     allTags: List<String>,
-    addToAllTags: (String) -> Unit
+    addToAllTags: (String) -> Unit,
+    nextFilesToAnalyze: () -> Unit
 ) {
-    val (curImage, storedConfig) = curImageData
+    val (curImagePath, storedConfig) = curImageData
+    val filename = curImagePath.filenameWithoutExtension
 
-    var selectedItems by remember(curImage) { mutableStateOf(emptySet<FilenameInfo>()) }
+    var currentFilenameSelection by remember(allFilenames, filename) {
+        mutableStateOf(computeDefaultFilename(allFilenames, filename))
+    }
     var imageConfig by remember(storedConfig) { mutableStateOf(storedConfig) }
 
     Scaffold(
@@ -110,7 +130,7 @@ private fun DisplayContent(
             FloatingActionButton(
                 shape = AbsoluteRoundedCornerShape(50),
                 onClick = {
-                    selectedItems = emptySet()
+                    currentFilenameSelection = computeDefaultFilename(allFilenames, filename)
                     imageConfig = ImmutableImageConfig()
 
                 }) {
@@ -130,9 +150,9 @@ private fun DisplayContent(
                         modifier = Modifier.fillMaxWidth(),
                         items = allFilenames,
                         createItem = { FilenameInfo(it, 3) },
-                        setItemSelected = { selectedItems = setOf(it) },
-                        setItemsUnselected = { selectedItems = emptySet() },
-                        selectedItems = selectedItems
+                        setItemSelected = { currentFilenameSelection = setOf(it) },
+                        setItemsUnselected = { currentFilenameSelection = emptySet() },
+                        selectedItems = currentFilenameSelection
                     )
                 }
 
@@ -156,18 +176,33 @@ private fun DisplayContent(
                     selectedItems = imageConfig.tags,
                     createItem = { it }
                 )
+
+                Center {
+                    Button(
+                        enabled = imageConfig.title.isNotBlank() && imageConfig.tags.isNotEmpty() && currentFilenameSelection.size == 1,
+                        onClick = {
+                            val pathToStore =
+                                currentFilenameSelection.first().nextFreeFilename(curImagePath.parent, "json")
+                            imageConfig.toJson(pathToStore)
+                            nextFilesToAnalyze()
+                        }) {
+                        Icon(Icons.Default.Save, "Save")
+                        Text("Speichern", modifier = Modifier.padding(start = 8.dp))
+
+                    }
+                }
             }
 
 
             MyCard(modifier = Modifier.weight(1f, true).fillMaxWidth()) {
-                val image = remember(curImage) {
-                    Files.newInputStream(curImage).use {
+                val image = remember(curImagePath) {
+                    Files.newInputStream(curImagePath).use {
                         loadImageBitmap(it)
                     }
                 }
                 Image(
                     bitmap = image,
-                    contentDescription = curImage.filenameWithoutExtension,
+                    contentDescription = curImagePath.filenameWithoutExtension,
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -176,4 +211,19 @@ private fun DisplayContent(
     }
 }
 
+private fun computeDefaultFilename(
+    allFilenames: List<FilenameInfo>,
+    filename: FilenameWithoutExtension
+) = (allFilenames.find { filename.startsWith(it.displayName, true) }
+    ?.let { setOf(it) }
+    ?: emptySet())
 
+fun ChooseFiles(root: Path, filenameExtensionFilter: FileNameExtensionFilter, action: (path: Set<Path>) -> Unit) {
+    with(JFileChooser(root.toFile())) {
+        fileFilter = filenameExtensionFilter
+        isMultiSelectionEnabled = true
+        val returnVal = showOpenDialog(null)
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+            action(selectedFiles.asSequence().map { it.toPath() }.toSet())
+    }
+}

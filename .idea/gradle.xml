@@ -35,10 +35,6 @@
             <option value="$PROJECT_DIR$/config-ui" />
             <option value="$PROJECT_DIR$/image-access" />
             <option value="$PROJECT_DIR$/mise-utils" />
-            <option value="$PROJECT_DIR$/ui" />
-            <option value="$PROJECT_DIR$/ui/base-ui" />
-            <option value="$PROJECT_DIR$/ui/config-ui" />
-            <option value="$PROJECT_DIR$/ui/exif-ui" />
           </set>
         </option>
       </GradleProjectSettings>
