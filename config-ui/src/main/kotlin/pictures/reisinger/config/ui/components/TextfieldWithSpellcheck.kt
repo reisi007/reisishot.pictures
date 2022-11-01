@@ -1,4 +1,4 @@
-package pictures.reisinger.config.ui
+package pictures.reisinger.config.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -7,8 +7,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -19,10 +18,15 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.languagetool.JLanguageTool
 import org.languagetool.language.AustrianGerman
 import org.languagetool.rules.spelling.SpellingCheckRule
+import kotlin.time.Duration.Companion.milliseconds
 
 private val spellchecker by lazy {
     val spellchecker = JLanguageTool(AustrianGerman())
@@ -49,23 +53,37 @@ private val spellchecker by lazy {
     spellchecker
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, FlowPreview::class)
 @Composable
 fun TextFieldWithSpellcheck(
     label: String,
     value: String,
     modifier: Modifier = Modifier,
     onDone: (() -> Unit)? = null,
+    onDown: (() -> Unit)? = null,
     onFocusChanged: (FocusState) -> Unit = {},
     setValue: (String) -> Unit
 ) = Column {
-    rememberCoroutineScope().launch {
-        "".performSpellCheck() // slow init....
+
+    val scope = rememberCoroutineScope()
+    val coroutineContext = scope.coroutineContext
+    val mutableValue = remember { MutableStateFlow(value) }
+    val spellcheckErrors = remember(mutableValue) {
+        mutableValue
+            .debounce(200.milliseconds)
+            .map { it.performSpellCheck() }
     }
-    val spellcheckErrors by remember(value) { mutableStateOf(value.performSpellCheck()) }
+        .collectAsState(emptyList(), coroutineContext)
+        .value
+
     TextField(
         value,
-        setValue,
+        onValueChange = {
+            scope.launch {
+                setValue(it)
+                mutableValue.emit(it)
+            }
+        },
         modifier = modifier.then(
             Modifier.onKeyEvent {
                 when (it.key) {
@@ -73,6 +91,12 @@ fun TextFieldWithSpellcheck(
                         if (onDone != null)
                             onDone()
                         return@onKeyEvent onDone == null
+                    }
+
+                    Key.DirectionDown -> {
+                        if (onDown != null)
+                            onDown()
+                        return@onKeyEvent onDown == null
                     }
 
                     else -> true

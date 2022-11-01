@@ -1,4 +1,4 @@
-package pictures.reisinger.config.ui
+package pictures.reisinger.config.ui.model
 
 import pictures.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.commons.filenameWithoutExtension

@@ -1,4 +1,4 @@
-package pictures.reisinger.config.ui
+package pictures.reisinger.config.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row

@@ -1,4 +1,4 @@
-package pictures.reisinger.config.ui
+package pictures.reisinger.config.ui.model
 
 import kotlinx.serialization.Serializable
 

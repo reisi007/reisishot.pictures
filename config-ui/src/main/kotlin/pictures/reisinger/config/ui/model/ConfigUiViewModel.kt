@@ -1,0 +1,68 @@
+package pictures.reisinger.config.ui.model
+
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.nio.file.Path
+import kotlin.io.path.moveTo
+
+class ConfigUiViewModel {
+
+    private val mutableAllFilenames = MutableStateFlow(emptyList<FilenameInfo>())
+    private val mutableAllTags = MutableStateFlow(emptyList<String>())
+    private val filesToAnalyze = MutableStateFlow(emptyList<Pair<Path, ImmutableImageConfig>>())
+    internal val curImage = filesToAnalyze.map { it.firstOrNull() }
+
+    internal val allFilenames: StateFlow<List<FilenameInfo>>
+        get() = mutableAllFilenames
+
+    internal val allTags: StateFlow<List<String>>
+        get() = mutableAllTags
+
+    fun analyzeFiles(scope: CoroutineScope, pathsToAnalyze: Set<Path>) {
+        val commonParent: Path = pathsToAnalyze.first().parent
+
+        with(scope) {
+            launch { filesToAnalyze.emit(pathsToAnalyze.readExistingConfigFiles()) }
+            launch { mutableAllFilenames.emit(commonParent.findUsedFilenames()) }
+            launch { mutableAllTags.emit(commonParent.findAllTags()) }
+        }
+    }
+
+    fun analyzeMissingFiles(scope: CoroutineScope, path: Path): Unit = with(scope) {
+        launch { filesToAnalyze.emit(path.findMissingFiles()) }
+        launch { mutableAllFilenames.emit(path.findUsedFilenames()) }
+        launch { mutableAllTags.emit(path.findAllTags()) }
+    }
+
+
+    fun saveAndNext(imageConfig: ImmutableImageConfig, newFilename: FilenameInfo) {
+        val (curImagePath) = filesToAnalyze.value.first()
+        val isPathValid = curImagePath.toFileInfo()?.let { it == newFilename } ?: false
+        val pathToStore = if (isPathValid) {
+            curImagePath
+        } else {
+            val newPath = newFilename.nextFreeFilename(curImagePath.parent, "json")
+            val newImageLocation = newPath.withNewExtension("jpg")
+
+            curImagePath.moveTo(newImageLocation)
+
+            newPath
+        }
+
+        imageConfig.toJson(pathToStore)
+
+        filesToAnalyze.update {
+            it.subList(1, it.size)
+        }
+    }
+
+    fun addTag(newTag: String) = mutableAllTags.update {
+        it.toMutableSet()
+            .apply { add(newTag) }
+            .sorted()
+    }
+}

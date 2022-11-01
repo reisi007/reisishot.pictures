@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,7 +33,16 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import pictures.reisinger.config.ui.components.Center
+import pictures.reisinger.config.ui.components.MultiSelectWithSpellcheck
+import pictures.reisinger.config.ui.components.MyCard
+import pictures.reisinger.config.ui.components.TextFieldWithSpellcheck
+import pictures.reisinger.config.ui.components.performSpellCheck
+import pictures.reisinger.config.ui.model.ConfigUiViewModel
+import pictures.reisinger.config.ui.model.FilenameInfo
+import pictures.reisinger.config.ui.model.ImmutableImageConfig
 import pictures.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.commons.filenameWithoutExtension
 import java.nio.file.Files
@@ -41,19 +51,23 @@ import java.nio.file.Paths
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
 
-val ROOT_PATH = Paths.get(".", "input", "reisinger.pictures", "images")
+private val ROOT_PATH = Paths.get(".", "input", "reisinger.pictures", "images")
 
 fun main() = application {
+
+
     Window(
         onCloseRequest = ::exitApplication,
         title = "Config UI",
         state = rememberWindowState(width = 1080.dp, height = 1080.dp, position = WindowPosition(Alignment.Center))
     ) {
-        var allFilenames by remember { mutableStateOf(emptyList<FilenameInfo>()) }
-        var allTags by remember { mutableStateOf(emptyList<String>()) }
-        var filesToAnalyze by remember { mutableStateOf(emptyList<Pair<Path, ImmutableImageConfig>>()) }
-        val curImage by remember(filesToAnalyze) { mutableStateOf(filesToAnalyze.getOrNull(0)) }
         val scope = rememberCoroutineScope()
+        val vm = remember { ConfigUiViewModel() }
+
+        @Composable
+        fun <T> Flow<T>.collectAsStateWithLifecycle(initial: T): T {
+            return collectAsState(initial, scope.coroutineContext).value
+        }
 
         scope.launch {
             "".performSpellCheck() // slow init....
@@ -66,33 +80,28 @@ fun main() = application {
                         ChooseFiles(
                             ROOT_PATH,
                             FileNameExtensionFilter("Image files", "jpg", "jpeg")
-                        ) { pathsToAnalyze ->
-                            val commonParent: Path = pathsToAnalyze.first().parent
-                            with(scope) {
-                                launch { filesToAnalyze = pathsToAnalyze.readExistingConfigFiles() }
-                                launch { allFilenames = commonParent.findUsedFilenames() }
-                                launch { allTags = commonParent.findAllTags() }
-                            }
-                        }
+                        ) { pathsToAnalyze -> vm.analyzeFiles(scope, pathsToAnalyze) }
                     }
 
                     Item("Fehlende Configs öffnen....") {
-                        with(scope) {
-                            launch { filesToAnalyze = ROOT_PATH.findMissingFiles() }
-                            launch { allFilenames = ROOT_PATH.findUsedFilenames() }
-                            launch { allTags = ROOT_PATH.findAllTags() }
-                        }
+                        vm.analyzeMissingFiles(scope, ROOT_PATH)
                     }
                 }
             }
+
+            val curImage = vm.curImage.collectAsStateWithLifecycle(null)
+            val allFilenames = vm.allFilenames.collectAsStateWithLifecycle(emptyList())
+            val allTags = vm.allTags.collectAsStateWithLifecycle(emptyList())
 
             curImage?.let {
                 DisplayContent(
                     it,
                     allFilenames,
                     allTags,
-                    addToAllTags = { allTags.toMutableSet().apply { add(it) }.sorted() },
-                    nextFilesToAnalyze = { allFilenames = allFilenames.subList(1, allFilenames.size) }
+                    addToAllTags = { vm.addTag(it) },
+                    saveDataAndNext = { imageConfig: ImmutableImageConfig, filenameInfo: FilenameInfo ->
+                        vm.saveAndNext(imageConfig, filenameInfo)
+                    }
                 )
             } ?: kotlin.run {
                 Column(
@@ -114,7 +123,7 @@ private fun DisplayContent(
     allFilenames: List<FilenameInfo>,
     allTags: List<String>,
     addToAllTags: (String) -> Unit,
-    nextFilesToAnalyze: () -> Unit
+    saveDataAndNext: (imageConfig: ImmutableImageConfig, filenameInfo: FilenameInfo) -> Unit
 ) {
     val (curImagePath, storedConfig) = curImageData
     val filename = curImagePath.filenameWithoutExtension
@@ -128,6 +137,7 @@ private fun DisplayContent(
         modifier = Modifier.padding(12.dp).fillMaxSize(),
         floatingActionButton = {
             FloatingActionButton(
+                modifier = Modifier.padding(bottom = 32.dp),
                 shape = AbsoluteRoundedCornerShape(50),
                 onClick = {
                     currentFilenameSelection = computeDefaultFilename(allFilenames, filename)
@@ -180,12 +190,8 @@ private fun DisplayContent(
                 Center {
                     Button(
                         enabled = imageConfig.title.isNotBlank() && imageConfig.tags.isNotEmpty() && currentFilenameSelection.size == 1,
-                        onClick = {
-                            val pathToStore =
-                                currentFilenameSelection.first().nextFreeFilename(curImagePath.parent, "json")
-                            imageConfig.toJson(pathToStore)
-                            nextFilesToAnalyze()
-                        }) {
+                        onClick = { saveDataAndNext(imageConfig, currentFilenameSelection.first()) }
+                    ) {
                         Icon(Icons.Default.Save, "Save")
                         Text("Speichern", modifier = Modifier.padding(start = 8.dp))
 
