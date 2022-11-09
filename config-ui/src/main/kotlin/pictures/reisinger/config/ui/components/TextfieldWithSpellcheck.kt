@@ -108,13 +108,15 @@ fun TextFieldWithSpellcheck(
         isError = spellcheckErrors.isNotEmpty(),
         label = { Text(label) }
     )
-    if (spellcheckErrors.isNotEmpty()) {
+    if (spellcheckErrors.isNotEmpty() && value.isNotBlank()) {
         Surface(
             color = MaterialTheme.colors.error,
             modifier = Modifier.padding(4.dp)
         ) {
-            spellcheckErrors.forEach {
-                Text(it)
+            Column {
+                spellcheckErrors.forEach {
+                    Text(it)
+                }
             }
         }
     }

@@ -16,7 +16,7 @@ fun Path.toFileInfo(): FilenameInfo? = REGEX_SPLIT_FILEINFO.matchEntire(filename
 }
 
 fun FilenameInfo.buildFilenameWithoutExtension(cnt: Int): FilenameWithoutExtension =
-    displayName + cnt.toString().padStart(digitCount, ' ')
+    displayName + cnt.toString().padStart(digitCount, '0')
 
 fun FilenameInfo.nextFreeFilename(folder: Path, extension: String): Path {
     var cnt = 1

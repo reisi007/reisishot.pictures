@@ -217,10 +217,18 @@ private fun DisplayContent(
     }
 }
 
+val startsWithDayOfMonth = """^\d{2}_""".toRegex()
+
 private fun computeDefaultFilename(
     allFilenames: List<FilenameInfo>,
     filename: FilenameWithoutExtension
 ) = (allFilenames.find { filename.startsWith(it.displayName, true) }
+    ?.let {
+        if (startsWithDayOfMonth.containsMatchIn(it.displayName))
+            null
+        else
+            it
+    }
     ?.let { setOf(it) }
     ?: emptySet())
 

@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.nio.file.Path
+import kotlin.io.path.deleteIfExists
 import kotlin.io.path.moveTo
 
 class ConfigUiViewModel {
@@ -41,19 +42,20 @@ class ConfigUiViewModel {
 
     fun saveAndNext(imageConfig: ImmutableImageConfig, newFilename: FilenameInfo) {
         val (curImagePath) = filesToAnalyze.value.first()
-        val isPathValid = curImagePath.toFileInfo()?.let { it == newFilename } ?: false
-        val pathToStore = if (isPathValid) {
-            curImagePath
+        val isPathValid = curImagePath.toFileInfo()?.let { it.displayName == newFilename.displayName } ?: false
+        val pathToStoreJson = if (isPathValid) {
+            curImagePath.withNewExtension("json")
         } else {
-            val newPath = newFilename.nextFreeFilename(curImagePath.parent, "json")
-            val newImageLocation = newPath.withNewExtension("jpg")
+            val newJsonPath = newFilename.nextFreeFilename(curImagePath.parent, "json")
+            val newImageLocation = newJsonPath.withNewExtension("jpg")
+            curImagePath.withNewExtension("json").deleteIfExists()
 
             curImagePath.moveTo(newImageLocation)
 
-            newPath
+            newJsonPath
         }
 
-        imageConfig.toJson(pathToStore)
+        imageConfig.toJson(pathToStoreJson)
 
         filesToAnalyze.update {
             it.subList(1, it.size)
