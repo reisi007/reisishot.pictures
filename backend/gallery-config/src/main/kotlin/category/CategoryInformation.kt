@@ -7,9 +7,9 @@ import pictures.reisishot.mise.commons.toUrlsafeString
 
 data class CategoryInformation(
     val categoryName: CategoryName,
-    val images: Set<ExtImageInformation>,
+    val images: List<ExtImageInformation>,
     val thumbnailImage: ExtImageInformation?,
-    val subcategories: Set<CategoryInformation>,
+    val subcategories: List<CategoryInformation>,
     val visible: Boolean
 
 ) {

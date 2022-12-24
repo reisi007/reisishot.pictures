@@ -5,6 +5,7 @@ import pictures.reisishot.mise.backend.config.LocaleProvider
 import pictures.reisishot.mise.commons.CategoryName
 import pictures.reisishot.mise.commons.ConcurrentSet
 import pictures.reisishot.mise.commons.FilenameWithoutExtension
+import pictures.reisishot.mise.exifdata.ExifdataKey
 
 interface CategoryComputable {
     val complexName: String
@@ -24,15 +25,16 @@ interface CategoryComputable {
 fun CategoryComputable.toCategoryInformation(): CategoryInformation {
     val mappedSubcategories =
         if (subcategories.size == 1)
-            emptySet()
+            emptyList()
         else
             subcategories.asSequence()
                 .map { it.toCategoryInformation() }
-                .toSet()
+                .sortedBy { it.categoryName.sortKey }
+                .toList()
 
     return CategoryInformation(
         categoryName,
-        images,
+        images.sortedByDescending { it.exifInformation[ExifdataKey.CREATION_DATETIME] },
         defaultImage?.let { di ->
             images.find { it.filename == di }
                 ?: error("Image $di cannot be found in category $categoryName")

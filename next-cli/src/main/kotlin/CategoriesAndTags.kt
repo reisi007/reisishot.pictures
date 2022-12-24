@@ -17,6 +17,7 @@ import pictures.reisishot.mise.commons.isJpeg
 import pictures.reisishot.mise.commons.list
 import pictures.reisishot.mise.commons.withChild
 import pictures.reisishot.mise.config.ImageConfig
+import pictures.reisishot.mise.exifdata.ExifdataKey
 import pictures.reisishot.mise.exifdata.readExif
 import pictures.reisishot.mise.json.fromJson
 import pictures.reisishot.mise.json.toJson
@@ -36,12 +37,12 @@ suspend fun Path.computeImagesAndTags() {
         .flatMap { it.flatten() }
         .map { category ->
             category.urlFragment to CategoryData(
-                category.categoryName.complexName,
+                category.categoryName.displayName,
                 category.images.map { it.filename },
                 category.subcategories.map {
                     SubcategoryInformation(
                         it.urlFragment,
-                        it.categoryName.complexName,
+                        it.categoryName.displayName,
                         (it.thumbnailImage ?: it.images.first()).filename
                     )
                 }
@@ -88,7 +89,6 @@ private suspend fun Path.buildImageInformation(): ConcurrentMap<FilenameWithoutE
 }
 
 private fun buildCategories(imageInformationData: ConcurrentMap<FilenameWithoutExtension, ExtImageInformation>): CategoryInformationRoot {
-
     val images = imageInformationData.values.toList()
 
     return PrivateConfig.CATEGORY_CONFIG.computeCategoryInformation(
@@ -103,7 +103,7 @@ private fun buildCategories(imageInformationData: ConcurrentMap<FilenameWithoutE
 
 private suspend fun buildTags(
     imageInformationData: ConcurrentMap<FilenameWithoutExtension, ExtImageInformation>,
-): ConcurrentMap<TagInformation, out Set<ExtImageInformation>> {
+): Map<TagInformation, List<ExtImageInformation>> {
     val internalImageInformation = imageInformationData.values.toList()
     PrivateConfig.TAG_CONFIG.computeTags(internalImageInformation)
 
@@ -116,7 +116,12 @@ private suspend fun buildTags(
 
     }
 
-    return map
+    return map.asSequence()
+        .map { (key, value) ->
+            key to value.sortedByDescending { it.exifInformation[ExifdataKey.CREATION_DATETIME] }
+        }.toMap()
+
+
 }
 
 
