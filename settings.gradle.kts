@@ -25,6 +25,7 @@ include("backend:runner")
 include("mise-utils")
 // Meta Subproject for all uis
 include("config-ui")
+include("next-cli")
 
 pluginManagement {
     // https://kotlinlang.org/releases.html#release-details

@@ -35,6 +35,7 @@
             <option value="$PROJECT_DIR$/config-ui" />
             <option value="$PROJECT_DIR$/image-access" />
             <option value="$PROJECT_DIR$/mise-utils" />
+            <option value="$PROJECT_DIR$/next-cli" />
           </set>
         </option>
       </GradleProjectSettings>

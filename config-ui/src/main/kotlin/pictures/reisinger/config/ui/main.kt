@@ -51,7 +51,7 @@ import java.nio.file.Paths
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
 
-private val ROOT_PATH = Paths.get(".", "input", "reisinger.pictures", "images")
+private val ROOT_PATH = Paths.get("..", "..", "Github", "gallery-next", "public", "images")
 
 fun main() = application {
 

@@ -18,6 +18,7 @@ import kotlin.io.path.exists
 import kotlin.math.max
 
 fun Path.findUsedFilenames() = list()
+    .filter { it.isRegularFile() && it.fileExtension.isJpeg() }
     .mapNotNull { it.toFileInfo() }
     .groupingBy { it.displayName }
     .fold({ _, v -> v.digitCount }, { _, current, v -> max(current, v.digitCount) })
@@ -27,13 +28,13 @@ fun Path.findUsedFilenames() = list()
     .toList()
 
 fun Path.findMissingFiles() = list()
-    .filter { it.fileExtension.isJpeg() }
+    .filter { it.isRegularFile() && it.fileExtension.isJpeg() }
     .filter { !it.resolveSibling(it.filenameWithoutExtension + ".json").exists() }
     .map { it to ImmutableImageConfig() }
     .toList()
 
 fun Path.findAllTags() = list()
-    .filter { it.fileExtension.isJson() }
+    .filter { it.isRegularFile() && it.fileExtension.isJson() && it.withNewExtension("jpg").exists() }
     .mapNotNull { it.fromJson<ImageConfig>() }
     .flatMap { it.tags }
     .sorted()
