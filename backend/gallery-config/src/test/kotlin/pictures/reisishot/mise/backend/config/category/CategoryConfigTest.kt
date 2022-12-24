@@ -2,7 +2,7 @@ package pictures.reisishot.mise.backend.config.category
 
 import at.reisishot.mise.commons.testfixtures.softAssert
 import org.junit.jupiter.api.Test
-import pictures.reisishot.mise.backend.config.ImageInformation
+import pictures.reisishot.mise.backend.config.ExtImageInformation
 import pictures.reisishot.mise.backend.config.LocaleProvider
 import pictures.reisishot.mise.commons.concurrentSetOf
 import pictures.reisishot.mise.commons.toTypedArray
@@ -57,7 +57,7 @@ class CategoryConfigTest {
         .map { Char('A'.code + (it - 1)).toString() }
 
     private fun CategoryConfigRoot.computeCategories(
-        charImages: List<ImageInformation>
+        charImages: List<ExtImageInformation>
     ) =
         computeCategoryInformation(
             charImages,

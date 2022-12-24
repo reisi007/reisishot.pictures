@@ -1,6 +1,6 @@
 package pictures.reisishot.mise.backend.config.category
 
-import pictures.reisishot.mise.backend.config.ImageInformation
+import pictures.reisishot.mise.backend.config.ExtImageInformation
 import pictures.reisishot.mise.backend.config.LocaleProvider
 import pictures.reisishot.mise.commons.CategoryName
 import pictures.reisishot.mise.commons.ConcurrentSet
@@ -10,13 +10,13 @@ interface CategoryComputable {
     val complexName: String
     val categoryName: CategoryName
     val defaultImage: FilenameWithoutExtension?
-    val images: ConcurrentSet<ImageInformation>
+    val images: ConcurrentSet<ExtImageInformation>
     val subcategories: MutableSet<CategoryComputable>
     val visible: Boolean
         get() = true
 
     fun matchImage(
-        imageToProcess: ImageInformation,
+        imageToProcess: ExtImageInformation,
         localeProvider: LocaleProvider
     )
 }
@@ -45,7 +45,7 @@ fun CategoryComputable.toCategoryInformation(): CategoryInformation {
 internal abstract class NoOpComputable : CategoryComputable {
     override val defaultImage: FilenameWithoutExtension? = null
 
-    override fun matchImage(imageToProcess: ImageInformation, localeProvider: LocaleProvider) {
+    override fun matchImage(imageToProcess: ExtImageInformation, localeProvider: LocaleProvider) {
         error("No implementation needed as DateCategoryComputable does the computation")
     }
 }

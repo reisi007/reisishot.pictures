@@ -1,6 +1,6 @@
 package pictures.reisishot.mise.backend.config.tags.computable
 
-import pictures.reisishot.mise.backend.config.ImageInformation
+import pictures.reisishot.mise.backend.config.ExtImageInformation
 import pictures.reisishot.mise.backend.config.TagConfigDsl
 import pictures.reisishot.mise.backend.config.tags.TagComputable
 import pictures.reisishot.mise.backend.config.tags.TagConfig
@@ -14,7 +14,7 @@ class ExifTagComputable : TagComputable {
         const val TAG_LENS = "LENS"
     }
 
-    override fun processImage(imageInformation: ImageInformation) {
+    override fun processImage(imageInformation: ExtImageInformation) {
         val camera = imageInformation.exifInformation[ExifdataKey.CAMERA_MODEL]
         val lens = imageInformation.exifInformation[ExifdataKey.LENS_MODEL]
         if (camera == null || lens == null) return

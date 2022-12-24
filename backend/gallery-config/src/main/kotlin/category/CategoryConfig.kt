@@ -2,7 +2,7 @@ package pictures.reisishot.mise.backend.config.category
 
 import kotlinx.coroutines.runBlocking
 import pictures.reisishot.mise.backend.config.CategoryConfigDsl
-import pictures.reisishot.mise.backend.config.ImageInformation
+import pictures.reisishot.mise.backend.config.ExtImageInformation
 import pictures.reisishot.mise.backend.config.LocaleProvider
 import pictures.reisishot.mise.commons.CategoryName
 import pictures.reisishot.mise.commons.FilenameWithoutExtension
@@ -22,11 +22,11 @@ class CategoryConfig(
 ) : CategoryComputable {
     private var matcher: CategoryMatcher? = null
     override val subcategories: MutableSet<CategoryComputable> = mutableSetOf()
-    override val images: MutableSet<ImageInformation> = concurrentSetOf()
+    override val images: MutableSet<ExtImageInformation> = concurrentSetOf()
     override val categoryName by lazy { CategoryName(complexName) }
 
     override fun matchImage(
-        imageToProcess: ImageInformation,
+        imageToProcess: ExtImageInformation,
         localeProvider: LocaleProvider
     ) {
         // Depth first
@@ -57,10 +57,10 @@ class CategoryConfig(
 }
 
 typealias CategoryConfigRoot = MutableSet<CategoryComputable>
-typealias CategoryMatcher = (ImageInformation) -> Boolean
+typealias CategoryMatcher = (ExtImageInformation) -> Boolean
 
 fun CategoryConfigRoot.computeCategoryInformation(
-    imagesToProcess: List<ImageInformation>,
+    imagesToProcess: List<ExtImageInformation>,
     localeProvider: LocaleProvider
 ): CategoryInformationRoot {
     runBlocking {

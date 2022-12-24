@@ -1,6 +1,6 @@
 package pictures.reisishot.mise.backend.config.category.computable
 
-import pictures.reisishot.mise.backend.config.ImageInformation
+import pictures.reisishot.mise.backend.config.ExtImageInformation
 import pictures.reisishot.mise.backend.config.LocaleProvider
 import pictures.reisishot.mise.backend.config.category.CategoryComputable
 import pictures.reisishot.mise.backend.config.category.NoOpComputable
@@ -8,8 +8,9 @@ import pictures.reisishot.mise.commons.CategoryName
 import pictures.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.commons.concurrentSetOf
 import pictures.reisishot.mise.exifdata.ExifdataKey
+import java.time.LocalDateTime
 import java.time.Month
-import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
@@ -30,15 +31,15 @@ class DateCategoryComputable(
     override val subcategories: MutableSet<CategoryComputable>
         get() = yearSubcategoryMap.values.toMutableSet()
 
-    override val images: MutableSet<ImageInformation> = concurrentSetOf()
+    override val images: MutableSet<ExtImageInformation> = concurrentSetOf()
     override val categoryName by lazy { CategoryName(complexName) }
     override val defaultImage: FilenameWithoutExtension? = defaultImages[Triple(null, null, null)]
     override val visible: Boolean
         get() = false
 
-    override fun matchImage(imageToProcess: ImageInformation, localeProvider: LocaleProvider) {
+    override fun matchImage(imageToProcess: ExtImageInformation, localeProvider: LocaleProvider) {
         val captureDate = imageToProcess.exifInformation[ExifdataKey.CREATION_DATETIME]
-            ?.let { ZonedDateTime.parse(it) } ?: return
+            ?.let { LocalDateTime.from(DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse(it)) } ?: return
 
         val yearMatcher = yearSubcategoryMap
             .computeIfAbsent(captureDate.year) {
@@ -89,7 +90,7 @@ private class YearMatcher(
     override val complexName = "$baseName/$year"
 
     override val categoryName: CategoryName by lazy { CategoryName(complexName) }
-    override val images: MutableSet<ImageInformation> = concurrentSetOf()
+    override val images: MutableSet<ExtImageInformation> = concurrentSetOf()
     override val defaultImage: FilenameWithoutExtension? by lazy {
         defaultImages[Triple(year, null, null)]
     }
@@ -114,7 +115,7 @@ private class MonthMatcher(
             displayName = month.getDisplayName(TextStyle.FULL, locale) + " " + year
         )
     }
-    override val images: MutableSet<ImageInformation> = concurrentSetOf()
+    override val images: MutableSet<ExtImageInformation> = concurrentSetOf()
     override val defaultImage: FilenameWithoutExtension? by lazy {
         defaultImages[Triple(year, month, null)]
     }
@@ -140,12 +141,12 @@ private class DayMatcher(
         CategoryName(
             complexName,
             displayName = dayString + ". " +
-                month.getDisplayName(TextStyle.FULL, locale) + " " +
-                year
+                    month.getDisplayName(TextStyle.FULL, locale) + " " +
+                    year
         )
     }
 
-    override val images: MutableSet<ImageInformation> = concurrentSetOf()
+    override val images: MutableSet<ExtImageInformation> = concurrentSetOf()
     override val defaultImage: FilenameWithoutExtension? by lazy {
         defaultImages[Triple(year, month, day)]
     }
