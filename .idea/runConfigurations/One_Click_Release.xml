@@ -8,8 +8,6 @@
     </tasks>
     <arguments>--target &quot;reisinger.pictures&quot;</arguments>
     <envs />
-    <method v="2">
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="[PROD] Generate reisishot.pictures" run_configuration_type="JetRunConfigurationType" />
-    </method>
+    <method v="2" />
   </configuration>
 </component>

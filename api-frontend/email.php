@@ -11,8 +11,8 @@ if (sendMail($inputJSON)) {
 
 function sendMail($inputJSON)
 {
-    $from = safeString($inputJSON["E-Mail"]);
-    $betreff = safeString($inputJSON["Betreff"]);
+    $from = safeString($inputJSON["email"]);
+    $betreff = safeString($inputJSON["subject"]);
     $to = "florian@reisinger.pictures";
     // To send HTML mail, the Content-type header must be set
     $headers = 'MIME-Version: 1.0' . "\r\n";

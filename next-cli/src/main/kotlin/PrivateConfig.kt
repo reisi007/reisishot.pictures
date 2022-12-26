@@ -41,6 +41,7 @@ object PrivateConfig {
                 "Michelle Kohlbauer",
                 "Chrisi Music",
                 "Susanne Zopf",
+                "Sandra F"
             )
 
             "Mann" to arrayOf(
