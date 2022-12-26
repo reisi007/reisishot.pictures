@@ -15,6 +15,7 @@ import java.time.LocalDateTime
 import java.time.Month
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 class DateCategoryComputableTest {
 
@@ -74,7 +75,7 @@ class DateCategoryComputableTest {
                     ZonedDateTime.of(
                         LocalDateTime.of(year, month, dayOfMonth, hour, minute, second),
                         ZoneId.systemDefault()
-                    ).toString()
+                    ).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         )
 
         return buildImageInformation(exifInformation = exif)
