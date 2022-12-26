@@ -6,7 +6,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.messageContains
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import pictures.reisishot.mise.backend.config.ImageInformation
+import pictures.reisishot.mise.backend.config.ExtImageInformation
 import pictures.reisishot.mise.backend.config.category.CategoryComputable
 import pictures.reisishot.mise.config.TestGermanLocaleProvider
 import pictures.reisishot.mise.config.buildImageInformation
@@ -15,6 +15,7 @@ import java.time.LocalDateTime
 import java.time.Month
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 class DateCategoryComputableTest {
 
@@ -68,13 +69,13 @@ class DateCategoryComputableTest {
         hour: Int = 3,
         minute: Int = 4,
         second: Int = 5
-    ): ImageInformation {
+    ): ExtImageInformation {
         val exif = mapOf(
             ExifdataKey.CREATION_DATETIME to
-                ZonedDateTime.of(
-                    LocalDateTime.of(year, month, dayOfMonth, hour, minute, second),
-                    ZoneId.systemDefault()
-                ).toString()
+                    ZonedDateTime.of(
+                        LocalDateTime.of(year, month, dayOfMonth, hour, minute, second),
+                        ZoneId.systemDefault()
+                    ).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         )
 
         return buildImageInformation(exifInformation = exif)

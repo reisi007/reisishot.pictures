@@ -4,10 +4,10 @@ import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.commons.toUrlsafeString
 
 @Serializable
-class TagInformation(val name: String, val type: String = "MANUAL") : Comparator<TagInformation> {
+class TagInformation(val name: String, val type: String = "MANUAL") : Comparable<TagInformation> {
     val url by lazy { name.toUrlsafeString().lowercase() }
 
-    override fun compare(o1: TagInformation?, o2: TagInformation?): Int = o1!!.name.compareTo(o2!!.name)
+    override fun compareTo(other: TagInformation): Int = name.compareTo(other.name)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

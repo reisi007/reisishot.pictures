@@ -6,14 +6,11 @@ import assertk.assertions.messageContains
 import at.reisishot.mise.commons.testfixtures.softAssert
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import pictures.reisishot.mise.backend.config.ImageInformation
+import pictures.reisishot.mise.backend.config.ExtImageInformation
 import pictures.reisishot.mise.backend.config.tags.TagInformation
 import pictures.reisishot.mise.backend.config.tags.computable.ExifTagComputable
-import pictures.reisishot.mise.commons.ConcurrentSet
-import pictures.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.commons.concurrentSetOf
 import pictures.reisishot.mise.config.TestGermanLocaleProvider
-import pictures.reisishot.mise.exifdata.ExifdataKey
 
 class CameraLensCategoryComputableTest {
 
@@ -64,7 +61,7 @@ class CameraLensCategoryComputableTest {
         }
     }
 
-    private fun computeSubcategories(image: ImageInformation) =
+    private fun computeSubcategories(image: ExtImageInformation) =
         CameraLensCategoryComputable("Test").let {
             it.matchImage(image, TestGermanLocaleProvider)
             val camera = it.subcategories.firstOrNull()
@@ -77,17 +74,12 @@ class CameraLensCategoryComputableTest {
     fun createImageInformation(
         cameraName: String? = "Canon M50m2",
         lensName: String? = "EF 85mm f/1.8 USM"
-    ): ImageInformation {
+    ): ExtImageInformation {
         val tags = concurrentSetOf<TagInformation>().apply {
             cameraName?.let { add(TagInformation(it, ExifTagComputable.TAG_CAMERA)) }
             lensName?.let { add(TagInformation(it, ExifTagComputable.TAG_LENS)) }
         }
 
-        return object : ImageInformation {
-            override val filename: FilenameWithoutExtension = "Image"
-            override val categories: ConcurrentSet<String> = concurrentSetOf()
-            override val tags: ConcurrentSet<TagInformation> = tags
-            override val exifInformation: Map<ExifdataKey, String> = emptyMap()
-        }
+        return ExtImageInformation("Image", concurrentSetOf(), tags, emptyMap())
     }
 }

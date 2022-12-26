@@ -1,6 +1,6 @@
 package pictures.reisishot.mise.backend.config.category.computable
 
-import pictures.reisishot.mise.backend.config.ImageInformation
+import pictures.reisishot.mise.backend.config.ExtImageInformation
 import pictures.reisishot.mise.backend.config.LocaleProvider
 import pictures.reisishot.mise.backend.config.category.CategoryComputable
 import pictures.reisishot.mise.backend.config.category.NoOpComputable
@@ -28,14 +28,14 @@ class CameraLensCategoryComputable(
         get() = (if (baseName == null) "" else "${baseName.trim()}/") + name.trim()
     override val categoryName by lazy { CategoryName(complexName) }
     override val defaultImage: FilenameWithoutExtension? by lazy { defaultImages[null to null] }
-    override val images: ConcurrentSet<ImageInformation> = concurrentSetOf()
+    override val images: ConcurrentSet<ExtImageInformation> = concurrentSetOf()
     override val subcategories: MutableSet<CategoryComputable>
         get() = cameraMap.values.toMutableSet()
     override val visible: Boolean
         get() = false
     private val cameraMap = ConcurrentHashMap<String, CameraMatcher>()
 
-    override fun matchImage(imageToProcess: ImageInformation, localeProvider: LocaleProvider) {
+    override fun matchImage(imageToProcess: ExtImageInformation, localeProvider: LocaleProvider) {
         val found = imageToProcess.tags.asSequence()
             .filter { it.type == TAG_CAMERA || it.type == TAG_LENS }
             .map { it.type to it.name }
@@ -79,7 +79,7 @@ private class CameraMatcher(
     override val categoryName: CategoryName by lazy {
         CategoryName(complexName, "${(LOTS_OF_IMAGES - images.size)}$cameraName", cameraName)
     }
-    override val images: ConcurrentSet<ImageInformation> = concurrentSetOf()
+    override val images: ConcurrentSet<ExtImageInformation> = concurrentSetOf()
     override val defaultImage: FilenameWithoutExtension? by lazy { defaultImages[cameraName to null] }
     override val subcategories: MutableSet<CategoryComputable>
         get() = lensMap.values.toMutableSet()
@@ -97,7 +97,7 @@ private class CameraLensMatcher(
     override val categoryName: CategoryName by lazy {
         CategoryName(complexName, "${(LOTS_OF_IMAGES - images.size)}$cameraName", "$cameraName und dem $lensName")
     }
-    override val images: ConcurrentSet<ImageInformation> = concurrentSetOf()
+    override val images: ConcurrentSet<ExtImageInformation> = concurrentSetOf()
     override val defaultImage: FilenameWithoutExtension? by lazy { defaultImages[cameraName to lensName] }
     override val subcategories: MutableSet<CategoryComputable> = mutableSetOf()
 }

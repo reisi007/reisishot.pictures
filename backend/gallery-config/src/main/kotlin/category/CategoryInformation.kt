@@ -1,16 +1,15 @@
 package pictures.reisishot.mise.backend.config.category
 
-import kotlinx.serialization.Serializable
-import pictures.reisishot.mise.backend.config.ImageInformation
+import pictures.reisishot.mise.backend.config.ExtImageInformation
 import pictures.reisishot.mise.commons.CategoryName
 import pictures.reisishot.mise.commons.toUrlsafeString
 
-@Serializable
+
 data class CategoryInformation(
     val categoryName: CategoryName,
-    val images: Set<ImageInformation>,
-    val thumbnailImage: ImageInformation?,
-    val subcategories: Set<CategoryInformation>,
+    val images: List<ExtImageInformation>,
+    val thumbnailImage: ExtImageInformation?,
+    val subcategories: List<CategoryInformation>,
     val visible: Boolean
 
 ) {

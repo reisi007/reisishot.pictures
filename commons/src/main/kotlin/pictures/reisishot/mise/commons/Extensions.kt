@@ -47,10 +47,9 @@ infix fun Path.withChild(fileOrFolder: Path): Path = resolve(fileOrFolder)
 inline fun <T> Path.useBufferedReader(callable: (BufferedReader) -> T): T =
     Files.newBufferedReader(this, Charsets.UTF_8).use(callable)
 
-val Path.fileModifiedDateTime: ZonedDateTime?
-    get() = if (Files.exists(this) && Files.isRegularFile(this))
-        Files.getLastModifiedTime(this).toInstant().atZone(ZoneId.systemDefault())
-    else null
+val Path.fileModifiedDateTime: ZonedDateTime
+    get() = Files.getLastModifiedTime(this).toInstant().atZone(ZoneId.systemDefault())
+
 
 val Path.filenameWithoutExtension: FilenameWithoutExtension
     get() = fileName.toString().filenameWithoutExtension

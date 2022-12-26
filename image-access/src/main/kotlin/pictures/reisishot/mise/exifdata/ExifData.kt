@@ -13,8 +13,6 @@ import com.drew.metadata.jpeg.JpegDirectory
 import com.drew.metadata.webp.WebpDirectory
 import java.nio.file.Path
 import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 enum class ExifdataKey(val getValue: (ExifInformation) -> String?) {
@@ -33,8 +31,7 @@ enum class ExifdataKey(val getValue: (ExifInformation) -> String?) {
     FOCAL_LENGTH({ it.exifSubIFDDescriptor?.focalLengthDescription }),
     CREATION_DATETIME({
         it.exifSubIFDDescriptor?.creationTimeDescription?.let { creationTime ->
-            ZonedDateTime.of(LocalDateTime.from(exifDateTimeFormatter.parse(creationTime)), ZoneId.systemDefault())
-                .toString()
+            LocalDateTime.from(exifDateTimeFormatter.parse(creationTime)).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         }
     }),
     APERTURE({ it.exifSubIFDDescriptor?.apertureValueDescription }),
@@ -95,7 +92,7 @@ class ExifInformation(metadata: Metadata) {
 
     override fun toString(): String {
         return "ExifInformation(jpegDescriptor=$jpegDescriptor, exifD0Descriptor=$exifD0Descriptor," +
-            " exifSubIFDDescriptor=$exifSubIFDDescriptor, fileSystemDescriptor=$fileSystemDescriptor)"
+                " exifSubIFDDescriptor=$exifSubIFDDescriptor, fileSystemDescriptor=$fileSystemDescriptor)"
     }
 }
 
@@ -104,12 +101,14 @@ val defaultExifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey
         ExifdataKey.LENS_MODEL -> {
             mapLensModel(cur)
         }
+
         ExifdataKey.CAMERA_MODEL -> {
             when (cur.second) {
                 "Canon EOS M50m2" -> ExifdataKey.CAMERA_MODEL to "Canon EOS M50 Mark II"
                 else -> cur
             }
         }
+
         else -> cur
     }
 }
@@ -119,27 +118,31 @@ private fun mapLensModel(cur: Pair<ExifdataKey, String?>) =
         "105.0 mm", "105mm", "105 mm", "105 mm mm" -> ExifdataKey.LENS_MODEL to "Sigma 105mm EX DG OS HSM"
         "147.0 mm", "147mm", "147 mm", "147 mm mm" ->
             ExifdataKey.LENS_MODEL to
-                "Sigma 105mm EX DG OS HSM + 1.4 Sigma EX APO DG Telekonverter"
+                    "Sigma 105mm EX DG OS HSM + 1.4 Sigma EX APO DG Telekonverter"
+
         "56mm F1.4 DC DN" -> ExifdataKey.LENS_MODEL to "Sigma $value"
         else -> if (value != null && value.contains(" |"))
             cur.first to value.substringBefore(" |")
         else cur
     }
 
-fun Path.readExif(exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = { it }): MutableMap<ExifdataKey, String> =
-    mutableMapOf<ExifdataKey, String>().apply {
-        ExifInformation(ImageMetadataReader.readMetadata(this@readExif.toFile()))
-            .let { exifInformation ->
-                ExifdataKey.values().forEach { key ->
-                    val exifValue = key.getValue(exifInformation)
-                    exifReplaceFunction(key to exifValue)
-                        .also { (key, possibleValue) ->
-                            if (possibleValue != null)
-                                put(key, possibleValue)
-                        }
-                }
+fun Path.readExif(
+    exifReplaceFunction: (Pair<ExifdataKey, String?>) -> Pair<ExifdataKey, String?> = defaultExifReplaceFunction,
+    more: ExifInformation.() -> Unit = {}
+): MutableMap<ExifdataKey, String> = mutableMapOf<ExifdataKey, String>().apply {
+    ExifInformation(ImageMetadataReader.readMetadata(this@readExif.toFile()))
+        .let { exifInformation ->
+            more(exifInformation)
+            ExifdataKey.values().forEach { key ->
+                val exifValue = key.getValue(exifInformation)
+                exifReplaceFunction(key to exifValue)
+                    .also { (key, possibleValue) ->
+                        if (possibleValue != null)
+                            put(key, possibleValue)
+                    }
             }
-    }
+        }
+}
 
 val WebpDirectory.width
     get() = getInt(WebpDirectory.TAG_IMAGE_WIDTH)

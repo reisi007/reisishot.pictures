@@ -24,3 +24,6 @@ fun FileExtension.isTemp() = contains('~')
 
 fun Path.hasExtension(vararg predicates: (FileExtension) -> Boolean) = predicates.any { it(fileExtension) }
 fun Path.hasExtension(predicates: List<(FileExtension) -> Boolean>) = predicates.any { it(fileExtension) }
+
+
+fun Path.withNewExtension(newExtension: String): Path = resolveSibling("$filenameWithoutExtension.$newExtension")

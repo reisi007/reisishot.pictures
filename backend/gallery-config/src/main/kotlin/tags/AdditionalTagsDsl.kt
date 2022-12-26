@@ -1,6 +1,6 @@
 package pictures.reisishot.mise.backend.config.tags
 
-import pictures.reisishot.mise.backend.config.ImageInformation
+import pictures.reisishot.mise.backend.config.ExtImageInformation
 import pictures.reisishot.mise.backend.config.TagConfigDsl
 import java.util.concurrent.ConcurrentSkipListSet
 
@@ -41,7 +41,7 @@ fun TagConfig.additionalTags(action: AdditionalTagConfigBuilder.() -> Unit) {
 
     withComputable {
         object : TagComputable {
-            override fun processImage(imageInformation: ImageInformation) {
+            override fun processImage(imageInformation: ExtImageInformation) {
                 val original = imageInformation.tags.toSet()
                 original.forEach { sourceTag ->
                     additionalTagConfig[sourceTag.name]?.let { newTags ->
