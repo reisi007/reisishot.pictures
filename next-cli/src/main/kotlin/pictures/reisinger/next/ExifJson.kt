@@ -1,3 +1,5 @@
+package pictures.reisinger.next
+
 import com.drew.metadata.jpeg.JpegDirectory
 import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.commons.fileExtension

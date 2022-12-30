@@ -13,8 +13,6 @@ interface CategoryComputable {
     val defaultImage: FilenameWithoutExtension?
     val images: ConcurrentSet<ExtImageInformation>
     val subcategories: MutableSet<CategoryComputable>
-    val visible: Boolean
-        get() = true
 
     fun matchImage(
         imageToProcess: ExtImageInformation,
@@ -39,8 +37,7 @@ fun CategoryComputable.toCategoryInformation(): CategoryInformation {
             images.find { it.filename == di }
                 ?: error("Image $di cannot be found in category $categoryName")
         } ?: images.lastOrNull() ?: throw IllegalStateException("$categoryName is empty"),
-        mappedSubcategories,
-        visible
+        mappedSubcategories
     )
 }
 

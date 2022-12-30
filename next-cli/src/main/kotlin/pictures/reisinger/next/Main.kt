@@ -1,3 +1,5 @@
+package pictures.reisinger.next
+
 import kotlinx.coroutines.runBlocking
 import java.nio.file.Paths
 
