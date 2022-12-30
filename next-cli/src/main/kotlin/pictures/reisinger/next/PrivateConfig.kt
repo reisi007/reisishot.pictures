@@ -1,3 +1,5 @@
+package pictures.reisinger.next
+
 import pictures.reisishot.mise.backend.config.category.buildCategoryConfig
 import pictures.reisishot.mise.backend.config.category.buildExcludeMatcher
 import pictures.reisishot.mise.backend.config.category.buildIncludeSubdirectoriesMatcher

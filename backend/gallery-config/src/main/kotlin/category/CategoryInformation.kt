@@ -9,9 +9,7 @@ data class CategoryInformation(
     val categoryName: CategoryName,
     val images: List<ExtImageInformation>,
     val thumbnailImage: ExtImageInformation?,
-    val subcategories: List<CategoryInformation>,
-    val visible: Boolean
-
+    val subcategories: List<CategoryInformation>
 ) {
     fun flatten(): Sequence<CategoryInformation> =
         sequenceOf(this) + subcategories.asSequence().flatMap { it.flatten() }

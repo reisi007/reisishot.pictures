@@ -34,8 +34,6 @@ class DateCategoryComputable(
     override val images: MutableSet<ExtImageInformation> = concurrentSetOf()
     override val categoryName by lazy { CategoryName(complexName) }
     override val defaultImage: FilenameWithoutExtension? = defaultImages[Triple(null, null, null)]
-    override val visible: Boolean
-        get() = false
 
     override fun matchImage(imageToProcess: ExtImageInformation, localeProvider: LocaleProvider) {
         val captureDate = imageToProcess.exifInformation[ExifdataKey.CREATION_DATETIME]

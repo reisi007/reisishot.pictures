@@ -1,3 +1,5 @@
+package pictures.reisinger.next
+
 import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.config.ExtImageInformation
 import pictures.reisishot.mise.backend.config.ImageInformation
@@ -15,6 +17,7 @@ import pictures.reisishot.mise.commons.filenameWithoutExtension
 import pictures.reisishot.mise.commons.forEachParallel
 import pictures.reisishot.mise.commons.isJpeg
 import pictures.reisishot.mise.commons.list
+import pictures.reisishot.mise.commons.toUrlsafeString
 import pictures.reisishot.mise.commons.withChild
 import pictures.reisishot.mise.config.ImageConfig
 import pictures.reisishot.mise.exifdata.ExifdataKey
@@ -32,7 +35,8 @@ suspend fun Path.computeImagesAndTags() {
     val categories = buildCategories(imageInformation)
 
     val tagJson = tagInformation.asSequence().map { (k, v) -> k.url to TagInfo(k.name, v.map { it.filename }) }.toMap()
-    val imagesJson = imageInformation.asSequence().map { (key, value) -> key to value.toImageInformation() }.toMap()
+    val imagesJson =
+        imageInformation.asSequence().map { (key, value) -> key.lowercase() to value.toImageInformation() }.toMap()
     val categoryJson = categories.asSequence()
         .flatMap { it.flatten() }
         .map { category ->
@@ -48,14 +52,31 @@ suspend fun Path.computeImagesAndTags() {
                 }
             )
         }.toMap()
+
+    val rootCategories = categories.asSequence()
+        .map {
+            SubcategoryInformation(
+                it.urlFragment,
+                it.categoryName.displayName,
+                (it.thumbnailImage ?: it.images.first()).filename
+            )
+        }
+        .toList()
+
     val outPath = resolveSibling("..").withChild("private")
     imagesJson.toJson(outPath.withChild("images.json"))
     tagJson.toJson(outPath.withChild("tags.json"))
     categoryJson.toJson(outPath.withChild("categories.json"))
+    rootCategories.toJson(outPath.withChild("rootCategories.json"))
+
 }
 
 private fun ExtImageInformation.toImageInformation() =
-    ImageInformation(filename, categories, tags.asSequence().map { it.url }.toSet())
+    ImageInformation(
+        filename,
+        categories.asSequence().map { it.toUrlsafeString().lowercase() }.toSet(),
+        tags.asSequence().map { it.url }.toSet()
+    )
 
 private suspend fun Path.buildImageInformation(): ConcurrentMap<FilenameWithoutExtension, ExtImageInformation> {
     val imageInformationData = concurrentSkipListMap<FilenameWithoutExtension, ExtImageInformation>()
