@@ -4,10 +4,12 @@ import kotlinx.coroutines.runBlocking
 import pictures.reisishot.mise.backend.config.CategoryConfigDsl
 import pictures.reisishot.mise.backend.config.ExtImageInformation
 import pictures.reisishot.mise.backend.config.LocaleProvider
+import pictures.reisishot.mise.backend.config.NameWithUrl
 import pictures.reisishot.mise.commons.CategoryName
 import pictures.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.commons.concurrentSetOf
 import pictures.reisishot.mise.commons.forEachParallel
+import pictures.reisishot.mise.commons.toUrlsafeString
 
 fun CategoryConfigRoot.toCategoryInformation(): CategoryInformationRoot =
     asSequence()
@@ -40,7 +42,10 @@ class CategoryConfig(
 
         if (addImage) {
             images += imageToProcess
-            imageToProcess.categories += complexName
+            imageToProcess.categories += NameWithUrl(
+                categoryName.displayName,
+                complexName.toUrlsafeString().lowercase()
+            )
         }
     }
 

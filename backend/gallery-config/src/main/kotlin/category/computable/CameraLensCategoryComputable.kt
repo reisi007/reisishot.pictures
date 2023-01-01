@@ -2,6 +2,7 @@ package pictures.reisishot.mise.backend.config.category.computable
 
 import pictures.reisishot.mise.backend.config.ExtImageInformation
 import pictures.reisishot.mise.backend.config.LocaleProvider
+import pictures.reisishot.mise.backend.config.NameWithUrl
 import pictures.reisishot.mise.backend.config.category.CategoryComputable
 import pictures.reisishot.mise.backend.config.category.NoOpComputable
 import pictures.reisishot.mise.backend.config.tags.computable.ExifTagComputable.Companion.TAG_CAMERA
@@ -61,7 +62,10 @@ class CameraLensCategoryComputable(
 
         sequenceOf(this, cameraMatcher, lensMatcher).forEach {
             it.images += imageToProcess
-            imageToProcess.categories += it.complexName
+            imageToProcess.categories +=  NameWithUrl(
+                it.categoryName.displayName,
+                it.complexName.toUrlsafeString().lowercase()
+            )
         }
     }
 }
