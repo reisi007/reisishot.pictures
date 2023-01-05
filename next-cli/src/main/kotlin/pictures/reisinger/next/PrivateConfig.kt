@@ -88,7 +88,7 @@ object PrivateConfig {
         withComputedSubCategories("Ausrüstung") {
             CameraLensCategoryComputable(it) {
                 mapOf(
-                    Pair(null, null) to "Eichhörnchen002",
+                    Pair(null, null) to "Eichhoernchen002",
                     Pair("Canon EOS M50", null) to "Wien009"
                 )
             }

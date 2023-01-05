@@ -1,17 +1,10 @@
 rootProject.name = "My website (reisishot.pictures)"
-// Utils
-include("commons")
-include("image-access")
-// Split up backend dependencies
-include("backend:gallery-config")
-include("backend:website-config")
-include("backend:root")
-// Projects (depend on utils but not on each other)
+
 include("backend")
-include("backend:runner")
-include("mise-utils")
-// Meta Subproject for all uis
+include("commons")
 include("config-ui")
+include("image-access")
+include("mise-utils")
 include("next-cli")
 
 pluginManagement {
@@ -34,9 +27,8 @@ enableFeaturePreview("VERSION_CATALOGS")
 dependencyResolutionManagement {
     // Kotlin & KotlinX versions
     val kotlinVersion: String by extra
-    val kotlinxCoroutinesVersion = "1.6.2"
-    val kotlinxSerializationVersion = "1.3.2"
-    val kotlinxHtmlVersion = "0.7.5"
+    val kotlinxCoroutinesVersion = "1.6.4"
+    val kotlinxSerializationVersion = "1.4.1"
 
     // Testing library versions
     val assertKVersion = "0.25"
@@ -45,11 +37,7 @@ dependencyResolutionManagement {
 
     // Other libraries
     val metadataExtractor = "2.18.0"
-    val velocityVersion = "2.3"
-    val flexmarkVersion = "0.64.0"
-    val jimFsVersion = "1.2"
-    val tornadoFxVersion = "1.7.20"
-    val languagetoolVersion = "5.7"
+    val languagetoolVersion = "5.9"
     val composeVersion = "1.2.0"
 
     versionCatalogs {
@@ -59,9 +47,8 @@ dependencyResolutionManagement {
             version("jacocolog", "2.0.0")
             version("compose", "1.2.0")
 
-            library("kotlin.stdlib", "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
+            library("kotlin.stdlib", "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}")
             library("kotlinx.coroutines", "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:${kotlinxCoroutinesVersion}")
-            library("kotlinx.html", "org.jetbrains.kotlinx:kotlinx-html-jvm:${kotlinxHtmlVersion}")
             library(
                 "kotlinx.serialization.json",
                 "org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlinxSerializationVersion}"
@@ -73,10 +60,6 @@ dependencyResolutionManagement {
             library("junit.params", "org.junit.jupiter:junit-jupiter-params:$junitVersion")
             library("junit.engine", "org.junit.jupiter:junit-jupiter-engine:$junitVersion")
             library("images.metadataextractor", "com.drewnoakes:metadata-extractor:${metadataExtractor}")
-            library("apache.velocity.engine", "org.apache.velocity:velocity-engine-core:${velocityVersion}")
-            library("flexmark", "com.vladsch.flexmark:flexmark-all:${flexmarkVersion}")
-            library("google.jimfs", "com.google.jimfs:jimfs:${jimFsVersion}")
-            library("javafx.tornadofx", "no.tornado:tornadofx:${tornadoFxVersion}")
             library("languagetool.de", "org.languagetool:language-de:${languagetoolVersion}")
             library(
                 "compose.material.icons.extended",

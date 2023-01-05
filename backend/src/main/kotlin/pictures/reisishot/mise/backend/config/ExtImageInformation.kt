@@ -2,7 +2,6 @@ package pictures.reisishot.mise.backend.config
 
 import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.config.tags.TagInformation
-import pictures.reisishot.mise.commons.ComplexName
 import pictures.reisishot.mise.commons.ConcurrentSet
 import pictures.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.exifdata.ExifdataKey
@@ -23,4 +22,4 @@ open class ImageInformation(
 )
 
 @Serializable
-data class NameWithUrl(val name:String,val url:String)
+data class NameWithUrl(val name: String, val url: String)

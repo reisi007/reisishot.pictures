@@ -1,5 +1,6 @@
 package pictures.reisishot.mise.backend.config.category.computable
 
+
 import pictures.reisishot.mise.backend.config.ExtImageInformation
 import pictures.reisishot.mise.backend.config.LocaleProvider
 import pictures.reisishot.mise.backend.config.NameWithUrl

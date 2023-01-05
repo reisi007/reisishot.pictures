@@ -1,9 +1,5 @@
 package pictures.reisinger.next
 
-import java.nio.file.Path
-import java.util.Locale
-import java.util.concurrent.ConcurrentMap
-import kotlin.io.path.exists
 import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.config.ExtImageInformation
 import pictures.reisishot.mise.backend.config.ImageInformation
@@ -29,6 +25,10 @@ import pictures.reisishot.mise.exifdata.ExifdataKey
 import pictures.reisishot.mise.exifdata.readExif
 import pictures.reisishot.mise.json.fromJson
 import pictures.reisishot.mise.json.toJson
+import java.nio.file.Path
+import java.util.Locale
+import java.util.concurrent.ConcurrentMap
+import kotlin.io.path.exists
 
 suspend fun Path.computeImagesAndTags() {
     val imageInformation = buildImageInformation()
@@ -37,7 +37,8 @@ suspend fun Path.computeImagesAndTags() {
 
     val tagJson = tagInformation.asSequence().map { (k, v) -> k.url to TagInfo(k.name, v.map { it.filename }) }.toMap()
     val imagesJson =
-        imageInformation.asSequence().map { (key, value) -> key.lowercase() to value.toImageInformation() }.toMap()
+        imageInformation.asSequence()
+            .map { (key, value) -> key.toUrlsafeString().lowercase() to value.toImageInformation() }.toMap()
     val categoryJson = categories.asSequence()
         .flatMap { it.flatten() }
         .map { category ->
