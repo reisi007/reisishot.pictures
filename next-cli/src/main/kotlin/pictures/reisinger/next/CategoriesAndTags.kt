@@ -35,10 +35,12 @@ suspend fun Path.computeImagesAndTags() {
     val tagInformation = buildTags(imageInformation)
     val categories = buildCategories(imageInformation)
 
-    val tagJson = tagInformation.asSequence().map { (k, v) -> k.url to TagInfo(k.name, v.map { it.filename }) }.toMap()
-    val imagesJson =
-        imageInformation.asSequence()
-            .map { (key, value) -> key.toUrlsafeString().lowercase() to value.toImageInformation() }.toMap()
+    val tagJson = tagInformation.asSequence()
+        .map { (k, v) -> k.url to TagInfo(k.name, v.map { it.filename }) }
+        .toMap()
+    val imagesJson = imageInformation.asSequence()
+        .map { (key, value) -> key.toUrlsafeString().lowercase() to value.toImageInformation() }
+        .toMap()
     val categoryJson = categories.asSequence()
         .flatMap { it.flatten() }
         .map { category ->
