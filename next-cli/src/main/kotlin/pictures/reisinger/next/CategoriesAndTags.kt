@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import pictures.reisishot.mise.backend.config.ExtImageInformation
 import pictures.reisishot.mise.backend.config.ImageInformation
 import pictures.reisishot.mise.backend.config.LocaleProvider
+import pictures.reisishot.mise.backend.config.NameWithUrl
 import pictures.reisishot.mise.backend.config.category.CategoryInformationRoot
 import pictures.reisishot.mise.backend.config.category.computeCategoryInformation
 import pictures.reisishot.mise.backend.config.tags.TagInformation
@@ -34,9 +35,12 @@ suspend fun Path.computeImagesAndTags() {
     val tagInformation = buildTags(imageInformation)
     val categories = buildCategories(imageInformation)
 
-    val tagJson = tagInformation.asSequence().map { (k, v) -> k.url to TagInfo(k.name, v.map { it.filename }) }.toMap()
-    val imagesJson =
-        imageInformation.asSequence().map { (key, value) -> key.lowercase() to value.toImageInformation() }.toMap()
+    val tagJson = tagInformation.asSequence()
+        .map { (k, v) -> k.url to TagInfo(k.name, v.map { it.filename }) }
+        .toMap()
+    val imagesJson = imageInformation.asSequence()
+        .map { (key, value) -> key.toUrlsafeString().lowercase() to value.toImageInformation() }
+        .toMap()
     val categoryJson = categories.asSequence()
         .flatMap { it.flatten() }
         .map { category ->
@@ -74,8 +78,8 @@ suspend fun Path.computeImagesAndTags() {
 private fun ExtImageInformation.toImageInformation() =
     ImageInformation(
         filename,
-        categories.asSequence().map { it.toUrlsafeString().lowercase() }.toSet(),
-        tags.asSequence().map { it.url }.toSet()
+        categories,
+        tags.asSequence().map { NameWithUrl(it.name, it.url) }.toSet()
     )
 
 private suspend fun Path.buildImageInformation(): ConcurrentMap<FilenameWithoutExtension, ExtImageInformation> {

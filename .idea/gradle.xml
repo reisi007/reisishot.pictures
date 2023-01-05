@@ -13,10 +13,6 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/backend" />
-            <option value="$PROJECT_DIR$/backend/gallery-config" />
-            <option value="$PROJECT_DIR$/backend/root" />
-            <option value="$PROJECT_DIR$/backend/runner" />
-            <option value="$PROJECT_DIR$/backend/website-config" />
             <option value="$PROJECT_DIR$/commons" />
             <option value="$PROJECT_DIR$/config-ui" />
             <option value="$PROJECT_DIR$/image-access" />

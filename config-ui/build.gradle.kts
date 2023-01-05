@@ -1,5 +1,5 @@
 plugins {
-    id("org.jetbrains.compose") version "1.2.0"
+    id("org.jetbrains.compose") version "1.3.0-rc01"
 }
 
 repositories {

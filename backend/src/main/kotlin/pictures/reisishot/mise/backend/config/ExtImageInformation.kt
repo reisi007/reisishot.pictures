@@ -9,7 +9,7 @@ import pictures.reisishot.mise.exifdata.ExifdataKey
 
 class ExtImageInformation(
     val filename: FilenameWithoutExtension,
-    val categories: ConcurrentSet<String>,
+    val categories: ConcurrentSet<NameWithUrl>,
     val tags: ConcurrentSet<TagInformation>,
     val exifInformation: Map<ExifdataKey, String>,
 )
@@ -17,7 +17,9 @@ class ExtImageInformation(
 @Serializable
 open class ImageInformation(
     val filename: FilenameWithoutExtension,
-    val categories: Set<String>,
-    val tags: Set<String>,
+    val categories: Set<NameWithUrl>,
+    val tags: Set<NameWithUrl>,
 )
 
+@Serializable
+data class NameWithUrl(val name: String, val url: String)

@@ -1,12 +1,15 @@
 package pictures.reisishot.mise.backend.config.category.computable
 
+
 import pictures.reisishot.mise.backend.config.ExtImageInformation
 import pictures.reisishot.mise.backend.config.LocaleProvider
+import pictures.reisishot.mise.backend.config.NameWithUrl
 import pictures.reisishot.mise.backend.config.category.CategoryComputable
 import pictures.reisishot.mise.backend.config.category.NoOpComputable
 import pictures.reisishot.mise.commons.CategoryName
 import pictures.reisishot.mise.commons.FilenameWithoutExtension
 import pictures.reisishot.mise.commons.concurrentSetOf
+import pictures.reisishot.mise.commons.toUrlsafeString
 import pictures.reisishot.mise.exifdata.ExifdataKey
 import java.time.LocalDateTime
 import java.time.Month
@@ -75,7 +78,10 @@ class DateCategoryComputable(
 
         sequenceOf(this, yearMatcher, monthMatcher, dayMatcher).forEach {
             it.images += imageToProcess
-            imageToProcess.categories += it.complexName
+            imageToProcess.categories += NameWithUrl(
+                it.categoryName.displayName,
+                it.complexName.toUrlsafeString().lowercase()
+            )
         }
     }
 }
