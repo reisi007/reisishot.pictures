@@ -16,6 +16,12 @@ dependencies {
     // https://mvnrepository.com/artifact/androidx.compose.material/material-icons-extended
     implementation(libs.compose.material.icons.extended)
 
+    configurations.all {
+        resolutionStrategy {
+            // Force correct guava version
+            force("com.google.guava:guava:31.1-jre")
+        }
+    }
 }
 
 compose.desktop {
