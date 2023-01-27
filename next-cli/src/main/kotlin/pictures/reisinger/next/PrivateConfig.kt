@@ -255,12 +255,16 @@ object PrivateConfig {
                     includeTagsAndSubcategories("Beachvolleyball")
                 }
 
-                withSubCategory("Floorball") {
-                    includeTagsAndSubcategories("Floorball")
+                withSubCategory("Basketball") {
+                    includeTagsAndSubcategories("Basketball")
                 }
 
                 withSubCategory("Eishockey") {
                     includeTagsAndSubcategories("Eishockey")
+                }
+
+                withSubCategory("Floorball") {
+                    includeTagsAndSubcategories("Floorball")
                 }
 
                 withSubCategory("Tanz") {
@@ -272,6 +276,10 @@ object PrivateConfig {
 
                     withSubCategory("Breaking") {
                         includeTagsAndSubcategories("Breakdance")
+                    }
+
+                    withSubCategory("Cheerdance") {
+                        includeTagsAndSubcategories("Cheerleading")
                     }
                 }
 
