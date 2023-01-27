@@ -2,7 +2,7 @@
   <configuration default="false" name="next-cli" type="JetRunConfigurationType">
     <option name="MAIN_CLASS_NAME" value="pictures.reisinger.next.MainKt" />
     <module name="My_website_(reisishot.pictures).next-cli.main" />
-    <option name="PROGRAM_PARAMETERS" value="C:\Github\gallery-next\public\images" />
+    <option name="PROGRAM_PARAMETERS" value="C:\Github\gallery-next\private\images" />
     <shortenClasspath name="NONE" />
     <method v="2">
       <option name="Make" enabled="true" />

@@ -132,5 +132,5 @@ private fun <T> DropdownItems(displayItems: List<T>, onSelection: (T) -> Unit, f
 private fun <T> List<T>.filterBySearchText(text: String): List<T> {
     if (text.isBlank())
         return this
-    return filter { it.toString().startsWith(text, ignoreCase = true) }
+    return filter { it.toString().contains(text, ignoreCase = true) }
 }

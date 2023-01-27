@@ -43,7 +43,8 @@ object PrivateConfig {
                 "Michelle Kohlbauer",
                 "Chrisi Music",
                 "Susanne Zopf",
-                "Sandra F"
+                "Sandra F",
+                "Christiane Pfaffenwimmer"
             )
 
             "Mann" to arrayOf(
@@ -75,11 +76,15 @@ object PrivateConfig {
 
             "Steel Wings Linz" withTags "Eishockey"
 
+            "Black Wings Linz" withTags "Eishockey"
+
             "Teichralle" withTags "Vogel"
 
             "Motorsport" withTags "Sport"
 
             "Eidechse" withTags "Tier"
+
+            "ACSL Cheer" withTags "Cheerleading"
         }
     }
 
@@ -250,12 +255,16 @@ object PrivateConfig {
                     includeTagsAndSubcategories("Beachvolleyball")
                 }
 
-                withSubCategory("Floorball") {
-                    includeTagsAndSubcategories("Floorball")
+                withSubCategory("Basketball") {
+                    includeTagsAndSubcategories("Basketball")
                 }
 
                 withSubCategory("Eishockey") {
                     includeTagsAndSubcategories("Eishockey")
+                }
+
+                withSubCategory("Floorball") {
+                    includeTagsAndSubcategories("Floorball")
                 }
 
                 withSubCategory("Tanz") {
@@ -268,24 +277,28 @@ object PrivateConfig {
                     withSubCategory("Breaking") {
                         includeTagsAndSubcategories("Breakdance")
                     }
+
+                    withSubCategory("Cheerdance") {
+                        includeTagsAndSubcategories("Cheerleading")
+                    }
                 }
 
                 withSubCategory("Flunkyball") {
                     includeTagsAndSubcategories("Flunkyball")
                 }
 
-                withSubCategory("Pole - Aerial Silk - Hoop"){
+                withSubCategory("Pole - Aerial Silk - Hoop") {
                     includeSubcategories()
 
-                    withSubCategory("Pole"){
+                    withSubCategory("Pole") {
                         includeTagsAndSubcategories("Poledance")
                     }
 
-                    withSubCategory("Aerial Silk"){
+                    withSubCategory("Aerial Silk") {
                         includeTagsAndSubcategories("Aerial Silk")
                     }
 
-                    withSubCategory("Hoop"){
+                    withSubCategory("Hoop") {
                         includeTagsAndSubcategories("Hoop")
                     }
                 }

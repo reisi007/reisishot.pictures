@@ -52,15 +52,6 @@ subprojects {
             xml.required.set(true)
             html.required.set(false)
         }
-        classDirectories.setFrom(
-            files(
-                classDirectories.files.map {
-                    fileTree(it) {
-                        exclude("pictures/reisishot/velocity/**")
-                    }
-                }
-            )
-        )
     }
 
     tasks.test {
@@ -87,14 +78,6 @@ subprojects {
         cur.apply {
             kotlinOptions.jvmTarget = jvmTarget
         }
-    }
-
-    compileJava.apply {
-        options.compilerArgs = listOf(
-            "-g",
-            "--add-exports", "java.base/java.util=ALL-UNNAMED"
-        )
-        options.isDebug = true
     }
 
     java.sourceCompatibility = javaVersion

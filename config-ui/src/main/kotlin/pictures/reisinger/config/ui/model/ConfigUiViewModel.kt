@@ -62,6 +62,13 @@ class ConfigUiViewModel {
         filesToAnalyze.update {
             it.subList(1, it.size)
         }
+
+        mutableAllFilenames.update { old ->
+            (old.asSequence() + newFilename)
+                .sortedBy { it.displayName }
+                .distinctBy { it.displayName }
+                .toList()
+        }
     }
 
     fun addTag(newTag: String) = mutableAllTags.update {

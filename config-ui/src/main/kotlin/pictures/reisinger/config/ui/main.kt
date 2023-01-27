@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,7 +52,7 @@ import java.nio.file.Paths
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
 
-private val ROOT_PATH = Paths.get("..", "..", "Github", "gallery-next", "public", "images")
+private val ROOT_PATH = Paths.get("..", "..", "Github", "gallery-next", "private", "images")
 
 fun main() = application {
 
@@ -128,9 +129,8 @@ private fun DisplayContent(
     val (curImagePath, storedConfig) = curImageData
     val filename = curImagePath.filenameWithoutExtension
 
-    var currentFilenameSelection by remember(allFilenames, filename) {
-        mutableStateOf(computeDefaultFilename(allFilenames, filename))
-    }
+    var currentFilenameSelection by mutableStateOf(computeDefaultFilename(allFilenames, filename))
+
     var imageConfig by remember(storedConfig) { mutableStateOf(storedConfig) }
 
     Scaffold(
